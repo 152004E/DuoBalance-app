@@ -1,5 +1,7 @@
 # Plan — What's Left to Implement (Frontend)
 
+> **Nota:** El despliegue en tiendas de aplicaciones ocurre ÚNICAMENTE cuando el proyecto alcance estado beta. Hasta entonces todo corre en localhost con Expo Go.
+
 ## Legend
 - ❌ Not Started
 
@@ -51,4 +53,11 @@
 - [❌] i18n (multi-language)
 - [❌] Offline support
 - [❌] App icon + splash screen
-- [❌] App store submission (iOS + Android)
+
+## Phase 9: Deployment — Beta
+> Todo el desarrollo previo corre en localhost con Expo Go. Solo al llegar a beta se despliega.
+- [❌] Conectar con backend desplegado (URL de producción)
+- [❌] Generar APK con EAS Build (`eas build --platform android`)
+- [❌] Pruebas en dispositivo físico con APK
+- [❌] App store submission (Google Play)
+- [❌] Preparar versión iOS (App Store)
