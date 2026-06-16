@@ -6,7 +6,7 @@
 git clone <repo-url>
 cd DuoBalance-app
 pnpm install
-npx expo start
+pnpm start
 ```
 
 ## Development Workflow
@@ -20,51 +20,74 @@ npx expo start
 
 3. **Run the app**:
    ```bash
-   npx expo start          # Start dev server
-   npx expo start --ios    # iOS simulator
-   npx expo start --android # Android emulator
+   pnpm start           # Start dev server
+   pnpm ios             # iOS simulator
+   pnpm android         # Android emulator
+   pnpm web             # Web browser
    ```
 
-4. **Commit** with conventional commit format:
+4. **Lint and type-check**:
+   ```bash
+   pnpm lint
+   pnpm tsc --noEmit
+   ```
+
+5. **Commit** with conventional commit format:
    ```
    feat: add expense list screen
    fix: correct balance display on dashboard
    chore: update Expo SDK version
    ```
 
-5. **Push and create a PR** to `main`
+6. **Push and create a PR** to `main`
 
 ## Code Review Checklist
 - [ ] Follows React Native best practices
+- [ ] Uses NativeWind `className` for styling
 - [ ] No `any` types
 - [ ] Proper error handling (try/catch in API calls)
 - [ ] Loading states handled
 - [ ] Responsive layout (different screen sizes)
 - [ ] Dark mode compatible
-- [ ] Passes lint checks
+- [ ] Passes `pnpm lint` and `pnpm tsc --noEmit`
 
 ## Standards
 - **TypeScript** strict mode
 - **No `export default`** — always named exports
 - **Functional components** with hooks (no class components)
 - **Custom hooks** for data fetching logic
-- **StyleSheet.create** for styles (not inline styles)
+- **NativeWind** for styles (`className` prop, avoid `StyleSheet.create`)
 - **Async/await** for API calls
-- **pnpm** as package manager
+- **pnpm** as package manager (do not use npm, yarn, or bun)
 
 ## Project Structure
 ```
 DuoBalance-app/
 ├── src/
-│   ├── screens/       # Screen components (one per route)
+│   ├── app/           # Expo Router (file-based routing)
 │   ├── components/    # Reusable UI components
-│   ├── hooks/         # Custom React hooks
+│   ├── features/      # Feature modules
 │   ├── services/      # API client and external services
-│   ├── context/       # React Context providers
-│   ├── navigation/    # Navigation configuration
-│   ├── types/         # TypeScript interfaces
-│   └── theme/         # Colors, typography, spacing
+│   ├── hooks/         # Custom React hooks
+│   ├── utils/         # Utilities
+│   ├── constants/     # Config, themes, constants
+│   ├── types/         # TypeScript interfaces and declarations
+│   └── assets/        # Static resources
+├── assets/            # App assets (images, icons)
+└── docs/              # Project documentation
 ```
+
+## Import Aliases
+
+| Alias             | Destino            |
+|-------------------|--------------------|
+| `@/`              | `./src/*`          |
+| `@/assets/*`      | `./assets/*`       |
+| `@components/*`   | `./src/components/*` |
+| `@features/*`     | `./src/features/*`   |
+| `@services/*`     | `./src/services/*`   |
+| `@utils/*`        | `./src/utils/*`      |
+| `@types/*`        | `./src/types/*`      |
 
 ## Need Help?
 Check `docs/` directory for detailed documentation on architecture, data structures, and roadmap.

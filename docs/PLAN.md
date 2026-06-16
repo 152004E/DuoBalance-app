@@ -3,15 +3,20 @@
 > **Nota:** El despliegue en tiendas de aplicaciones ocurre ÚNICAMENTE cuando el proyecto alcance estado beta. Hasta entonces todo corre en localhost con Expo Go.
 
 ## Legend
+- ✅ Done
 - ❌ Not Started
 
 ## Phase 1: Foundation
-- [❌] Expo project init (`npx create-expo-app`)
-- [❌] TypeScript config
-- [❌] Navigation setup (React Navigation stack + tabs)
-- [❌] Theme configuration (colors, typography, spacing)
-- [❌] API client (axios instance with interceptors for auth)
-- [❌] Environment config (API base URL)
+- [✅] Expo project init (`create-expo-app` with SDK 56)
+- [✅] TypeScript strict mode config
+- [✅] Navigation setup (Expo Router file-based routing)
+- [✅] Styling config (NativeWind v4 + Tailwind CSS v3)
+- [✅] Theme configuration (colors, typography, spacing)
+- [✅] ESLint + Prettier integration
+- [✅] Import aliases (`@components/*`, `@features/*`, etc.)
+- [✅] Environment config (`.env` with `EXPO_PUBLIC_*` prefix)
+- [❌] API client (axios/fetch instance with interceptors for auth)
+- [❌] Secure token storage (expo-secure-store)
 
 ## Phase 2: Auth Screens
 - [❌] Login screen (email + password form)
@@ -52,7 +57,7 @@
 - [❌] Dark mode
 - [❌] i18n (multi-language)
 - [❌] Offline support
-- [❌] App icon + splash screen
+- [❌] App icon + splash screen (template defaults exist)
 
 ## Phase 9: Deployment — Beta
 > Todo el desarrollo previo corre en localhost con Expo Go. Solo al llegar a beta se despliega.

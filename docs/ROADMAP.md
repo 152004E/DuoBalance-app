@@ -1,14 +1,19 @@
 # Roadmap — Mobile App Release Phases
 
 ## Phase 0: Foundation (v0.1) — Current
-**Goal**: Bootstrapped Expo project with navigation skeleton
-- [ ] Expo project init
-- [ ] React Navigation setup
-- [ ] Theme config
-- [ ] API client stub
-- [ ] Empty screen shells
+**Goal**: Bootstrapped Expo project with routing, styling, and tooling
+- [✅] Expo project init (SDK 56)
+- [✅] Expo Router file-based routing
+- [✅] NativeWind + Tailwind CSS config
+- [✅] TypeScript strict mode
+- [✅] ESLint + Prettier config
+- [✅] Import aliases
+- [✅] Environment variables setup
+- [❌] Auth screens
+- [❌] API client stub
+- [❌] Feature screens
 
-**Estimated**: 1-2 weeks
+**Estimated**: Completed
 
 ---
 
@@ -79,13 +84,13 @@
 ## Timeline
 
 ```
-v0.1  ████████████░░░░░░░░░░░░░░░░░░  (Foundation — next)
-v0.2  ░░░░░░░░░░░░████░░░░░░░░░░░░░░  (Auth)
-v0.3  ░░░░░░░░░░░░░░░░████████░░░░░░  (Expenses)
-v0.4  ░░░░░░░░░░░░░░░░░░░░██████░░░░  (Dashboard)
-v0.5  ░░░░░░░░░░░░░░░░░░░░░░░░████░░  (Receipts)
-v0.6  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░██  (Payments)
-v1.0  ████████████████████████████████  (Production)
+v0.1  ████████████████████████████████  (Foundation — COMPLETE)
+v0.2  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Auth — next)
+v0.3  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Expenses)
+v0.4  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Dashboard)
+v0.5  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Receipts)
+v0.6  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Payments)
+v1.0  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Production)
 ```
 
 **Total estimated time to v1.0**: 12-18 weeks

@@ -1,99 +1,81 @@
 # Architecture & Project Structure
 
-## Tech Stack (Planned)
-- **Frontend**: React Native + Expo
-- **Language**: TypeScript
-- **Navigation**: React Navigation
+## Tech Stack
+- **Frontend**: React Native + Expo SDK 56
+- **Language**: TypeScript 6
+- **Navigation**: Expo Router (file-based routing)
+- **Styling**: NativeWind v4 + Tailwind CSS v3
 - **State**: Local state + context
-- **API Client**: Axios or fetch wrapper
-- **Secure Storage**: expo-secure-store
-- **Image Capture**: expo-image-picker / expo-camera
+- **API Client**: fetch wrapper (planned)
+- **Secure Storage**: expo-secure-store (planned)
+- **Image Capture**: expo-image-picker / expo-camera (planned)
 - **Package Manager**: pnpm
 
 ## Current State
 
-The mobile app is a **git stub** — no source files yet. Only exists:
-
-```
-DuoBalance-app/
-├── README.md       Project description
-└── .git/           Git metadata
-```
-
-## Directory Structure (Planned)
+The mobile app is initialized with Expo SDK 56 and fully configured:
 
 ```
 DuoBalance-app/
 ├── src/
-│   ├── App.tsx                    Root component with NavigationContainer
-│   ├── navigation/
-│   │   └── AppNavigator.tsx       Stack/Tab navigator
+│   ├── app/                    Expo Router (file-based routing)
+│   │   ├── _layout.tsx         Root layout (imports global.css)
+│   │   ├── index.tsx           Home screen (NativeWind styles)
+│   │   └── explore.tsx         Explore screen (from template)
 │   │
-│   ├── screens/
-│   │   ├── auth/
-│   │   │   ├── LoginScreen.tsx
-│   │   │   └── RegisterScreen.tsx
-│   │   ├── home/
-│   │   │   └── DashboardScreen.tsx
-│   │   ├── expenses/
-│   │   │   ├── ExpenseListScreen.tsx
-│   │   │   ├── AddExpenseScreen.tsx
-│   │   │   └── ExpenseDetailScreen.tsx
-│   │   ├── receipts/
-│   │   │   └── ReceiptCaptureScreen.tsx
-│   │   └── profile/
-│   │       ├── ProfileScreen.tsx
-│   │       └── CoupleSettingsScreen.tsx
+│   ├── components/             Reusable UI components
+│   │   ├── animated-icon.tsx
+│   │   ├── app-tabs.tsx
+│   │   ├── external-link.tsx
+│   │   ├── hint-row.tsx
+│   │   ├── themed-text.tsx
+│   │   ├── themed-view.tsx
+│   │   ├── web-badge.tsx
+│   │   └── ui/
+│   │       └── collapsible.tsx
 │   │
-│   ├── components/
-│   │   ├── common/
-│   │   │   ├── Button.tsx
-│   │   │   ├── Input.tsx
-│   │   │   ├── Card.tsx
-│   │   │   └── Loading.tsx
-│   │   ├── expenses/
-│   │   │   ├── ExpenseCard.tsx
-│   │   │   └── SplitPicker.tsx
-│   │   ├── balance/
-│   │   │   ├── BalanceSummary.tsx
-│   │   │   └── BalanceChart.tsx
-│   │   └── receipts/
-│   │       └── ReceiptPreview.tsx
-│   │
-│   ├── context/
-│   │   ├── AuthContext.tsx
-│   │   └── ThemeContext.tsx
-│   │
-│   ├── services/
-│   │   └── api.ts                  API client (axios instance + interceptors)
+│   ├── constants/
+│   │   ├── config.ts           App configuration (env vars)
+│   │   └── theme.ts            Colors, typography, spacing
 │   │
 │   ├── hooks/
-│   │   ├── useAuth.ts
-│   │   ├── useExpenses.ts
-│   │   └── useReceipts.ts
+│   │   ├── use-color-scheme.ts
+│   │   ├── use-color-scheme.web.ts
+│   │   └── use-theme.ts
 │   │
-│   ├── types/
-│   │   └── index.ts                Shared TypeScript interfaces
-│   │
-│   └── theme/
-│       └── index.ts                Colors, typography, spacing
+│   ├── features/               Feature modules (empty, ready)
+│   ├── services/                API client (empty, ready)
+│   ├── utils/                  Utilities (empty, ready)
+│   ├── types/                  TypeScript types
+│   │   └── global.d.ts         CSS module declarations + NativeWind types
+│   ├── assets/                 Static resources (empty, ready)
+│   └── global.css              Tailwind directives
 │
-├── assets/
-│   └── images/
-├── app.json
+├── assets/                     App assets (images, icons)
+├── docs/                       Project documentation
+├── app.json                    Expo configuration
+├── babel.config.js             Babel + NativeWind preset
+├── metro.config.js             Metro + NativeWind config
+├── tailwind.config.js          Tailwind CSS configuration
+├── tsconfig.json               TypeScript paths + strict mode
+├── eslint.config.js            ESLint flat config
+├── .prettierrc                 Prettier + Tailwind plugin
+├── .prettierignore
+├── .env / .env.example         Environment variables
+├── nativewind-env.d.ts         NativeWind type declarations
 ├── package.json
-└── tsconfig.json
+└── pnpm-lock.yaml
 ```
 
 ## Screen Flow (Planned)
 
 ```
-AppNavigator
-├── AuthStack (not authenticated)
+AppNavigator (Expo Router)
+├── AuthGroup (not authenticated) — planned
 │   ├── LoginScreen
 │   └── RegisterScreen
 │
-└── MainTabs (authenticated)
+└── MainTabs (authenticated) — planned
     ├── DashboardTab
     │   └── DashboardScreen
     ├── ExpensesTab
@@ -112,14 +94,15 @@ AppNavigator
 ```
 Screen
   └─ hook (useExpenses)
-      └─ api.ts (axios)
+      └─ api.ts (fetch/axios)
           └─ duobalance-api (HTTP)
               └─ PostgreSQL
 ```
 
-## Design Patterns (Planned)
+## Design Patterns
+- **File-based routing** with Expo Router
 - **Custom hooks** for data fetching and mutations
-- **Context** for auth state and theme
+- **NativeWind** for styling (Tailwind classes via `className`)
+- **Context** for auth state and theme (planned)
 - **Component composition** over inheritance
-- **Props-based** component API
-- **Separated API layer** — all HTTP calls through `services/api.ts`
+- **Separated API layer** — all HTTP calls through `src/services/`
