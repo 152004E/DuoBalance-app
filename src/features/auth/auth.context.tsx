@@ -48,7 +48,7 @@ export function AuthProvider({ children }: Props) {
       const savedUser = await userStorage.get();
 
       if (token && savedUser) {
-        setUser(savedUser);
+        setUser(savedUser as User);
         return;
       }
 

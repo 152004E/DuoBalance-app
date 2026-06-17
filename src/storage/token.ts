@@ -1,40 +1,43 @@
+import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
+
+const isWeb = Platform.OS === 'web';
 
 const KEYS = {
   ACCESS_TOKEN: 'duobalance_access_token',
   USER: 'duobalance_user',
 } as const;
 
-export const tokenStorage = {
-  async get() {
-    return SecureStore.getItemAsync(KEYS.ACCESS_TOKEN);
-  },
+function createStorage<T>(key: string) {
+  return {
+    async get(): Promise<T | null> {
+      if (isWeb) {
+        const data = localStorage.getItem(key);
+        return data ? JSON.parse(data) : null;
+      }
+      const data = await SecureStore.getItemAsync(key);
+      return data ? JSON.parse(data) : null;
+    },
 
-  async set(token: string) {
-    return SecureStore.setItemAsync(KEYS.ACCESS_TOKEN, token);
-  },
+    async set(value: T) {
+      const data = JSON.stringify(value);
+      if (isWeb) {
+        localStorage.setItem(key, data);
+        return;
+      }
+      return SecureStore.setItemAsync(key, data);
+    },
 
-  async remove() {
-    return SecureStore.deleteItemAsync(KEYS.ACCESS_TOKEN);
-  },
-};
+    async remove() {
+      if (isWeb) {
+        localStorage.removeItem(key);
+        return;
+      }
+      return SecureStore.deleteItemAsync(key);
+    },
+  };
+}
 
-export const userStorage = {
-  async get() {
-    const data = await SecureStore.getItemAsync(KEYS.USER);
+export const tokenStorage = createStorage<string>(KEYS.ACCESS_TOKEN);
 
-    if (!data) {
-      return null;
-    }
-
-    return JSON.parse(data);
-  },
-
-  async set(user: unknown) {
-    return SecureStore.setItemAsync(KEYS.USER, JSON.stringify(user));
-  },
-
-  async remove() {
-    return SecureStore.deleteItemAsync(KEYS.USER);
-  },
-};
+export const userStorage = createStorage<unknown>(KEYS.USER);

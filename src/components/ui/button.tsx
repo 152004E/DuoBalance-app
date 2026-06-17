@@ -1,12 +1,12 @@
 import { useRef, useEffect } from 'react';
 import { Pressable, Text, View, ActivityIndicator, Animated } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, type Href } from 'expo-router';
 
 type LoadingType = 'spinner' | 'dots' | 'pulse';
 type ButtonVariant = 'primary' | 'success' | 'error' | 'secondary';
 
 interface ButtonProps {
-  to?: string;
+  to?: Href;
   text: string;
   iconLeft?: React.ReactNode;
   iconRight?: React.ReactNode;
