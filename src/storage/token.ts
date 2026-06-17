@@ -31,10 +31,7 @@ export const userStorage = {
   },
 
   async set(user: unknown) {
-    return SecureStore.setItemAsync(
-      KEYS.USER,
-      JSON.stringify(user),
-    );
+    return SecureStore.setItemAsync(KEYS.USER, JSON.stringify(user));
   },
 
   async remove() {

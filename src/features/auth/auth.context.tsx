@@ -1,12 +1,6 @@
 // src/features/auth/context/auth.context.tsx
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from 'react';
+import { createContext, useEffect, useState, ReactNode } from 'react';
 
 import { tokenStorage, userStorage } from '@/storage/token';
 
@@ -34,10 +28,7 @@ export function AuthProvider({ children }: Props) {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  async function signIn(
-    userData: User,
-    token: string,
-  ) {
+  async function signIn(userData: User, token: string) {
     await tokenStorage.set(token);
     await userStorage.set(userData);
 
