@@ -5,96 +5,95 @@
 - **Language**: TypeScript 6
 - **Navigation**: Expo Router (file-based routing)
 - **Styling**: NativeWind v4 + Tailwind CSS v3
-- **State**: Local state + context
-- **API Client**: fetch wrapper (planned)
-- **Secure Storage**: expo-secure-store (planned)
+- **State**: Local state + context (AuthContext)
+- **API Client**: Axios with interceptors
+- **Secure Storage**: expo-secure-store
 - **Image Capture**: expo-image-picker / expo-camera (planned)
 - **Package Manager**: pnpm
 
 ## Current State
 
-The mobile app is initialized with Expo SDK 56 and fully configured:
+The mobile app has its infrastructure built and auth scaffold in progress:
 
 ```
 DuoBalance-app/
 ├── src/
-│   ├── app/                    Expo Router (file-based routing)
-│   │   ├── _layout.tsx         Root layout (imports global.css)
-│   │   ├── index.tsx           Home screen (NativeWind styles)
-│   │   └── explore.tsx         Explore screen (from template)
+│   ├── app/                         Expo Router (file-based routing)
+│   │   ├── _layout.tsx              Root layout (Stack navigator)
+│   │   ├── index.tsx                Home screen (splash)
+│   │   ├── (auth)/                  Auth group (unauthenticated routes)
+│   │   │   ├── _layout.tsx          Auth layout
+│   │   │   ├── login.tsx            Login screen
+│   │   │   └── register.tsx         Register screen
+│   │   └── (protected)/             Protected group (authenticated routes)
+│   │       ├── _layout.tsx          Protected layout
+│   │       ├── dashboard.tsx        Dashboard screen
+│   │       ├── expenses.tsx         Expenses screen
+│   │       └── profile.tsx          Profile screen
 │   │
-│   ├── components/             Reusable UI components
-│   │   ├── animated-icon.tsx
-│   │   ├── app-tabs.tsx
-│   │   ├── external-link.tsx
-│   │   ├── hint-row.tsx
-│   │   ├── themed-text.tsx
-│   │   ├── themed-view.tsx
-│   │   ├── web-badge.tsx
-│   │   └── ui/
-│   │       └── collapsible.tsx
+│   ├── features/                    Feature modules (domain-driven)
+│   │   └── auth/
+│   │       └── auth.context.tsx     AuthContext + AuthProvider
 │   │
-│   ├── constants/
-│   │   ├── config.ts           App configuration (env vars)
-│   │   └── theme.ts            Colors, typography, spacing
+│   ├── services/
+│   │   └── api/
+│   │       ├── client.ts            Axios instance (baseURL, timeout)
+│   │       └── interceptor.ts       Bearer token request interceptor
+│   │
+│   ├── storage/
+│   │   └── token.ts                 SecureStore wrapper (token + user)
 │   │
 │   ├── hooks/
-│   │   ├── use-color-scheme.ts
-│   │   ├── use-color-scheme.web.ts
-│   │   └── use-theme.ts
+│   │   └── use-auth.ts              useAuth hook
 │   │
-│   ├── features/               Feature modules (empty, ready)
-│   ├── services/                API client (empty, ready)
-│   ├── utils/                  Utilities (empty, ready)
-│   ├── types/                  TypeScript types
-│   │   └── global.d.ts         CSS module declarations + NativeWind types
-│   ├── assets/                 Static resources (empty, ready)
-│   └── global.css              Tailwind directives
+│   ├── types/
+│   │   ├── api.ts                   All backend DTOs and response types
+│   │   └── global.d.ts              CSS module + NativeWind type declarations
+│   │
+│   ├── constants/
+│   │   ├── config.ts                Env vars (API_URL, APP_NAME)
+│   │   └── theme.ts                 Colors, typography, spacing
+│   │
+│   ├── utils/                       Utilities (empty, ready)
+│   ├── components/                  Reusable UI components (empty, ready)
+│   └── global.css                   Tailwind directives
 │
-├── assets/                     App assets (images, icons)
-├── docs/                       Project documentation
-├── app.json                    Expo configuration
-├── babel.config.js             Babel + NativeWind preset
-├── metro.config.js             Metro + NativeWind config
-├── tailwind.config.js          Tailwind CSS configuration
-├── tsconfig.json               TypeScript paths + strict mode
-├── eslint.config.js            ESLint flat config
-├── .prettierrc                 Prettier + Tailwind plugin
+├── assets/                          App assets (images, icons)
+├── docs/                            Project documentation
+├── app.json                         Expo configuration
+├── babel.config.js                  Babel + NativeWind preset
+├── metro.config.js                  Metro + NativeWind config
+├── tailwind.config.js               Tailwind CSS content paths
+├── tsconfig.json                    TypeScript paths + strict mode
+├── eslint.config.js                 ESLint flat config
+├── .prettierrc                      Prettier + Tailwind plugin
 ├── .prettierignore
-├── .env / .env.example         Environment variables
-├── nativewind-env.d.ts         NativeWind type declarations
+├── .env / .env.example              Environment variables
+├── nativewind-env.d.ts              NativeWind type declarations
 ├── package.json
 └── pnpm-lock.yaml
 ```
 
-## Screen Flow (Planned)
+## Screen Flow
 
 ```
-AppNavigator (Expo Router)
-├── AuthGroup (not authenticated) — planned
-│   ├── LoginScreen
-│   └── RegisterScreen
+App (Expo Router)
+├── (auth) — Not authenticated
+│   ├── /login
+│   └── /register
 │
-└── MainTabs (authenticated) — planned
-    ├── DashboardTab
-    │   └── DashboardScreen
-    ├── ExpensesTab
-    │   ├── ExpenseListScreen
-    │   ├── AddExpenseScreen
-    │   └── ExpenseDetailScreen
-    ├── ReceiptsTab
-    │   └── ReceiptCaptureScreen
-    └── ProfileTab
-        ├── ProfileScreen
-        └── CoupleSettingsScreen
+└── (protected) — Authenticated
+    ├── /dashboard
+    ├── /expenses
+    └── /profile
 ```
 
-## Data Flow (Planned)
+## Data Flow
 
 ```
 Screen
-  └─ hook (useExpenses)
-      └─ api.ts (fetch/axios)
+  └─ hook (useAuth, etc.)
+      └─ services/api/client (Axios + interceptor)
           └─ duobalance-api (HTTP)
               └─ PostgreSQL
 ```
@@ -103,6 +102,6 @@ Screen
 - **File-based routing** with Expo Router
 - **Custom hooks** for data fetching and mutations
 - **NativeWind** for styling (Tailwind classes via `className`)
-- **Context** for auth state and theme (planned)
-- **Component composition** over inheritance
-- **Separated API layer** — all HTTP calls through `src/services/`
+- **Context** for auth state
+- **Feature modules** organized by domain (auth, expenses, etc.)
+- **Separated API layer** — all HTTP calls through `src/services/api/`

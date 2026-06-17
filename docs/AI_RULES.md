@@ -13,11 +13,12 @@
 - **Components** are functional with hooks — no class components
 - **NativeWind** for styling: use `className` prop, avoid `StyleSheet.create` when possible
 - **Custom hooks** for data fetching, business logic, and state management
-- **Import aliases**: use `@/`, `@components/`, `@features/`, `@services/`, `@utils/`, `@types/` instead of relative paths
-- **API layer** goes through `src/services/`, never call fetch/axios directly in components
+- **Import aliases**: use `@/`, `@components/`, `@features/`, `@services/`, `@context/`, `@storage/`, `@utils/`, `@types/` instead of relative paths
+- **API layer** goes through `src/services/api/`, never call fetch/axios directly in components
 - **Loading states**, **error handling**, and **empty states** mandatory for every data-fetching screen
 - **Dark mode** support via color scheme context
 - **Environment variables** use `EXPO_PUBLIC_*` prefix
+- **Feature modules** in `src/features/` are self-contained with their own api/, hooks/, components/, types/, context/
 
 ## NestJS Conventions
 - **Controllers** are thin — delegate to services.

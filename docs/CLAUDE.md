@@ -2,19 +2,20 @@
 
 ## Project Overview
 DuoBalance is a shared expense tracking app for couples. It consists of:
-- **duobalance-api**: NestJS backend (TypeScript, Prisma, PostgreSQL)
-- **DuoBalance-app**: React Native + Expo SDK 56 mobile client (scaffolded and configured)
-
-The project is in early development — the API has a basic scaffold and a User model. The mobile app is initialized with Expo SDK 56, TypeScript 6, NativeWind v4, Expo Router, ESLint, and Prettier.
+- **duobalance-api**: NestJS backend (TypeScript, Prisma, PostgreSQL) — auth, couples, expenses CRUD, balances, payments, settlements, dashboard
+- **DuoBalance-app**: React Native + Expo SDK 56 mobile client (infrastructure built, auth scaffold in progress)
 
 ## Current State
-- Backend has one `GET /` endpoint returning "Hello World!"
-- Prisma schema has a single `User` model (id, name, email, password, createdAt)
-- Database migration already applied
-- Mobile app is scaffolded with Expo SDK 56, Expo Router, NativeWind, Tailwind CSS v3, TypeScript strict mode, ESLint + Prettier
-- Home screen renders with NativeWind `className` props
-- Import aliases configured: `@/`, `@components/`, `@features/`, `@services/`, `@utils/`, `@types/`
-- Environment variables via `EXPO_PUBLIC_*` prefix
+- **API Client**: Axios instance with base URL and timeout ✅
+- **Request Interceptor**: Injects Bearer token from SecureStore ✅
+- **Secure Storage**: expo-secure-store wrapper for token + user data ✅
+- **Auth Context**: AuthContext + AuthProvider with signIn/signOut/restoreSession ✅
+- **useAuth Hook**: useContext wrapper with guard ✅
+- **API Types**: Full backend DTOs and response types in `src/types/api.ts` ✅
+- **Route Scaffolding**: (auth)/ and (protected)/ route groups created ✅
+- **Auth Screens**: login.tsx and register.tsx (empty, pending implementation)
+- **User model**: firstName + lastName instead of single name ✅ (migrated)
+- **Backend tests**: 109 unit tests, all passing
 
 ## Tech Decisions
 - **pnpm** over npm/yarn (exclusively)
@@ -25,15 +26,17 @@ The project is in early development — the API has a basic scaffold and a User 
 - **Expo SDK 56** with Expo Router (file-based routing, no React Navigation)
 - **NativeWind v4** (stable) + Tailwind CSS v3 for styling
 - **TypeScript 6** strict mode
-- **react-native-reanimated** for animations
+- **Axios** for HTTP client with interceptors
+- **expo-secure-store** for token storage
 
 ## What to Build Next
-1. Auth screens (login/register with JWT + bcrypt)
-2. Expense CRUD screens
-3. Balance calculation UI
-4. Couple/group management (linking two users)
-5. Receipt upload with OCR
-6. Payment tracking and settlement
+1. Login screen (email + password form)
+2. Register screen (firstName, lastName, email, password)
+3. Root layout with AuthProvider + conditional routing
+4. Protected layout with auth guard
+5. Couple management screens (create, join)
+6. Expense CRUD screens
+7. Dashboard with balances
 
 ## Coding Style
 - TypeScript strict, no `any`
@@ -43,7 +46,7 @@ The project is in early development — the API has a basic scaffold and a User 
 - Conventional commits (`feat:`, `fix:`, `chore:`)
 
 ## Testing
-- `pnpm test` (not yet configured)
+- `pnpm tsc --noEmit` for TypeScript check
 - 80%+ coverage target
 
 ## Common Commands
@@ -56,7 +59,6 @@ pnpm ios                  # iOS simulator
 pnpm web                  # Web browser
 pnpm lint                 # ESLint check
 pnpm tsc --noEmit         # TypeScript check
-pnpm expo export --platform web  # Static export
 
 # Backend
 cd ../duobalance-api
@@ -64,19 +66,30 @@ pnpm install
 pnpm start:dev
 pnpm test
 pnpm test:e2e
+pnpm lint
+
+# Prisma
+npx prisma generate       # Generate client
+npx prisma migrate dev    # Create migration
+npx prisma db push        # Push schema (dev)
 ```
 
 ## Key Files
 | File | Purpose |
 |------|---------|
-| `src/app/_layout.tsx` | Root layout + global CSS import |
-| `src/app/index.tsx` | Home screen |
+| `src/app/_layout.tsx` | Root layout |
+| `src/app/index.tsx` | Home/splash screen |
+| `src/app/(auth)/login.tsx` | Login screen |
+| `src/app/(auth)/register.tsx` | Register screen |
+| `src/app/(protected)/dashboard.tsx` | Dashboard screen |
+| `src/app/(protected)/expenses.tsx` | Expenses screen |
+| `src/app/(protected)/profile.tsx` | Profile screen |
+| `src/features/auth/auth.context.tsx` | AuthContext + AuthProvider |
+| `src/hooks/use-auth.ts` | useAuth hook |
+| `src/storage/token.ts` | SecureStore wrapper |
+| `src/services/api/client.ts` | Axios instance |
+| `src/services/api/interceptor.ts` | Bearer token interceptor |
+| `src/types/api.ts` | Backend DTOs and response types |
 | `src/constants/config.ts` | Environment variables |
-| `src/types/global.d.ts` | Global type declarations |
-| `babel.config.js` | Babel + NativeWind preset |
-| `metro.config.js` | Metro + NativeWind config |
-| `tailwind.config.js` | Tailwind CSS content paths |
-| `eslint.config.js` | ESLint flat config |
-| `.env` | Environment variables (gitignored) |
 | `docs/ARCHITECTURE.md` | Full architecture docs |
 | `docs/PLAN.md` | Implementation plan |

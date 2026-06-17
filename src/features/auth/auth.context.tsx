@@ -53,11 +53,16 @@ export function AuthProvider({ children }: Props) {
 
   async function restoreSession() {
     try {
+      const token = await tokenStorage.get();
       const savedUser = await userStorage.get();
 
-      if (savedUser) {
+      if (token && savedUser) {
         setUser(savedUser);
+        return;
       }
+
+      await tokenStorage.remove();
+      await userStorage.remove();
     } finally {
       setIsLoading(false);
     }

@@ -4,6 +4,7 @@
 
 ## Legend
 - ✅ Done
+- 🔄 In Progress
 - ❌ Not Started
 
 ## Phase 1: Foundation
@@ -13,17 +14,21 @@
 - [✅] Styling config (NativeWind v4 + Tailwind CSS v3)
 - [✅] Theme configuration (colors, typography, spacing)
 - [✅] ESLint + Prettier integration
-- [✅] Import aliases (`@components/*`, `@features/*`, etc.)
+- [✅] Import aliases (`@components/*`, `@features/*`, `@context/*`, `@storage/*`, etc.)
 - [✅] Environment config (`.env` with `EXPO_PUBLIC_*` prefix)
-- [❌] API client (axios/fetch instance with interceptors for auth)
-- [❌] Secure token storage (expo-secure-store)
+- [✅] API client (Axios instance with request interceptor)
+- [✅] Secure token storage (expo-secure-store)
+- [✅] API types (all backend DTOs mapped in `src/types/api.ts`)
 
 ## Phase 2: Auth Screens
-- [❌] Login screen (email + password form)
-- [❌] Registration screen (name + email + password)
-- [❌] Token storage (expo-secure-store)
-- [❌] Auth context/provider
+- [✅] Auth context/provider (AuthContext + AuthProvider)
+- [✅] useAuth hook
+- [✅] Route scaffolding ((auth)/ and (protected)/ groups)
+- [🔄] Login screen (email + password form) — scaffolded, pending implementation
+- [🔄] Register screen (firstName + lastName + email + password) — scaffolded, pending implementation
+- [❌] Root layout with AuthProvider + conditional routing
 - [❌] Protected route wrapper (redirect to login if no token)
+- [❌] Response interceptor (401 → redirect to login)
 
 ## Phase 3: Couple Management
 - [❌] Couple creation screen (generate/enter invitation code)
@@ -57,7 +62,7 @@
 - [❌] Dark mode
 - [❌] i18n (multi-language)
 - [❌] Offline support
-- [❌] App icon + splash screen (template defaults exist)
+- [❌] App icon + splash screen
 
 ## Phase 9: Deployment — Beta
 > Todo el desarrollo previo corre en localhost con Expo Go. Solo al llegar a beta se despliega.

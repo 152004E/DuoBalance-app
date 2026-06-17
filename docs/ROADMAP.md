@@ -1,6 +1,6 @@
 # Roadmap — Mobile App Release Phases
 
-## Phase 0: Foundation (v0.1) — Current
+## Phase 0: Foundation (v0.1) — Done
 **Goal**: Bootstrapped Expo project with routing, styling, and tooling
 - [✅] Expo project init (SDK 56)
 - [✅] Expo Router file-based routing
@@ -9,22 +9,24 @@
 - [✅] ESLint + Prettier config
 - [✅] Import aliases
 - [✅] Environment variables setup
-- [❌] Auth screens
-- [❌] API client stub
-- [❌] Feature screens
+- [✅] Axios API client with request interceptor
+- [✅] Secure token storage (expo-secure-store)
+- [✅] Full backend API types
 
-**Estimated**: Completed
+**Estimated**: Complete
 
 ---
 
-## Phase 1: Auth (v0.2)
+## Phase 1: Auth (v0.2) — Current
 **Goal**: Users can register and log in
-- Login screen
-- Register screen
-- Auth context + secure token storage
-- Protected routes
+- [✅] Auth context + secure token storage
+- [✅] useAuth hook
+- [🔄] Login screen (scaffolded)
+- [🔄] Register screen (scaffolded)
+- [❌] Protected routes
+- [❌] Response interceptor (401 handling)
 
-**Estimated**: 1-2 weeks
+**Estimated**: In progress
 
 ---
 
@@ -38,7 +40,17 @@
 
 ---
 
-## Phase 3: Dashboard (v0.4)
+## Phase 3: Couple Management (v0.3)
+**Goal**: Users can create and join couples
+- Create couple screen
+- Join couple via invite code
+- Couple settings screen
+
+**Estimated**: 1-2 weeks
+
+---
+
+## Phase 4: Dashboard (v0.4)
 **Goal**: See balances and spending breakdown
 - Dashboard with summary cards
 - Balance visualization
@@ -48,7 +60,7 @@
 
 ---
 
-## Phase 4: Receipt Capture (v0.5)
+## Phase 5: Receipt Capture (v0.5)
 **Goal**: Take photos of receipts and auto-fill expenses
 - Camera/gallery integration
 - Upload + progress UI
@@ -58,7 +70,7 @@
 
 ---
 
-## Phase 5: Payments (v0.6)
+## Phase 6: Payments (v0.6)
 **Goal**: Record payments and settle up
 - Pay screen
 - Payment history
@@ -68,7 +80,7 @@
 
 ---
 
-## Phase 6: Production (v1.0)
+## Phase 7: Production (v1.0)
 **Goal**: App store ready
 - Push notifications
 - Offline support
@@ -85,8 +97,8 @@
 
 ```
 v0.1  ████████████████████████████████  (Foundation — COMPLETE)
-v0.2  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Auth — next)
-v0.3  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Expenses)
+v0.2  ████████████████████░░░░░░░░░░░░  (Auth — IN PROGRESS)
+v0.3  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Expenses + Couples)
 v0.4  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Dashboard)
 v0.5  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Receipts)
 v0.6  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Payments)

@@ -64,30 +64,36 @@ pnpm start
 ```
 DuoBalance-app/
 ├── src/
-│   ├── app/           # Expo Router (file-based routing)
-│   ├── components/    # Reusable UI components
-│   ├── features/      # Feature modules
-│   ├── services/      # API client and external services
-│   ├── hooks/         # Custom React hooks
-│   ├── utils/         # Utilities
-│   ├── constants/     # Config, themes, constants
-│   ├── types/         # TypeScript interfaces and declarations
-│   └── assets/        # Static resources
-├── assets/            # App assets (images, icons)
-└── docs/              # Project documentation
+│   ├── app/              # Expo Router (file-based routing)
+│   │   ├── (auth)/       # Unauthenticated routes
+│   │   └── (protected)/  # Authenticated routes
+│   ├── features/         # Feature modules (auth, couple, expenses, etc.)
+│   ├── services/         # API client and external services
+│   ├── storage/          # Secure storage wrappers
+│   ├── context/          # Global contexts
+│   ├── hooks/            # Custom React hooks
+│   ├── components/       # Reusable UI components
+│   ├── utils/            # Utility functions
+│   ├── constants/        # Config, themes, constants
+│   ├── types/            # TypeScript interfaces and declarations
+│   └── global.css        # Tailwind directives
+├── assets/               # App assets (images, icons)
+└── docs/                 # Project documentation
 ```
 
 ## Import Aliases
 
-| Alias             | Destino            |
-|-------------------|--------------------|
-| `@/`              | `./src/*`          |
-| `@/assets/*`      | `./assets/*`       |
-| `@components/*`   | `./src/components/*` |
-| `@features/*`     | `./src/features/*`   |
-| `@services/*`     | `./src/services/*`   |
-| `@utils/*`        | `./src/utils/*`      |
-| `@types/*`        | `./src/types/*`      |
+| Alias             | Destination            |
+|-------------------|------------------------|
+| `@/`              | `./src/*`              |
+| `@/assets/*`      | `./assets/*`           |
+| `@components/*`   | `./src/components/*`   |
+| `@features/*`     | `./src/features/*`     |
+| `@services/*`     | `./src/services/*`     |
+| `@context/*`      | `./src/context/*`      |
+| `@storage/*`      | `./src/storage/*`      |
+| `@utils/*`        | `./src/utils/*`        |
+| `@types/*`        | `./src/types/*`        |
 
 ## Need Help?
 Check `docs/` directory for detailed documentation on architecture, data structures, and roadmap.
