@@ -47,7 +47,8 @@ export interface AuthResponse {
 
 export interface UserResponse {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   createdAt: string;
 }
@@ -55,7 +56,8 @@ export interface UserResponse {
 // ─── Couples ─────────────────────────────────────────
 export interface UserBrief {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
 }
 
