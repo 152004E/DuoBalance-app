@@ -23,6 +23,12 @@
       ],
       "@types/*": [
         "./src/types/*"
+      ],
+      "@context/*": [
+        "./src/context/*"
+      ],
+      "@storage/*": [
+        "./src/storage/*"
       ]
     }
   },
