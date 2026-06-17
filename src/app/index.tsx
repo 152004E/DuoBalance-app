@@ -1,6 +1,7 @@
 import { Redirect } from 'expo-router';
 
 import { useAuth } from '@/hooks/use-auth';
+import { WelcomeScreen } from '@/components/welcome/welcome-screen';
 
 export default function Index() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -13,5 +14,5 @@ export default function Index() {
     return <Redirect href="/(protected)/dashboard" />;
   }
 
-  return <Redirect href="/(auth)/login" />;
+  return <WelcomeScreen />;
 }

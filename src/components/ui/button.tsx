@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react';
 import { Pressable, Text, View, ActivityIndicator, Animated } from 'react-native';
 import { Link, type Href } from 'expo-router';
+import { FontAwesome6 } from '@expo/vector-icons';
 
 type LoadingType = 'spinner' | 'dots' | 'pulse';
 type ButtonVariant = 'primary' | 'success' | 'error' | 'secondary';
@@ -8,8 +9,8 @@ type ButtonVariant = 'primary' | 'success' | 'error' | 'secondary';
 interface ButtonProps {
   to?: Href;
   text: string;
-  iconLeft?: React.ReactNode;
-  iconRight?: React.ReactNode;
+  iconLeft?: string;
+  iconRight?: string;
   onPress?: () => void;
   disabled?: boolean;
   className?: string;
@@ -83,7 +84,7 @@ const variantStyles: Record<ButtonVariant, { bg: string; text: string }> = {
   primary: { bg: 'bg-[#10B981]', text: 'text-white' },
   success: { bg: 'bg-[#22C55E]', text: 'text-[#0F172A]' },
   error: { bg: 'bg-[#EF4444]', text: 'text-white' },
-  secondary: { bg: 'bg-[#0F766E]', text: 'text-white' },
+  secondary: { bg: 'bg-[#006A63]', text: 'text-white' },
 };
 
 export function Button({
@@ -113,6 +114,9 @@ export function Button({
     }
   };
 
+  const iconSize = 16;
+  const iconColor = textColor === 'text-[#0F172A]' ? '#0F172A' : 'white';
+
   const content = (
     <View className="flex-row items-center justify-center gap-2">
       {isLoading ? (
@@ -124,9 +128,9 @@ export function Button({
         </>
       ) : (
         <>
-          {iconLeft}
+          {iconLeft && <FontAwesome6 name={iconLeft} size={iconSize} color={iconColor} />}
           <Text className={`text-base font-semibold ${textColor}`}>{text}</Text>
-          {iconRight}
+          {iconRight && <FontAwesome6 name={iconRight} size={iconSize} color={iconColor} />}
         </>
       )}
     </View>
