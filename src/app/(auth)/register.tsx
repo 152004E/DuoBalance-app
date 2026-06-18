@@ -112,7 +112,7 @@ export default function RegisterScreen() {
         message: 'Tu cuenta ha sido creada correctamente.',
         onClose: () => {
           setModal(null);
-          router.replace('/(protected)/dashboard');
+          router.replace('/(protected)');
         },
       });
     } catch (err: any) {
@@ -131,7 +131,8 @@ export default function RegisterScreen() {
         setModal({
           type: 'error',
           title: 'Error',
-          message: message || 'No fue posible crear la cuenta. Intenta de nuevo.',
+          message:
+            message || 'No fue posible crear la cuenta. Intenta de nuevo.',
           onClose: () => setModal(null),
         });
       }
@@ -157,11 +158,12 @@ export default function RegisterScreen() {
             value={firstName}
             onChangeText={(text) => {
               setFirstName(text);
-              if (errors.firstName) setErrors((prev) => ({
-                ...prev,
-                firstName: undefined,
-                general: undefined,
-              }));
+              if (errors.firstName)
+                setErrors((prev) => ({
+                  ...prev,
+                  firstName: undefined,
+                  general: undefined,
+                }));
             }}
             error={errors.firstName}
           />
@@ -173,11 +175,12 @@ export default function RegisterScreen() {
             value={lastName}
             onChangeText={(text) => {
               setLastName(text);
-              if (errors.lastName) setErrors((prev) => ({
-                ...prev,
-                lastName: undefined,
-                general: undefined,
-              }));
+              if (errors.lastName)
+                setErrors((prev) => ({
+                  ...prev,
+                  lastName: undefined,
+                  general: undefined,
+                }));
             }}
             error={errors.lastName}
           />
@@ -191,11 +194,12 @@ export default function RegisterScreen() {
             value={email}
             onChangeText={(text) => {
               setEmail(text);
-              if (errors.email) setErrors((prev) => ({
-                ...prev,
-                email: undefined,
-                general: undefined,
-              }));
+              if (errors.email)
+                setErrors((prev) => ({
+                  ...prev,
+                  email: undefined,
+                  general: undefined,
+                }));
             }}
             error={errors.email}
           />
@@ -208,11 +212,12 @@ export default function RegisterScreen() {
             value={password}
             onChangeText={(text) => {
               setPassword(text);
-              if (errors.password) setErrors((prev) => ({
-                ...prev,
-                password: undefined,
-                general: undefined,
-              }));
+              if (errors.password)
+                setErrors((prev) => ({
+                  ...prev,
+                  password: undefined,
+                  general: undefined,
+                }));
             }}
             error={errors.password}
           />
@@ -225,11 +230,12 @@ export default function RegisterScreen() {
             value={confirmPassword}
             onChangeText={(text) => {
               setConfirmPassword(text);
-              if (errors.confirmPassword) setErrors((prev) => ({
-                ...prev,
-                confirmPassword: undefined,
-                general: undefined,
-              }));
+              if (errors.confirmPassword)
+                setErrors((prev) => ({
+                  ...prev,
+                  confirmPassword: undefined,
+                  general: undefined,
+                }));
             }}
             error={errors.confirmPassword}
           />
@@ -255,7 +261,7 @@ export default function RegisterScreen() {
           onPress={() =>
             Alert.alert(
               'Próximamente',
-              'Inicio de sesión con Google estará disponible pronto.'
+              'Inicio de sesión con Google estará disponible pronto.',
             )
           }
         />

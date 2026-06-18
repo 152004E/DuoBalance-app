@@ -11,7 +11,7 @@ export default function Index() {
   }
 
   if (isAuthenticated) {
-    return <Redirect href="/(protected)/dashboard" />;
+    return <Redirect href="/(protected)" />;
   }
 
   return <WelcomeScreen />;

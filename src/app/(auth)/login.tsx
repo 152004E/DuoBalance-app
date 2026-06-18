@@ -67,7 +67,7 @@ export default function LoginScreen() {
 
       await signIn(user, authResponse.access_token);
 
-      router.replace('/(protected)/dashboard');
+      router.replace('/(protected)');
     } catch (err: any) {
       const message =
         err?.response?.data?.message ||
@@ -103,7 +103,8 @@ export default function LoginScreen() {
             value={email}
             onChangeText={(text) => {
               setEmail(text);
-              if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+              if (errors.email)
+                setErrors((prev) => ({ ...prev, email: undefined }));
             }}
             error={errors.email}
           />
@@ -117,7 +118,8 @@ export default function LoginScreen() {
               value={password}
               onChangeText={(text) => {
                 setPassword(text);
-                if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
+                if (errors.password)
+                  setErrors((prev) => ({ ...prev, password: undefined }));
               }}
               error={errors.password}
             />

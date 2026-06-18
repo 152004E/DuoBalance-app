@@ -1,9 +1,9 @@
 import { View, Text } from 'react-native';
 
-export default function ExpensesScreen() {
+export default function DashboardScreen() {
   return (
     <View className="flex-1 items-center justify-center bg-[#F8FAFC]">
-      <Text className="text-lg font-semibold text-[#0F172A]">Gastos</Text>
+      <Text className="text-lg font-semibold text-[#0F172A]">Inicio</Text>
     </View>
   );
 }
