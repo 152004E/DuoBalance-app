@@ -140,6 +140,7 @@ export default function LoginScreen() {
           <Button
             text="Iniciar Sesión"
             variant="primary"
+            iconLeft="arrow-right-to-bracket"
             className="mt-1 rounded-full py-4 shadow-md"
             isLoading={isLoading}
             onPress={handleLogin}
@@ -148,10 +149,7 @@ export default function LoginScreen() {
 
         <AuthDivider />
 
-        <View className="gap-3">
-          <SocialLoginButton provider="google" />
-          <SocialLoginButton provider="apple" />
-        </View>
+        <SocialLoginButton provider="google" />
 
         <AuthFooter
           question="¿No tienes cuenta?"

@@ -73,7 +73,7 @@ export default function RegisterScreen() {
       >
         <AuthHeader subtitle="Crea tu cuenta" />
 
-        <View className="gap-4">
+        <View className="gap-2">
           <Input
             label="Nombre"
             placeholder="Tu nombre"
@@ -148,10 +148,7 @@ export default function RegisterScreen() {
 
         <AuthDivider />
 
-        <View className="gap-3">
-          <SocialLoginButton provider="google" />
-          <SocialLoginButton provider="apple" />
-        </View>
+        <SocialLoginButton provider="google" />
 
         <AuthFooter
           question="¿Ya tienes cuenta?"
