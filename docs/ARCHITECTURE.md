@@ -19,12 +19,12 @@ The mobile app has its auth flow fully implemented and several reusable componen
 DuoBalance-app/
 ├── src/
 │   ├── app/                         Expo Router (file-based routing)
-│   │   ├── _layout.tsx              Root layout (AuthProvider + Stack)
+│   │   ├── _layout.tsx              Root layout (AuthProvider + Stack + Toast)
 │   │   ├── index.tsx                Entry — shows WelcomeScreen or redirects to Dashboard
 │   │   ├── (auth)/                  Auth group (unauthenticated routes)
 │   │   │   ├── _layout.tsx          Auth layout (login, register, forgot-password)
 │   │   │   ├── login.tsx            Login screen (full implementation)
-│   │   │   ├── register.tsx         Register screen (UI complete)
+│   │   │   ├── register.tsx         Register screen (full implementation with auto-login)
 │   │   │   └── forgot-password.tsx  Forgot password screen (UI complete)
 │   │   └── (protected)/             Protected group (authenticated routes)
 │   │       ├── _layout.tsx          Protected layout (auth guard)
@@ -34,8 +34,9 @@ DuoBalance-app/
 │   │
 │   ├── components/                  Reusable UI components
 │   │   ├── ui/                      Primitives
+│   │   │   ├── alert-modal.tsx       Custom AlertModal (BlurView backdrop, 4 types, animated)
 │   │   │   ├── button.tsx           Reusable Button (variants, loading, icons, link)
-│   │   │   ├── input.tsx            Enhanced Input (iconLeft, animated focus border)
+│   │   │   ├── input.tsx            Enhanced Input (iconLeft, focus border instant green)
 │   │   │   ├── card.tsx             Generic Card (default/highlight variants)
 │   │   │   ├── loading.tsx          Full-screen loading spinner
 │   │   │   └── empty-state.tsx      Empty state placeholder
@@ -152,6 +153,27 @@ User submits form
   → GET /auth/profile (with Bearer token)
   → UserResponse { id, firstName, lastName, email }
   → signIn(user, access_token) (AuthContext → stores both)
+  → router.replace("/(protected)/dashboard")
+```
+
+## Auth Flow (Register)
+
+```
+User submits form
+  → validate() (all fields required, email format, password match)
+  → authService.register({ firstName, lastName, email, password })
+  → POST /auth/register (backend)
+  → UserResponse { id, firstName, lastName, email }
+  → authService.login({ email, password })
+  → POST /auth/login (backend)
+  → AuthResponse { access_token, refresh_token, expires_in }
+  → tokenStorage.set(access_token)
+  → authService.getProfile()
+  → GET /auth/profile (with Bearer token)
+  → UserResponse { id, firstName, lastName, email }
+  → signIn(user, access_token) (AuthContext → stores both)
+  → AlertModal "Registro exitoso"
+  → user taps "Continuar"
   → router.replace("/(protected)/dashboard")
 ```
 

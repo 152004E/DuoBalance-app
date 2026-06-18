@@ -17,13 +17,14 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **Protected Route Guard**: Redirects to /login if no user ✅
 - **Conditional Routing**: index.tsx shows WelcomeScreen or redirects to Dashboard ✅
 - **Login Screen**: Full implementation with form validation, API integration (login → getProfile → signIn) ✅
-- **Register Screen**: UI complete with validation, pending backend connection 🔄
-- **Forgot Password Screen**: UI complete, pending backend connection 🔄
-- **Enhanced Input**: iconLeft support + animated focus border (reanimated, 500ms blur transition) ✅
+- **Register Screen**: Full implementation with auto-login (register → login → getProfile → signIn → AlertModal → dashboard) ✅
+- **Forgot Password Screen**: UI complete, pending backend endpoint 🔄
+- **Enhanced Input**: iconLeft support + focus border (instant green on focus, instant reset on blur) ✅
+- **AlertModal**: Custom modal with BlurView backdrop, 4 types (success/error/warning/info), spring animations ✅
+- **Toast notifications**: react-native-toast-message configured in root layout ✅
 - **Auth Components**: AuthHeader, AuthDivider, SocialLoginButton, AuthFooter — all reusable ✅
-- **Backend tests**: 109 unit tests, all passing
 - **CORS**: Enabled in backend for localhost:8081 ✅
-- **User model**: firstName + lastName instead of single name ✅ (migrated)
+- **Response interceptor (401)**: Not implemented ❌
 
 ## Tech Decisions
 - **pnpm** over npm/yarn (exclusively)
@@ -36,15 +37,15 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **TypeScript 6** strict mode
 - **Axios** for HTTP client with interceptors
 - **expo-secure-store** for token storage
-- **react-native-reanimated** for animations (focus border transition)
+- **expo-blur** for AlertModal backdrop blur
+- **react-native-toast-message** for non-critical toast notifications
 
 ## What to Build Next
-1. Connect Register screen to backend (authService.register)
-2. Connect Forgot Password screen to backend (needs new endpoint)
-3. Response interceptor (401 → redirect to login)
-4. Couple management screens (create, join)
-5. Expense CRUD screens
-6. Dashboard with balances
+1. Create Forgot Password endpoint in backend + connect frontend
+2. Response interceptor (401 → redirect to login)
+3. Couple management screens (create, join)
+4. Expense CRUD screens
+5. Dashboard with balances
 
 ## Coding Style
 - TypeScript strict, no `any`
@@ -86,21 +87,22 @@ npx prisma db push        # Push schema (dev)
 ## Key Files
 | File | Purpose |
 |------|---------|
-| `src/app/_layout.tsx` | Root layout |
+| `src/app/_layout.tsx` | Root layout (AuthProvider + Stack + Toast) |
 | `src/app/index.tsx` | Conditional entry (WelcomeScreen or Dashboard redirect) |
 | `src/app/(auth)/login.tsx` | Login screen (full implementation) |
-| `src/app/(auth)/register.tsx` | Register screen (UI complete) |
+| `src/app/(auth)/register.tsx` | Register screen (full implementation with auto-login) |
 | `src/app/(auth)/forgot-password.tsx` | Forgot password screen (UI complete) |
 | `src/app/(auth)/_layout.tsx` | Auth layout |
 | `src/app/(protected)/_layout.tsx` | Protected layout with auth guard |
 | `src/app/(protected)/dashboard.tsx` | Dashboard screen (placeholder) |
-| `src/components/welcome/welcome-screen.tsx` | Welcome landing page |
+| `src/components/ui/alert-modal.tsx` | Custom AlertModal (BlurView, success/error/warning/info, animated) |
+| `src/components/ui/input.tsx` | Enhanced Input (iconLeft, focus border) |
+| `src/components/ui/button.tsx` | Reusable Button (variants, loading, icons) |
 | `src/components/auth/auth-header.tsx` | Logo + title header for auth screens |
 | `src/components/auth/auth-divider.tsx` | "O continúa con" divider |
 | `src/components/auth/social-login-button.tsx` | Google login button |
 | `src/components/auth/auth-footer.tsx` | Auth navigation footer |
-| `src/components/ui/button.tsx` | Reusable Button (variants, loading, icons) |
-| `src/components/ui/input.tsx` | Enhanced Input (icon, animated focus border) |
+| `src/components/welcome/welcome-screen.tsx` | Welcome landing page |
 | `src/features/auth/auth.context.tsx` | AuthContext + AuthProvider |
 | `src/hooks/use-auth.ts` | useAuth hook |
 | `src/storage/token.ts` | SecureStore wrapper |
@@ -111,3 +113,4 @@ npx prisma db push        # Push schema (dev)
 | `src/constants/config.ts` | Environment variables |
 | `docs/ARCHITECTURE.md` | Full architecture docs |
 | `docs/PLAN.md` | Implementation plan |
+| `docs/ROADMAP.md` | Release roadmap |

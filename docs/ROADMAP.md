@@ -21,11 +21,13 @@
 **Goal**: Users can register and log in
 - [✅] Auth context + secure token storage
 - [✅] useAuth hook
-- [✅] Login screen (UI + API integration)
-- [🔄] Register screen (UI complete, pending backend connection)
+- [✅] Login screen (UI + full API integration)
+- [✅] Register screen (UI + full API integration with auto-login + AlertModal)
 - [🔄] Forgot password screen (UI complete, pending backend connection)
 - [✅] Reusable auth components (AuthHeader, AuthDivider, SocialLoginButton, AuthFooter)
-- [✅] Enhanced Input component (iconLeft, animated focus border)
+- [✅] Enhanced Input component (iconLeft, focus border with instant green + blur transition)
+- [✅] Custom AlertModal with BlurView backdrop (success/error/warning/info)
+- [✅] Toast notifications (react-native-toast-message)
 - [✅] Protected route guard
 - [✅] Conditional routing (index.tsx → WelcomeScreen or Dashboard)
 - [❌] Response interceptor (401 handling)

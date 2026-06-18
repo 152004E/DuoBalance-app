@@ -25,11 +25,13 @@
 - [✅] useAuth hook
 - [✅] Route scaffolding ((auth)/ and (protected)/ groups)
 - [✅] WelcomeScreen with HeroSection + BenefitCards
-- [✅] Enhanced Input component (iconLeft, animated focus border with 500ms blur transition)
+- [✅] Enhanced Input component (iconLeft, focus border with instant green + blur border reset)
 - [✅] Reusable auth components (AuthHeader, AuthDivider, SocialLoginButton, AuthFooter)
 - [✅] Login screen (email + password form) — UI + full API integration (authService.login → getProfile → signIn)
-- [🔄] Register screen (firstName + lastName + email + password) — UI complete, pending backend connection
+- [✅] Register screen (firstName + lastName + email + password) — UI + full API integration (register → login → getProfile → signIn → AlertModal → dashboard)
 - [🔄] Forgot password screen — UI complete (email form), pending backend connection + endpoint
+- [✅] Custom AlertModal component (success/error/warning/info, BlurView backdrop, animated)
+- [✅] Toast notifications via react-native-toast-message (configured in root layout)
 - [✅] Root layout with AuthProvider + conditional routing (index.tsx)
 - [✅] Protected route wrapper (redirect to login if no token)
 - [❌] Response interceptor (401 → redirect to login)

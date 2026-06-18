@@ -9,8 +9,10 @@ import { AuthFooter } from '@/components/auth/auth-footer';
 import { View, ScrollView, Text, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import Toast from 'react-native-toast-message';
 
 import { useAuth } from '@/hooks/use-auth';
+import { AlertModal } from '@/components/ui/alert-modal';
 import * as authService from '@/services/api/auth';
 import { tokenStorage } from '@/storage/token';
 
@@ -35,6 +37,12 @@ export default function RegisterScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [modal, setModal] = useState<{
+    type: 'success' | 'error' | 'warning' | 'info';
+    title: string;
+    message: string;
+    onClose?: () => void;
+  } | null>(null);
 
   function validate(): boolean {
     const newErrors: FormErrors = {};
@@ -98,20 +106,35 @@ export default function RegisterScreen() {
 
       await signIn(user, authResponse.access_token);
 
-      router.replace('/(protected)/dashboard');
+      setModal({
+        type: 'success',
+        title: 'Registro exitoso',
+        message: 'Tu cuenta ha sido creada correctamente.',
+        onClose: () => {
+          setModal(null);
+          router.replace('/(protected)/dashboard');
+        },
+      });
     } catch (err: any) {
+      const rawMessage = err?.response?.data?.message;
       const message =
-        err?.response?.data?.message ||
-        err?.message ||
-        'No fue posible crear la cuenta';
+        typeof rawMessage === 'string' ? rawMessage : rawMessage?.message;
 
-      setErrors((prev) => ({
-        ...prev,
-        general:
-          typeof message === 'string'
-            ? message
-            : 'No fue posible crear la cuenta',
-      }));
+      if (err?.response?.status === 409) {
+        setModal({
+          type: 'error',
+          title: 'Correo ya registrado',
+          message: 'Ya existe una cuenta asociada a este correo electrónico.',
+          onClose: () => setModal(null),
+        });
+      } else {
+        setModal({
+          type: 'error',
+          title: 'Error',
+          message: message || 'No fue posible crear la cuenta. Intenta de nuevo.',
+          onClose: () => setModal(null),
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -243,6 +266,16 @@ export default function RegisterScreen() {
           href="/login"
         />
       </ScrollView>
+
+      {modal && (
+        <AlertModal
+          visible
+          type={modal.type}
+          title={modal.title}
+          message={modal.message}
+          onClose={modal.onClose ?? (() => setModal(null))}
+        />
+      )}
     </SafeAreaView>
   );
 }
