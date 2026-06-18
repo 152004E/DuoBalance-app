@@ -4,7 +4,7 @@ import { FontAwesome6 } from '@expo/vector-icons';
 const tabs = [
   { name: 'index', label: 'Inicio', icon: 'house' },
   { name: 'gastos', label: 'Gastos', icon: 'receipt' },
-  { name: 'pareja', label: 'Pareja', icon: 'heart' },
+  { name: 'pareja', label: 'Parejas', icon: 'heart' },
   { name: 'reportes', label: 'Reportes', icon: 'chart-pie' },
   { name: 'perfil', label: 'Perfil', icon: 'user' },
 ];
@@ -23,7 +23,7 @@ export default function BottomTab({ state, navigation, insets }: any) {
           shadowRadius: 3,
           elevation: 8,
         }}
-        className="h-[70px] flex-row"
+        className="h-[74px] flex-row"
       >
         {state.routes.map(
           (route: { key: string; name: string }, index: number) => {

@@ -59,16 +59,7 @@ export function HeroSection({ width }: HeroSectionProps) {
           `}
         />
 
-        {/* Diagonal blanca - COORDENADAS FIJAS, sin porcentajes */}
-        <Polygon
-          fill="#F8FAFC"
-          points={`
-            0,${HEADER_HEIGHT}
-            ${width},224
-            ${width},${HEADER_HEIGHT + 50}
-            0,${HEADER_HEIGHT + 50}
-          `}
-        />
+
       </Svg>
 
       {/* Contenido */}
