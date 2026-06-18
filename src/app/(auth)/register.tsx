@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { View, ScrollView, Text } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +6,13 @@ import { AuthHeader } from '@/components/auth/auth-header';
 import { AuthDivider } from '@/components/auth/auth-divider';
 import { SocialLoginButton } from '@/components/auth/social-login-button';
 import { AuthFooter } from '@/components/auth/auth-footer';
+import { View, ScrollView, Text, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
+
+import { useAuth } from '@/hooks/use-auth';
+import * as authService from '@/services/api/auth';
+import { tokenStorage } from '@/storage/token';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -17,15 +22,19 @@ interface FormErrors {
   email?: string;
   password?: string;
   confirmPassword?: string;
+  general?: string;
 }
 
 export default function RegisterScreen() {
+  const { signIn } = useAuth();
+
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState<FormErrors>({});
+  const [isLoading, setIsLoading] = useState(false);
 
   function validate(): boolean {
     const newErrors: FormErrors = {};
@@ -60,8 +69,52 @@ export default function RegisterScreen() {
     return Object.keys(newErrors).length === 0;
   }
 
-  function handleRegister() {
-    validate();
+  async function handleRegister() {
+    if (!validate()) return;
+
+    setIsLoading(true);
+
+    setErrors((prev) => ({
+      ...prev,
+      general: undefined,
+    }));
+
+    try {
+      await authService.register({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim().toLowerCase(),
+        password,
+      });
+
+      const authResponse = await authService.login({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+
+      await tokenStorage.set(authResponse.access_token);
+
+      const user = await authService.getProfile();
+
+      await signIn(user, authResponse.access_token);
+
+      router.replace('/(protected)/dashboard');
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        'No fue posible crear la cuenta';
+
+      setErrors((prev) => ({
+        ...prev,
+        general:
+          typeof message === 'string'
+            ? message
+            : 'No fue posible crear la cuenta',
+      }));
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -81,7 +134,11 @@ export default function RegisterScreen() {
             value={firstName}
             onChangeText={(text) => {
               setFirstName(text);
-              if (errors.firstName) setErrors((prev) => ({ ...prev, firstName: undefined }));
+              if (errors.firstName) setErrors((prev) => ({
+                ...prev,
+                firstName: undefined,
+                general: undefined,
+              }));
             }}
             error={errors.firstName}
           />
@@ -93,7 +150,11 @@ export default function RegisterScreen() {
             value={lastName}
             onChangeText={(text) => {
               setLastName(text);
-              if (errors.lastName) setErrors((prev) => ({ ...prev, lastName: undefined }));
+              if (errors.lastName) setErrors((prev) => ({
+                ...prev,
+                lastName: undefined,
+                general: undefined,
+              }));
             }}
             error={errors.lastName}
           />
@@ -107,7 +168,11 @@ export default function RegisterScreen() {
             value={email}
             onChangeText={(text) => {
               setEmail(text);
-              if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+              if (errors.email) setErrors((prev) => ({
+                ...prev,
+                email: undefined,
+                general: undefined,
+              }));
             }}
             error={errors.email}
           />
@@ -120,7 +185,11 @@ export default function RegisterScreen() {
             value={password}
             onChangeText={(text) => {
               setPassword(text);
-              if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
+              if (errors.password) setErrors((prev) => ({
+                ...prev,
+                password: undefined,
+                general: undefined,
+              }));
             }}
             error={errors.password}
           />
@@ -133,22 +202,40 @@ export default function RegisterScreen() {
             value={confirmPassword}
             onChangeText={(text) => {
               setConfirmPassword(text);
-              if (errors.confirmPassword) setErrors((prev) => ({ ...prev, confirmPassword: undefined }));
+              if (errors.confirmPassword) setErrors((prev) => ({
+                ...prev,
+                confirmPassword: undefined,
+                general: undefined,
+              }));
             }}
             error={errors.confirmPassword}
           />
+          {errors.general && (
+            <Text className="text-center text-sm text-[#EF4444]">
+              {errors.general}
+            </Text>
+          )}
 
           <Button
             text="Crear Cuenta"
+            iconLeft="user-plus"
             variant="primary"
             className="mt-2 rounded-full py-4 shadow-md"
+            isLoading={isLoading}
             onPress={handleRegister}
           />
         </View>
 
         <AuthDivider />
-
-        <SocialLoginButton provider="google" />
+        <SocialLoginButton
+          provider="google"
+          onPress={() =>
+            Alert.alert(
+              'Próximamente',
+              'Inicio de sesión con Google estará disponible pronto.'
+            )
+          }
+        />
 
         <AuthFooter
           question="¿Ya tienes cuenta?"
