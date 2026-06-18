@@ -25,14 +25,20 @@ const benefits = [
 ];
 
 export function WelcomeScreen() {
-  const { width, height: screenHeight } = useWindowDimensions();
-  const headerHeight = screenHeight * 0.310;
+  const { width } = useWindowDimensions();
 
   return (
     <View className="flex-1 bg-[#F8FAFC]">
-      <HeroSection width={width} height={headerHeight} />
+      {/* HeroSection con altura FIJA */}
+      <HeroSection width={width} />
 
-      <ScrollView className="flex-1 px-6" contentContainerClassName="gap-3  mt-6 ">
+      <ScrollView
+        className="flex-1 px-6"
+        contentContainerClassName="gap-3 mt-6"
+        contentContainerStyle={{
+          paddingBottom: 180,
+        }}
+      >
         {benefits.map((benefit) => (
           <BenefitCard key={benefit.title} {...benefit} />
         ))}
@@ -40,8 +46,20 @@ export function WelcomeScreen() {
 
       <View className="absolute bottom-0 left-0 right-0 bg-[#F8FAFC] pt-4 pb-6">
         <View className="gap-3 px-6">
-          <Button text="Iniciar Sesión" variant="primary" iconLeft="arrow-right-to-bracket" className="rounded-full py-4 shadow-md" to="/login" />
-          <Button text="Crear Cuenta" variant="primary" iconLeft="user-plus" className="rounded-full bg-[#059669] py-4 shadow-md" to="/register" />
+          <Button
+            text="Iniciar Sesión"
+            variant="primary"
+            iconLeft="arrow-right-to-bracket"
+            className="rounded-full py-4 shadow-md"
+            to="/login"
+          />
+          <Button
+            text="Crear Cuenta"
+            variant="secondary"
+            iconLeft="user-plus"
+            className="rounded-full py-4 shadow-md"
+            to="/register"
+          />
         </View>
       </View>
     </View>

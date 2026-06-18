@@ -6,23 +6,27 @@ import Svg, {
   Rect,
   Polygon,
 } from 'react-native-svg';
-import { Path } from 'react-native-svg';
+
 interface HeroSectionProps {
   width: number;
-  height: number;
+  height?: number; // Ignoramos el height que viene, usamos uno fijo
 }
 
-export function HeroSection({ width, height }: HeroSectionProps) {
+export function HeroSection({ width }: HeroSectionProps) {
+  // ✅ ALTURA FIJA - la diagonal siempre cae en el mismo lugar
+  const HEADER_HEIGHT = 250;
+
   return (
     <View
       style={{
-        height,
+        height: HEADER_HEIGHT,
         overflow: 'hidden',
+        backgroundColor: 'white',
       }}
     >
       <Svg
         width={width}
-        height={height}
+        height={HEADER_HEIGHT + 50}
         style={{
           position: 'absolute',
         }}
@@ -34,60 +38,67 @@ export function HeroSection({ width, height }: HeroSectionProps) {
           </LinearGradient>
         </Defs>
 
-        {/* Fondo */}
+        {/* Fondo gradiente */}
         <Rect
           x={0}
           y={0}
           width={width}
-          height={height}
+          height={HEADER_HEIGHT}
           fill="url(#heroGradient)"
         />
 
-        {/* Diagonal oscura */}
+        {/* Diagonal oscura - COORDENADAS FIJAS */}
         <Polygon
           fill="#0A5D4A"
           opacity={0.45}
           points={`
             ${width * 0.99},0
             ${width},0
-            ${width},${height}
-            ${width * 0.0},${height}
+            ${width},${HEADER_HEIGHT}
+            0,${HEADER_HEIGHT}
           `}
         />
+
+        {/* Diagonal blanca - COORDENADAS FIJAS, sin porcentajes */}
         <Polygon
           fill="#F8FAFC"
           points={`
-        -10,${height}
-        ${width + 10},${height * 0.84}
-        ${width + 10},${height + 10}
-        -10,${height + 10}
+            0,${HEADER_HEIGHT}
+            ${width},224
+            ${width},${HEADER_HEIGHT + 50}
+            0,${HEADER_HEIGHT + 50}
           `}
         />
-        
       </Svg>
-      
 
       {/* Contenido */}
-      <View className="absolute inset-0 w-full items-center ">
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
         <Image
           source={require('../../../assets/images/logo-white-green-bg-without.png')}
           style={{
-            marginTop: 40,
             width: 60,
             height: 60,
+            
           }}
           resizeMode="contain"
         />
 
         <Text
-          className="mt-2 text-center font-extrabold text-white"
           style={{
             fontSize: 32,
+            fontWeight: '800',
+            color: '#fff',
+            textAlign: 'center',
             lineHeight: 38,
           }}
         >
-          ¡Bienvenido a{'\n'}
-          DuoBalance!
+          ¡Bienvenido a{'\n'}DuoBalance!
         </Text>
       </View>
     </View>
