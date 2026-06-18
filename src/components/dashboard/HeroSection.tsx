@@ -79,28 +79,20 @@ export function HeroSection({
           `}
         />
 
-        <Polygon
-          fill="#F8FAFC"
-          points={`
-            0,${HEADER_HEIGHT}
-            ${width},350
-            ${width},${HEADER_HEIGHT + 30}
-            0,${HEADER_HEIGHT + 30}
-          `}
-        />
+
       </Svg>
 
       <View
         style={{
           flex: 1,
-          paddingTop: 56,
+          paddingTop: 26,
           paddingHorizontal: 20,
         }}
       >
         <View className="flex-row items-center gap-2">
           <Image
             source={require('@/assets/images/logo-white-green-bg-without.png')}
-            style={{ width: 35, height: 35 }}
+            style={{ width: 25, height: 25 }}
             resizeMode="contain"
           />
           <Text className="text-base text-white">
