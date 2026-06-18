@@ -21,9 +21,13 @@
 **Goal**: Users can register and log in
 - [✅] Auth context + secure token storage
 - [✅] useAuth hook
-- [🔄] Login screen (scaffolded)
-- [🔄] Register screen (scaffolded)
-- [❌] Protected routes
+- [✅] Login screen (UI + API integration)
+- [🔄] Register screen (UI complete, pending backend connection)
+- [🔄] Forgot password screen (UI complete, pending backend connection)
+- [✅] Reusable auth components (AuthHeader, AuthDivider, SocialLoginButton, AuthFooter)
+- [✅] Enhanced Input component (iconLeft, animated focus border)
+- [✅] Protected route guard
+- [✅] Conditional routing (index.tsx → WelcomeScreen or Dashboard)
 - [❌] Response interceptor (401 handling)
 
 **Estimated**: In progress

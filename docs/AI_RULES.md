@@ -5,7 +5,7 @@
 - **No `any`** unless absolutely unavoidable. Use `unknown` + type guards.
 - **Async/await** over raw promises. No `.then()` chains.
 - **Destructure** objects and arrays at binding sites.
-- **Named exports** only. No `export default`.
+- **Named exports** for reusable components and utilities. `export default` is allowed ONLY for Expo Router pages (required by the router).
 - **Single responsibility**: one file = one class/function concern.
 
 ## Frontend (React Native + Expo)

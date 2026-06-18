@@ -64,22 +64,40 @@ pnpm start
 ```
 DuoBalance-app/
 ├── src/
-│   ├── app/              # Expo Router (file-based routing)
-│   │   ├── (auth)/       # Unauthenticated routes
-│   │   └── (protected)/  # Authenticated routes
-│   ├── features/         # Feature modules (auth, couple, expenses, etc.)
-│   ├── services/         # API client and external services
-│   ├── storage/          # Secure storage wrappers
-│   ├── context/          # Global contexts
-│   ├── hooks/            # Custom React hooks
-│   ├── components/       # Reusable UI components
-│   ├── utils/            # Utility functions
-│   ├── constants/        # Config, themes, constants
-│   ├── types/            # TypeScript interfaces and declarations
-│   └── global.css        # Tailwind directives
-├── assets/               # App assets (images, icons)
-└── docs/                 # Project documentation
+│   ├── app/                   # Expo Router (file-based routing)
+│   │   ├── _layout.tsx        # Root layout (AuthProvider)
+│   │   ├── index.tsx          # Conditional entry (Welcome or Dashboard)
+│   │   ├── (auth)/            # Unauthenticated routes
+│   │   │   ├── login.tsx
+│   │   │   ├── register.tsx
+│   │   │   └── forgot-password.tsx
+│   │   └── (protected)/       # Authenticated routes
+│   │       ├── dashboard.tsx
+│   │       ├── expenses.tsx
+│   │       └── profile.tsx
+│   ├── components/            # Reusable UI components
+│   │   ├── ui/                # Primitives (Button, Input, Card, etc.)
+│   │   ├── auth/              # Auth-specific (AuthHeader, AuthDivider, etc.)
+│   │   ├── welcome/           # Welcome screen components
+│   │   ├── layout/            # Layout components
+│   │   ├── finance/           # Finance-related components
+│   │   ├── category/          # Category badge component
+│   │   └── couple/            # Couple-related components
+│   ├── features/              # Feature modules (auth, etc.)
+│   ├── services/              # API client and external services
+│   ├── storage/               # Secure storage wrappers
+│   ├── hooks/                 # Custom React hooks
+│   ├── utils/                 # Utility functions
+│   ├── constants/             # Config, themes, constants
+│   ├── types/                 # TypeScript interfaces and declarations
+│   └── global.css             # Tailwind directives
+├── assets/                    # App assets (images, icons)
+└── docs/                      # Project documentation
 ```
+
+## File Naming Convention
+- **Expo Router pages**: `kebab-case.tsx` with `export default` (required by the router)
+- **Reusable components**: `PascalCase.tsx` with named exports
 
 ## Import Aliases
 

@@ -24,10 +24,14 @@
 - [✅] Auth context/provider (AuthContext + AuthProvider)
 - [✅] useAuth hook
 - [✅] Route scaffolding ((auth)/ and (protected)/ groups)
-- [🔄] Login screen (email + password form) — scaffolded, pending implementation
-- [🔄] Register screen (firstName + lastName + email + password) — scaffolded, pending implementation
-- [❌] Root layout with AuthProvider + conditional routing
-- [❌] Protected route wrapper (redirect to login if no token)
+- [✅] WelcomeScreen with HeroSection + BenefitCards
+- [✅] Enhanced Input component (iconLeft, animated focus border with 500ms blur transition)
+- [✅] Reusable auth components (AuthHeader, AuthDivider, SocialLoginButton, AuthFooter)
+- [✅] Login screen (email + password form) — UI + full API integration (authService.login → getProfile → signIn)
+- [🔄] Register screen (firstName + lastName + email + password) — UI complete, pending backend connection
+- [🔄] Forgot password screen — UI complete (email form), pending backend connection + endpoint
+- [✅] Root layout with AuthProvider + conditional routing (index.tsx)
+- [✅] Protected route wrapper (redirect to login if no token)
 - [❌] Response interceptor (401 → redirect to login)
 
 ## Phase 3: Couple Management
