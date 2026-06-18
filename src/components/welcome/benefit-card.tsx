@@ -10,7 +10,7 @@ interface BenefitCardProps {
 
 export function BenefitCard({ icon, title, description, iconColor }: BenefitCardProps) {
   return (
-    <View className="flex-row items-start gap-4 rounded-xl border border-[#E2E8F0] bg-white p-4 shadow-sm">
+    <View className="flex-row items-center gap-4 rounded-xl border border-[#E2E8F0] bg-white p-4 shadow-sm">
       <View className="h-12 w-12 items-center justify-center rounded-full bg-[#F2F4F6]">
         <FontAwesome6 name={icon} size={22} color={iconColor} />
       </View>
