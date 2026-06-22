@@ -4,8 +4,8 @@ import Svg, {
   Defs,
   LinearGradient,
   Stop,
-  Rect,
-  Polygon,
+  Path,
+  ClipPath,
 } from 'react-native-svg';
 import { CoupleSelector } from './CoupleSelector';
 
@@ -31,7 +31,7 @@ export function HeroSection({
   const { width } = useWindowDimensions();
   const isOwed = direction === 'OWED_TO_ME';
   const isSettled = direction === 'SETTLED';
-  const HEADER_HEIGHT = 380;
+  const HEADER_HEIGHT = 270;
 
   const pillText = isSettled
     ? 'Cuentas equilibradas'
@@ -44,42 +44,76 @@ export function HeroSection({
       style={{
         height: HEADER_HEIGHT,
         overflow: 'hidden',
-        borderBottomLeftRadius: 40,
-        borderBottomRightRadius: 40,
+        borderBottomLeftRadius: 60,
+        borderBottomRightRadius: 60,
       }}
     >
       <Svg
         width={width}
-        height={HEADER_HEIGHT + 30}
+        height={HEADER_HEIGHT + 40}
         style={{ position: 'absolute' }}
       >
         <Defs>
           <LinearGradient id="heroGradient" x1="0" y1="0" x2="1" y2="1">
-            <Stop offset="0%" stopColor="#10B981" />
-            <Stop offset="100%" stopColor="#059669" />
+            <Stop offset="0%" stopColor="#065238ff" />
+            <Stop offset="100%" stopColor="#04c88aff" />
           </LinearGradient>
+
+          <LinearGradient id="waveGradient" x1="0" y1="0" x2="1" y2="0">
+            <Stop offset="0%" stopColor="#0d523aff" />
+            <Stop offset="100%" stopColor="#054d35ff" />
+          </LinearGradient>
+
+          <ClipPath id="heroClip">
+            <Path
+              d={`
+          M0 0
+          H${width}
+          V${HEADER_HEIGHT - 40}
+          Q${width} ${HEADER_HEIGHT - 10}, ${width * 0.5} ${HEADER_HEIGHT}
+          Q0 ${HEADER_HEIGHT - 10}, 0 ${HEADER_HEIGHT - 40}
+          Z
+        `}
+            />
+          </ClipPath>
         </Defs>
 
-        <Rect
-          x={0}
-          y={0}
-          width={width}
-          height={HEADER_HEIGHT}
+        {/* Fondo principal */}
+        <Path
+          d={`
+      M0 0
+      H${width}
+      V${HEADER_HEIGHT - 40}
+      
+      Q${width} ${HEADER_HEIGHT - 10}, ${width * 0.5} ${HEADER_HEIGHT}
+      Q0 ${HEADER_HEIGHT - 10}, 0 ${HEADER_HEIGHT - 40}
+      Z
+    `}
           fill="url(#heroGradient)"
+          clipPath="url(#heroClip)"
         />
 
-        <Polygon
-          fill="#0A5D4A"
-          opacity={0.3}
-          points={`
-            ${width * 0.99},0
-            ${width},0
-            ${width},${HEADER_HEIGHT}
-            0,${HEADER_HEIGHT}
-          `}
+        {/* Ola decorativa oscura */}
+        <Path
+          d={`
+      M0 ${HEADER_HEIGHT - 70}
+
+      C${width * 0.25} ${HEADER_HEIGHT - 110},
+       ${width * 0.3} ${HEADER_HEIGHT - 90},
+       ${width * 0.45} ${HEADER_HEIGHT - 70}
+
+      C${width * 0.65} ${HEADER_HEIGHT - 50},
+       ${width * 0.8} ${HEADER_HEIGHT - 20},
+       ${width} ${HEADER_HEIGHT - 70}
+
+      L${width} ${HEADER_HEIGHT}
+      L0 ${HEADER_HEIGHT}
+      Z
+    `}
+          fill="#0b4436ff"
+          opacity={0.27}
+          clipPath="url(#heroClip)"
         />
-
-
       </Svg>
 
       <View
@@ -106,14 +140,12 @@ export function HeroSection({
           </Text>
 
           <View
-            className={`mt-4 rounded-full px-5 py-1.5 ${
-              isSettled ? 'bg-green-200' : 'bg-red-100'
-            }`}
+            className={`mt-4 rounded-full px-5 py-1.5 ${isSettled ? 'bg-green-200' : 'bg-red-100'
+              }`}
           >
             <Text
-              className={`text-sm font-medium ${
-                isSettled ? 'text-green-800' : 'text-red-700'
-              }`}
+              className={`text-sm font-medium ${isSettled ? 'text-green-800' : 'text-red-700'
+                }`}
             >
               {pillText}
             </Text>
