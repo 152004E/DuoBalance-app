@@ -7,16 +7,13 @@ interface FloatingAddButtonProps {
   size?: number;
 }
 
-export function FloatingAddButton({ onPress, icon = 'plus', size = 48 }: FloatingAddButtonProps) {
-  const iconSize = Math.round(size * 0.58);
-
+export function FloatingAddButton({ onPress, icon = 'plus', size = 28 }: FloatingAddButtonProps) {
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="absolute bottom-6 right-6 z-50 items-center justify-center rounded-full bg-[#10B981] shadow-lg"
-      style={{ width: size, height: size }}
+      className="absolute bottom-6 right-6 z-50 h-12 w-12 items-center justify-center rounded-full bg-[#10B981] shadow-lg"
     >
-      <FontAwesome6 name={icon as any} size={iconSize} color="white" />
+      <FontAwesome6 name={icon as any} size={size} color="white" />
     </TouchableOpacity>
   );
 }

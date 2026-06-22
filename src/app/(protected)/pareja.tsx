@@ -63,7 +63,7 @@ export default function ParejaScreen() {
         </View>
       </ScrollView>
 
-      <FloatingAddButton icon="user-plus" />
+      <FloatingAddButton icon="user-plus" size={25}  />
     </SafeAreaView>
   );
 }
