@@ -1,11 +1,10 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
   TextInput,
   ScrollView,
   Pressable,
-  Animated,
 } from 'react-native';
 import AnimatedReanimated, {
   useSharedValue,
@@ -17,6 +16,7 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
+import { Button } from '@/components/ui/button';
 import { PercentageSlider } from '@/components/ui/percentage-slider';
 import { DistributionBar } from '@/components/ui/distribution-bar';
 
@@ -33,8 +33,6 @@ export function CreateCoupleSheet({ visible, onClose }: CreateCoupleSheetProps) 
 
   const partnerPercentage = 100 - yourPercentage;
   const isDisabled = coupleName.trim().length === 0;
-
-  const buttonScale = useRef(new Animated.Value(1)).current;
 
   const titleOpacity = useSharedValue(0);
   const titleTranslateY = useSharedValue(20);
@@ -70,37 +68,27 @@ export function CreateCoupleSheet({ visible, onClose }: CreateCoupleSheetProps) 
     transform: [{ translateY: subtitleTranslateY.value }],
   }));
 
-  const handlePressIn = () => {
-    Animated.spring(buttonScale, {
-      toValue: 0.97,
-      useNativeDriver: true,
-      damping: 15,
-      stiffness: 200,
-    }).start();
-  };
-
-  const handlePressOut = () => {
-    Animated.spring(buttonScale, {
-      toValue: 1,
-      useNativeDriver: true,
-      damping: 15,
-      stiffness: 200,
-    }).start();
-  };
-
   const header = (
-    <View className="flex-1 rounded-t-3xl">
+    <View
+      className="flex-1 rounded-t-3xl"
+      style={{
+        borderTopLeftRadius: 32,
+        borderTopRightRadius: 32,
+        overflow: 'hidden',
+        height: 280,
+      }}
+    >
       <LinearGradient
         colors={['#10B981', '#0F766E']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        className="flex-1 justify-end px-5 pb-7 pt-17 rounded-t-3xl"
-        style={{ paddingTop: insets.top + 12 }}
+        className="flex-1 justify-end px-5 pt-17 "
+        style={{ padding: insets.top + 12, paddingBottom: insets.bottom + 45 }}
       >
         <Pressable
           onPress={onClose}
           className="h-8 w-8  items-center justify-center rounded-full"
-          style={{ backgroundColor: 'rgba(255,255,255,0.15)',  }}
+          style={{ backgroundColor: 'rgba(255,255,255,0.15)', }}
         >
           <FontAwesome6 name="arrow-left" size={18} color="#FFFFFF" />
         </Pressable>
@@ -122,7 +110,10 @@ export function CreateCoupleSheet({ visible, onClose }: CreateCoupleSheetProps) 
 
   return (
     <BottomSheet visible={visible} onClose={onClose} header={header}>
-      <View className="flex-1">
+      <View className="flex-1" style={{
+        
+        height: 240,
+      }}>
         <ScrollView
           className="flex-1 px-5"
           showsVerticalScrollIndicator={false}
@@ -191,30 +182,13 @@ export function CreateCoupleSheet({ visible, onClose }: CreateCoupleSheetProps) 
         </ScrollView>
 
         <View className="border-t border-[#E2E8F0] px-5 pb-2 pt-4">
-          <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
-            <Pressable
-              disabled={isDisabled}
-              onPressIn={handlePressIn}
-              onPressOut={handlePressOut}
-              onPress={onClose}
-            >
-              <LinearGradient
-                colors={isDisabled ? ['#CBD5E1', '#CBD5E1'] : ['#10B981', '#0F766E']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                className="items-center justify-center rounded-full py-4 shadow-lg"
-                style={{
-                  shadowColor: '#10B981',
-                  shadowOffset: { width: 0, height: 8 },
-                  shadowOpacity: isDisabled ? 0 : 0.3,
-                  shadowRadius: 16,
-                  elevation: isDisabled ? 0 : 8,
-                }}
-              >
-                <Text className="text-base font-bold text-white">Crear pareja</Text>
-              </LinearGradient>
-            </Pressable>
-          </Animated.View>
+          <Button
+            text="Crear pareja"
+            iconRight="arrow-right"
+            onPress={onClose}
+            disabled={isDisabled}
+            className="rounded-full py-4"
+          />
         </View>
       </View>
     </BottomSheet>
