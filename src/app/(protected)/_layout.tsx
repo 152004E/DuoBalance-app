@@ -3,7 +3,11 @@ import { Redirect, Tabs } from 'expo-router';
 import BottomTab from '@/components/layout/bottom-tab';
 
 export default function ProtectedLayout() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return null;
+  }
 
   if (!user) {
     return <Redirect href="/login" />;

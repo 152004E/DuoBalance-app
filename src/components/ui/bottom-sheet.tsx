@@ -15,12 +15,13 @@ interface BottomSheetProps {
   onClose: () => void;
   children: React.ReactNode;
   header?: React.ReactNode;
+  heightRatio?: number; 
 }
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-const SHEET_HEIGHT_RATIO = 0.75;
-const MIN_HEIGHT_RATIO = 0.65;
+const SHEET_HEIGHT_RATIO = 0.65;
+const MIN_HEIGHT_RATIO = 0.55;
 const MAX_HEIGHT_RATIO = 0.85;
 
 const SHEET_HEIGHT = Math.min(
@@ -29,7 +30,7 @@ const SHEET_HEIGHT = Math.min(
 );
 
 const HEADER_HEIGHT = SCREEN_HEIGHT * 0.35;
-const HEADER_FINAL_TRANSLATE_Y = SCREEN_HEIGHT * 0.07;
+const HEADER_FINAL_TRANSLATE_Y = SCREEN_HEIGHT * 0.17;
 
 const DISMISS_THRESHOLD = 100;
 const DISMISS_VELOCITY = 500;

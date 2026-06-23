@@ -17,6 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { Button } from '@/components/ui/button';
+import { AlertModal } from '@/components/ui/alert-modal';
 import { PercentageSlider } from '@/components/ui/percentage-slider';
 import { DistributionBar } from '@/components/ui/distribution-bar';
 
@@ -30,6 +31,7 @@ export function CreateCoupleSheet({ visible, onClose }: CreateCoupleSheetProps) 
 
   const [coupleName, setCoupleName] = useState('');
   const [yourPercentage, setYourPercentage] = useState(50);
+  const [showWarning, setShowWarning] = useState(false);
 
   const partnerPercentage = 100 - yourPercentage;
   const isDisabled = coupleName.trim().length === 0;
@@ -49,7 +51,8 @@ export function CreateCoupleSheet({ visible, onClose }: CreateCoupleSheetProps) 
         subtitleOpacity.value = withTiming(1, { duration: 350, easing: Easing.out(Easing.cubic) });
         subtitleTranslateY.value = withTiming(0, { duration: 350, easing: Easing.out(Easing.cubic) });
       }, 1100);
-      return () => { clearTimeout(t1); clearTimeout(t2); };
+      const t3 = setTimeout(() => setShowWarning(true), 1600);
+      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
     } else {
       titleOpacity.value = 0;
       titleTranslateY.value = 20;
@@ -70,12 +73,10 @@ export function CreateCoupleSheet({ visible, onClose }: CreateCoupleSheetProps) 
 
   const header = (
     <View
-      className="flex-1 rounded-t-3xl"
       style={{
         borderTopLeftRadius: 32,
         borderTopRightRadius: 32,
         overflow: 'hidden',
-        height: 280,
       }}
     >
       <LinearGradient
@@ -83,7 +84,7 @@ export function CreateCoupleSheet({ visible, onClose }: CreateCoupleSheetProps) 
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         className="flex-1 justify-end px-5 pt-17 "
-        style={{ padding: insets.top + 12, paddingBottom: insets.bottom + 45 }}
+        style={{ padding: insets.top + 10, paddingBottom: insets.bottom + 50 }}
       >
         <Pressable
           onPress={onClose}
@@ -109,7 +110,7 @@ export function CreateCoupleSheet({ visible, onClose }: CreateCoupleSheetProps) 
   );
 
   return (
-    <BottomSheet visible={visible} onClose={onClose} header={header}>
+    <BottomSheet visible={visible} onClose={onClose} header={header} heightRatio={0}>
       <View className="flex-1" style={{
         
         height: 240,
@@ -173,12 +174,6 @@ export function CreateCoupleSheet({ visible, onClose }: CreateCoupleSheetProps) 
             />
           </View>
 
-          <View className="mt-5 flex-row items-center gap-3 rounded-2xl bg-[#F8FAFC] px-4 py-3.5">
-            <FontAwesome6 name="circle-info" size={16} color="#64748B" />
-            <Text className="flex-1 text-sm leading-5 text-[#64748B]">
-              Puedes modificar estos porcentajes más adelante.
-            </Text>
-          </View>
         </ScrollView>
 
         <View className="border-t border-[#E2E8F0] px-5 pb-2 pt-4">
@@ -191,6 +186,19 @@ export function CreateCoupleSheet({ visible, onClose }: CreateCoupleSheetProps) 
           />
         </View>
       </View>
+
+
+
+{/*
+<AlertModal
+  visible={showWarning}
+  type="warning"
+  title="Distribución de gastos"
+  message="Puedes modificar estos porcentajes más adelante."
+  buttonText="Entendido"
+  onClose={() => setShowWarning(false)}
+/>
+*/}
     </BottomSheet>
   );
 }
