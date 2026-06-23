@@ -5,6 +5,7 @@ import {
   TextInput,
   ScrollView,
   Pressable,
+  Animated,
 } from 'react-native';
 import AnimatedReanimated, {
   useSharedValue,
@@ -112,7 +113,7 @@ export function CreateCoupleSheet({ visible, onClose }: CreateCoupleSheetProps) 
   return (
     <BottomSheet visible={visible} onClose={onClose} header={header} heightRatio={0}>
       <View className="flex-1" style={{
-        
+
         height: 240,
       }}>
         <ScrollView
@@ -164,7 +165,39 @@ export function CreateCoupleSheet({ visible, onClose }: CreateCoupleSheetProps) 
           </View>
 
           <View className="mt-6">
-            <PercentageSlider value={yourPercentage} onChange={setYourPercentage} />
+
+
+            <View className="mt-1 flex-row items-center justify-center gap-4">
+              <Pressable
+                onPress={() => setYourPercentage(Math.max(0, yourPercentage - 5))}
+                className="h-12 w-12 items-center justify-center rounded-full bg-[#10B981]"
+                style={{
+                  shadowColor: '#10B981',
+                  shadowOpacity: 0.25,
+                  shadowRadius: 8,
+                  elevation: 4,
+                }}
+              >
+                <Text className="text-xl font-bold text-white">−</Text>
+              </Pressable>
+
+              <Text className="text-3xl font-extrabold text-[#10B981]">
+                {yourPercentage}%
+              </Text>
+
+              <Pressable
+                onPress={() => setYourPercentage(Math.min(100, yourPercentage + 5))}
+                className="h-12 w-12 items-center justify-center rounded-full bg-[#10B981]"
+                style={{
+                  shadowColor: '#10B981',
+                  shadowOpacity: 0.25,
+                  shadowRadius: 8,
+                  elevation: 4,
+                }}
+              >
+                <Text className="text-xl font-bold text-white">+</Text>
+              </Pressable>
+            </View>
           </View>
 
           <View className="mb-2 mt-5">
@@ -189,7 +222,7 @@ export function CreateCoupleSheet({ visible, onClose }: CreateCoupleSheetProps) 
 
 
 
-{/*
+      {/*
 <AlertModal
   visible={showWarning}
   type="warning"
