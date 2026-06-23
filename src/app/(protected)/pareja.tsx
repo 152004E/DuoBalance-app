@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { View, Text, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppHero } from '@/components/layout/AppHero';
 import { CoupleCard } from '@/components/dashboard/CoupleCard';
 import { FloatingAddButton } from '@/components/dashboard/FloatingAddButton';
+import { CreateCoupleSheet } from '@/components/couple/create-couple-sheet';
 import { useAuth } from '@/hooks/use-auth';
 
 const MOCK_COUPLES = [
@@ -14,6 +16,7 @@ const MOCK_COUPLES = [
 
 export default function ParejaScreen() {
   const { user } = useAuth();
+  const [showCreateSheet, setShowCreateSheet] = useState(false);
 
   return (
     <SafeAreaView className="relative flex-1 bg-[#F8FAFC]" edges={['top']}>
@@ -63,7 +66,16 @@ export default function ParejaScreen() {
         </View>
       </ScrollView>
 
-      <FloatingAddButton icon="user-plus" size={25}  />
+      <FloatingAddButton
+        icon="user-plus"
+        size={25}
+        onPress={() => setShowCreateSheet(true)}
+      />
+
+      <CreateCoupleSheet
+        visible={showCreateSheet}
+        onClose={() => setShowCreateSheet(false)}
+      />
     </SafeAreaView>
   );
 }
