@@ -1,15 +1,17 @@
-import { View, Text } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
 
 type CoupleStatus = 'positive' | 'neutral' | 'negative';
 
 interface CoupleCardProps {
+  id?: string;
   name: string;
   balance: number;
   status: CoupleStatus;
+  onPress?: () => void;
 }
 
-export function CoupleCard({ name, balance, status }: CoupleCardProps) {
+export function CoupleCard({ id, name, balance, status, onPress }: CoupleCardProps) {
   const dotColor =
     status === 'positive'
       ? '#10B981'
@@ -18,7 +20,7 @@ export function CoupleCard({ name, balance, status }: CoupleCardProps) {
         : '#F59E0B';
 
   return (
-    <View className="min-w-[240px] flex-row items-center gap-3 rounded-xl border border-[#E2E8F0] bg-white p-4 shadow-sm">
+    <Pressable onPress={onPress} className="min-w-[240px] flex-row items-center gap-3 rounded-xl border border-[#E2E8F0] bg-white p-4 shadow-sm">
       <View className="h-12 w-12 items-center justify-center rounded-full border-2 border-[#bbcabf] bg-[#eceef0]">
         <FontAwesome6 name="user" size={18} color="#64748B" />
       </View>
@@ -36,6 +38,6 @@ export function CoupleCard({ name, balance, status }: CoupleCardProps) {
           </Text>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 }

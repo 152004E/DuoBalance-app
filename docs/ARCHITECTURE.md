@@ -8,12 +8,13 @@
 - **State**: Local state + context (AuthContext)
 - **API Client**: Axios with interceptors
 - **Secure Storage**: expo-secure-store
+- **Animations**: react-native-reanimated
 - **Image Capture**: expo-image-picker / expo-camera (planned)
 - **Package Manager**: pnpm
 
 ## Current State
 
-The mobile app has its auth flow fully implemented and several reusable component domains:
+The mobile app has its auth flow fully implemented, a growing set of reusable UI components, dashboard/couple/reports screens built with mock data, and custom layout components.
 
 ```
 DuoBalance-app/
@@ -27,19 +28,27 @@ DuoBalance-app/
 │   │   │   ├── register.tsx         Register screen (full implementation with auto-login)
 │   │   │   └── forgot-password.tsx  Forgot password screen (UI complete)
 │   │   └── (protected)/             Protected group (authenticated routes)
-│   │       ├── _layout.tsx          Protected layout (auth guard)
-│   │       ├── dashboard.tsx        Dashboard screen (placeholder)
-│   │       ├── expenses.tsx         Expenses screen (placeholder)
-│   │       └── profile.tsx          Profile screen (placeholder)
+│   │       ├── _layout.tsx          Protected layout (auth guard + BottomTab)
+│   │       ├── index.tsx            Dashboard screen (mock data: hero, balances, charts)
+│   │       ├── gastos.tsx           Expenses screen (placeholder)
+│   │       ├── reportes.tsx         Reports screen (mock data: donut chart, categories, stats)
+│   │       ├── perfil.tsx           Profile screen (placeholder)
+│   │       └── pareja/              Couple stack routes
+│   │           ├── _layout.tsx      Pareja Stack navigator
+│   │           ├── index.tsx        Couple list (cards, invite code, create couple sheet)
+│   │           └── [id].tsx         Couple detail (balances, distribution, transactions)
 │   │
 │   ├── components/                  Reusable UI components
 │   │   ├── ui/                      Primitives
 │   │   │   ├── alert-modal.tsx       Custom AlertModal (BlurView backdrop, 4 types, animated)
-│   │   │   ├── button.tsx           Reusable Button (variants, loading, icons, link)
+│   │   │   ├── button.tsx           Reusable Button (5 variants: primary/secondary/outline/danger/link)
 │   │   │   ├── input.tsx            Enhanced Input (iconLeft, focus border instant green)
 │   │   │   ├── card.tsx             Generic Card (default/highlight variants)
 │   │   │   ├── loading.tsx          Full-screen loading spinner
-│   │   │   └── empty-state.tsx      Empty state placeholder
+│   │   │   ├── empty-state.tsx      Empty state placeholder (icon, title, subtitle, action)
+│   │   │   ├── bottom-sheet.tsx     Bottom sheet modal (backdrop, drag indicator, spring animation)
+│   │   │   ├── percentage-slider.tsx  Animated percentage slider with gradient fill
+│   │   │   └── distribution-bar.tsx  Horizontal stacked distribution bar with legends
 │   │   ├── auth/                    Auth-specific reusable components
 │   │   │   ├── auth-header.tsx      Logo + title + optional subtitle
 │   │   │   ├── auth-divider.tsx     "O continúa con" separator
@@ -49,18 +58,33 @@ DuoBalance-app/
 │   │   │   ├── welcome-screen.tsx   Full welcome landing page
 │   │   │   ├── hero-section.tsx     SVG gradient hero with diagonal
 │   │   │   └── benefit-card.tsx     Icon + text benefit row
-│   │   ├── layout/
-│   │   │   └── screen-header.tsx    Title + subtitle page header
-│   │   ├── finance/
+│   │   ├── layout/                  Layout components
+│   │   │   ├── bottom-tab.tsx       Custom bottom tab bar (5 tabs: Inicio, Gastos, Pareja, Reportes, Perfil)
+│   │   │   ├── screen-header.tsx    Title + subtitle + optional back button
+│   │   │   ├── splash-screen.tsx    Animated splash with gradient + logo
+│   │   │   └── AppHero.tsx          Shared hero for dashboard greeting
+│   │   ├── finance/                 Finance-related components
 │   │   │   ├── expense-card.tsx     Expense list item
 │   │   │   ├── stat-card.tsx        Stat display card
 │   │   │   ├── amount.tsx           Formatted money amount
-│   │   │   └── balance-card.tsx     Balance direction card
+│   │   │   └── balance-card.tsx     Balance direction card (owed/debt/settled)
 │   │   ├── category/
 │   │   │   └── category-badge.tsx   Colored category pill
-│   │   └── couple/
-│   │       ├── couple-card.tsx      Partner info card
-│   │       └── invite-code-card.tsx Invite code display card
+│   │   ├── couple/                  Couple-related components
+│   │   │   ├── couple-card.tsx      Partner info card (avatar, name, email)
+│   │   │   ├── invite-code-card.tsx  Invite code display with copy + refresh
+│   │   │   └── create-couple-sheet.tsx  Bottom sheet form: name + percentage split + generate code
+│   │   └── dashboard/               Dashboard-specific components
+│   │       ├── HeroSection.tsx      Greeting with user avatar
+│   │       ├── BalanceCard.tsx      Balance summary (income/expenses/net)
+│   │       ├── CoupleSelector.tsx   Dropdown-style couple switcher
+│   │       ├── PartnerBalance.tsx   Partner balance card (owed/to whom)
+│   │       ├── RecentTransactions.tsx  Transaction list with pull-to-refresh
+│   │       ├── FloatingAddButton.tsx   Floating action button with shadow
+│   │       ├── TopCategory.tsx      Top spending category card
+│   │       ├── AddCoupleCard.tsx    Quick-add couple card
+│   │       ├── BarChart.tsx         Bar chart visualization
+│   │       └── DonutChart.tsx       Donut chart for category breakdown
 │   │
 │   ├── features/                    Feature modules (domain-driven)
 │   │   └── auth/
@@ -76,7 +100,7 @@ DuoBalance-app/
 │   │   └── token.ts                 SecureStore wrapper (token + user)
 │   │
 │   ├── hooks/
-│   │   └── use-auth.ts              useAuth hook (AuthContext wrapper with guard)
+│   │   └── use-auth.ts              useAuth hook (AuthContext wrapper with guard + token persistence)
 │   │
 │   ├── types/
 │   │   ├── api.ts                   All backend DTOs and response types
@@ -113,7 +137,7 @@ App (Expo Router)
 │   ├── if not authenticated → WelcomeScreen
 │   │   ├── "Iniciar Sesión" → /login
 │   │   └── "Crear Cuenta" → /register
-│   └── if authenticated → redirect to /(protected)/dashboard
+│   └── if authenticated → redirect to /(protected)
 │
 ├── (auth) — Not authenticated
 │   ├── /login
@@ -125,9 +149,27 @@ App (Expo Router)
 │       └── "Volver a Iniciar sesión" → /login
 │
 └── (protected) — Authenticated (redirects to /login if no user)
-    ├── /dashboard
-    ├── /expenses
-    └── /profile
+    │   Bottom Tab: Inicio | Gastos | Pareja | Reportes | Perfil
+    ├── /inicio (index)
+    │   └── Dashboard (HeroSection, BalanceCard, CoupleSelector, PartnerBalance,
+    │                  RecentTransactions, FloatingAddButton)
+    ├── /gastos
+    │   └── Expense list (placeholder)
+    ├── /pareja
+    │   ├── /pareja (index) — Couple list
+    │   │   ├── CoupleCard → /pareja/[id]
+    │   │   ├── InviteCodeCard
+    │   │   ├── CreateCoupleSheet (bottom sheet modal)
+    │   │   └── AddCoupleCard
+    │   └── /pareja/[id] — Couple detail
+    │       ├── Balance cards (owed/debt/settled)
+    │       ├── DistributionBar
+    │       ├── Recent transactions
+    │       └── Settings (leave couple)
+    ├── /reportes
+    │   └── Reports (period filter, donut chart, top categories, stats)
+    └── /perfil
+        └── Profile (placeholder)
 ```
 
 ## Data Flow
@@ -185,4 +227,5 @@ User submits form
 - **Feature modules** organized by domain (auth, expenses, etc.)
 - **Separated API layer** — all HTTP calls through `src/services/api/`
 - **Reusable domain components** — `components/auth/` for cross-auth-screen reuse, `components/ui/` for primitives
+- **Modals** built as overlays — `BottomSheet` for forms, `AlertModal` for alerts
 - **Expo Router default exports** — pages use `export default` (required by the router); all other components use named exports

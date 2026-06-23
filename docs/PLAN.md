@@ -4,7 +4,7 @@
 
 ## Legend
 - ✅ Done
-- 🔄 In Progress
+- 🔄 In Progress / Partial
 - ❌ Not Started
 
 ## Phase 1: Foundation
@@ -22,7 +22,7 @@
 
 ## Phase 2: Auth Screens
 - [✅] Auth context/provider (AuthContext + AuthProvider)
-- [✅] useAuth hook
+- [✅] useAuth hook (with token persistence on mount)
 - [✅] Route scaffolding ((auth)/ and (protected)/ groups)
 - [✅] WelcomeScreen with HeroSection + BenefitCards
 - [✅] Enhanced Input component (iconLeft, focus border with instant green + blur border reset)
@@ -34,11 +34,15 @@
 - [✅] Toast notifications via react-native-toast-message (configured in root layout)
 - [✅] Root layout with AuthProvider + conditional routing (index.tsx)
 - [✅] Protected route wrapper (redirect to login if no token)
+- [✅] Token persistence — use-auth reads stored token on mount and triggers auth state
 - [❌] Response interceptor (401 → redirect to login)
 
 ## Phase 3: Couple Management
-- [❌] Couple creation screen (generate/enter invitation code)
-- [❌] Couple settings screen (view partner, leave couple)
+- [✅] Couple list screen — cards, invite code display/copy/refresh, create trigger
+- [✅] Couple creation bottom sheet — name, percentage split slider, generate invite code
+- [✅] Couple detail screen — balance cards (owed/debt/settled), distribution bar, transactions, settings (leave couple)
+- [❌] Join couple via invite code (enter code form)
+- [❌] Backend API integration (currently mock data)
 
 ## Phase 4: Expense Screens
 - [❌] Expense list screen (flat list with category filters)
@@ -47,30 +51,49 @@
 - [❌] Split picker UI component (equal/percentage/custom)
 
 ## Phase 5: Dashboard
-- [❌] Dashboard screen (summary cards: owed, debt, net)
-- [❌] Balance chart per person
-- [❌] Category breakdown chart
+- [✅] Dashboard screen — HeroSection, BalanceCard, CoupleSelector (mock data)
+- [✅] Partner balance display (PartnerBalance component)
+- [✅] Category breakdown chart (DonutChart component)
+- [✅] Recent transactions list (RecentTransactions component)
+- [✅] Floating action button (FloatingAddButton)
 - [❌] Settlement suggestions list
+- [❌] Backend API integration (currently mock data)
 
-## Phase 6: Receipt Capture
+## Phase 6: Reports & Analytics
+- [✅] Reports screen — period filter, donut chart, top categories, stats cards (mock data)
+- [❌] Reports backend API integration
+
+## Phase 7: New UI Components
+- [✅] BottomSheet — reusable modal with backdrop, drag indicator, spring animations
+- [✅] PercentageSlider — animated slider with gradient fill
+- [✅] DistributionBar — stacked horizontal distribution bar
+- [✅] Button — reusable with 5 variants (primary/secondary/outline/danger/link)
+- [✅] AlertModal — reusable with 4 types, BlurView backdrop
+- [✅] Card, Loading, EmptyState — all generic primitives
+- [✅] Layout components — BottomTab (5 tabs), ScreenHeader, SplashScreen, AppHero
+- [✅] Dashboard components — HeroSection, BalanceCard, CoupleSelector, PartnerBalance, RecentTransactions, FloatingAddButton, TopCategory, AddCoupleCard, BarChart, DonutChart
+- [✅] Couple components — CoupleCard, InviteCodeCard, CreateCoupleSheet
+
+## Phase 8: Receipt Capture
 - [❌] Camera/gallery integration (expo-image-picker / expo-camera)
 - [❌] Receipt preview screen
 - [❌] Upload progress indicator
 - [❌] Extracted data confirmation screen
 
-## Phase 7: Payment Screens
+## Phase 9: Payment Screens
 - [❌] Pay screen (select amount, confirm payment)
 - [❌] Payment history list
 - [❌] Settlement suggestion cards
 
-## Phase 8: Polish
+## Phase 10: Polish
 - [❌] Push notifications (expo-notifications)
 - [❌] Dark mode
 - [❌] i18n (multi-language)
 - [❌] Offline support
 - [❌] App icon + splash screen
+- [✅] Staggered entrance animations on auth screens (Logo, Title, Inputs, Buttons)
 
-## Phase 9: Deployment — Beta
+## Phase 11: Deployment — Beta
 > Todo el desarrollo previo corre en localhost con Expo Go. Solo al llegar a beta se despliega.
 - [❌] Conectar con backend desplegado (URL de producción)
 - [❌] Generar APK con EAS Build (`eas build --platform android`)

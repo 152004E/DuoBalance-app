@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 import { AppHero } from '@/components/layout/AppHero';
 import { CoupleCard } from '@/components/dashboard/CoupleCard';
 import { FloatingAddButton } from '@/components/dashboard/FloatingAddButton';
@@ -57,9 +58,11 @@ export default function ParejaScreen() {
             {MOCK_COUPLES.map((item) => (
               <CoupleCard
                 key={item.id}
+                id={item.id}
                 name={item.name}
                 balance={item.balance}
                 status={item.status}
+                onPress={() => router.push(`/pareja/${item.id}`)}
               />
             ))}
           </View>
