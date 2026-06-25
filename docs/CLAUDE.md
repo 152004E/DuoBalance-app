@@ -55,6 +55,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **InviteCodeCard**: Invite code display with copy-to-clipboard and refresh ✅
 - **CreateCoupleSheet**: Bottom sheet form with couple name input, percentage slider split, and generate invite code action ✅
 - **AddCoupleCard**: Quick-add card for creating a new couple ✅
+- **CoupleDetailHeader**: Reusable header for couple detail view with back button, title, subtitle, and optional menu button ✅
 
 ### Dashboard Components — Built
 - **HeroSection**: Greeting section with user avatar and welcome message ✅
@@ -197,6 +198,7 @@ npx prisma db push        # Push schema (dev)
 | `src/components/couple/couple-card.tsx` | Partner info card |
 | `src/components/couple/invite-code-card.tsx` | Invite code display + copy |
 | `src/components/couple/create-couple-sheet.tsx` | Create couple bottom sheet form |
+| `src/components/couple/couple-detail-header.tsx` | Reusable header for couple detail (back, title, subtitle, menu) |
 
 ### Dashboard Components
 | File | Purpose |
@@ -226,3 +228,12 @@ npx prisma db push        # Push schema (dev)
 | `docs/ARCHITECTURE.md` | Full architecture docs |
 | `docs/PLAN.md` | Implementation plan |
 | `docs/ROADMAP.md` | Release roadmap |
+
+### AI Agents (`.opencode/agents/`)
+| File | Purpose |
+|------|---------|
+| `.opencode/agents/docs-updater.md` | Mantiene la documentación actualizada tras cada cambio |
+| `.opencode/agents/expo-mobile.md` | Construye pantallas y componentes Expo con NativeWind |
+| `.opencode/agents/feature-planner.md` | Planifica pantallas y features antes de implementar |
+| `.opencode/agents/frontend-architect.md` | Diseña la arquitectura del frontend y organiza el código |
+| `.opencode/agents/mobile-ui-reviewer.md` | Revisa UI/UX de pantallas Expo y propone mejoras |

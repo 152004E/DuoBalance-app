@@ -73,7 +73,8 @@ DuoBalance-app/
 │   │   ├── couple/                  Couple-related components
 │   │   │   ├── couple-card.tsx      Partner info card (avatar, name, email)
 │   │   │   ├── invite-code-card.tsx  Invite code display with copy + refresh
-│   │   │   └── create-couple-sheet.tsx  Bottom sheet form: name + percentage split + generate code
+│   │   │   ├── create-couple-sheet.tsx  Bottom sheet form: name + percentage split + generate code
+│   │   │   └── couple-detail-header.tsx  Reusable header with back button, title, subtitle, menu
 │   │   └── dashboard/               Dashboard-specific components
 │   │       ├── HeroSection.tsx      Greeting with user avatar
 │   │       ├── BalanceCard.tsx      Balance summary (income/expenses/net)
@@ -113,6 +114,8 @@ DuoBalance-app/
 │   ├── utils/                       Utilities (empty, ready)
 │   └── global.css                   Tailwind directives
 │
+├── .opencode/
+│   └── agents/                      AI agent definitions (docs-updater, expo-mobile, feature-planner, frontend-architect, mobile-ui-reviewer)
 ├── assets/                          App assets (images, icons)
 ├── docs/                            Project documentation
 ├── app.json                         Expo configuration
