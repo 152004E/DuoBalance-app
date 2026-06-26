@@ -328,46 +328,6 @@ export default function CoupleDetail() {
           </View>
         </View>
 
-        {/* Código de Invitación */}
-        <View className="mt-4 px-5">
-          <View
-            className="rounded-xl border border-[#E2E8F0] bg-white p-5"
-            style={{
-              shadowColor: '#0F172A',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.05,
-              shadowRadius: 12,
-              elevation: 2,
-            }}
-          >
-            <Text className="text-[13px] font-semibold uppercase tracking-wider text-[#64748B]">
-              Código de Invitación
-            </Text>
-
-            <View className="mt-4 items-center gap-3 rounded-lg border border-dashed border-[#BBCABF] bg-[#ECEEF0] p-4">
-              <Text
-                className="text-2xl font-bold uppercase tracking-widest text-[#006c49]"
-                style={{ fontFamily: 'monospace' }}
-              >
-                ABCD-EFGH
-              </Text>
-              <Text className="text-center text-sm text-[#64748B]">
-                Comparte este código para agregar un tercer integrante o
-                sincronizar dispositivos.
-              </Text>
-
-              <Pressable
-                onPress={handleCopyCode}
-                className="mt-2 w-full flex-row items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-white py-2 active:bg-[#F2F4F6]"
-              >
-                <FontAwesome6 name="copy" size={14} color="#0F172A" />
-                <Text className="text-sm font-semibold text-[#0F172A]">
-                  Copiar código
-                </Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
 
         {/* Mini Analytics Preview */}
         <View className="mt-4 px-5">

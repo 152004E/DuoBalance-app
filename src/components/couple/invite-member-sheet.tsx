@@ -56,7 +56,7 @@ export function InviteMemberSheet({
         contentContainerClassName="pb-3"
       >
         {/* Código de invitación */}
-        <View className="mt-3 items-center gap-1 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2">
+        <View className="mt-1 items-center  rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2">
           <Text className="text-sm font-medium text-[#64748B]">
             Código de invitación
           </Text>
@@ -67,11 +67,11 @@ export function InviteMemberSheet({
 
         {/* QR Code */}
         <View className="mt-3 items-center">
-          <View className="items-center justify-center rounded-2xl border border-[#E2E8F0] bg-white p-5">
-            <Text className="mb-4 text-sm font-medium text-[#64748B]">
+          <View className="items-center justify-center rounded-2xl border border-[#E2E8F0] bg-white px-4 py-3">
+            <Text className=" text-sm font-medium text-[#64748B] mb-3">
               Escanea para unirte
             </Text>
-            <View className="h-56 w-56 items-center justify-center rounded-xl bg-white">
+            <View className="h-60 w-60 items-center justify-center rounded-xl bg-white ">
               <QRCode value={invitationCode} size={180} />
             </View>
           </View>
