@@ -7,6 +7,52 @@
 - 🔄 In Progress / Partial
 - ❌ Not Started
 
+## Vistas — Estado actual
+
+| Vista | Ruta | Estado |
+|-------|------|--------|
+| WelcomeScreen | `(auth)/` → `index.tsx` | ✅ |
+| Login | `(auth)/login.tsx` | ✅ |
+| Register | `(auth)/register.tsx` | ✅ |
+| Forgot Password | `(auth)/forgot-password.tsx` | 🚧 UI lista, backend pendiente |
+| Dashboard | `(protected)/index.tsx` | ✅ (mock data) |
+| Gastos (lista) | `(protected)/gastos/index.tsx` | ❌ placeholder (refactorizar de archivo a directorio) |
+| Add Expense | `(protected)/gastos/add.tsx` | ❌ |
+| Expense Detail | `(protected)/gastos/[id].tsx` | ❌ |
+| Couple List | `(protected)/pareja/index.tsx` | ✅ (mock data) |
+| Couple Detail | `(protected)/pareja/[id].tsx` | ✅ (mock data) |
+| Join Couple | `(protected)/pareja/join.tsx` | ❌ |
+| Reports | `(protected)/reportes.tsx` | ✅ (mock data) |
+| Perfil | `(protected)/perfil.tsx` | ❌ placeholder |
+| Pay Screen | `(protected)/pagos/index.tsx` | ❌ |
+| Payment History | `(protected)/pagos/` | ❌ |
+| Receipt Capture | `(protected)/gastos/receipt.tsx` | ❌ |
+
+## Prioridad de implementación
+
+### P1 — Imprescindibles (MVP)
+- [❌] Split Picker Component — prerrequisito del Add Expense
+- [❌] Expense List Screen — reemplazar placeholder de Gastos
+- [❌] Add Expense Screen — core de la app (ver diseño detallado abajo)
+- [❌] Conectar botón "Registrar gasto" en detalle de pareja → `gastos/add?coupleId=123`
+- [❌] Expense Detail Screen — tap en lista lleva aquí
+- [❌] Profile Screen — 5to tab, solo tiene logout
+- [❌] Join Couple — completar flujo de parejas
+
+### P2 — Importantes
+- [❌] Backend API — Dashboard
+- [❌] Backend API — Couples
+- [❌] Backend API — Reports
+- [❌] Expense Edit Mode
+- [❌] Backend API — Expenses
+- [❌] Response Interceptor 401
+
+### P3 — Mejoras
+- [❌] Settlement + Payment screens
+- [❌] Receipt Capture
+- [❌] Forgot Password backend
+- [❌] Polish (dark mode, i18n, offline, notificaciones)
+
 ## Phase 1: Foundation
 - [✅] Expo project init (`create-expo-app` with SDK 56)
 - [✅] TypeScript strict mode config
@@ -100,3 +146,50 @@
 - [❌] Pruebas en dispositivo físico con APK
 - [❌] App store submission (Google Play)
 - [❌] Preparar versión iOS (App Store)
+
+---
+
+## Decisiones de Diseño — Routing de Gastos
+
+### Problema
+El tab Gastos no debe competir con Parejas. Ambos necesitan acceso a la creación de gastos, pero con comportamientos distintos.
+
+### Solución adoptada
+**Una sola pantalla `add.tsx` reutilizada desde dos flujos**, en lugar de duplicar formularios o anidar gastos dentro de parejas.
+
+### Estructura de rutas
+```
+(protected)/gastos/
+  ├── _layout.tsx     ← Stack (como ya lo hace pareja/)
+  ├── index.tsx       ← Lista de gastos con filtros
+  ├── add.tsx         ← Formulario único de creación
+  └── [id].tsx        ← Detalle del gasto
+```
+
+Se refactoriza `gastos.tsx` (archivo) → `gastos/` (directorio) exactamente como ya funciona `pareja/`.
+
+### Flujo 1: Desde Parejas (contextual)
+```
+❤️ Parejas → Andrea → [Registrar gasto]
+  → router.push('/gastos/add?coupleId=123')
+  → add.tsx detecta coupleId → bloquea selector de pareja
+  → Usuario ve: Pareja ✓ Andrea (solo lectura)
+  → Guardar → POST /expenses → router.back() → vuelve al detalle de Andrea
+```
+
+### Flujo 2: Desde Gastos (genérico)
+```
+💸 Gastos → FAB +
+  → router.push('/gastos/add')
+  → add.tsx sin coupleId → muestra dropdown para elegir pareja
+  → Usuario ve: Pareja ▼ Selecciona una pareja
+  → Guardar → POST /expenses → router.back() → vuelve a la lista de Gastos
+```
+
+### Comportamiento post-guardado
+- El gasto aparece inmediatamente en ambos lugares:
+  - **Pareja/Andrea**: en "Gastos Recientes"
+  - **Gastos**: en la lista general con filtros
+- El resumen financiero de la pareja se actualiza al regresar
+- No hay duplicación de lógica: un solo componente de formulario,
+  un solo endpoint, un solo `router.back()`

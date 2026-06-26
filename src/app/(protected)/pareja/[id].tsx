@@ -4,6 +4,11 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { CoupleDetailHeader } from '@components/couple/couple-detail-header';
+import {
+  CoupleMenuSheet,
+  type CoupleMenuAction,
+} from '@components/couple/couple-menu-sheet';
+import { AlertModal } from '@/components/ui/alert-modal';
 
 const MOCK_EXPENSES = [
   {
@@ -41,12 +46,33 @@ const MOCK_EXPENSES = [
 export default function CoupleDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [showToast, setShowToast] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showComingSoon, setShowComingSoon] = useState(false);
 
   const handleCopyCode = () => {
     setShowToast(true);
     setTimeout(() => {
       setShowToast(false);
     }, 2000);
+  };
+
+  const handleMenuAction = (action: CoupleMenuAction) => {
+    setMenuVisible(false);
+    switch (action) {
+      case 'invite':
+        setShowInviteModal(true);
+        break;
+      case 'settings':
+      case 'export':
+      case 'history':
+        setShowComingSoon(true);
+        break;
+      case 'leave':
+        setShowLeaveConfirm(true);
+        break;
+    }
   };
 
   return (
@@ -61,7 +87,7 @@ export default function CoupleDetail() {
             title="Ana Juan"
             subtitle="Creada hace 3 meses"
             onBack={() => router.push('/(protected)/pareja')}
-            onMenu={() => {}}
+            onMenu={() => setMenuVisible(true)}
           />
         </View>
 
@@ -377,6 +403,39 @@ export default function CoupleDetail() {
           </View>
         )}
       </ScrollView>
+
+      <CoupleMenuSheet
+        visible={menuVisible}
+        onClose={() => setMenuVisible(false)}
+        onAction={handleMenuAction}
+      />
+
+      <AlertModal
+        visible={showInviteModal}
+        type="info"
+        title="Invitar miembro"
+        message="Comparte este código con tu pareja:\n\nABCD-EFGH\n\nTambién puedes copiarlo desde la tarjeta de invitación en esta pantalla."
+        buttonText="Entendido"
+        onClose={() => setShowInviteModal(false)}
+      />
+
+      <AlertModal
+        visible={showComingSoon}
+        type="info"
+        title="Próximamente"
+        message="Esta funcionalidad estará disponible en una próxima actualización. ¡Estamos trabajando en ello!"
+        buttonText="Entendido"
+        onClose={() => setShowComingSoon(false)}
+      />
+
+      <AlertModal
+        visible={showLeaveConfirm}
+        type="warning"
+        title="Salir del grupo"
+        message="¿Estás seguro de que quieres salir del grupo? Perderás acceso a todos los gastos y estadísticas compartidas."
+        buttonText="Sí, salir"
+        onClose={() => setShowLeaveConfirm(false)}
+      />
     </SafeAreaView>
   );
 }
