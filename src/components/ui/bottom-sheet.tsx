@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Modal, Pressable, Dimensions, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
@@ -31,6 +31,9 @@ const DISMISS_VELOCITY = 500;
 
 export function BottomSheet({ visible, onClose, children, header, heightRatio = 0.65, headerFinalTranslateY = 0.17 }: BottomSheetProps) {
   const insets = useSafeAreaInsets();
+  const [internalVisible, setInternalVisible] = useState(false);
+  const prevVisible = useRef(false);
+  const closingRef = useRef(false);
 
   const SHEET_HEIGHT = Math.min(
     Math.max(SCREEN_HEIGHT * heightRatio, SCREEN_HEIGHT * MIN_HEIGHT_RATIO),
@@ -59,6 +62,7 @@ export function BottomSheet({ visible, onClose, children, header, heightRatio = 
   };
 
   const close = (callback: () => void) => {
+    closingRef.current = true;
     translateY.value = withTiming(SCREEN_HEIGHT, { duration: 250 }, () => {
       runOnJS(callback)();
     });
@@ -70,6 +74,8 @@ export function BottomSheet({ visible, onClose, children, header, heightRatio = 
 
   useEffect(() => {
     if (visible) {
+      closingRef.current = false;
+      setInternalVisible(true);
       const sheetTimer = setTimeout(open, 50);
       const headerTimer = setTimeout(() => {
         headerTranslateY.value = withTiming(HEADER_FINAL_TRANSLATE_Y, {
@@ -79,16 +85,19 @@ export function BottomSheet({ visible, onClose, children, header, heightRatio = 
         headerOpacity.value = withTiming(1, { duration: 400, easing: Easing.out(Easing.cubic) });
       }, 500);
       return () => { clearTimeout(sheetTimer); clearTimeout(headerTimer); };
-    } else {
-      translateY.value = SCREEN_HEIGHT;
-      overlayOpacity.value = 0;
-      scale.value = 0.97;
-      headerTranslateY.value = SCREEN_HEIGHT;
-      headerOpacity.value = 0;
+    } else if (prevVisible.current && !closingRef.current) {
+      close(() => {
+        setInternalVisible(false);
+        onClose();
+      });
     }
+    prevVisible.current = visible;
   }, [visible]);
 
-  const handleClose = () => close(onClose);
+  const handleClose = () => close(() => {
+    setInternalVisible(false);
+    onClose();
+  });
 
   const panGesture = Gesture.Pan()
     .activeOffsetY(10)
@@ -101,7 +110,10 @@ export function BottomSheet({ visible, onClose, children, header, heightRatio = 
     })
     .onEnd((event) => {
       if (event.translationY > DISMISS_THRESHOLD || event.velocityY > DISMISS_VELOCITY) {
-        close(onClose);
+        close(() => {
+          setInternalVisible(false);
+          onClose();
+        });
       } else {
         translateY.value = withTiming(0, {
           duration: 250,
@@ -126,7 +138,7 @@ export function BottomSheet({ visible, onClose, children, header, heightRatio = 
 
   return (
     <Modal
-      visible={visible}
+      visible={internalVisible}
       transparent
       animationType="none"
       statusBarTranslucent

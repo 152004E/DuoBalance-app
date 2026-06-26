@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -6,6 +6,9 @@ import { AppHero } from '@/components/layout/AppHero';
 import { CoupleCard } from '@/components/dashboard/CoupleCard';
 import { FloatingAddButton } from '@/components/dashboard/FloatingAddButton';
 import { CreateCoupleSheet } from '@/components/couple/create-couple-sheet';
+import { CoupleMenuSheet, type CoupleMenuAction } from '@/components/couple/couple-menu-sheet';
+import { InviteMemberSheet } from '@/components/couple/invite-member-sheet';
+import { AlertModal } from '@/components/ui/alert-modal';
 import { useAuth } from '@/hooks/use-auth';
 
 const MOCK_COUPLES = [
@@ -18,6 +21,41 @@ const MOCK_COUPLES = [
 export default function ParejaScreen() {
   const { user } = useAuth();
   const [showCreateSheet, setShowCreateSheet] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const [inviteVisible, setInviteVisible] = useState(false);
+  const [showComingSoon, setShowComingSoon] = useState(false);
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const pendingInviteAction = useRef<CoupleMenuAction | null>(null);
+
+  useEffect(() => {
+    if (pendingInviteAction.current === 'invite' && !menuVisible) {
+      const timer = setTimeout(() => {
+        setInviteVisible(true);
+        pendingInviteAction.current = null;
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [menuVisible]);
+
+  const handleMenuAction = (action: CoupleMenuAction) => {
+    switch (action) {
+      case 'invite':
+        pendingInviteAction.current = 'invite';
+        setMenuVisible(false);
+        break;
+      case 'settings':
+      case 'export':
+      case 'history':
+        setMenuVisible(false);
+        setShowComingSoon(true);
+        break;
+      case 'leave':
+        setMenuVisible(false);
+        setShowLeaveConfirm(true);
+        break;
+    }
+  };
 
   return (
     <SafeAreaView className="relative flex-1 bg-[#F8FAFC]" edges={['top']}>
@@ -63,6 +101,10 @@ export default function ParejaScreen() {
                 balance={item.balance}
                 status={item.status}
                 onPress={() => router.push(`/pareja/${item.id}`)}
+                onMenu={() => {
+                  setSelectedCardId(item.id);
+                  setMenuVisible(true);
+                }}
               />
             ))}
           </View>
@@ -80,6 +122,39 @@ export default function ParejaScreen() {
         onClose={() => setShowCreateSheet(false)}
         heightRatio={0.65}
         headerFinalTranslateY={0.17}
+      />
+
+      <CoupleMenuSheet
+        visible={menuVisible}
+        onClose={() => setMenuVisible(false)}
+        onAction={handleMenuAction}
+        heightRatio={0.45}
+        headerFinalTranslateY={0.27}
+      />
+
+      <InviteMemberSheet
+        visible={inviteVisible}
+        onClose={() => setInviteVisible(false)}
+        heightRatio={0.75}
+        headerFinalTranslateY={0.17}
+      />
+
+      <AlertModal
+        visible={showComingSoon}
+        type="info"
+        title="Próximamente"
+        message="Esta funcionalidad estará disponible en una próxima actualización. ¡Estamos trabajando en ello!"
+        buttonText="Entendido"
+        onClose={() => setShowComingSoon(false)}
+      />
+
+      <AlertModal
+        visible={showLeaveConfirm}
+        type="warning"
+        title="Salir del grupo"
+        message="¿Estás seguro de que quieres salir del grupo? Perderás acceso a todos los gastos y estadísticas compartidas."
+        buttonText="Sí, salir"
+        onClose={() => setShowLeaveConfirm(false)}
       />
     </SafeAreaView>
   );

@@ -9,9 +9,10 @@ interface CoupleCardProps {
   balance: number;
   status: CoupleStatus;
   onPress?: () => void;
+  onMenu?: () => void;
 }
 
-export function CoupleCard({ id, name, balance, status, onPress }: CoupleCardProps) {
+export function CoupleCard({ id, name, balance, status, onPress, onMenu }: CoupleCardProps) {
   const dotColor =
     status === 'positive'
       ? '#10B981'
@@ -38,6 +39,15 @@ export function CoupleCard({ id, name, balance, status, onPress }: CoupleCardPro
           </Text>
         </View>
       </View>
+
+      {onMenu && (
+        <Pressable
+          onPress={onMenu}
+          className="h-10 w-10 items-center justify-center"
+        >
+          <FontAwesome6 name="ellipsis-vertical" size={18} color="#64748B" />
+        </Pressable>
+      )}
     </Pressable>
   );
 }

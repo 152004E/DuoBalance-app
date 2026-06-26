@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,6 +8,7 @@ import {
   CoupleMenuSheet,
   type CoupleMenuAction,
 } from '@components/couple/couple-menu-sheet';
+import { InviteMemberSheet } from '@/components/couple/invite-member-sheet';
 import { AlertModal } from '@/components/ui/alert-modal';
 
 const MOCK_EXPENSES = [
@@ -47,9 +48,20 @@ export default function CoupleDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [showToast, setShowToast] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
+  const [inviteVisible, setInviteVisible] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
-  const [showInviteModal, setShowInviteModal] = useState(false);
   const [showComingSoon, setShowComingSoon] = useState(false);
+  const pendingInviteAction = useRef(false);
+
+  useEffect(() => {
+    if (pendingInviteAction.current && !menuVisible) {
+      const timer = setTimeout(() => {
+        setInviteVisible(true);
+        pendingInviteAction.current = false;
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [menuVisible]);
 
   const handleCopyCode = () => {
     setShowToast(true);
@@ -59,17 +71,19 @@ export default function CoupleDetail() {
   };
 
   const handleMenuAction = (action: CoupleMenuAction) => {
-    setMenuVisible(false);
     switch (action) {
       case 'invite':
-        setShowInviteModal(true);
+        pendingInviteAction.current = true;
+        setMenuVisible(false);
         break;
       case 'settings':
       case 'export':
       case 'history':
+        setMenuVisible(false);
         setShowComingSoon(true);
         break;
       case 'leave':
+        setMenuVisible(false);
         setShowLeaveConfirm(true);
         break;
     }
@@ -412,13 +426,11 @@ export default function CoupleDetail() {
         headerFinalTranslateY={0.27}
       />
 
-      <AlertModal
-        visible={showInviteModal}
-        type="info"
-        title="Invitar miembro"
-        message="Comparte este código con tu pareja:\n\nABCD-EFGH\n\nTambién puedes copiarlo desde la tarjeta de invitación en esta pantalla."
-        buttonText="Entendido"
-        onClose={() => setShowInviteModal(false)}
+      <InviteMemberSheet
+        visible={inviteVisible}
+        onClose={() => setInviteVisible(false)}
+        heightRatio={0.65}
+        headerFinalTranslateY={0.17}
       />
 
       <AlertModal
