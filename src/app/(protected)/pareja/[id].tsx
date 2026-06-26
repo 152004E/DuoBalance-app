@@ -408,6 +408,8 @@ export default function CoupleDetail() {
         visible={menuVisible}
         onClose={() => setMenuVisible(false)}
         onAction={handleMenuAction}
+        heightRatio={0.45}
+        headerFinalTranslateY={0.27}
       />
 
       <AlertModal

@@ -78,6 +78,8 @@ export default function ParejaScreen() {
       <CreateCoupleSheet
         visible={showCreateSheet}
         onClose={() => setShowCreateSheet(false)}
+        heightRatio={0.65}
+        headerFinalTranslateY={0.17}
       />
     </SafeAreaView>
   );

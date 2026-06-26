@@ -15,28 +15,29 @@ interface BottomSheetProps {
   onClose: () => void;
   children: React.ReactNode;
   header?: React.ReactNode;
-  heightRatio?: number; 
+  heightRatio?: number;
+  headerFinalTranslateY?: number;
 }
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-const SHEET_HEIGHT_RATIO = 0.65;
 const MIN_HEIGHT_RATIO = 0.55;
 const MAX_HEIGHT_RATIO = 0.85;
 
-const SHEET_HEIGHT = Math.min(
-  Math.max(SCREEN_HEIGHT * SHEET_HEIGHT_RATIO, SCREEN_HEIGHT * MIN_HEIGHT_RATIO),
-  SCREEN_HEIGHT * MAX_HEIGHT_RATIO,
-);
-
 const HEADER_HEIGHT = SCREEN_HEIGHT * 0.35;
-const HEADER_FINAL_TRANSLATE_Y = SCREEN_HEIGHT * 0.17;
 
 const DISMISS_THRESHOLD = 100;
 const DISMISS_VELOCITY = 500;
 
-export function BottomSheet({ visible, onClose, children, header }: BottomSheetProps) {
+export function BottomSheet({ visible, onClose, children, header, heightRatio = 0.65, headerFinalTranslateY = 0.17 }: BottomSheetProps) {
   const insets = useSafeAreaInsets();
+
+  const SHEET_HEIGHT = Math.min(
+    Math.max(SCREEN_HEIGHT * heightRatio, SCREEN_HEIGHT * MIN_HEIGHT_RATIO),
+    SCREEN_HEIGHT * MAX_HEIGHT_RATIO,
+  );
+
+  const HEADER_FINAL_TRANSLATE_Y = SCREEN_HEIGHT * headerFinalTranslateY;
 
   const translateY = useSharedValue(SCREEN_HEIGHT);
   const overlayOpacity = useSharedValue(0);

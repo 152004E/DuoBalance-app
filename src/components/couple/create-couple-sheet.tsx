@@ -25,9 +25,11 @@ import { DistributionBar } from '@/components/ui/distribution-bar';
 interface CreateCoupleSheetProps {
   visible: boolean;
   onClose: () => void;
+  heightRatio?: number;
+  headerFinalTranslateY?: number;
 }
 
-export function CreateCoupleSheet({ visible, onClose }: CreateCoupleSheetProps) {
+export function CreateCoupleSheet({ visible, onClose, heightRatio = 0.95, headerFinalTranslateY }: CreateCoupleSheetProps) {
   const insets = useSafeAreaInsets();
 
   const [coupleName, setCoupleName] = useState('');
@@ -111,10 +113,10 @@ export function CreateCoupleSheet({ visible, onClose }: CreateCoupleSheetProps) 
   );
 
   return (
-    <BottomSheet visible={visible} onClose={onClose} header={header} heightRatio={0}>
+    <BottomSheet visible={visible} onClose={onClose} header={header} heightRatio={heightRatio} headerFinalTranslateY={headerFinalTranslateY}>
       <View className="flex-1" style={{
 
-        height: 240,
+        height: 250,
       }}>
         <ScrollView
           className="flex-1 px-5"

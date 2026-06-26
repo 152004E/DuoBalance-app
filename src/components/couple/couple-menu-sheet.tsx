@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import {
   View,
   Text,
+  Image,
   ScrollView,
   Pressable,
 } from 'react-native';
@@ -39,6 +40,8 @@ interface CoupleMenuSheetProps {
   visible: boolean;
   onClose: () => void;
   onAction: (action: CoupleMenuAction) => void;
+  heightRatio?: number;
+  headerFinalTranslateY?: number;
 }
 
 interface ItemAnimationState {
@@ -95,7 +98,7 @@ function MenuItemRow({
   );
 }
 
-export function CoupleMenuSheet({ visible, onClose, onAction }: CoupleMenuSheetProps) {
+export function CoupleMenuSheet({ visible, onClose, onAction, heightRatio = 0.65, headerFinalTranslateY }: CoupleMenuSheetProps) {
   const insets = useSafeAreaInsets();
 
   const titleOpacity = useSharedValue(0);
@@ -154,7 +157,7 @@ export function CoupleMenuSheet({ visible, onClose, onAction }: CoupleMenuSheetP
   }));
 
   const header = (
-    <View
+    <View className=''
       style={{
         borderTopLeftRadius: 32,
         borderTopRightRadius: 32,
@@ -166,7 +169,7 @@ export function CoupleMenuSheet({ visible, onClose, onAction }: CoupleMenuSheetP
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         className="flex-1 justify-end px-5 pt-17"
-        style={{ padding: insets.top + 10, paddingBottom: insets.bottom + 50 }}
+        style={{ padding: insets.top + 10, paddingBottom: insets.bottom + 500 }}
       >
         <Pressable
           onPress={onClose}
@@ -187,12 +190,20 @@ export function CoupleMenuSheet({ visible, onClose, onAction }: CoupleMenuSheetP
             Administra tu grupo de gastos compartidos
           </Text>
         </Animated.View>
+
+        <View className="pt-20 items-center">
+          <Image
+            source={require('@/assets/images/logo-white-green-bg-without.png')}
+            style={{ width: 80, height: 80, }}
+            resizeMode="contain"
+          />
+        </View>
       </LinearGradient>
     </View>
   );
 
   return (
-    <BottomSheet visible={visible} onClose={onClose} header={header} heightRatio={0}>
+    <BottomSheet visible={visible} onClose={onClose} header={header} heightRatio={heightRatio} headerFinalTranslateY={headerFinalTranslateY}>
       <View className="flex-1">
         <ScrollView
           className="flex-1 px-5"
