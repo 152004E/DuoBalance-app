@@ -117,11 +117,6 @@ export function CoupleMenuSheet({ visible, onClose, onAction, heightRatio = 0.65
       return () => {
         itemTimers.forEach(clearTimeout);
       };
-    } else {
-      itemAnimations.forEach((state) => {
-        state.opacity.value = 0;
-        state.translateX.value = 30;
-      });
     }
   }, [visible]);
 

@@ -38,7 +38,7 @@ export function InviteMemberSheet({
       subtitle="Comparte este código con tu pareja"
       onClose={onClose}
       gradientPaddingBottom={600}
-
+      logo={require('@/assets/images/logo-white-green-bg-without.png')}
     />
   );
 

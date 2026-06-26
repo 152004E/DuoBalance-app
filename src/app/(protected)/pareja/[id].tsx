@@ -53,21 +53,19 @@ export default function CoupleDetail() {
   const [showComingSoon, setShowComingSoon] = useState(false);
   const pendingInviteAction = useRef(false);
 
-  useEffect(() => {
-    if (pendingInviteAction.current && !menuVisible) {
-      const timer = setTimeout(() => {
-        setInviteVisible(true);
-        pendingInviteAction.current = false;
-      }, 150);
-      return () => clearTimeout(timer);
-    }
-  }, [menuVisible]);
-
   const handleCopyCode = () => {
     setShowToast(true);
     setTimeout(() => {
       setShowToast(false);
     }, 2000);
+  };
+
+  const handleMenuClose = () => {
+    setMenuVisible(false);
+    if (pendingInviteAction.current) {
+      pendingInviteAction.current = false;
+      setInviteVisible(true);
+    }
   };
 
   const handleMenuAction = (action: CoupleMenuAction) => {
@@ -420,7 +418,7 @@ export default function CoupleDetail() {
 
       <CoupleMenuSheet
         visible={menuVisible}
-        onClose={() => setMenuVisible(false)}
+        onClose={handleMenuClose}
         onAction={handleMenuAction}
         heightRatio={0.45}
         headerFinalTranslateY={0.27}
@@ -431,6 +429,7 @@ export default function CoupleDetail() {
         onClose={() => setInviteVisible(false)}
         heightRatio={0.65}
         headerFinalTranslateY={0.17}
+        
       />
 
       <AlertModal

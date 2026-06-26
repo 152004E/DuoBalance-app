@@ -87,7 +87,7 @@ export function BottomSheetHeader({
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         className="flex-1 justify-end px-5"
-        style={{ padding: insets.top + 10, paddingBottom: insets.bottom + gradientPaddingBottom }}
+        style={{ padding: insets.top + 17, paddingBottom: insets.bottom + gradientPaddingBottom }}
       >
         <Pressable
           onPress={onClose}

@@ -84,9 +84,9 @@
 - [❌] Response interceptor (401 → redirect to login)
 
 ## Phase 3: Couple Management
-- [✅] Couple list screen — cards, invite code display/copy/refresh, create trigger
+- [✅] Couple list screen — cards, invite code display/copy/refresh, create trigger, couple menu sheet, invite member sheet
 - [✅] Couple creation bottom sheet — name, percentage split slider, generate invite code
-- [✅] Couple detail screen — balance cards (owed/debt/settled), distribution bar, transactions, settings (leave couple)
+- [✅] Couple detail screen — balance cards (owed/debt/settled), distribution bar, transactions, settings (leave couple), couple menu sheet, invite member sheet
 - [❌] Join couple via invite code (enter code form)
 - [❌] Backend API integration (currently mock data)
 

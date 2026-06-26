@@ -48,6 +48,7 @@ DuoBalance-app/
 │   │   │   ├── empty-state.tsx      Empty state placeholder (icon, title, subtitle, action)
 │   │   │   ├── bottom-sheet.tsx     Bottom sheet modal (backdrop, drag indicator, spring animation)
 │   │   │   ├── percentage-slider.tsx  Animated percentage slider with gradient fill
+│   │   │   ├── bottom-sheet-header.tsx  Reusable header for bottom sheets (gradient, animations, safe area)
 │   │   │   └── distribution-bar.tsx  Horizontal stacked distribution bar with legends
 │   │   ├── auth/                    Auth-specific reusable components
 │   │   │   ├── auth-header.tsx      Logo + title + optional subtitle
@@ -74,7 +75,9 @@ DuoBalance-app/
 │   │   │   ├── couple-card.tsx      Partner info card (avatar, name, email)
 │   │   │   ├── invite-code-card.tsx  Invite code display with copy + refresh
 │   │   │   ├── create-couple-sheet.tsx  Bottom sheet form: name + percentage split + generate code
-│   │   │   └── couple-detail-header.tsx  Reusable header with back button, title, subtitle, menu
+│   │   │   ├── couple-detail-header.tsx  Reusable header with back button, title, subtitle, menu
+│   │   │   ├── couple-menu-sheet.tsx  Bottom sheet to manage couple settings/options
+│   │   │   └── invite-member-sheet.tsx  Bottom sheet displaying invite code with copy/QR
 │   │   └── dashboard/               Dashboard-specific components
 │   │       ├── HeroSection.tsx      Greeting with user avatar
 │   │       ├── BalanceCard.tsx      Balance summary (income/expenses/net)
@@ -230,5 +233,5 @@ User submits form
 - **Feature modules** organized by domain (auth, expenses, etc.)
 - **Separated API layer** — all HTTP calls through `src/services/api/`
 - **Reusable domain components** — `components/auth/` for cross-auth-screen reuse, `components/ui/` for primitives
-- **Modals** built as overlays — `BottomSheet` for forms, `AlertModal` for alerts
+- **Modals** built as overlays — `BottomSheet` for forms, `AlertModal` for alerts, `BottomSheetHeader` for consistent sheet headers
 - **Expo Router default exports** — pages use `export default` (required by the router); all other components use named exports

@@ -66,9 +66,9 @@
 
 ## Phase 4: Couple Management (v0.3) — Partial
 **Goal**: Users can create and manage couples
-- [✅] Couple list screen (cards, invite code, create trigger)
+- [✅] Couple list screen (cards, invite code, create trigger, couple menu sheet, invite member sheet)
 - [✅] Create couple (bottom sheet: name + percentage split + generate invite code)
-- [✅] Couple detail screen (balances, distribution, transactions, settings)
+- [✅] Couple detail screen (balances, distribution, transactions, settings, couple menu sheet, invite member sheet)
 - [❌] Join couple via invite code (enter code form)
 - [❌] Backend API integration (currently mock data)
 

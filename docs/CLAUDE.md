@@ -33,6 +33,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **Loading**: Full-screen loading spinner ✅
 - **EmptyState**: Empty state placeholder with icon, title, subtitle, action button ✅
 - **BottomSheet**: Reusable bottom sheet modal with backdrop press, drag indicator, spring animations, variable height ✅
+- **BottomSheetHeader**: Reusable header for bottom sheets with premium gradients, spring transitions, safe-area insets, and adjustable translation/height configs ✅
 - **PercentageSlider**: Animated percentage slider with gradient fill, min/max caps ✅
 - **DistributionBar**: Horizontal stacked distribution bar with percentage labels and legends ✅
 
@@ -41,8 +42,8 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **Gastos** (`(protected)/gastos.tsx`): Expense list screen (placeholder) ✅
 - **Reportes** (`(protected)/reportes.tsx`): Reports screen with period filter (dropdown), donut chart, top categories list, stats cards — mock data ✅
 - **Perfil** (`(protected)/perfil.tsx`): Profile screen (placeholder) ✅
-- **Couple List** (`(protected)/pareja/index.tsx`): Couple list with couple cards, invite code display/refresh, create couple sheet trigger, leave couple option ✅
-- **Couple Detail** (`(protected)/pareja/[id].tsx`): Couple detail with balance cards (owed/debt/settled), distribution bar, recent transactions, settings ✅
+- **Couple List** (`(protected)/pareja/index.tsx`): Couple list with couple cards, invite code display/refresh, create couple sheet trigger, couple menu sheet, invite member sheet ✅
+- **Couple Detail** (`(protected)/pareja/[id].tsx`): Couple detail with balance cards (owed/debt/settled), distribution bar, recent transactions, couple menu sheet, invite member sheet ✅
 
 ### Layout Components — Built
 - **BottomTab**: Custom tab bar with 5 tabs (Inicio, Gastos, Pareja, Reportes, Perfil) ✅
@@ -56,6 +57,8 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **CreateCoupleSheet**: Bottom sheet form with couple name input, percentage slider split, and generate invite code action ✅
 - **AddCoupleCard**: Quick-add card for creating a new couple ✅
 - **CoupleDetailHeader**: Reusable header for couple detail view with back button, title, subtitle, and optional menu button ✅
+- **CoupleMenuSheet**: Bottom sheet to manage couple settings/options (invite, leave, edit split) with interactive transitions ✅
+- **InviteMemberSheet**: Bottom sheet displaying couple's invite code with quick copy, premium gradients, and logo branding ✅
 
 ### Dashboard Components — Built
 - **HeroSection**: Greeting section with user avatar and welcome message ✅
@@ -153,8 +156,8 @@ npx prisma db push        # Push schema (dev)
 | `src/app/(protected)/reportes.tsx` | Reports screen (mock data: charts, categories, stats) |
 | `src/app/(protected)/perfil.tsx` | Profile screen (placeholder) |
 | `src/app/(protected)/pareja/_layout.tsx` | Pareja stack navigator |
-| `src/app/(protected)/pareja/index.tsx` | Couple list screen (cards, invite code, create couple) |
-| `src/app/(protected)/pareja/[id].tsx` | Couple detail screen (balances, distribution, transactions) |
+| `src/app/(protected)/pareja/index.tsx` | Couple list screen (cards, invite code, create couple, couple menu sheet, invite member sheet) |
+| `src/app/(protected)/pareja/[id].tsx` | Couple detail screen (balances, distribution, transactions, couple menu sheet, invite member sheet) |
 
 ### UI Components
 | File | Purpose |
@@ -166,8 +169,10 @@ npx prisma db push        # Push schema (dev)
 | `src/components/ui/loading.tsx` | Full-screen loading spinner |
 | `src/components/ui/empty-state.tsx` | Empty state placeholder |
 | `src/components/ui/bottom-sheet.tsx` | Bottom sheet modal (backdrop, drag indicator, spring animation) |
+| `src/components/ui/bottom-sheet-header.tsx` | Reusable header for bottom sheets (gradient, animations, safe area) |
 | `src/components/ui/percentage-slider.tsx` | Animated percentage slider with gradient |
 | `src/components/ui/distribution-bar.tsx` | Stacked distribution bar with legends |
+| `src/components/ui/bottom-sheet-header.tsx` | Reusable header for bottom sheets (gradient, animations, safe area) |
 
 ### Auth Components
 | File | Purpose |
@@ -199,6 +204,8 @@ npx prisma db push        # Push schema (dev)
 | `src/components/couple/invite-code-card.tsx` | Invite code display + copy |
 | `src/components/couple/create-couple-sheet.tsx` | Create couple bottom sheet form |
 | `src/components/couple/couple-detail-header.tsx` | Reusable header for couple detail (back, title, subtitle, menu) |
+| `src/components/couple/couple-menu-sheet.tsx` | Bottom sheet to manage couple settings/options |
+| `src/components/couple/invite-member-sheet.tsx` | Bottom sheet displaying invite code with copy/QR |
 
 ### Dashboard Components
 | File | Purpose |

@@ -26,22 +26,20 @@ export default function ParejaScreen() {
   const [inviteVisible, setInviteVisible] = useState(false);
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
-  const pendingInviteAction = useRef<CoupleMenuAction | null>(null);
+  const pendingInviteAction = useRef(false);
 
-  useEffect(() => {
-    if (pendingInviteAction.current === 'invite' && !menuVisible) {
-      const timer = setTimeout(() => {
-        setInviteVisible(true);
-        pendingInviteAction.current = null;
-      }, 150);
-      return () => clearTimeout(timer);
+  const handleMenuClose = () => {
+    setMenuVisible(false);
+    if (pendingInviteAction.current) {
+      pendingInviteAction.current = false;
+      setInviteVisible(true);
     }
-  }, [menuVisible]);
+  };
 
   const handleMenuAction = (action: CoupleMenuAction) => {
     switch (action) {
       case 'invite':
-        pendingInviteAction.current = 'invite';
+        pendingInviteAction.current = true;
         setMenuVisible(false);
         break;
       case 'settings':
