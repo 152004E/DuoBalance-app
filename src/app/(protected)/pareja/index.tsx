@@ -1,11 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { View, Text, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { AppHero } from '@/components/layout/AppHero';
 import { CoupleCard } from '@/components/dashboard/CoupleCard';
-import { FloatingAddButton } from '@/components/dashboard/FloatingAddButton';
-import { CreateCoupleSheet } from '@/components/couple/create-couple-sheet';
+import { FloatingAddMenu } from '@/components/dashboard/FloatingAddMenu';
 import { CoupleMenuSheet, type CoupleMenuAction } from '@/components/couple/couple-menu-sheet';
 import { InviteMemberSheet } from '@/components/couple/invite-member-sheet';
 import { AlertModal } from '@/components/ui/alert-modal';
@@ -20,7 +19,6 @@ const MOCK_COUPLES = [
 
 export default function ParejaScreen() {
   const { user } = useAuth();
-  const [showCreateSheet, setShowCreateSheet] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [inviteVisible, setInviteVisible] = useState(false);
@@ -109,17 +107,11 @@ export default function ParejaScreen() {
         </View>
       </ScrollView>
 
-      <FloatingAddButton
-        icon="user-plus"
-        size={25}
-        onPress={() => setShowCreateSheet(true)}
-      />
-
-      <CreateCoupleSheet
-        visible={showCreateSheet}
-        onClose={() => setShowCreateSheet(false)}
-        heightRatio={0.65}
-        headerFinalTranslateY={0.17}
+      <FloatingAddMenu
+        heightRatio={0.1}
+        headerFinalTranslateY={0.53}
+        createCoupleHeightRatio={0.65}
+        createCoupleHeaderFinalTranslateY={0.17}
       />
 
       <CoupleMenuSheet
@@ -127,7 +119,7 @@ export default function ParejaScreen() {
         onClose={() => setMenuVisible(false)}
         onAction={handleMenuAction}
         heightRatio={0.45}
-        headerFinalTranslateY={0.27}
+        headerFinalTranslateY={0.37}
       />
 
       <InviteMemberSheet

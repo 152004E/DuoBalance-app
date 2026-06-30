@@ -16,7 +16,7 @@ interface BottomSheetProps {
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-const MIN_HEIGHT_RATIO = 0.55;
+const MIN_HEIGHT_RATIO = 0.3;
 const MAX_HEIGHT_RATIO = 0.85;
 
 const HEADER_HEIGHT = SCREEN_HEIGHT * 0.35;
