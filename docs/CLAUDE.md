@@ -42,7 +42,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **Gastos** (`(protected)/gastos.tsx`): Expense list screen (placeholder) ✅
 - **Reportes** (`(protected)/reportes.tsx`): Reports screen with period filter (dropdown), donut chart, top categories list, stats cards — mock data ✅
 - **Perfil** (`(protected)/perfil.tsx`): Profile screen (placeholder) ✅
-- **Couple List** (`(protected)/pareja/index.tsx`): Couple list with couple cards, invite code display/refresh, create couple sheet trigger, couple menu sheet, invite member sheet ✅
+- **Couple List** (`(protected)/pareja/index.tsx`): Couple list with couple cards, invite code display/refresh, FloatingAddMenu (FAB → bottom sheet: create/join couple), couple menu sheet, invite member sheet ✅
 - **Couple Detail** (`(protected)/pareja/[id].tsx`): Couple detail with balance cards (owed/debt/settled), distribution bar, recent transactions, couple menu sheet, invite member sheet ✅
 
 ### Layout Components — Built
@@ -64,7 +64,8 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **HeroSection**: Greeting section with user avatar and welcome message ✅
 - **PartnerBalance**: Balance card showing how much is owed/to whom ✅
 - **RecentTransactions**: Recent transactions list with pull-to-refresh ✅
-- **FloatingAddButton**: Floating action button with shadow ✅
+- **FloatingAddButton**: Simple floating action button with shadow (used in Dashboard) ✅
+- **FloatingAddMenu**: FAB + bottom sheet with create/join couple actions and sub-sheets (CreateCoupleSheet, AlertModal) — used in Couple screen ✅
 - **TopCategory**: Top spending category card ✅
 - **BalanceCard**: Balance summary card (income/expenses/net) ✅
 - **CoupleSelector**: Dropdown-style couple switcher ✅
@@ -215,7 +216,8 @@ npx prisma db push        # Push schema (dev)
 | `src/components/dashboard/CoupleSelector.tsx` | Couple dropdown |
 | `src/components/dashboard/PartnerBalance.tsx` | Partner balance card |
 | `src/components/dashboard/RecentTransactions.tsx` | Transaction list |
-| `src/components/dashboard/FloatingAddButton.tsx` | FAB with shadow |
+| `src/components/dashboard/FloatingAddButton.tsx` | Simple FAB with shadow (used in Dashboard) |
+| `src/components/dashboard/FloatingAddMenu.tsx` | FAB + bottom sheet with create/join couple actions and sub-sheets (used in Couple screen) |
 | `src/components/dashboard/TopCategory.tsx` | Top category card |
 | `src/components/dashboard/AddCoupleCard.tsx` | Quick-add couple card |
 | `src/components/dashboard/BarChart.tsx` | Bar chart |

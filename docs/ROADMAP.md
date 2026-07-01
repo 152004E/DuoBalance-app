@@ -53,7 +53,7 @@
 
 ## Phase 3: Dashboard & Reports (v0.3) — Partial
 **Goal**: See balances, spending breakdown, and reports
-- [✅] Dashboard screen (HeroSection, BalanceCard, CoupleSelector, PartnerBalance, RecentTransactions, FloatingAddButton)
+- [✅] Dashboard screen (HeroSection, BalanceCard, CoupleSelector, PartnerBalance, RecentTransactions, FloatingAddButton — simple FAB)
 - [✅] Reports screen (period filter, donut chart, top categories, stats cards)
 - [✅] Balance visualization (PartnerBalance)
 - [✅] Category breakdown chart (DonutChart)
@@ -66,7 +66,7 @@
 
 ## Phase 4: Couple Management (v0.3) — Partial
 **Goal**: Users can create and manage couples
-- [✅] Couple list screen (cards, invite code, create trigger, couple menu sheet, invite member sheet)
+- [✅] Couple list screen (cards, invite code, FloatingAddMenu with create/join couple, couple menu sheet, invite member sheet)
 - [✅] Create couple (bottom sheet: name + percentage split + generate invite code)
 - [✅] Couple detail screen (balances, distribution, transactions, settings, couple menu sheet, invite member sheet)
 - [❌] Join couple via invite code (enter code form)

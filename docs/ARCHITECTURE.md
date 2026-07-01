@@ -84,7 +84,8 @@ DuoBalance-app/
 │   │       ├── CoupleSelector.tsx   Dropdown-style couple switcher
 │   │       ├── PartnerBalance.tsx   Partner balance card (owed/to whom)
 │   │       ├── RecentTransactions.tsx  Transaction list with pull-to-refresh
-│   │       ├── FloatingAddButton.tsx   Floating action button with shadow
+│   │       ├── FloatingAddButton.tsx   Simple floating action button with shadow (used in Dashboard)
+│   │       ├── FloatingAddMenu.tsx    FAB + bottom sheet with create/join couple actions and sub-sheets (used in Couple screen)
 │   │       ├── TopCategory.tsx      Top spending category card
 │   │       ├── AddCoupleCard.tsx    Quick-add couple card
 │   │       ├── BarChart.tsx         Bar chart visualization
@@ -163,6 +164,7 @@ App (Expo Router)
     │   └── Expense list (placeholder)
     ├── /pareja
     │   ├── /pareja (index) — Couple list
+    │   │   ├── FloatingAddMenu (FAB → bottom sheet: create couple, join couple)
     │   │   ├── CoupleCard → /pareja/[id]
     │   │   ├── InviteCodeCard
     │   │   ├── CreateCoupleSheet (bottom sheet modal)
