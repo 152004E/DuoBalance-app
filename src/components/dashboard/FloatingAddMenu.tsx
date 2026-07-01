@@ -161,7 +161,8 @@ export function FloatingAddMenu({ heightRatio = 0.45, headerFinalTranslateY = 0.
         activeOpacity={0.8}
       >
         <Animated.View style={animatedIconStyle}>
-          <FontAwesome6 name="arrow-up" size={22} color="white" />
+
+          <FontAwesome6 name="angle-up" size={22} color="white" />
         </Animated.View>
       </TouchableOpacity>
 
