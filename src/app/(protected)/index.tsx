@@ -80,7 +80,7 @@ export default function DashboardScreen() {
           balance={MOCK_BALANCE.amount}
           partnerShare={MOCK_BALANCE.partnerShare}
           direction={MOCK_BALANCE.direction}
-          coupleName="Space"
+          coupleName="spi"
         />
 
         <View className="px-5 pt-8">

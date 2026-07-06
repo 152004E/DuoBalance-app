@@ -18,7 +18,7 @@ export function HeroSection({
   balance,
   partnerShare,
   direction,
-  coupleName,
+  coupleName = "",
   onCouplePress,
 }: HeroSectionProps) {
   const isOwed = direction === 'OWED_TO_ME';

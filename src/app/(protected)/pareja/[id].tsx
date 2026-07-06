@@ -381,7 +381,7 @@ export default function CoupleDetail() {
         onClose={handleMenuClose}
         onAction={handleMenuAction}
         heightRatio={0.55}
-        headerFinalTranslateY={0.37}
+        headerFinalTranslateY={0.27}
       />
 
       <InviteMemberSheet
