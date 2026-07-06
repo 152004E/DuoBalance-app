@@ -1,8 +1,8 @@
 import { useState, useRef } from 'react';
-import { View, Text, ScrollView, Image } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { AppHero } from '@/components/layout/AppHero';
+import { HeroSection } from '@/components/layout/HeroSection';
 import { CoupleCard } from '@/components/dashboard/CoupleCard';
 import { FloatingAddMenu } from '@/components/dashboard/FloatingAddMenu';
 import { CoupleMenuSheet, type CoupleMenuAction } from '@/components/couple/couple-menu-sheet';
@@ -60,28 +60,13 @@ export default function ParejaScreen() {
         contentContainerClassName="pb-24"
         showsVerticalScrollIndicator={false}
       >
-        <AppHero height={220}>
-          <View className="flex-row items-center gap-2">
-            <Image
-              source={require('@/assets/images/logo-white-green-bg-without.png')}
-              style={{ width: 25, height: 25 }}
-              resizeMode="contain"
-            />
-            <Text className="text-base text-white">
-              Bienvenido,{' '}
-              <Text className="font-semibold">
-                {user?.firstName ?? 'Usuario'}
-              </Text>
-            </Text>
-          </View>
-
-          <View className="mt-6 items-center">
-            <Text className="text-2xl font-bold text-white">Pareja</Text>
-            <Text className="mt-1 text-base text-white/80">
-              Administra tus vínculos
-            </Text>
-          </View>
-        </AppHero>
+        <HeroSection
+          variant="page"
+          userName={user?.firstName ?? 'Usuario'}
+          title="Pareja"
+          subtitle="Administra tus vínculos"
+          height={240}
+        />
 
         <View className="px-5 pt-8">
           <Text className="mb-4 text-2xl font-bold text-[#0F172A]">

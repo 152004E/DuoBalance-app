@@ -49,7 +49,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **BottomTab**: Custom tab bar with 5 tabs (Inicio, Gastos, Pareja, Reportes, Perfil) ✅
 - **ScreenHeader**: Title + subtitle + optional back button page header ✅
 - **SplashScreen**: Animated splash screen with gradient and logo ✅
-- **AppHero**: Shared hero component used in dashboard ✅
+- **HeroSection**: Unified hero component with `variant` prop (`"dashboard"` / `"page"`) — replaces former AppHero + dashboard HeroSection ✅
 
 ### Couple Components — Built
 - **CoupleCard**: Partner info card with avatar, name, email ✅
@@ -61,7 +61,6 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **InviteMemberSheet**: Bottom sheet displaying couple's invite code with quick copy, premium gradients, and logo branding ✅
 
 ### Dashboard Components — Built
-- **HeroSection**: Greeting section with user avatar and welcome message ✅
 - **PartnerBalance**: Balance card showing how much is owed/to whom ✅
 - **RecentTransactions**: Recent transactions list with pull-to-refresh ✅
 - **FloatingAddButton**: Simple floating action button with shadow (used in Dashboard) ✅
@@ -196,7 +195,7 @@ npx prisma db push        # Push schema (dev)
 | `src/components/layout/bottom-tab.tsx` | Custom bottom tab bar (5 tabs) |
 | `src/components/layout/screen-header.tsx` | Title + subtitle + back button header |
 | `src/components/layout/splash-screen.tsx` | Animated splash screen |
-| `src/components/layout/AppHero.tsx` | Shared hero for dashboard |
+| `src/components/layout/HeroSection.tsx` | Unified hero component (`"dashboard"` / `"page"` variants) |
 
 ### Couple Components
 | File | Purpose |
@@ -211,7 +210,6 @@ npx prisma db push        # Push schema (dev)
 ### Dashboard Components
 | File | Purpose |
 |------|---------|
-| `src/components/dashboard/HeroSection.tsx` | Greeting with avatar |
 | `src/components/dashboard/BalanceCard.tsx` | Balance summary |
 | `src/components/dashboard/CoupleSelector.tsx` | Couple dropdown |
 | `src/components/dashboard/PartnerBalance.tsx` | Partner balance card |

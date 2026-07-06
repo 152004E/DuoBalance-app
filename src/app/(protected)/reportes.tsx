@@ -1,6 +1,6 @@
-import { View, Text, ScrollView, Image } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppHero } from '@/components/layout/AppHero';
+import { HeroSection } from '@/components/layout/HeroSection';
 import { BarChart } from '@/components/dashboard/BarChart';
 import { DonutChart } from '@/components/dashboard/DonutChart';
 import { useAuth } from '@/hooks/use-auth';
@@ -28,28 +28,13 @@ export default function ReportesScreen() {
         contentContainerClassName="pb-24"
         showsVerticalScrollIndicator={false}
       >
-        <AppHero height={220}>
-          <View className="flex-row items-center gap-2">
-            <Image
-              source={require('@/assets/images/logo-white-green-bg-without.png')}
-              style={{ width: 25, height: 25 }}
-              resizeMode="contain"
-            />
-            <Text className="text-base text-white">
-              Bienvenido,{' '}
-              <Text className="font-semibold">
-                {user?.firstName ?? 'Usuario'}
-              </Text>
-            </Text>
-          </View>
-
-          <View className="mt-6 items-center">
-            <Text className="text-2xl font-bold text-white">Reportes</Text>
-            <Text className="mt-1 text-base text-white/80">
-              Visualiza tus estadísticas
-            </Text>
-          </View>
-        </AppHero>
+        <HeroSection
+          variant="page"
+          userName={user?.firstName ?? 'Usuario'}
+          title="Reportes"
+          subtitle="Visualiza tus estadísticas"
+          height={220}
+        />
 
         <View className="gap-6 px-5 pt-8">
           <View className="rounded-xl border border-[#E2E8F0] bg-white p-4 shadow-sm">

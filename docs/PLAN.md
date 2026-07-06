@@ -116,8 +116,8 @@
 - [✅] Button — reusable with 5 variants (primary/secondary/outline/danger/link)
 - [✅] AlertModal — reusable with 4 types, BlurView backdrop
 - [✅] Card, Loading, EmptyState — all generic primitives
-- [✅] Layout components — BottomTab (5 tabs), ScreenHeader, SplashScreen, AppHero
-- [✅] Dashboard components — HeroSection, BalanceCard, CoupleSelector, PartnerBalance, RecentTransactions, FloatingAddButton, FloatingAddMenu, TopCategory, AddCoupleCard, BarChart, DonutChart
+- [✅] Layout components — BottomTab (5 tabs), ScreenHeader, SplashScreen, HeroSection (unified dashboard/page variants)
+- [✅] Dashboard components — BalanceCard, CoupleSelector, PartnerBalance, RecentTransactions, FloatingAddButton, FloatingAddMenu, TopCategory, AddCoupleCard, BarChart, DonutChart
 - [✅] Couple components — CoupleCard, InviteCodeCard, CreateCoupleSheet
 
 ## Phase 8: Receipt Capture

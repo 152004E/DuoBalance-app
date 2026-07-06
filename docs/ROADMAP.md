@@ -44,7 +44,7 @@
 - [✅] Button (5 variants: primary/secondary/outline/danger/link)
 - [✅] Card, Loading, EmptyState
 - [✅] BottomTab (5 tabs: Inicio, Gastos, Pareja, Reportes, Perfil)
-- [✅] ScreenHeader, SplashScreen, AppHero
+- [✅] ScreenHeader, SplashScreen, HeroSection (unified dashboard/page variants)
 - [✅] Staggered entrance animations
 
 **Estimated**: Complete

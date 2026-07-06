@@ -63,7 +63,7 @@ DuoBalance-app/
 │   │   │   ├── bottom-tab.tsx       Custom bottom tab bar (5 tabs: Inicio, Gastos, Pareja, Reportes, Perfil)
 │   │   │   ├── screen-header.tsx    Title + subtitle + optional back button
 │   │   │   ├── splash-screen.tsx    Animated splash with gradient + logo
-│   │   │   └── AppHero.tsx          Shared hero for dashboard greeting
+│   │   │   └── HeroSection.tsx      Unified hero (dashboard/page variants)
 │   │   ├── finance/                 Finance-related components
 │   │   │   ├── expense-card.tsx     Expense list item
 │   │   │   ├── stat-card.tsx        Stat display card
@@ -79,7 +79,6 @@ DuoBalance-app/
 │   │   │   ├── couple-menu-sheet.tsx  Bottom sheet to manage couple settings/options
 │   │   │   └── invite-member-sheet.tsx  Bottom sheet displaying invite code with copy/QR
 │   │   └── dashboard/               Dashboard-specific components
-│   │       ├── HeroSection.tsx      Greeting with user avatar
 │   │       ├── BalanceCard.tsx      Balance summary (income/expenses/net)
 │   │       ├── CoupleSelector.tsx   Dropdown-style couple switcher
 │   │       ├── PartnerBalance.tsx   Partner balance card (owed/to whom)

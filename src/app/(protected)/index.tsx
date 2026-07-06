@@ -1,7 +1,7 @@
 import { View, Text, FlatList, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/hooks/use-auth';
-import { HeroSection } from '@/components/dashboard/HeroSection';
+import { HeroSection } from '@/components/layout/HeroSection';
 import { CoupleCard } from '@/components/dashboard/CoupleCard';
 import { AddCoupleCard } from '@/components/dashboard/AddCoupleCard';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
@@ -77,6 +77,7 @@ export default function DashboardScreen() {
       >
         <HeroSection
           userName={user?.firstName ?? 'Usuario'}
+          variant="dashboard"
           balance={MOCK_BALANCE.amount}
           partnerShare={MOCK_BALANCE.partnerShare}
           direction={MOCK_BALANCE.direction}
