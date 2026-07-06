@@ -1,6 +1,8 @@
 import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { HeroSection } from '@/components/layout/HeroSection';
+import { useCallback, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
 import { BarChart } from '@/components/dashboard/BarChart';
 import { DonutChart } from '@/components/dashboard/DonutChart';
 import { useAuth } from '@/hooks/use-auth';
@@ -20,6 +22,13 @@ const DONUT_DATA = [
 
 export default function ReportesScreen() {
   const { user } = useAuth();
+  const [focusCount, setFocusCount] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      setFocusCount(c => c + 1);
+    }, []),
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]" edges={['top']}>
@@ -29,6 +38,7 @@ export default function ReportesScreen() {
         showsVerticalScrollIndicator={false}
       >
         <HeroSection
+          key={focusCount}
           variant="page"
           userName={user?.firstName ?? 'Usuario'}
           title="Reportes"

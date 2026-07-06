@@ -1,7 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { HeroSection } from '@/components/layout/HeroSection';
 import { CoupleCard } from '@/components/dashboard/CoupleCard';
 import { FloatingAddMenu } from '@/components/dashboard/FloatingAddMenu';
@@ -19,7 +19,14 @@ const MOCK_COUPLES = [
 
 export default function ParejaScreen() {
   const { user } = useAuth();
+  const [focusCount, setFocusCount] = useState(0);
   const [menuVisible, setMenuVisible] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      setFocusCount(c => c + 1);
+    }, []),
+  );
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [inviteVisible, setInviteVisible] = useState(false);
   const [showComingSoon, setShowComingSoon] = useState(false);
@@ -61,11 +68,12 @@ export default function ParejaScreen() {
         showsVerticalScrollIndicator={false}
       >
         <HeroSection
+          key={focusCount}
           variant="page"
           userName={user?.firstName ?? 'Usuario'}
           title="Pareja"
           subtitle="Administra tus vínculos"
-          height={240}
+          height={220}
         />
 
         <View className="px-5 pt-8">

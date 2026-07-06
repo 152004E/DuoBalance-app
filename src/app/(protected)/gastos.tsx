@@ -1,10 +1,19 @@
+import { useCallback, useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from 'expo-router';
 import { HeroSection } from '@/components/layout/HeroSection';
 import { useAuth } from '@/hooks/use-auth';
 
 export default function GastosScreen() {
   const { user } = useAuth();
+  const [focusCount, setFocusCount] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      setFocusCount(c => c + 1);
+    }, []),
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]" edges={['top']}>
@@ -14,6 +23,7 @@ export default function GastosScreen() {
         showsVerticalScrollIndicator={false}
       >
         <HeroSection
+          key={focusCount}
           variant="page"
           userName={user?.firstName ?? 'Usuario'}
           title="Gastos"

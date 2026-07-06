@@ -7,8 +7,18 @@ import Svg, {
   Stop,
   Path,
   ClipPath,
+  Circle,
 } from 'react-native-svg';
+import Reanimated, {
+  useSharedValue,
+  useAnimatedProps,
+  withTiming,
+  withDelay,
+  Easing as ReEasing,
+} from 'react-native-reanimated';
 import { CoupleSelector } from '@/components/dashboard/CoupleSelector';
+
+const AnimatedCircle = Reanimated.createAnimatedComponent(Circle);
 
 type BalanceDirection = 'OWED_TO_ME' | 'I_OWE' | 'SETTLED';
 
@@ -32,6 +42,83 @@ type HeroSectionProps = {
   height?: number;
 } & (DashboardVariantProps | PageVariantProps);
 
+const PAGE_ICONS: Record<string, string[]> = {
+  Gastos: [
+    'M4 5h16a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V7a2 2 0 012-2z',
+    'M2 9h20',
+  ],
+  Pareja: [
+    'M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z',
+  ],
+  Reportes: [
+    'M18 20V10',
+    'M12 20V4',
+    'M6 20v-6',
+  ],
+};
+
+function AnimatedCircles({ width, height }: { width: number; height: number }) {
+  const c1 = useSharedValue(0);
+  const c2 = useSharedValue(0);
+  const c3 = useSharedValue(0);
+
+  useEffect(() => {
+    c1.value = withTiming(1, {
+      duration: 500,
+      easing: ReEasing.out(ReEasing.cubic),
+    });
+    c2.value = withDelay(
+      150,
+      withTiming(1, { duration: 500, easing: ReEasing.out(ReEasing.cubic) }),
+    );
+    c3.value = withDelay(
+      300,
+      withTiming(1, { duration: 500, easing: ReEasing.out(ReEasing.cubic) }),
+    );
+  }, []);
+
+  const props1 = useAnimatedProps(() => ({
+    r: c1.value * 75,
+    opacity: c1.value * 0.04,
+  }));
+
+  const props2 = useAnimatedProps(() => ({
+    r: c2.value * 85,
+    opacity: c2.value * 0.05,
+  }));
+
+  const props3 = useAnimatedProps(() => ({
+    r: c3.value * 45,
+    opacity: c3.value * 0.03,
+  }));
+
+  return (
+    <>
+      <AnimatedCircle
+        animatedProps={props1}
+        cx={width * 0.85}
+        cy={-20}
+        fill="white"
+        clipPath="url(#heroClip)"
+      />
+      <AnimatedCircle
+        animatedProps={props2}
+        cx={-30}
+        cy={height * 0.65}
+        fill="white"
+        clipPath="url(#heroClip)"
+      />
+      <AnimatedCircle
+        animatedProps={props3}
+        cx={width * 0.6}
+        cy={height * 0.3}
+        fill="white"
+        clipPath="url(#heroClip)"
+      />
+    </>
+  );
+}
+
 export function HeroSection(props: HeroSectionProps) {
   const { variant, userName, height = 270 } = props;
   const { width } = useWindowDimensions();
@@ -39,6 +126,8 @@ export function HeroSection(props: HeroSectionProps) {
   const contentOpacity = useRef(new Animated.Value(0)).current;
   const contentSlideUp = useRef(new Animated.Value(20)).current;
   const numberScale = useRef(new Animated.Value(0.85)).current;
+  const subtitleOpacity = useRef(new Animated.Value(0)).current;
+  const subtitleSlideUp = useRef(new Animated.Value(10)).current;
 
   useEffect(() => {
     Animated.timing(contentOpacity, {
@@ -64,7 +153,28 @@ export function HeroSection(props: HeroSectionProps) {
         useNativeDriver: true,
       }).start();
     }
+
+    if (variant === 'page' && props.subtitle) {
+      Animated.parallel([
+        Animated.timing(subtitleOpacity, {
+          toValue: 1,
+          duration: 400,
+          delay: 200,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.timing(subtitleSlideUp, {
+          toValue: 0,
+          duration: 400,
+          delay: 200,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
   }, []);
+
+  const iconPaths = variant === 'page' ? PAGE_ICONS[props.title] : undefined;
 
   return (
     <View
@@ -137,6 +247,8 @@ export function HeroSection(props: HeroSectionProps) {
             clipPath="url(#heroClip)"
           />
         )}
+
+        {variant === 'page' && <AnimatedCircles width={width} height={height} />}
       </Svg>
 
       <Animated.View
@@ -206,13 +318,37 @@ export function HeroSection(props: HeroSectionProps) {
             </View>
 
             <View className="mt-8 items-center">
-              <Text className="text-3xl font-bold text-white">
-                {props.title}
-              </Text>
-              {props.subtitle && (
-                <Text className="mt-1 text-base text-white/80">
-                  {props.subtitle}
+              <View className="flex-row items-center gap-2">
+                {iconPaths && (
+                  <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
+                    {iconPaths.map((d, i) => (
+                      <Path
+                        key={i}
+                        d={d}
+                        stroke="white"
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    ))}
+                  </Svg>
+                )}
+                <Text className="text-3xl font-bold text-white">
+                  {props.title}
                 </Text>
+              </View>
+
+              {props.subtitle && (
+                <Animated.View
+                  style={{
+                    opacity: subtitleOpacity,
+                    transform: [{ translateY: subtitleSlideUp }],
+                  }}
+                >
+                  <Text className="mt-1 text-base text-white/80">
+                    {props.subtitle}
+                  </Text>
+                </Animated.View>
               )}
             </View>
           </>
