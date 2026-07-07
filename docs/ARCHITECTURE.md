@@ -104,7 +104,10 @@ DuoBalance-app/
 │   │   └── token.ts                 SecureStore wrapper (token + user)
 │   │
 │   ├── hooks/
-│   │   └── use-auth.ts              useAuth hook (AuthContext wrapper with guard + token persistence)
+│   │   ├── use-auth.ts              useAuth hook (AuthContext wrapper with guard + token persistence)
+│   │   ├── use-bottom-sheet.ts      BottomSheet lifecycle (TransitionState, startClose/finishClose, callbacks)
+│   │   ├── use-staggered-entrance.ts  Reusable staggered entrance animations for lists
+│   │   └── use-dashboard-hero-animation.ts  Dashboard hero staggered animation
 │   │
 │   ├── types/
 │   │   ├── api.ts                   All backend DTOs and response types

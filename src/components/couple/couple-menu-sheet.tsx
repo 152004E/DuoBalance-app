@@ -41,6 +41,7 @@ interface CoupleMenuSheetProps {
   onAction: (action: CoupleMenuAction) => void;
   heightRatio?: number;
   headerFinalTranslateY?: number;
+  onCloseComplete?: () => void;
 }
 
 interface ItemAnimationState {
@@ -97,7 +98,7 @@ function MenuItemRow({
   );
 }
 
-export function CoupleMenuSheet({ visible, onClose, onAction, heightRatio = 0.65, headerFinalTranslateY }: CoupleMenuSheetProps) {
+export function CoupleMenuSheet({ visible, onClose, onAction, heightRatio = 0.65, headerFinalTranslateY, onCloseComplete }: CoupleMenuSheetProps) {
   const insets = useSafeAreaInsets();
 
   const itemAnimations: ItemAnimationState[] = MENU_ITEMS.map(() => ({
@@ -132,7 +133,7 @@ export function CoupleMenuSheet({ visible, onClose, onAction, heightRatio = 0.65
   );
 
   return (
-    <BottomSheet visible={visible} onClose={onClose} header={header} heightRatio={heightRatio} headerFinalTranslateY={headerFinalTranslateY}>
+    <BottomSheet visible={visible} onClose={onClose} header={header} heightRatio={heightRatio} headerFinalTranslateY={headerFinalTranslateY} onCloseComplete={onCloseComplete}>
       <View className="flex-1">
         <ScrollView
           className="flex-1 px-5"

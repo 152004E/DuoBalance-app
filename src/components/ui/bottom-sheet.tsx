@@ -12,6 +12,8 @@ interface BottomSheetProps {
   header?: React.ReactNode;
   heightRatio?: number;
   headerFinalTranslateY?: number;
+  onOpenComplete?: () => void;
+  onCloseComplete?: () => void;
 }
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -28,6 +30,8 @@ export function BottomSheet({
   header,
   heightRatio = 0.65,
   headerFinalTranslateY = 0.17,
+  onOpenComplete,
+  onCloseComplete,
 }: BottomSheetProps) {
   const insets = useSafeAreaInsets();
 
@@ -50,6 +54,8 @@ export function BottomSheet({
     visible,
     onClose,
     headerFinalTranslateY: HEADER_FINAL_TRANSLATE_Y,
+    onOpenComplete,
+    onCloseComplete,
   });
 
   return (

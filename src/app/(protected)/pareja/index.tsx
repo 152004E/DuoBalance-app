@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Animated from 'react-native-reanimated';
 import { router, useFocusEffect } from 'expo-router';
 import { HeroSection } from '@/components/layout/HeroSection';
 import { CoupleCard } from '@/components/dashboard/CoupleCard';
@@ -9,6 +10,7 @@ import { CoupleMenuSheet, type CoupleMenuAction } from '@/components/couple/coup
 import { InviteMemberSheet } from '@/components/couple/invite-member-sheet';
 import { AlertModal } from '@/components/ui/alert-modal';
 import { useAuth } from '@/hooks/use-auth';
+import { useStaggeredEntrance } from '@/hooks/use-staggered-entrance';
 
 const MOCK_COUPLES = [
   { id: '1', name: 'Andrea', balance: 250000, status: 'positive' as const },
@@ -16,6 +18,34 @@ const MOCK_COUPLES = [
   { id: '3', name: 'María', balance: 15000, status: 'neutral' as const },
   { id: '4', name: 'Pedro', balance: 120000, status: 'negative' as const },
 ];
+
+function StaggeredCoupleCard({
+  item,
+  index,
+  onPress,
+  onMenu,
+  focusCount,
+}: {
+  item: (typeof MOCK_COUPLES)[number];
+  index: number;
+  onPress: () => void;
+  onMenu: () => void;
+  focusCount: number;
+}) {
+  const animatedStyle = useStaggeredEntrance(index, { trigger: focusCount });
+  return (
+    <Animated.View style={animatedStyle}>
+      <CoupleCard
+        id={item.id}
+        name={item.name}
+        balance={item.balance}
+        status={item.status}
+        onPress={onPress}
+        onMenu={onMenu}
+      />
+    </Animated.View>
+  );
+}
 
 export default function ParejaScreen() {
   const { user } = useAuth();
@@ -31,34 +61,44 @@ export default function ParejaScreen() {
   const [inviteVisible, setInviteVisible] = useState(false);
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
-  const pendingInviteAction = useRef(false);
-
-  const handleMenuClose = () => {
-    setMenuVisible(false);
-    if (pendingInviteAction.current) {
-      pendingInviteAction.current = false;
-      setInviteVisible(true);
-    }
-  };
+  const lastActionRef = useRef<CoupleMenuAction | null>(null);
 
   const handleMenuAction = (action: CoupleMenuAction) => {
     switch (action) {
       case 'invite':
-        pendingInviteAction.current = true;
+        lastActionRef.current = 'invite';
         setMenuVisible(false);
         break;
       case 'settings':
       case 'export':
       case 'history':
+        lastActionRef.current = action;
         setMenuVisible(false);
-        setShowComingSoon(true);
         break;
       case 'leave':
+        lastActionRef.current = 'leave';
         setMenuVisible(false);
-        setShowLeaveConfirm(true);
         break;
     }
   };
+
+  const handleMenuCloseComplete = useCallback(() => {
+    const action = lastActionRef.current;
+    lastActionRef.current = null;
+    switch (action) {
+      case 'invite':
+        setInviteVisible(true);
+        break;
+      case 'settings':
+      case 'export':
+      case 'history':
+        setShowComingSoon(true);
+        break;
+      case 'leave':
+        setShowLeaveConfirm(true);
+        break;
+    }
+  }, []);
 
   return (
     <SafeAreaView className="relative flex-1 bg-[#F8FAFC]" edges={['top']}>
@@ -82,13 +122,12 @@ export default function ParejaScreen() {
           </Text>
 
           <View className="gap-4">
-            {MOCK_COUPLES.map((item) => (
-              <CoupleCard
+            {MOCK_COUPLES.map((item, index) => (
+              <StaggeredCoupleCard
                 key={item.id}
-                id={item.id}
-                name={item.name}
-                balance={item.balance}
-                status={item.status}
+                item={item}
+                index={index}
+                focusCount={focusCount}
                 onPress={() => router.push(`/pareja/${item.id}`)}
                 onMenu={() => {
                   setSelectedCardId(item.id);
@@ -109,8 +148,9 @@ export default function ParejaScreen() {
 
       <CoupleMenuSheet
         visible={menuVisible}
-        onClose={handleMenuClose}
+        onClose={() => setMenuVisible(false)}
         onAction={handleMenuAction}
+        onCloseComplete={handleMenuCloseComplete}
         heightRatio={0.55}
         headerFinalTranslateY={0.27}
       />

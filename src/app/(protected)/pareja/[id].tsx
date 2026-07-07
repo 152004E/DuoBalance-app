@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -51,7 +51,7 @@ export default function CoupleDetail() {
   const [inviteVisible, setInviteVisible] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [showComingSoon, setShowComingSoon] = useState(false);
-  const pendingInviteAction = useRef(false);
+  const lastActionRef = useRef<CoupleMenuAction | null>(null);
 
   const handleCopyCode = () => {
     setShowToast(true);
@@ -60,32 +60,28 @@ export default function CoupleDetail() {
     }, 2000);
   };
 
-  const handleMenuClose = () => {
+  const handleMenuAction = (action: CoupleMenuAction) => {
+    lastActionRef.current = action;
     setMenuVisible(false);
-    if (pendingInviteAction.current) {
-      pendingInviteAction.current = false;
-      setInviteVisible(true);
-    }
   };
 
-  const handleMenuAction = (action: CoupleMenuAction) => {
+  const handleMenuCloseComplete = useCallback(() => {
+    const action = lastActionRef.current;
+    lastActionRef.current = null;
     switch (action) {
       case 'invite':
-        pendingInviteAction.current = true;
-        setMenuVisible(false);
+        setInviteVisible(true);
         break;
       case 'settings':
       case 'export':
       case 'history':
-        setMenuVisible(false);
         setShowComingSoon(true);
         break;
       case 'leave':
-        setMenuVisible(false);
         setShowLeaveConfirm(true);
         break;
     }
-  };
+  }, []);
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]">
@@ -378,8 +374,9 @@ export default function CoupleDetail() {
 
       <CoupleMenuSheet
         visible={menuVisible}
-        onClose={handleMenuClose}
+        onClose={() => setMenuVisible(false)}
         onAction={handleMenuAction}
+        onCloseComplete={handleMenuCloseComplete}
         heightRatio={0.55}
         headerFinalTranslateY={0.27}
       />

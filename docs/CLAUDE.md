@@ -32,7 +32,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **Card**: Generic card with default/highlight variants ✅
 - **Loading**: Full-screen loading spinner ✅
 - **EmptyState**: Empty state placeholder with icon, title, subtitle, action button ✅
-- **BottomSheet**: Reusable bottom sheet modal with backdrop press, drag indicator, spring animations, variable height ✅
+- **BottomSheet**: Reusable bottom sheet modal with backdrop press, drag indicator, spring animations, variable height, TransitionState lifecycle (Idle/Opening/Closing), synchronized header/sheet/overlay exit, and new `onOpenComplete`/`onCloseComplete` callbacks ✅
 - **BottomSheetHeader**: Reusable header for bottom sheets with premium gradients, spring transitions, safe-area insets, and adjustable translation/height configs ✅
 - **PercentageSlider**: Animated percentage slider with gradient fill, min/max caps ✅
 - **DistributionBar**: Horizontal stacked distribution bar with percentage labels and legends ✅
@@ -72,8 +72,9 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **DonutChart**: Donut chart for category breakdown ✅
 
 ### Animations
-- **Staggered entrance animations**: Logo, Title, Inputs, Buttons fade in sequentially on auth screens ✅
-- **BottomSheet**: Spring animations for show/hide ✅
+- **Staggered entrance animations (auth screens)**: Logo, Title, Inputs, Buttons fade in sequentially on auth screens ✅
+- **useStaggeredEntrance hook**: Reusable hook for staggered list animations — accepts `index`, `delayBetweenItems`, `duration`, `fromOffset`, `trigger` (for re-animation on focus/state changes). Used by `StaggeredCoupleCard` in the couple list. ✅
+- **BottomSheet**: Spring animations for show/hide with TransitionState lifecycle (Idle/Opening/Closing), synchronized header/sheet/overlay exit via `withTiming`, and `onOpenComplete`/`onCloseComplete` callbacks ✅
 - **AlertModal**: Spring animations for show/hide ✅
 - **Bug fix**: Bottom sheet overlay no longer covers header — header is correctly positioned below sheet content ✅
 
@@ -221,11 +222,18 @@ npx prisma db push        # Push schema (dev)
 | `src/components/dashboard/BarChart.tsx` | Bar chart |
 | `src/components/dashboard/DonutChart.tsx` | Donut chart |
 
+### Hooks
+| File | Purpose |
+|------|---------|
+| `src/hooks/use-auth.ts` | useAuth hook (with token persistence) |
+| `src/hooks/use-bottom-sheet.ts` | BottomSheet lifecycle management — TransitionState (Idle/Opening/Closing), startClose/finishClose, onOpenComplete/onCloseComplete callbacks, pan gesture handling |
+| `src/hooks/use-staggered-entrance.ts` | Reusable staggered entrance animation for list items — configurable delay, duration, offset, and trigger for re-animation |
+| `src/hooks/use-dashboard-hero-animation.ts` | Dashboard hero staggered entrance (greeting, balance, badge, selector) with Animated API |
+
 ### Core
 | File | Purpose |
 |------|---------|
 | `src/features/auth/auth.context.tsx` | AuthContext + AuthProvider |
-| `src/hooks/use-auth.ts` | useAuth hook (with token persistence) |
 | `src/storage/token.ts` | SecureStore wrapper |
 | `src/services/api/client.ts` | Axios instance |
 | `src/services/api/interceptor.ts` | Bearer token interceptor |

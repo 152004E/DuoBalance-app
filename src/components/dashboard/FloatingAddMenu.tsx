@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, Pressable, TouchableOpacity } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -79,6 +79,7 @@ export function FloatingAddMenu({ heightRatio = 0.45, headerFinalTranslateY = 0.
   const [showCreateSheet, setShowCreateSheet] = useState(false);
   const [showComingSoon, setShowComingSoon] = useState(false);
 
+  const pendingActionRef = useRef<'create-couple' | 'join-couple' | null>(null);
   const rotation = useSharedValue(0);
 
   const itemAnimations: ItemAnimationState[] = MENU_ITEMS.map(() => ({
@@ -127,14 +128,24 @@ export function FloatingAddMenu({ heightRatio = 0.45, headerFinalTranslateY = 0.
   }, [rotation]);
 
   const handleCreateCouple = useCallback(() => {
+    pendingActionRef.current = 'create-couple';
     handleCloseMenu();
-    setTimeout(() => setShowCreateSheet(true), 300);
   }, [handleCloseMenu]);
 
   const handleJoinCouple = useCallback(() => {
+    pendingActionRef.current = 'join-couple';
     handleCloseMenu();
-    setTimeout(() => setShowComingSoon(true), 300);
   }, [handleCloseMenu]);
+
+  const handleMenuCloseComplete = useCallback(() => {
+    if (pendingActionRef.current === 'create-couple') {
+      pendingActionRef.current = null;
+      setShowCreateSheet(true);
+    } else if (pendingActionRef.current === 'join-couple') {
+      pendingActionRef.current = null;
+      setShowComingSoon(true);
+    }
+  }, []);
 
   const header = (
     <BottomSheetHeader
@@ -169,6 +180,7 @@ export function FloatingAddMenu({ heightRatio = 0.45, headerFinalTranslateY = 0.
       <BottomSheet
         visible={menuVisible}
         onClose={handleCloseMenu}
+        onCloseComplete={handleMenuCloseComplete}
         header={header}
         heightRatio={heightRatio}
         headerFinalTranslateY={headerFinalTranslateY}

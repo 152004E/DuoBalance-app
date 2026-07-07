@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Dimensions } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -7,28 +7,38 @@ import Animated, {
   Easing,
   runOnJS,
 } from 'react-native-reanimated';
-import { GestureDetector, Gesture } from 'react-native-gesture-handler';
+import { Gesture } from 'react-native-gesture-handler';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const DISMISS_THRESHOLD = 100;
 const DISMISS_VELOCITY = 500;
 
+enum TransitionState {
+  Idle,
+  Opening,
+  Closing,
+}
+
 interface UseBottomSheetProps {
   visible: boolean;
   onClose: () => void;
   headerFinalTranslateY: number;
+  onOpenComplete?: () => void;
+  onCloseComplete?: () => void;
 }
 
 export function useBottomSheet({
   visible,
   onClose,
   headerFinalTranslateY,
+  onOpenComplete,
+  onCloseComplete,
 }: UseBottomSheetProps) {
   const [internalVisible, setInternalVisible] = useState(false);
 
   const prevVisible = useRef(false);
-  const closingRef = useRef(false);
+  const transitionStateRef = useRef(TransitionState.Idle);
 
   const translateY = useSharedValue(SCREEN_HEIGHT);
   const overlayOpacity = useSharedValue(0);
@@ -37,7 +47,7 @@ export function useBottomSheet({
   const headerTranslateY = useSharedValue(SCREEN_HEIGHT);
   const headerOpacity = useSharedValue(0);
 
-  const open = () => {
+  const open = useCallback(() => {
     translateY.value = withTiming(0, {
       duration: 300,
       easing: Easing.out(Easing.cubic),
@@ -51,15 +61,29 @@ export function useBottomSheet({
       duration: 300,
       easing: Easing.out(Easing.cubic),
     });
-  };
+  }, []);
 
-  const close = (callback: () => void) => {
-    closingRef.current = true;
+  const finishClose = useCallback(() => {
+    if (transitionStateRef.current !== TransitionState.Closing) return;
+    transitionStateRef.current = TransitionState.Idle;
+    prevVisible.current = false;
+    setInternalVisible(false);
+    onClose();
+    onCloseComplete?.();
+  }, [onClose, onCloseComplete]);
+
+  const startClose = useCallback(() => {
+    if (transitionStateRef.current === TransitionState.Closing) return;
+    transitionStateRef.current = TransitionState.Closing;
 
     translateY.value = withTiming(
       SCREEN_HEIGHT,
       { duration: 250 },
-      () => runOnJS(callback)(),
+      (finished) => {
+        if (finished) {
+          runOnJS(finishClose)();
+        }
+      },
     );
 
     overlayOpacity.value = withTiming(0, {
@@ -70,51 +94,59 @@ export function useBottomSheet({
       duration: 250,
     });
 
-    headerTranslateY.value = SCREEN_HEIGHT;
-    headerOpacity.value = 0;
-  };
+    headerTranslateY.value = withTiming(SCREEN_HEIGHT, {
+      duration: 250,
+    });
+
+    headerOpacity.value = withTiming(0, {
+      duration: 250,
+    });
+  }, [finishClose]);
+
+  const fireOpenComplete = useCallback(() => {
+    onOpenComplete?.();
+  }, [onOpenComplete]);
 
   useEffect(() => {
     if (visible) {
-      closingRef.current = false;
-      setInternalVisible(true);
+      if (transitionStateRef.current === TransitionState.Idle) {
+        transitionStateRef.current = TransitionState.Opening;
+        setInternalVisible(true);
 
-      const sheetTimer = setTimeout(open, 50);
+        const sheetTimer = setTimeout(open, 50);
 
-      const headerTimer = setTimeout(() => {
-        headerTranslateY.value = withTiming(headerFinalTranslateY, {
-          duration: 400,
-          easing: Easing.out(Easing.cubic),
-        });
+        const headerTimer = setTimeout(() => {
+          headerTranslateY.value = withTiming(headerFinalTranslateY, {
+            duration: 400,
+            easing: Easing.out(Easing.cubic),
+          });
 
-        headerOpacity.value = withTiming(1, {
-          duration: 400,
-          easing: Easing.out(Easing.cubic),
-        });
-      }, 500);
+          headerOpacity.value = withTiming(1, {
+            duration: 400,
+            easing: Easing.out(Easing.cubic),
+          });
 
-      return () => {
-        clearTimeout(sheetTimer);
-        clearTimeout(headerTimer);
-      };
+          runOnJS(fireOpenComplete)();
+        }, 500);
+
+        prevVisible.current = true;
+
+        return () => {
+          clearTimeout(sheetTimer);
+          clearTimeout(headerTimer);
+        };
+      }
+    } else {
+      if (prevVisible.current) {
+        startClose();
+      }
+      prevVisible.current = false;
     }
+  }, [visible, open, headerFinalTranslateY, startClose, fireOpenComplete]);
 
-    if (prevVisible.current && !closingRef.current) {
-      close(() => {
-        setInternalVisible(false);
-        onClose();
-      });
-    }
-
-    prevVisible.current = visible;
-  }, [visible]);
-
-  const handleClose = () => {
-    close(() => {
-      setInternalVisible(false);
-      onClose();
-    });
-  };
+  const handleClose = useCallback(() => {
+    startClose();
+  }, [startClose]);
 
   const panGesture = Gesture.Pan()
     .activeOffsetY(10)
@@ -131,10 +163,7 @@ export function useBottomSheet({
         event.translationY > DISMISS_THRESHOLD ||
         event.velocityY > DISMISS_VELOCITY
       ) {
-        close(() => {
-          setInternalVisible(false);
-          onClose();
-        });
+        startClose();
       } else {
         translateY.value = withTiming(0, {
           duration: 250,
