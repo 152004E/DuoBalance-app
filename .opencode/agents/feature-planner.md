@@ -20,8 +20,9 @@ Antes de escribir código, produces un plan detallado que incluye:
 7. **Estados** - Loading, empty, error, success para cada pantalla
 8. **Navegación** - Cómo se conecta con las pantallas existentes
 9. **Dependencias** - Hooks, servicios, endpoints y componentes compartidos requeridos
-10. **Casos borde** - Sin conexión, sin pareja asociada, datos vacíos, error de API, usuario sin permisos
-11. **Orden de implementación** - Paso a paso, qué va primero
+10. **Extracción a hooks** - Identificar cuándo la lógica de un componente supera ~150 líneas, mezcla estado/efectos/API, o es reusable. Indicar nombre y responsabilidad del hook propuesto en `src/hooks/`
+11. **Casos borde** - Sin conexión, sin pareja asociada, datos vacíos, error de API, usuario sin permisos
+12. **Orden de implementación** - Paso a paso, qué va primero
 
 ## Formato del plan
 ```markdown
@@ -68,5 +69,17 @@ Antes de escribir código, produces un plan detallado que incluye:
 ### Orden de implementación
 1. ...
 ```
+
+## Reglas de extracción a hooks
+
+Extraé la lógica a un hook custom cuando el componente/pantalla tenga al menos uno de estos indicios:
+
+- **Longitud**: el bloque de lógica (no JSX) supera ~150 líneas
+- **Complejidad**: mezcla 3+ `useState`, `useEffect`, `useCallback` o lógica condicional anidada
+- **Reuso**: la misma lógica se necesita en 2+ componentes
+- **Testabilidad**: contiene cálculos o transformaciones que merecen tests unitarios
+- **Separación**: el JSX se vuelve difícil de leer por la cantidad de hooks inline
+
+El hook se crea en `src/hooks/` con el patrón `use-<nombre>.ts`, exportando solo lo necesario (valores + handlers, no implementación interna).
 
 No edites archivos. Solo entrega el plan.

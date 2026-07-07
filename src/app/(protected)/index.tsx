@@ -1,5 +1,7 @@
+import { useCallback, useState } from 'react';
 import { View, Text, FlatList, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from 'expo-router';
 import { useAuth } from '@/hooks/use-auth';
 import { HeroSection } from '@/components/layout/HeroSection';
 import { CoupleCard } from '@/components/dashboard/CoupleCard';
@@ -67,6 +69,13 @@ const MOCK_PARTNER_BALANCE = {
 
 export default function DashboardScreen() {
   const { user } = useAuth();
+  const [focusCount, setFocusCount] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      setFocusCount(c => c + 1);
+    }, []),
+  );
 
   return (
     <SafeAreaView className="relative flex-1 bg-[#F8FAFC]" edges={['top']}>
@@ -76,6 +85,7 @@ export default function DashboardScreen() {
         showsVerticalScrollIndicator={false}
       >
         <HeroSection
+          key={focusCount}
           userName={user?.firstName ?? 'Usuario'}
           variant="dashboard"
           balance={MOCK_BALANCE.amount}

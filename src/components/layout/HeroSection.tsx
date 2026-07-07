@@ -17,6 +17,7 @@ import Reanimated, {
   Easing as ReEasing,
 } from 'react-native-reanimated';
 import { CoupleSelector } from '@/components/dashboard/CoupleSelector';
+import { useDashboardHeroAnimation } from '@/hooks/use-dashboard-hero-animation';
 
 const AnimatedCircle = Reanimated.createAnimatedComponent(Circle);
 
@@ -123,54 +124,47 @@ export function HeroSection(props: HeroSectionProps) {
   const { variant, userName, height = 270 } = props;
   const { width } = useWindowDimensions();
 
-  const contentOpacity = useRef(new Animated.Value(0)).current;
-  const contentSlideUp = useRef(new Animated.Value(20)).current;
-  const numberScale = useRef(new Animated.Value(0.85)).current;
+  const contentOpacity = useRef(new Animated.Value(variant === 'dashboard' ? 1 : 0)).current;
+  const contentSlideUp = useRef(new Animated.Value(variant === 'dashboard' ? 0 : 20)).current;
   const subtitleOpacity = useRef(new Animated.Value(0)).current;
   const subtitleSlideUp = useRef(new Animated.Value(10)).current;
 
+  const dashAnim = useDashboardHeroAnimation();
+
   useEffect(() => {
-    Animated.timing(contentOpacity, {
-      toValue: 1,
-      duration: 550,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
-    }).start();
-
-    Animated.timing(contentSlideUp, {
-      toValue: 0,
-      duration: 550,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
-    }).start();
-
-    if (variant === 'dashboard') {
-      Animated.spring(numberScale, {
+    if (variant !== 'dashboard') {
+      Animated.timing(contentOpacity, {
         toValue: 1,
-        friction: 8,
-        tension: 50,
-        delay: 250,
+        duration: 550,
+        easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }).start();
-    }
 
-    if (variant === 'page' && props.subtitle) {
-      Animated.parallel([
-        Animated.timing(subtitleOpacity, {
-          toValue: 1,
-          duration: 400,
-          delay: 200,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }),
-        Animated.timing(subtitleSlideUp, {
-          toValue: 0,
-          duration: 400,
-          delay: 200,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }),
-      ]).start();
+      Animated.timing(contentSlideUp, {
+        toValue: 0,
+        duration: 550,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start();
+
+      if (props.subtitle) {
+        Animated.parallel([
+          Animated.timing(subtitleOpacity, {
+            toValue: 1,
+            duration: 400,
+            delay: 200,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: true,
+          }),
+          Animated.timing(subtitleSlideUp, {
+            toValue: 0,
+            duration: 400,
+            delay: 200,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }
     }
   }, []);
 
@@ -262,7 +256,15 @@ export function HeroSection(props: HeroSectionProps) {
       >
         {variant === 'dashboard' ? (
           <>
-            <View className="flex-row items-center gap-2">
+            <Animated.View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 8,
+                opacity: dashAnim.greetingOpacity,
+                transform: [{ translateY: dashAnim.greetingTranslateY }],
+              }}
+            >
               <Image
                 source={require('@/assets/images/logo-white-green-bg-without.png')}
                 style={{ width: 25, height: 25 }}
@@ -272,35 +274,49 @@ export function HeroSection(props: HeroSectionProps) {
                 Bienvenido,{' '}
                 <Text className="font-semibold">{userName}</Text>
               </Text>
-            </View>
+            </Animated.View>
 
-            <View className="mt-8 items-center">
+            <View className="mt-4 items-center">
               <Animated.View
-                style={{ transform: [{ scale: numberScale }] }}
+                style={{ opacity: dashAnim.balanceOpacity, transform: [{ scale: dashAnim.numberScale }] }}
               >
                 <Text className="text-5xl font-bold tracking-tight text-white">
                   ${props.balance.toLocaleString('es-CL')}
                 </Text>
               </Animated.View>
 
-              <View
-                className={`mt-4 rounded-full px-5 py-1.5 ${props.direction === 'SETTLED' ? 'bg-green-200' : 'bg-red-100'}`}
+              <Animated.View
+                style={{
+                  opacity: dashAnim.badgeOpacity,
+                  transform: [{ translateY: dashAnim.badgeTranslateY }],
+                }}
               >
-                <Text
-                  className={`text-sm font-medium ${props.direction === 'SETTLED' ? 'text-green-800' : 'text-red-700'}`}
+                <View
+                  className={`mt-1 rounded-full px-5 py-1.5 ${props.direction === 'SETTLED' ? 'bg-green-200' : 'bg-red-100'}`}
                 >
-                  {props.direction === 'SETTLED'
-                    ? 'Cuentas equilibradas'
-                    : props.direction === 'OWED_TO_ME'
-                      ? `Te deben $${props.partnerShare.toLocaleString('es-CL')}`
-                      : `Tú debes $${props.partnerShare.toLocaleString('es-CL')}`}
-                </Text>
-              </View>
+                  <Text
+                    className={`text-sm font-medium ${props.direction === 'SETTLED' ? 'text-green-800' : 'text-red-700'}`}
+                  >
+                    {props.direction === 'SETTLED'
+                      ? 'Cuentas equilibradas'
+                      : props.direction === 'OWED_TO_ME'
+                        ? `Te deben $${props.partnerShare.toLocaleString('es-CL')}`
+                        : `Tú debes $${props.partnerShare.toLocaleString('es-CL')}`}
+                  </Text>
+                </View>
+              </Animated.View>
 
-              <CoupleSelector
-                coupleName={props.coupleName ?? ''}
-                onPress={props.onCouplePress}
-              />
+              <Animated.View
+                style={{
+                  opacity: dashAnim.selectorOpacity,
+                  transform: [{ translateY: dashAnim.selectorTranslateY }],
+                }}
+              >
+                <CoupleSelector
+                  coupleName={props.coupleName ?? ''}
+                  onPress={props.onCouplePress}
+                />
+              </Animated.View>
             </View>
           </>
         ) : (

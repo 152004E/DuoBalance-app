@@ -109,7 +109,7 @@ export default function ParejaScreen() {
 
       <CoupleMenuSheet
         visible={menuVisible}
-        onClose={() => setMenuVisible(false)}
+        onClose={handleMenuClose}
         onAction={handleMenuAction}
         heightRatio={0.55}
         headerFinalTranslateY={0.27}
