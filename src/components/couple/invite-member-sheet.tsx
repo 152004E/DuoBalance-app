@@ -71,7 +71,7 @@ export function InviteMemberSheet({
             <Text className=" text-sm font-medium text-[#64748B] mb-3">
               Escanea para unirte
             </Text>
-            <View className="h-60 w-60 items-center justify-center rounded-xl bg-white ">
+            <View className="h-62 w-62 items-center justify-center rounded-xl bg-white ">
               <QRCode value={invitationCode} size={180} />
             </View>
           </View>

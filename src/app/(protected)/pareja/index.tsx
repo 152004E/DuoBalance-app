@@ -158,7 +158,7 @@ export default function ParejaScreen() {
       <InviteMemberSheet
         visible={inviteVisible}
         onClose={() => setInviteVisible(false)}
-        heightRatio={0.75}
+        heightRatio={0.65}
         headerFinalTranslateY={0.17}
       />
 
