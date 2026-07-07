@@ -14,12 +14,14 @@ import Reanimated, {
   useAnimatedProps,
   withTiming,
   withDelay,
+  withSequence,
   Easing as ReEasing,
 } from 'react-native-reanimated';
 import { CoupleSelector } from '@/components/dashboard/CoupleSelector';
 import { useDashboardHeroAnimation } from '@/hooks/use-dashboard-hero-animation';
 
 const AnimatedCircle = Reanimated.createAnimatedComponent(Circle);
+const AnimatedPath = Reanimated.createAnimatedComponent(Path);
 
 type BalanceDirection = 'OWED_TO_ME' | 'I_OWE' | 'SETTLED';
 
@@ -117,6 +119,61 @@ function AnimatedCircles({ width, height }: { width: number; height: number }) {
         clipPath="url(#heroClip)"
       />
     </>
+  );
+}
+
+function AnimatedWave({ width, height }: { width: number; height: number }) {
+  const o1 = useSharedValue(0);
+  const o2 = useSharedValue(0);
+  const mid = useSharedValue(0);
+
+  useEffect(() => {
+    o1.value = withSequence(
+      withTiming(8, { duration: 500, easing: ReEasing.inOut(ReEasing.sin) }),
+      withTiming(-4, { duration: 400, easing: ReEasing.inOut(ReEasing.sin) }),
+      withTiming(2, { duration: 350, easing: ReEasing.inOut(ReEasing.sin) }),
+      withTiming(-1, { duration: 300, easing: ReEasing.inOut(ReEasing.sin) }),
+      withTiming(0, { duration: 450, easing: ReEasing.out(ReEasing.cubic) }),
+    );
+
+    o2.value = withDelay(180, withSequence(
+      withTiming(7, { duration: 450, easing: ReEasing.inOut(ReEasing.sin) }),
+      withTiming(-3, { duration: 350, easing: ReEasing.inOut(ReEasing.sin) }),
+      withTiming(1, { duration: 300, easing: ReEasing.inOut(ReEasing.sin) }),
+      withTiming(-0.5, { duration: 300, easing: ReEasing.inOut(ReEasing.sin) }),
+      withTiming(0, { duration: 450, easing: ReEasing.out(ReEasing.cubic) }),
+    ));
+
+    mid.value = withDelay(90, withSequence(
+      withTiming(5, { duration: 400, easing: ReEasing.inOut(ReEasing.sin) }),
+      withTiming(-2, { duration: 350, easing: ReEasing.inOut(ReEasing.sin) }),
+      withTiming(1, { duration: 350, easing: ReEasing.inOut(ReEasing.sin) }),
+      withTiming(0, { duration: 450, easing: ReEasing.out(ReEasing.cubic) }),
+    ));
+  }, []);
+
+  const animatedProps = useAnimatedProps(() => ({
+    d: [
+      `M0 ${height - 70}`,
+      `C${width * 0.25} ${height - 110 + o1.value},`,
+      ` ${width * 0.3} ${height - 90 + o2.value},`,
+      ` ${width * 0.45} ${height - 70 + mid.value}`,
+      `C${width * 0.65} ${height - 50 + o2.value},`,
+      ` ${width * 0.8} ${height - 20 + o1.value},`,
+      ` ${width} ${height - 70 + mid.value}`,
+      `L${width} ${height}`,
+      `L0 ${height}`,
+      `Z`,
+    ].join('\n'),
+  }));
+
+  return (
+    <AnimatedPath
+      animatedProps={animatedProps}
+      fill="#0B4436"
+      opacity={0.27}
+      clipPath="url(#heroClip)"
+    />
   );
 }
 
@@ -223,23 +280,7 @@ export function HeroSection(props: HeroSectionProps) {
         />
 
         {variant === 'dashboard' && (
-          <Path
-            d={`
-      M0 ${height - 70}
-      C${width * 0.25} ${height - 110},
-       ${width * 0.3} ${height - 90},
-       ${width * 0.45} ${height - 70}
-      C${width * 0.65} ${height - 50},
-       ${width * 0.8} ${height - 20},
-       ${width} ${height - 70}
-      L${width} ${height}
-      L0 ${height}
-      Z
-    `}
-            fill="#0B4436"
-            opacity={0.27}
-            clipPath="url(#heroClip)"
-          />
+          <AnimatedWave width={width} height={height} />
         )}
 
         {variant === 'page' && <AnimatedCircles width={width} height={height} />}
