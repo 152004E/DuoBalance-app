@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome6 } from '@expo/vector-icons';
-import { CoupleDetailHeader } from '@components/couple/couple-detail-header';
+import { ScreenHeader } from '@/components/ui/screen-header';
 import {
   CoupleMenuSheet,
   type CoupleMenuAction,
@@ -61,8 +61,13 @@ export default function CoupleDetail() {
   };
 
   const handleMenuAction = (action: CoupleMenuAction) => {
-    lastActionRef.current = action;
-    setMenuVisible(false);
+    if (action === 'settings') {
+      lastActionRef.current = 'settings';
+      setMenuVisible(false);
+    } else {
+      lastActionRef.current = action;
+      setMenuVisible(false);
+    }
   };
 
   const handleMenuCloseComplete = useCallback(() => {
@@ -73,6 +78,8 @@ export default function CoupleDetail() {
         setInviteVisible(true);
         break;
       case 'settings':
+        router.push(`/pareja/${id}/configuracion`);
+        break;
       case 'export':
       case 'history':
         setShowComingSoon(true);
@@ -81,7 +88,7 @@ export default function CoupleDetail() {
         setShowLeaveConfirm(true);
         break;
     }
-  }, []);
+  }, [id]);
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]">
@@ -91,11 +98,13 @@ export default function CoupleDetail() {
         showsVerticalScrollIndicator={false}
       >
         <View className="pt-1">
-          <CoupleDetailHeader
+          <ScreenHeader
             title="Ana Juan"
-            subtitle="Creada hace 3 meses"
+            subtitle="Creada hace 2 meses"
             onBack={() => router.push('/(protected)/pareja')}
-            onMenu={() => setMenuVisible(true)}
+            onAction={() => setMenuVisible(true)}
+            actionIcon="ellipsis-vertical"
+            actionColor="#64748B"
           />
         </View>
 
@@ -284,9 +293,8 @@ export default function CoupleDetail() {
             {MOCK_EXPENSES.map((expense, index) => (
               <View
                 key={expense.id}
-                className={`flex-row items-center justify-between px-5 py-4 ${
-                  index > 0 ? 'border-t border-[#E2E8F0]' : ''
-                }`}
+                className={`flex-row items-center justify-between px-5 py-4 ${index > 0 ? 'border-t border-[#E2E8F0]' : ''
+                  }`}
               >
                 <View className="flex-row items-center gap-4">
                   <View
@@ -386,7 +394,7 @@ export default function CoupleDetail() {
         onClose={() => setInviteVisible(false)}
         heightRatio={0.65}
         headerFinalTranslateY={0.17}
-        
+
       />
 
       <AlertModal

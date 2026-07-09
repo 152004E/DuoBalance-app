@@ -70,6 +70,9 @@ export default function ParejaScreen() {
         setMenuVisible(false);
         break;
       case 'settings':
+        lastActionRef.current = 'settings';
+        setMenuVisible(false);
+        break;
       case 'export':
       case 'history':
         lastActionRef.current = action;
@@ -90,6 +93,8 @@ export default function ParejaScreen() {
         setInviteVisible(true);
         break;
       case 'settings':
+        router.push(`/pareja/${selectedCardId ?? '1'}/configuracion`);
+        break;
       case 'export':
       case 'history':
         setShowComingSoon(true);
@@ -98,7 +103,7 @@ export default function ParejaScreen() {
         setShowLeaveConfirm(true);
         break;
     }
-  }, []);
+  }, [selectedCardId]);
 
   return (
     <SafeAreaView className="relative flex-1 bg-[#F8FAFC]" edges={['top']}>

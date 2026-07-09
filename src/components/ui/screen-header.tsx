@@ -2,14 +2,23 @@ import { View, Text, Pressable } from 'react-native';
 import AnimatedReanimated, { FadeInDown } from 'react-native-reanimated';
 import { FontAwesome6 } from '@expo/vector-icons';
 
-interface CoupleDetailHeaderProps {
+interface ScreenHeaderProps {
   title: string;
   subtitle: string;
   onBack: () => void;
-  onMenu?: () => void;
+  onAction?: () => void;
+  actionIcon?: string;
+  actionColor?: string;
 }
 
-export function CoupleDetailHeader({ title, subtitle, onBack, onMenu }: CoupleDetailHeaderProps) {
+export function ScreenHeader({
+  title,
+  subtitle,
+  onBack,
+  onAction,
+  actionIcon = 'ellipsis-vertical',
+  actionColor = '#64748B',
+}: ScreenHeaderProps) {
   return (
     <AnimatedReanimated.View entering={FadeInDown.delay(300).duration(400)}>
       <View className="mx-4 flex-row items-center rounded-[20px] bg-white px-4"
@@ -31,12 +40,12 @@ export function CoupleDetailHeader({ title, subtitle, onBack, onMenu }: CoupleDe
           </Text>
         </View>
 
-        {onMenu && (
+        {onAction && (
           <Pressable
-            onPress={onMenu}
+            onPress={onAction}
             className="h-10 w-10 items-center justify-center"
           >
-            <FontAwesome6 name="ellipsis-vertical" size={18} color="#64748B" />
+            <FontAwesome6 name={actionIcon} size={18} color={actionColor} />
           </Pressable>
         )}
       </View>
