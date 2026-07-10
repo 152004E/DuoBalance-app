@@ -4,6 +4,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useAuth } from '@/hooks/use-auth';
 import { Loading } from '@/components/ui/loading';
+import { useRef } from 'react';
+import { useScrollToTop } from 'expo-router';
 
 const menuItems = [
   { icon: 'pen-to-square', label: 'Editar Perfil' },
@@ -26,6 +28,9 @@ export default function PerfilScreen() {
     );
   }
 
+  const scrollRef = useRef<ScrollView>(null);
+  useScrollToTop(scrollRef);
+
   return (
     <View className="flex-1">
       <LinearGradient
@@ -35,6 +40,7 @@ export default function PerfilScreen() {
       />
       <SafeAreaView className="flex-1" edges={['top']}>
         <ScrollView
+          ref={scrollRef}
           className="flex-1"
           contentContainerClassName="pb-8"
           showsVerticalScrollIndicator={false}

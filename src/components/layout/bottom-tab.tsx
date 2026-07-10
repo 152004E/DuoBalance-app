@@ -9,6 +9,8 @@ const tabs = [
   { name: 'perfil', label: 'Perfil', icon: 'user' },
 ];
 
+const NESTED_TABS = ['gastos', 'grupos'];
+
 export default function BottomTab({ state, navigation, insets }: any) {
   return (
     <View
@@ -41,8 +43,12 @@ export default function BottomTab({ state, navigation, insets }: any) {
                 canPreventDefault: true,
               });
 
-              if (!isFocused && !event.defaultPrevented) {
-                navigation.navigate(route.name);
+              if (!event.defaultPrevented) {
+                const hasNestedStack = NESTED_TABS.includes(route.name);
+                navigation.navigate(
+                  route.name,
+                  hasNestedStack ? { screen: 'index' } : undefined
+                );
               }
             };
 

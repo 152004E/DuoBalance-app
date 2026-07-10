@@ -1,7 +1,7 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useRef } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router, useFocusEffect } from 'expo-router';
+import { router, useFocusEffect, useScrollToTop } from 'expo-router';
 import { HeroSection } from '@/components/layout/HeroSection';
 import { useAuth } from '@/hooks/use-auth';
 import { GroupSelector, type GroupOption } from '@/components/ui/group-selector';
@@ -31,6 +31,8 @@ const MOCK_EXPENSES: RecentExpense[] = [
 export default function GastosScreen() {
   const { user } = useAuth();
   const [focusCount, setFocusCount] = useState(0);
+  const scrollRef = useRef<ScrollView>(null);
+  useScrollToTop(scrollRef);
   const [activeCategory, setActiveCategory] = useState<Category>('Todas');
   const [selectedGroup, setSelectedGroup] = useState<string>('all');
 
@@ -62,6 +64,7 @@ export default function GastosScreen() {
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]" edges={['top']}>
       <ScrollView
+        ref={scrollRef}
         className="flex-1"
         contentContainerClassName="pb-32"
         showsVerticalScrollIndicator={false}

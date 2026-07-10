@@ -1,7 +1,7 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useRef } from 'react';
 import { View, Text, FlatList, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useScrollToTop } from 'expo-router';
 import { useAuth } from '@/hooks/use-auth';
 import { HeroSection } from '@/components/layout/HeroSection';
 import { CoupleCard } from '@/components/dashboard/CoupleCard';
@@ -70,6 +70,8 @@ const MOCK_PARTNER_BALANCE = {
 export default function DashboardScreen() {
   const { user } = useAuth();
   const [focusCount, setFocusCount] = useState(0);
+  const scrollRef = useRef<ScrollView>(null);
+  useScrollToTop(scrollRef);
 
   useFocusEffect(
     useCallback(() => {
@@ -80,6 +82,7 @@ export default function DashboardScreen() {
   return (
     <SafeAreaView className="relative flex-1 bg-[#F8FAFC]" edges={['top']}>
       <ScrollView
+        ref={scrollRef}
         className="flex-1"
         contentContainerClassName="pb-8"
         showsVerticalScrollIndicator={false}
