@@ -22,7 +22,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **Forgot Password Screen**: UI complete, pending backend endpoint 🔄
 - **Auth Components**: AuthHeader, AuthDivider, SocialLoginButton, AuthFooter — all reusable ✅
 - **Token persistence**: Fixed — use-auth now reads stored token on mount and calls onAuthStateChanged ✅
-- **Response interceptor (401)**: Not implemented ❌
+- **Response interceptor (401)**: Exists (logs warning on 401) — login redirect not implemented 🔄
 
 ### UI Components — All built
 - **Enhanced Input**: iconLeft support + focus border (instant green on focus, instant reset on blur) ✅
@@ -39,9 +39,9 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 
 ### Screens — Implemented
 - **Dashboard** (`(protected)/index.tsx`): Full dashboard with HeroSection (greeting), BalanceCard, CoupleSelector, PartnerBalance, RecentTransactions, FloatingAddButton — all with mock data ✅
-- **Gastos** (`(protected)/gastos.tsx`): Expense list screen (placeholder) ✅
+- **Gastos** (`(protected)/gastos.tsx`): Expense list screen with HeroSection + "Próximamente..." placeholder ✅
 - **Reportes** (`(protected)/reportes.tsx`): Reports screen with period filter (dropdown), donut chart, top categories list, stats cards — mock data ✅
-- **Perfil** (`(protected)/perfil.tsx`): Profile screen (placeholder) ✅
+- **Perfil** (`(protected)/perfil.tsx`): Profile screen with avatar, user info, menu options (Editar Perfil, Notificaciones, Seguridad), and logout ✅
 - **Couple List** (`(protected)/pareja/index.tsx`): Couple list with couple cards, invite code display/refresh, FloatingAddMenu (FAB → bottom sheet: create/join couple), couple menu sheet, invite member sheet ✅
 - **Couple Detail** (`(protected)/pareja/[id].tsx`): Couple detail with balance cards (owed/debt/settled), distribution bar, recent transactions, couple menu sheet, invite member sheet ✅
 
@@ -56,8 +56,9 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **InviteCodeCard**: Invite code display with copy-to-clipboard and refresh ✅
 - **CreateCoupleSheet**: Bottom sheet form with couple name input, percentage slider split, and generate invite code action ✅
 - **AddCoupleCard**: Quick-add card for creating a new couple ✅
-- **CoupleDetailHeader**: Reusable header for couple detail view with back button, title, subtitle, and optional menu button ✅
 - **CoupleMenuSheet**: Bottom sheet to manage couple settings/options (invite, leave, edit split) with interactive transitions ✅
+- **Couple Detail Screen** (`[id].tsx`): Uses `ScreenHeader` from `@/components/ui/screen-header` (with back, action menu) instead of a separate `CoupleDetailHeader` ✅
+- **Configuración Screen** (`[id]/configuracion.tsx`): Group settings with name, split %, members, invite code, notifications, danger zone — mock data ✅
 - **InviteMemberSheet**: Bottom sheet displaying couple's invite code with quick copy, premium gradients, and logo branding ✅
 
 ### Dashboard Components — Built
@@ -99,9 +100,9 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 2. Connect dashboard/reports to real API
 3. Create Forgot Password endpoint in backend + connect frontend
 4. Response interceptor (401 → redirect to login)
-5. Expense CRUD screens (create, edit, delete)
+5. Expense CRUD screens (create, edit, delete) — screens scaffolded in `src/features/expenses/`
 6. Receipt capture with camera
-7. Payment/settlement screens
+7. Payment/settlement screens — scaffolded in `src/features/payments/`
 
 ## Coding Style
 - TypeScript strict, no `any`
@@ -153,12 +154,13 @@ npx prisma db push        # Push schema (dev)
 | `src/app/(auth)/forgot-password.tsx` | Forgot password screen (UI complete) |
 | `src/app/(protected)/_layout.tsx` | Protected layout with auth guard + BottomTab |
 | `src/app/(protected)/index.tsx` | Dashboard screen (mock data, full implementation) |
-| `src/app/(protected)/gastos.tsx` | Expenses screen (placeholder) |
-| `src/app/(protected)/reportes.tsx` | Reports screen (mock data: charts, categories, stats) |
-| `src/app/(protected)/perfil.tsx` | Profile screen (placeholder) |
-| `src/app/(protected)/pareja/_layout.tsx` | Pareja stack navigator |
+| `src/app/(protected)/gastos.tsx` | Expenses screen (HeroSection + placeholder) |
+| `src/app/(protected)/reportes.tsx` | Reports screen (mock data: bar chart, donut chart, stats cards) |
+| `src/app/(protected)/perfil.tsx` | Profile screen (avatar, user info, menu options, logout) |
+| `src/app/(protected)/pareja/_layout.tsx` | Pareja stack navigator (index, [id], [id]/configuracion) |
 | `src/app/(protected)/pareja/index.tsx` | Couple list screen (cards, invite code, create couple, couple menu sheet, invite member sheet) |
 | `src/app/(protected)/pareja/[id].tsx` | Couple detail screen (balances, distribution, transactions, couple menu sheet, invite member sheet) |
+| `src/app/(protected)/pareja/[id]/configuracion.tsx` | Group settings screen (name, split %, members, invite code, notifications, danger zone) |
 
 ### UI Components
 | File | Purpose |
@@ -171,9 +173,9 @@ npx prisma db push        # Push schema (dev)
 | `src/components/ui/empty-state.tsx` | Empty state placeholder |
 | `src/components/ui/bottom-sheet.tsx` | Bottom sheet modal (backdrop, drag indicator, spring animation) |
 | `src/components/ui/bottom-sheet-header.tsx` | Reusable header for bottom sheets (gradient, animations, safe area) |
+| `src/components/ui/screen-header.tsx` | Feature-rich header (back button, action button, animated entry) — used in couple detail & config |
 | `src/components/ui/percentage-slider.tsx` | Animated percentage slider with gradient |
 | `src/components/ui/distribution-bar.tsx` | Stacked distribution bar with legends |
-| `src/components/ui/bottom-sheet-header.tsx` | Reusable header for bottom sheets (gradient, animations, safe area) |
 
 ### Auth Components
 | File | Purpose |
@@ -204,7 +206,6 @@ npx prisma db push        # Push schema (dev)
 | `src/components/couple/couple-card.tsx` | Partner info card |
 | `src/components/couple/invite-code-card.tsx` | Invite code display + copy |
 | `src/components/couple/create-couple-sheet.tsx` | Create couple bottom sheet form |
-| `src/components/couple/couple-detail-header.tsx` | Reusable header for couple detail (back, title, subtitle, menu) |
 | `src/components/couple/couple-menu-sheet.tsx` | Bottom sheet to manage couple settings/options |
 | `src/components/couple/invite-member-sheet.tsx` | Bottom sheet displaying invite code with copy/QR |
 
@@ -234,7 +235,7 @@ npx prisma db push        # Push schema (dev)
 | File | Purpose |
 |------|---------|
 | `src/features/auth/auth.context.tsx` | AuthContext + AuthProvider |
-| `src/storage/token.ts` | SecureStore wrapper |
+| `src/storage/token.ts` | SecureStore wrapper (with localStorage fallback for web) |
 | `src/services/api/client.ts` | Axios instance |
 | `src/services/api/interceptor.ts` | Bearer token interceptor |
 | `src/services/api/auth.ts` | Auth service (login, register, getProfile) |

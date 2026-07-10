@@ -172,6 +172,11 @@ interface PaymentResponse {
   toUser?: PaymentUser;
 }
 
+// Couple management
+interface LeaveCoupleResponse {
+  message: string;
+}
+
 // Settlements
 interface SettlementResponse {
   totalExpenses: number;
@@ -188,21 +193,46 @@ interface SettlementResponse {
 }
 
 // Dashboard
+interface TopCategory {
+  name: string;
+  amount: number;
+}
+
+interface CategoryBreakdown {
+  category: string;
+  amount: number;
+}
+
+interface LastExpense {
+  id: string;
+  description: string;
+  amount: number;
+  createdAt: string;
+}
+
+interface MonthlyComparison {
+  currentMonth: number;
+  previousMonth: number;
+  difference: number;
+  percentageChange: number | null;
+}
+
 interface DashboardResponse {
   balance: { amount: number; direction: BalanceDirection };
   settlement: { amount: number; direction: BalanceDirection };
   monthExpenses: number;
   expenseCount: number;
   monthPayments: number;
-  topCategory: { name: string; amount: number } | null;
-  expensesByCategory: { category: string; amount: number }[];
-  lastExpense: { id: string; description: string; amount: number; createdAt: string } | null;
-  monthlyComparison: {
-    currentMonth: number;
-    previousMonth: number;
-    difference: number;
-    percentageChange: number | null;
-  };
+  topCategory: TopCategory | null;
+  expensesByCategory: CategoryBreakdown[];
+  lastExpense: LastExpense | null;
+  monthlyComparison: MonthlyComparison;
+}
+
+// API Client Config
+interface ApiConfig {
+  baseUrl: string;
+  timeout?: number;
 }
 
 // Error

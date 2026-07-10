@@ -16,9 +16,9 @@
 - **Import aliases**: use `@/`, `@components/`, `@features/`, `@services/`, `@context/`, `@storage/`, `@utils/`, `@types/` instead of relative paths
 - **API layer** goes through `src/services/api/`, never call fetch/axios directly in components
 - **Loading states**, **error handling**, and **empty states** mandatory for every data-fetching screen
-- **Dark mode** support via color scheme context
+- **Dark mode** support defined in `src/constants/theme.ts` (colors for light/dark) — not yet connected to a color scheme context
 - **Environment variables** use `EXPO_PUBLIC_*` prefix
-- **Feature modules** in `src/features/` are self-contained with their own api/, hooks/, components/, types/, context/
+- **Feature modules** in `src/features/` are self-contained — `auth/` has the working AuthContext; `couple/`, `dashboard/`, `expenses/`, `payments/` are empty scaffolding
 
 ## NestJS Conventions
 - **Controllers** are thin — delegate to services.

@@ -30,13 +30,15 @@ DuoBalance-app/
 │   │   └── (protected)/             Protected group (authenticated routes)
 │   │       ├── _layout.tsx          Protected layout (auth guard + BottomTab)
 │   │       ├── index.tsx            Dashboard screen (mock data: hero, balances, charts)
-│   │       ├── gastos.tsx           Expenses screen (placeholder)
-│   │       ├── reportes.tsx         Reports screen (mock data: donut chart, categories, stats)
-│   │       ├── perfil.tsx           Profile screen (placeholder)
+│   │       ├── gastos.tsx           Expenses screen (HeroSection + "Próximamente")
+│   │       ├── reportes.tsx         Reports screen (mock data: bar chart, donut chart, stats cards)
+│   │       ├── perfil.tsx           Profile screen (avatar, user info, menu options, logout)
 │   │       └── pareja/              Couple stack routes
 │   │           ├── _layout.tsx      Pareja Stack navigator
 │   │           ├── index.tsx        Couple list (cards, invite code, create couple sheet)
-│   │           └── [id].tsx         Couple detail (balances, distribution, transactions)
+│   │           ├── [id].tsx         Couple detail (balances, distribution, transactions)
+│   │           └── [id]/            Couple sub-routes
+│   │               └── configuracion.tsx  Group settings (name, split %, members, notifications, danger zone)
 │   │
 │   ├── components/                  Reusable UI components
 │   │   ├── ui/                      Primitives
@@ -49,6 +51,7 @@ DuoBalance-app/
 │   │   │   ├── bottom-sheet.tsx     Bottom sheet modal (backdrop, drag indicator, spring animation)
 │   │   │   ├── percentage-slider.tsx  Animated percentage slider with gradient fill
 │   │   │   ├── bottom-sheet-header.tsx  Reusable header for bottom sheets (gradient, animations, safe area)
+│   │   │   ├── screen-header.tsx    Feature-rich header (back button, action button, animated entry)
 │   │   │   └── distribution-bar.tsx  Horizontal stacked distribution bar with legends
 │   │   ├── auth/                    Auth-specific reusable components
 │   │   │   ├── auth-header.tsx      Logo + title + optional subtitle
@@ -75,7 +78,6 @@ DuoBalance-app/
 │   │   │   ├── couple-card.tsx      Partner info card (avatar, name, email)
 │   │   │   ├── invite-code-card.tsx  Invite code display with copy + refresh
 │   │   │   ├── create-couple-sheet.tsx  Bottom sheet form: name + percentage split + generate code
-│   │   │   ├── couple-detail-header.tsx  Reusable header with back button, title, subtitle, menu
 │   │   │   ├── couple-menu-sheet.tsx  Bottom sheet to manage couple settings/options
 │   │   │   └── invite-member-sheet.tsx  Bottom sheet displaying invite code with copy/QR
 │   │   └── dashboard/               Dashboard-specific components
@@ -91,8 +93,12 @@ DuoBalance-app/
 │   │       └── DonutChart.tsx       Donut chart for category breakdown
 │   │
 │   ├── features/                    Feature modules (domain-driven)
-│   │   └── auth/
-│   │       └── auth.context.tsx     AuthContext + AuthProvider
+│   │   ├── auth/
+│   │   │   └── auth.context.tsx     AuthContext + AuthProvider
+│   │   ├── couple/                  (empty — scaffolding for future feature module)
+│   │   ├── dashboard/               (empty — scaffolding for future feature module)
+│   │   ├── expenses/                (empty — scaffolding for future feature module)
+│   │   └── payments/                (empty — scaffolding for future feature module)
 │   │
 │   ├── services/
 │   │   └── api/
@@ -117,6 +123,7 @@ DuoBalance-app/
 │   │   ├── config.ts                Env vars (API_URL, APP_NAME)
 │   │   └── theme.ts                 Colors, typography, spacing
 │   │
+│   ├── context/                     Context providers (empty — AuthContext lives in features/auth/)
 │   ├── utils/                       Utilities (empty, ready)
 │   └── global.css                   Tailwind directives
 │
@@ -163,7 +170,7 @@ App (Expo Router)
     │   └── Dashboard (HeroSection, BalanceCard, CoupleSelector, PartnerBalance,
     │                  RecentTransactions, FloatingAddButton)
     ├── /gastos
-    │   └── Expense list (placeholder)
+    │   └── Expense list (HeroSection + "Próximamente...")
     ├── /pareja
     │   ├── /pareja (index) — Couple list
     │   │   ├── FloatingAddMenu (FAB → bottom sheet: create couple, join couple)
@@ -175,11 +182,18 @@ App (Expo Router)
     │       ├── Balance cards (owed/debt/settled)
     │       ├── DistributionBar
     │       ├── Recent transactions
-    │       └── Settings (leave couple)
+    │       ├── CoupleMenuSheet (settings → /pareja/[id]/configuracion)
+    │       └── /pareja/[id]/configuracion — Group settings
+    │           ├── Info (name, created date, avatars)
+    │           ├── Distribution (split percentage + DistributionBar)
+    │           ├── Members list
+    │           ├── Invite code (copy + QR)
+    │           ├── Notification toggles
+    │           └── Danger zone (archive/delete group)
     ├── /reportes
-    │   └── Reports (period filter, donut chart, top categories, stats)
+    │   └── Reports (bar chart, donut chart, stats cards)
     └── /perfil
-        └── Profile (placeholder)
+        └── Profile (avatar, user info, menu options, logout)
 ```
 
 ## Data Flow

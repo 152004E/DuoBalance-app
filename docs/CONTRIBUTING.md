@@ -77,8 +77,10 @@ DuoBalance-app/
 │   │       ├── reportes.tsx   # Reports & analytics
 │   │       ├── perfil.tsx     # Profile
 │   │       └── pareja/        # Couple stack routes
-│   │           ├── index.tsx  # Couple list
-│   │           └── [id].tsx   # Couple detail
+│   │           ├── index.tsx         # Couple list
+│   │           ├── [id].tsx          # Couple detail
+│   │           └── [id]/             # Couple sub-routes
+│   │               └── configuracion.tsx  # Group settings
 │   ├── components/            # Reusable UI components
 │   │   ├── ui/                # Primitives (Button, Input, Card, BottomSheet, etc.)
 │   │   ├── auth/              # Auth-specific (AuthHeader, AuthDivider, etc.)
@@ -88,7 +90,7 @@ DuoBalance-app/
 │   │   ├── category/          # Category badge component
 │   │   ├── couple/            # Couple-related components
 │   │   └── dashboard/         # Dashboard components
-│   ├── features/              # Feature modules (auth, etc.)
+│   ├── features/              # Feature modules (auth/, couple/, dashboard/, expenses/, payments/ — auth has context, rest are empty scaffolding)
 │   ├── services/              # API client and external services
 │   ├── storage/               # Secure storage wrappers
 │   ├── hooks/                 # Custom React hooks

@@ -85,12 +85,14 @@ src/
 
 ## Alias de imports
 
-| Alias             | Destino            |
-|------------------|--------------------|
-| `@/`             | `./src/*`          |
-| `@/assets/*`     | `./assets/*`       |
-| `@components/*`  | `./src/components/*` |
-| `@features/*`    | `./src/features/*`   |
-| `@services/*`    | `./src/services/*`   |
-| `@utils/*`       | `./src/utils/*`      |
-| `@types/*`       | `./src/types/*`      |
+| Alias             | Destino               |
+|-------------------|-----------------------|
+| `@/`              | `./src/*`             |
+| `@/assets/*`      | `./assets/*`          |
+| `@components/*`   | `./src/components/*`  |
+| `@features/*`     | `./src/features/*`    |
+| `@services/*`     | `./src/services/*`    |
+| `@context/*`      | `./src/context/*`     |
+| `@storage/*`      | `./src/storage/*`     |
+| `@utils/*`        | `./src/utils/*`       |
+| `@types/*`        | `./src/types/*`       |
