@@ -92,7 +92,7 @@ export default function ConfiguracionGrupoScreen() {
       >
         <ScreenHeader
           title="Configuración del grupo"
-          subtitle="Personaliza cómo funciona tu pareja"
+          subtitle="Personaliza cómo funciona tu grupo"
           onBack={() => router.back()}
         />
 
@@ -199,7 +199,7 @@ export default function ConfiguracionGrupoScreen() {
                 <View className="flex-row items-center justify-between rounded-lg p-3">
                   <View className="flex-row items-center gap-2">
                     <View className="h-3 w-3 rounded-full bg-[#8B5CF6]" />
-                    <Text className="text-[#0F172A]">Tu pareja</Text>
+                    <Text className="text-[#0F172A]">Tu grupo</Text>
                   </View>
                   <View className="items-end">
                     <Text className="font-bold text-[#8B5CF6]" style={{ fontFamily: 'monospace' }}>
@@ -304,7 +304,7 @@ export default function ConfiguracionGrupoScreen() {
               }}
             >
               <Text className="text-sm text-[#64748B] text-center mb-2">
-                Comparte este código para que tu pareja se una
+                Comparte este código para que otros se unan
               </Text>
 
               <View className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-3">
@@ -524,7 +524,7 @@ export default function ConfiguracionGrupoScreen() {
                 <View className="h-8 w-8 items-center justify-center rounded-full bg-[#0F766E]/10">
                   <FontAwesome6 name="user-group" size={14} color="#0F766E" />
                 </View>
-                <Text className="text-sm font-medium text-[#0F172A]">Tu pareja</Text>
+                <Text className="text-sm font-medium text-[#0F172A]">Tu grupo</Text>
               </View>
               <Text className="text-2xl font-extrabold text-[#0F766E]">{100 - adjustYourPercentage}%</Text>
             </View>
@@ -612,7 +612,7 @@ export default function ConfiguracionGrupoScreen() {
                 <View className="h-8 w-8 items-center justify-center rounded-full bg-[#0F766E]/10">
                   <FontAwesome6 name="user-group" size={14} color="#0F766E" />
                 </View>
-                <Text className="text-sm font-medium text-[#0F172A]">Tu pareja</Text>
+                <Text className="text-sm font-medium text-[#0F172A]">Tu grupo</Text>
               </View>
               <Text className="text-2xl font-extrabold text-[#0F766E]">{100 - adjustYourPercentage}%</Text>
             </View>

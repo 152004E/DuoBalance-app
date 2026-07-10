@@ -93,7 +93,7 @@ export default function ParejaScreen() {
         setInviteVisible(true);
         break;
       case 'settings':
-        router.push(`/pareja/${selectedCardId ?? '1'}/configuracion`);
+        router.push(`/grupos/${selectedCardId ?? '1'}/configuracion`);
         break;
       case 'export':
       case 'history':
@@ -116,14 +116,14 @@ export default function ParejaScreen() {
           key={focusCount}
           variant="page"
           userName={user?.firstName ?? 'Usuario'}
-          title="Pareja"
-          subtitle="Administra tus vínculos"
+          title="Grupos"
+          subtitle="Administra tus grupos"
           height={220}
         />
 
         <View className="px-5 pt-8">
           <Text className="mb-4 text-2xl font-bold text-[#0F172A]">
-            Tus Parejas
+            Tus Grupos
           </Text>
 
           <View className="gap-4">
@@ -133,7 +133,7 @@ export default function ParejaScreen() {
                 item={item}
                 index={index}
                 focusCount={focusCount}
-                onPress={() => router.push(`/pareja/${item.id}`)}
+                onPress={() => router.push(`/grupos/${item.id}`)}
                 onMenu={() => {
                   setSelectedCardId(item.id);
                   setMenuVisible(true);

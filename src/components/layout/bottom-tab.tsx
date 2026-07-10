@@ -4,7 +4,7 @@ import { FontAwesome6 } from '@expo/vector-icons';
 const tabs = [
   { name: 'index', label: 'Inicio', icon: 'house' },
   { name: 'gastos', label: 'Gastos', icon: 'receipt' },
-  { name: 'pareja', label: 'Parejas', icon: 'heart' },
+  { name: 'grupos', label: 'Grupos', icon: 'users' },
   { name: 'reportes', label: 'Reportes', icon: 'chart-pie' },
   { name: 'perfil', label: 'Perfil', icon: 'user' },
 ];

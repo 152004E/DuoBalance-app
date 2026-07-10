@@ -78,7 +78,7 @@ export default function CoupleDetail() {
         setInviteVisible(true);
         break;
       case 'settings':
-        router.push(`/pareja/${id}/configuracion`);
+        router.push(`/grupos/${id}/configuracion`);
         break;
       case 'export':
       case 'history':
@@ -101,7 +101,7 @@ export default function CoupleDetail() {
           <ScreenHeader
             title="Ana Juan"
             subtitle="Creada hace 2 meses"
-            onBack={() => router.push('/(protected)/pareja')}
+            onBack={() => router.push('/(protected)/grupos')}
             onAction={() => setMenuVisible(true)}
             actionIcon="ellipsis-vertical"
             actionColor="#64748B"

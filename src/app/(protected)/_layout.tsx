@@ -20,7 +20,7 @@ export default function ProtectedLayout() {
     >
       <Tabs.Screen name="index" />
       <Tabs.Screen name="gastos" />
-      <Tabs.Screen name="pareja" />
+      <Tabs.Screen name="grupos" />
       <Tabs.Screen name="reportes" />
       <Tabs.Screen name="perfil" />
     </Tabs>
