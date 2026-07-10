@@ -96,7 +96,7 @@ export default function DashboardScreen() {
 
         <View className="px-5 pt-8">
           <Text className="mb-4 text-2xl font-bold text-[#0F172A]">
-            Tus Parejas
+            Tus Grupos
           </Text>
 
           <FlatList

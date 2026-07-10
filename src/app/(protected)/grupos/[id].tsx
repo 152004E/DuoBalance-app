@@ -4,6 +4,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { ScreenHeader } from '@/components/ui/screen-header';
+import { RecentExpensesCard, type RecentExpense } from '@/components/expenses/recent-expenses-card';
 import {
   CoupleMenuSheet,
   type CoupleMenuAction,
@@ -14,7 +15,7 @@ import { AlertModal } from '@/components/ui/alert-modal';
 const MOCK_EXPENSES = [
   {
     id: '1',
-    name: 'Pizza Hut',
+    name: 'Pizza Hutttt',
     amount: 80000,
     paidBy: 'Ana',
     date: 'Ayer',
@@ -269,67 +270,7 @@ export default function CoupleDetail() {
 
         {/* Gastos Recientes - List Card */}
         <View className="mt-4 px-5">
-          <View
-            className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white"
-            style={{
-              shadowColor: '#0F172A',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.05,
-              shadowRadius: 12,
-              elevation: 2,
-            }}
-          >
-            <View className="flex-row items-center justify-between border-b border-[#E2E8F0] px-5 py-4">
-              <Text className="text-[17px] font-bold text-[#0F172A]">
-                Gastos Recientes
-              </Text>
-              <Pressable>
-                <Text className="text-sm font-semibold text-[#006c49]">
-                  Ver todo
-                </Text>
-              </Pressable>
-            </View>
-
-            {MOCK_EXPENSES.map((expense, index) => (
-              <View
-                key={expense.id}
-                className={`flex-row items-center justify-between px-5 py-4 ${index > 0 ? 'border-t border-[#E2E8F0]' : ''
-                  }`}
-              >
-                <View className="flex-row items-center gap-4">
-                  <View
-                    className="flex h-10 w-10 items-center justify-center rounded-full"
-                    style={{ backgroundColor: `${expense.iconBg}1A` }}
-                  >
-                    <FontAwesome6
-                      name={expense.icon}
-                      size={16}
-                      color={expense.iconBg}
-                    />
-                  </View>
-                  <View>
-                    <Text className="font-semibold text-[#0F172A]">
-                      {expense.name}
-                    </Text>
-                    <Text className="text-xs text-[#64748B]">
-                      {expense.date} • Pagado por {expense.paidBy}
-                    </Text>
-                  </View>
-                </View>
-                <View className="items-end">
-                  <Text
-                    className="font-bold text-[#0F172A]"
-                    style={{ fontFamily: 'monospace' }}
-                  >
-                    ${expense.amount.toLocaleString('es-CL')}
-                  </Text>
-                  <Text className="text-[10px] uppercase tracking-tighter text-[#64748B]">
-                    {expense.category}
-                  </Text>
-                </View>
-              </View>
-            ))}
-          </View>
+          <RecentExpensesCard expenses={MOCK_EXPENSES as unknown as RecentExpense[]} />
         </View>
 
 

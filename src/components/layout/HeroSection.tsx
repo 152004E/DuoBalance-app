@@ -38,6 +38,7 @@ interface PageVariantProps {
   variant: 'page';
   title: string;
   subtitle?: string;
+  rightAction?: React.ReactNode;
 }
 
 type HeroSectionProps = {
@@ -409,6 +410,12 @@ export function HeroSection(props: HeroSectionProps) {
                     {props.subtitle}
                   </Text>
                 </Animated.View>
+              )}
+
+              {props.rightAction && (
+                <View className="mt-3">
+                  {props.rightAction}
+                </View>
               )}
             </View>
           </>
