@@ -77,7 +77,66 @@
 
 ---
 
-## Phase 5: Expense Tracking (v0.4)
+## 🔴 URGENTE — Movement Hub (v0.4)
+**Prioridad Máxima — Implementar Inmediatamente Después de Vistas Actuales**
+
+### Objetivo
+Reemplazar pantalla `gastos/add.tsx` por un **Bottom Sheet inteligente con formularios dinámicos** para crear cualquier tipo de movimiento financiero desde una única entrada.
+
+### Arquitectura
+
+```
+gastos/index.tsx (Lista plana cronológica de TODOS los movimientos)
+  └── FAB → CreateMovementSheet
+        ├── [Step 1] MovementTypeSelector
+        │   ├── 🛒 Gasto compartido → expense form
+        │   ├── 💸 Pago de deuda → debt form
+        │   └── 💰 Ingreso / Abono → income form
+        └── [Step 2] Formulario dinámico según tipo seleccionado
+              ├── SharedExpenseForm (valor, descripción, categoría, fecha,
+              │   quién pagó, participantes, split, comprobante)
+              ├── DebtPaymentForm (pagador, receptor, valor, fecha,
+              │   método de pago, observaciones)
+              └── IncomeForm (quién recibió, valor, concepto, fecha, obs.)
+```
+
+### Archivos a crear (6)
+| Archivo | Propósito |
+|---|---|
+| `src/components/movements/create-movement-sheet.tsx` | Orchestrador step 1 + step 2 |
+| `src/components/movements/movement-type-selector.tsx` | 3 tarjetas visuales (🛒/💸/💰) con icono, título, descripción |
+| `src/components/movements/shared-expense-form.tsx` | Formulario gasto compartido |
+| `src/components/movements/debt-payment-form.tsx` | Formulario pago deuda |
+| `src/components/movements/income-form.tsx` | Formulario ingreso/abono |
+| `src/components/movements/movement-list.tsx` | FlatList unificada de todos los movimientos |
+
+### Archivos a modificar (2)
+| Archivo | Cambio |
+|---|---|
+| `src/app/(protected)/gastos/index.tsx` | FAB abre CreateMovementSheet |
+| `src/app/(protected)/gastos/_layout.tsx` | Eliminar Stack.Screen "add" |
+
+### Archivos a eliminar (1)
+| Archivo | Razón |
+|---|---|
+| `src/app/(protected)/gastos/add.tsx` | Reemplazado por Bottom Sheet |
+
+### Diseño del MovementTypeSelector
+Selector visual con tarjetas (NO dropdown/picker):
+- Cada tarjeta: icono + título + descripción + ejemplos
+- Estado normal: borde `#E2E8F0`, fondo blanco
+- Estado selected: borde `#10B981`, fondo `#F0FDF4`
+- 3 opciones: Gasto compartido / Pago de deuda / Ingreso
+
+### Dependencias
+- Reutiliza: `BottomSheet`, `BottomSheetHeader`, `Input`, `Button`, `useBottomSheet`
+- Mock data inicial (mismo patrón que el resto de la app)
+
+**Estimated**: INMEDIATA (próximo sprint)
+
+---
+
+## Phase 5: Expense Tracking (v0.5) 
 **Goal**: Add, view, edit, and delete expenses
 - Expense list screen (replace `gastos/index.tsx` placeholder with full list)
 - Add expense screen with split picker

@@ -138,14 +138,20 @@ export default function CoupleDetail() {
             </Text>
 
             <View className="mt-5 flex-row flex-wrap gap-3">
-              <Pressable className="flex-row items-center gap-2 rounded-lg bg-[#006c49] px-4 py-3 active:opacity-80">
+              <Pressable
+                onPress={() => router.push(`/gastos/add?groupId=${id}`)}
+                className="flex-row items-center gap-2 rounded-lg bg-[#006c49] px-4 py-3 active:opacity-80"
+              >
                 <FontAwesome6 name="plus" size={14} color="#FFFFFF" />
                 <Text className="text-sm font-semibold text-white">
                   Registrar gasto
                 </Text>
               </Pressable>
 
-              <Pressable className="flex-row items-center gap-2 rounded-lg border border-[#E2E8F0] bg-white px-4 py-3 active:bg-[#F2F4F6]">
+              <Pressable
+                onPress={() => setInviteVisible(true)}
+                className="flex-row items-center gap-2 rounded-lg border border-[#E2E8F0] bg-white px-4 py-3 active:bg-[#F2F4F6]"
+              >
                 <FontAwesome6 name="share-nodes" size={14} color="#0F172A" />
                 <Text className="text-sm font-semibold text-[#0F172A]">
                   Invitar
@@ -270,7 +276,10 @@ export default function CoupleDetail() {
 
         {/* Gastos Recientes - List Card */}
         <View className="mt-4 px-5">
-          <RecentExpensesCard expenses={MOCK_EXPENSES as unknown as RecentExpense[]} />
+          <RecentExpensesCard
+            expenses={MOCK_EXPENSES as unknown as RecentExpense[]}
+            onViewAll={() => router.push(`/grupos/${id}/gastos`)}
+          />
         </View>
 
 

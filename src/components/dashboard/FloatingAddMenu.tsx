@@ -11,13 +11,13 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
 import { CreateCoupleSheet } from '@/components/couple/create-couple-sheet';
-import { AlertModal } from '@/components/ui/alert-modal';
 
 interface FloatingAddMenuProps {
   heightRatio?: number;
   headerFinalTranslateY?: number;
   createCoupleHeightRatio?: number;
   createCoupleHeaderFinalTranslateY?: number;
+  onJoinCouple?: () => void;
 }
 
 interface MenuItem {
@@ -74,10 +74,9 @@ function MenuItemRow({
   );
 }
 
-export function FloatingAddMenu({ heightRatio = 0.45, headerFinalTranslateY = 0.27, createCoupleHeightRatio = 0.65, createCoupleHeaderFinalTranslateY = 0.17 }: FloatingAddMenuProps) {
+export function FloatingAddMenu({ heightRatio = 0.45, headerFinalTranslateY = 0.27, createCoupleHeightRatio = 0.65, createCoupleHeaderFinalTranslateY = 0.17, onJoinCouple }: FloatingAddMenuProps) {
   const [menuVisible, setMenuVisible] = useState(false);
   const [showCreateSheet, setShowCreateSheet] = useState(false);
-  const [showComingSoon, setShowComingSoon] = useState(false);
 
   const pendingActionRef = useRef<'create-couple' | 'join-couple' | null>(null);
   const rotation = useSharedValue(0);
@@ -143,9 +142,9 @@ export function FloatingAddMenu({ heightRatio = 0.45, headerFinalTranslateY = 0.
       setShowCreateSheet(true);
     } else if (pendingActionRef.current === 'join-couple') {
       pendingActionRef.current = null;
-      setShowComingSoon(true);
+      onJoinCouple?.();
     }
-  }, []);
+  }, [onJoinCouple]);
 
   const header = (
     <BottomSheetHeader
@@ -208,14 +207,6 @@ export function FloatingAddMenu({ heightRatio = 0.45, headerFinalTranslateY = 0.
         onClose={() => setShowCreateSheet(false)}
         heightRatio={createCoupleHeightRatio}
         headerFinalTranslateY={createCoupleHeaderFinalTranslateY}
-      />
-
-      <AlertModal
-        visible={showComingSoon}
-        type="info"
-        title="Próximamente"
-        message="Esta funcionalidad estará disponible en una próxima actualización."
-        onClose={() => setShowComingSoon(false)}
       />
     </>
   );

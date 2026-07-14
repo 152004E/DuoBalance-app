@@ -8,6 +8,7 @@ import { CoupleCard } from '@/components/dashboard/CoupleCard';
 import { FloatingAddMenu } from '@/components/dashboard/FloatingAddMenu';
 import { CoupleMenuSheet, type CoupleMenuAction } from '@/components/couple/couple-menu-sheet';
 import { InviteMemberSheet } from '@/components/couple/invite-member-sheet';
+import { JoinGroupSheet } from '@/components/couple/join-group-sheet';
 import { AlertModal } from '@/components/ui/alert-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { useStaggeredEntrance } from '@/hooks/use-staggered-entrance';
@@ -59,6 +60,7 @@ export default function ParejaScreen() {
   );
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [inviteVisible, setInviteVisible] = useState(false);
+  const [showJoinSheet, setShowJoinSheet] = useState(false);
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const lastActionRef = useRef<CoupleMenuAction | null>(null);
@@ -149,6 +151,7 @@ export default function ParejaScreen() {
         headerFinalTranslateY={0.53}
         createCoupleHeightRatio={0.65}
         createCoupleHeaderFinalTranslateY={0.17}
+        onJoinCouple={() => setShowJoinSheet(true)}
       />
 
       <CoupleMenuSheet
@@ -165,6 +168,13 @@ export default function ParejaScreen() {
         onClose={() => setInviteVisible(false)}
         heightRatio={0.65}
         headerFinalTranslateY={0.17}
+      />
+
+      <JoinGroupSheet
+        visible={showJoinSheet}
+        onClose={() => setShowJoinSheet(false)}
+        heightRatio={0.7}
+        headerFinalTranslateY={0.1}
       />
 
       <AlertModal
