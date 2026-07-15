@@ -7,6 +7,13 @@ export enum ExpenseCategory {
   ENTERTAINMENT = 'ENTERTAINMENT',
   OTHER = 'OTHER',
 }
+export interface UserBrief {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
 
 export enum SplitType {
   EQUAL = 'EQUAL',
@@ -54,7 +61,7 @@ export interface UserResponse {
   createdAt: string;
 }
 
-// ─── Couples ─────────────────────────────────────────
+// ─── Groups ────────────────────────────────────────
 export interface UserBrief {
   id: string;
   firstName: string;
@@ -62,14 +69,34 @@ export interface UserBrief {
   email: string;
 }
 
-export interface CoupleResponse {
+export type GroupType = 'PERSONAL' | 'COUPLE' | 'GROUP';
+
+export interface GroupMember {
   id: string;
-  inviteCode: string;
-  createdAt: string;
-  users: UserBrief[];
+  role: 'OWNER' | 'ADMIN' | 'MEMBER';
+  joinedAt: string;
+  user: UserBrief;
 }
 
-export interface LeaveCoupleResponse {
+export interface GroupResponse {
+  id: string;
+  name: string;
+  inviteCode: string | null;
+  type: GroupType;
+  createdAt: string;
+  members: GroupMember[];
+}
+
+export interface CreateGroupPayload {
+  name: string;
+  type?: GroupType;
+}
+
+export interface JoinGroupPayload {
+  inviteCode: string;
+}
+
+export interface LeaveGroupResponse {
   message: string;
 }
 
@@ -119,7 +146,7 @@ export interface ExpenseResponse {
   category: ExpenseCategory;
   splitType: SplitType;
   paidById: string;
-  coupleId: string;
+  groupId: string;
   splits: ExpenseSplitResponse[];
   createdAt: string;
   updatedAt: string;
@@ -147,7 +174,8 @@ export interface CreatePaymentPayload {
 
 export interface PaymentUser {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
 }
 
 export interface PaymentResponse {
@@ -155,7 +183,7 @@ export interface PaymentResponse {
   amount: number;
   fromUserId: string;
   toUserId: string;
-  coupleId: string;
+  groupId: string;
   createdAt: string;
   fromUser?: PaymentUser;
   toUser?: PaymentUser;
