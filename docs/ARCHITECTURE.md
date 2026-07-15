@@ -33,12 +33,13 @@ DuoBalance-app/
 │   │       ├── gastos.tsx           Expenses screen (HeroSection + "Próximamente")
 │   │       ├── reportes.tsx         Reports screen (mock data: bar chart, donut chart, stats cards)
 │   │       ├── perfil.tsx           Profile screen (avatar, user info, menu options, logout)
-│   │       └── pareja/              Couple stack routes
-│   │           ├── _layout.tsx      Pareja Stack navigator
-│   │           ├── index.tsx        Couple list (cards, invite code, create couple sheet)
-│   │           ├── [id].tsx         Couple detail (balances, distribution, transactions)
-│   │           └── [id]/            Couple sub-routes
-│   │               └── configuracion.tsx  Group settings (name, split %, members, notifications, danger zone)
+│   │   └── grupos/               Group stack routes
+│   │           ├── _layout.tsx      Grupos Stack navigator
+│   │           ├── index.tsx        Group list (cards, invite code, create/join group sheets)
+│   │           ├── [id].tsx         Group detail (financial hero, settlement, distribution, expenses)
+│   │           └── [id]/            Group sub-routes
+│   │               ├── configuracion.tsx  Group settings (name, split %, members, notifications, danger zone)
+│   │               └── gastos.tsx        Per-group expense list with date/category filters
 │   │
 │   ├── components/                  Reusable UI components
 │   │   ├── ui/                      Primitives
@@ -95,16 +96,21 @@ DuoBalance-app/
 │   ├── features/                    Feature modules (domain-driven)
 │   │   ├── auth/
 │   │   │   └── auth.context.tsx     AuthContext + AuthProvider
-│   │   ├── couple/                  (empty — scaffolding for future feature module)
-│   │   ├── dashboard/               (empty — scaffolding for future feature module)
-│   │   ├── expenses/                (empty — scaffolding for future feature module)
-│   │   └── payments/                (empty — scaffolding for future feature module)
+│   │   ├── couple/                  (empty — pending API service creation)
+│   │   ├── dashboard/               (empty — pending API service creation)
+│   │   ├── expenses/                (empty — pending API service creation)
+│   │   └── payments/                (empty — pending API service creation)
 │   │
 │   ├── services/
 │   │   └── api/
 │   │       ├── client.ts            Axios instance (baseURL, timeout)
 │   │       ├── interceptor.ts       Bearer token request interceptor
-│   │       └── auth.ts              authService (login, register, getProfile, etc.)
+│   │       ├── auth.ts              authService (login, register, getProfile, etc.)
+│   │       ├── couples.ts           ❌ (pending) — group CRUD (create, list, join, leave)
+│   │       ├── expenses.ts          ❌ (pending) — expense CRUD (create, list, detail, update, delete)
+│   │       ├── balances.ts          ❌ (pending) — balance summary
+│   │       ├── payments.ts          ❌ (pending) — payments + settlements
+│   │       └── dashboard.ts         ❌ (pending) — dashboard summary
 │   │
 │   ├── storage/
 │   │   └── token.ts                 SecureStore wrapper (token + user)
@@ -171,25 +177,34 @@ App (Expo Router)
     │                  RecentTransactions, FloatingAddButton)
     ├── /gastos
     │   └── Expense list (HeroSection + "Próximamente...")
-    ├── /pareja
-    │   ├── /pareja (index) — Couple list
-    │   │   ├── FloatingAddMenu (FAB → bottom sheet: create couple, join couple)
-    │   │   ├── CoupleCard → /pareja/[id]
+    ├── /grupos
+    │   ├── /grupos (index) — Group list
+    │   │   ├── FloatingAddMenu (FAB → bottom sheet: create group, join group)
+    │   │   ├── CoupleCard → /grupos/[id]
     │   │   ├── InviteCodeCard
-    │   │   ├── CreateCoupleSheet (bottom sheet modal)
+    │   │   ├── CreateCoupleSheet (bottom sheet modal with type selector)
+    │   │   ├── JoinGroupSheet (invite code entry + QR scanner placeholder)
     │   │   └── AddCoupleCard
-    │   └── /pareja/[id] — Couple detail
-    │       ├── Balance cards (owed/debt/settled)
+    │   └── /grupos/[id] — Group detail
+    │       ├── Financial hero card (total consolidated spending)
+    │       ├── Settlement status card
     │       ├── DistributionBar
-    │       ├── Recent transactions
-    │       ├── CoupleMenuSheet (settings → /pareja/[id]/configuracion)
-    │       └── /pareja/[id]/configuracion — Group settings
-    │           ├── Info (name, created date, avatars)
-    │           ├── Distribution (split percentage + DistributionBar)
-    │           ├── Members list
-    │           ├── Invite code (copy + QR)
-    │           ├── Notification toggles
-    │           └── Danger zone (archive/delete group)
+    │       ├── Recent expenses (RecentExpensesCard)
+    │       ├── "Registrar gasto" → /gastos/add?groupId=[id]
+    │       ├── CoupleMenuSheet (settings → /grupos/[id]/configuracion)
+    │       ├── CoupleMenuSheet (invite → InviteMemberSheet)
+    │       └── /grupos/[id]/configuracion — Group settings
+    │       │   ├── Info (name, created date, avatars)
+    │       │   ├── Distribution (split percentage + DistributionBar)
+    │       │   ├── Members list
+    │       │   ├── Invite code (copy + QR)
+    │       │   ├── Notification toggles
+    │       │   └── Danger zone (archive/delete group)
+    │       └── /grupos/[id]/gastos — Per-group expense list
+    │           ├── Date filter chips
+    │           ├── Category filter chips
+    │           ├── RecentExpensesCard with expenses
+    │           └── FloatingAddButton → CreateExpenseSheet
     ├── /reportes
     │   └── Reports (bar chart, donut chart, stats cards)
     └── /perfil

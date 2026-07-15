@@ -69,11 +69,12 @@
 ## Phase 4: Group Management (v0.3) — Done
 **Goal**: Users can create and manage groups (couples for now, multi-type later)
 *(Frontend complete; remaining items are backend concerns)*
-- [✅] Group list screen (cards, invite code, FloatingAddMenu with create/join group, group menu sheet, invite member sheet)
-- [✅] Create group (bottom sheet: name + percentage split + generate invite code)
-- [✅] Group detail screen (balances, distribution, transactions, settings, group menu sheet, invite member sheet)
-- [✅] Group settings screen (name, split %, members, invite code, type, notifications, danger zone — mock data)
-- [✅] Join group via invite code (JoinGroupSheet with enter code form + QR scanner placeholder)
+- [✅] Group list screen (`grupos/index.tsx`) — CoupleCard, FloatingAddMenu (create/join group), CoupleMenuSheet, InviteMemberSheet, JoinGroupSheet
+- [✅] Create group (`CreateCoupleSheet` — bottom sheet with type selector: personal/pareja/grupo, split config)
+- [✅] Group detail screen (`grupos/[id].tsx`) — financial hero, settlement status, distribution, expenses, group menu, invite member
+- [✅] Group settings screen (`grupos/[id]/configuracion.tsx`) — name, split %, members, invite code, type, notifications, danger zone (mock data)
+- [✅] Join group via invite code (`JoinGroupSheet` — enter code form + QR scanner placeholder)
+- [✅] Per-group expense list (`grupos/[id]/gastos.tsx`) — date/category filters, RecentExpensesCard, CreateExpenseSheet
 - [❌] Backend API integration (currently mock data)
 
 **Estimated**: 1 week (API integration)
@@ -92,7 +93,7 @@ Se tomó un **enfoque simplificado**: en lugar de la arquitectura paso a paso or
 ### Arquitectura actual
 ```
 gastos/index.tsx (Vista resumen por pareja — per-couple summary, NO flat chronological list)
-  └── FAB → /gastos/add (pantalla placeholder standalone — NO bottom sheet aún)
+  └── FAB → /gastos/add (pantalla standalone — aún no convertida a bottom sheet)
 
 grupos/[id]/gastos.tsx (Gastos por grupo individual)
   └── FAB → CreateExpenseSheet (Bottom Sheet unificado con todos los campos inline)
@@ -102,6 +103,14 @@ grupos/[id]/gastos.tsx (Gastos por grupo individual)
 | Archivo | Propósito |
 |---|---|
 | `src/components/movements/create-expense-sheet.tsx` | Formulario unificado de gasto compartido (amount, description, category, date, paid-by, participants, split type EQUAL/PERCENTAGE, comprobante placeholder) |
+| `src/app/(protected)/gastos/detalle/[id].tsx` | Detalle de gasto con 7 componentes (hero, info, participants, split, receipt, timeline, actions) |
+| `src/components/expenses/expense-hero-card.tsx` | Hero card del detalle de gasto |
+| `src/components/expenses/expense-information.tsx` | Información del gasto (monto, categoría, fecha) |
+| `src/components/expenses/expense-participants.tsx` | Participantes del gasto |
+| `src/components/expenses/expense-split.tsx` | Desglose del split |
+| `src/components/expenses/expense-receipt.tsx` | Sección de comprobante |
+| `src/components/expenses/expense-timeline.tsx` | Línea de tiempo del gasto |
+| `src/components/expenses/expense-actions.tsx` | Acciones (editar/eliminar) |
 
 ### Archivos pendientes (por implementar)
 | Archivo | Propósito |
@@ -148,6 +157,27 @@ Selector visual con tarjetas (NO dropdown/picker):
 - [❌] Backend API integration (currently mock data)
 
 **Estimated**: 2-3 weeks (edit/delete UI + list refactor + API integration)
+
+---
+
+## Phase 5b: Backend API Integration (v0.5) — Current Priority
+**Goal**: All screens connected to real backend API
+
+### Order of Integration:
+1. **Couples/Groups API service** — create `src/services/api/couples.ts` (POST /couples, GET /couples/me, POST /couples/join, DELETE /couples/leave)
+2. **Connect Group list** — replace MOCK_COUPLES with API data from GET /couples/me
+3. **Connect CreateCoupleSheet** — POST /couples on form submit → navigate to new group
+4. **Connect JoinGroupSheet** — POST /couples/join with invite code
+5. **Connect Group settings** — PATCH group name/split via API
+6. **Expenses API service** — create `src/services/api/expenses.ts`
+7. **Connect expense screens** — replace mock data with real API
+8. **Balances API** — connect group detail balance data
+9. **Dashboard API** — create service + connect dashboard
+10. **Payments/Settlements API** — create service + connect
+
+**Estimated**: 1-2 weeks for groups + expenses; 2-3 weeks total
+
+---
 
 ---
 

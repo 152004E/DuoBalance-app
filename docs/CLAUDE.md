@@ -42,8 +42,8 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **Gastos** (`(protected)/gastos.tsx`): Expense list screen with HeroSection + "Próximamente..." placeholder ✅
 - **Reportes** (`(protected)/reportes.tsx`): Reports screen with period filter (dropdown), donut chart, top categories list, stats cards — mock data ✅
 - **Perfil** (`(protected)/perfil.tsx`): Profile screen with avatar, user info, menu options (Editar Perfil, Notificaciones, Seguridad), and logout ✅
-- **Couple List** (`(protected)/pareja/index.tsx`): Couple list with couple cards, invite code display/refresh, FloatingAddMenu (FAB → bottom sheet: create/join couple), couple menu sheet, invite member sheet ✅
-- **Couple Detail** (`(protected)/pareja/[id].tsx`): Couple detail with balance cards (owed/debt/settled), distribution bar, recent transactions, couple menu sheet, invite member sheet ✅
+- **Couple List** (`(protected)/grupos/index.tsx`): Group list with CoupleCard, FloatingAddMenu (FAB → bottom sheet: create/join group), CoupleMenuSheet, InviteMemberSheet, JoinGroupSheet ✅
+- **Couple Detail** (`(protected)/grupos/[id].tsx`): Group detail with financial hero card, settlement status, distribution bar, recent expenses, CoupleMenuSheet, InviteMemberSheet ✅
 
 ### Layout Components — Built
 - **BottomTab**: Custom tab bar with 5 tabs (Inicio, Gastos, Pareja, Reportes, Perfil) ✅
@@ -51,15 +51,16 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **SplashScreen**: Animated splash screen with gradient and logo ✅
 - **HeroSection**: Unified hero component with `variant` prop (`"dashboard"` / `"page"`) — replaces former AppHero + dashboard HeroSection ✅
 
-### Couple Components — Built
-- **CoupleCard**: Partner info card with avatar, name, email ✅
+### Couple/Group Components — Built
+- **CoupleCard**: Group/partner info card with avatar, name, balance, status indicator ✅
 - **InviteCodeCard**: Invite code display with copy-to-clipboard and refresh ✅
-- **CreateCoupleSheet**: Bottom sheet form with couple name input, percentage slider split, and generate invite code action ✅
-- **AddCoupleCard**: Quick-add card for creating a new couple ✅
-- **CoupleMenuSheet**: Bottom sheet to manage couple settings/options (invite, leave, edit split) with interactive transitions ✅
-- **Couple Detail Screen** (`[id].tsx`): Uses `ScreenHeader` from `@/components/ui/screen-header` (with back, action menu) instead of a separate `CoupleDetailHeader` ✅
-- **Configuración Screen** (`[id]/configuracion.tsx`): Group settings with name, split %, members, invite code, notifications, danger zone — mock data ✅
-- **InviteMemberSheet**: Bottom sheet displaying couple's invite code with quick copy, premium gradients, and logo branding ✅
+- **CreateCoupleSheet**: Bottom sheet form with group type selector (personal/pareja/grupo), name input, split configuration (50/50, equal, percentage) ✅
+- **AddCoupleCard**: Quick-add card for creating a new group ✅
+- **CoupleMenuSheet**: Bottom sheet to manage group settings/options (invite, leave, edit split) with interactive transitions ✅
+- **Couple Detail Screen** (`grupos/[id].tsx`): Uses `ScreenHeader` from `@/components/ui/screen-header` (with back, action menu) ✅
+- **Configuración Screen** (`grupos/[id]/configuracion.tsx`): Group settings with name, split %, members, invite code, notifications, danger zone — mock data ✅
+- **InviteMemberSheet**: Bottom sheet displaying group's invite code with quick copy, premium gradients, and logo branding ✅
+- **JoinGroupSheet**: Bottom sheet to join a group via invite code (manual entry + QR scanner placeholder) ✅
 
 ### Dashboard Components — Built
 - **PartnerBalance**: Balance card showing how much is owed/to whom ✅
@@ -96,13 +97,23 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **react-native-reanimated** for animations (staggered entries, spring modals)
 
 ## What to Build Next
-1. Connect couple screens to real backend API (currently mock data)
-2. Connect dashboard/reports to real API
-3. Create Forgot Password endpoint in backend + connect frontend
-4. Response interceptor (401 → redirect to login)
-5. Expense CRUD screens (create, edit, delete) — screens scaffolded in `src/features/expenses/`
-6. Receipt capture with camera
-7. Payment/settlement screens — scaffolded in `src/features/payments/`
+### P0 — Backend API Integration (current priority)
+1. **Create `src/services/api/couples.ts`** — API service for group CRUD (POST /couples, GET /couples/me, POST /couples/join, DELETE /couples/leave)
+2. **Connect Grupos list screen** (`grupos/index.tsx`) — replace MOCK_COUPLES with API data
+3. **Connect CreateCoupleSheet** — POST /couples on form submit
+4. **Connect JoinGroupSheet** — POST /couples/join with invite code
+5. **Connect Config screen** — PATCH group settings (name, split %)
+6. **Create `src/services/api/expenses.ts`** — API service for expense CRUD
+7. **Connect expense screens** — replace mock data with API
+8. **Create `src/services/api/dashboard.ts`** — API service for dashboard data
+9. **Connect Dashboard** — replace mock data with API
+10. **Create `src/services/api/payments.ts`** — API service for payments/settlements
+
+### P1 — Remaining features
+11. Response interceptor (401 → redirect to login)
+12. Create Forgot Password endpoint in backend + connect frontend
+13. Receipt capture with camera
+14. Payment/settlement screens
 
 ## Coding Style
 - TypeScript strict, no `any`
@@ -157,10 +168,11 @@ npx prisma db push        # Push schema (dev)
 | `src/app/(protected)/gastos.tsx` | Expenses screen (HeroSection + placeholder) |
 | `src/app/(protected)/reportes.tsx` | Reports screen (mock data: bar chart, donut chart, stats cards) |
 | `src/app/(protected)/perfil.tsx` | Profile screen (avatar, user info, menu options, logout) |
-| `src/app/(protected)/pareja/_layout.tsx` | Pareja stack navigator (index, [id], [id]/configuracion) |
-| `src/app/(protected)/pareja/index.tsx` | Couple list screen (cards, invite code, create couple, couple menu sheet, invite member sheet) |
-| `src/app/(protected)/pareja/[id].tsx` | Couple detail screen (balances, distribution, transactions, couple menu sheet, invite member sheet) |
-| `src/app/(protected)/pareja/[id]/configuracion.tsx` | Group settings screen (name, split %, members, invite code, notifications, danger zone) |
+| `src/app/(protected)/grupos/_layout.tsx` | Grupos stack navigator (index, [id], [id]/configuracion, [id]/gastos) |
+| `src/app/(protected)/grupos/index.tsx` | Group list screen (CoupleCard, FloatingAddMenu, CoupleMenuSheet, InviteMemberSheet, JoinGroupSheet) |
+| `src/app/(protected)/grupos/[id].tsx` | Group detail screen (financial hero, settlement, distribution, recent expenses) |
+| `src/app/(protected)/grupos/[id]/configuracion.tsx` | Group settings screen (name, split %, members, invite code, notifications, danger zone) |
+| `src/app/(protected)/grupos/[id]/gastos.tsx` | Per-group expense list with date/category filters |
 
 ### UI Components
 | File | Purpose |
@@ -176,6 +188,7 @@ npx prisma db push        # Push schema (dev)
 | `src/components/ui/screen-header.tsx` | Feature-rich header (back button, action button, animated entry) — used in couple detail & config |
 | `src/components/ui/percentage-slider.tsx` | Animated percentage slider with gradient |
 | `src/components/ui/distribution-bar.tsx` | Stacked distribution bar with legends |
+| `src/components/ui/group-selector.tsx` | Dropdown-style group selector for filtering |
 
 ### Auth Components
 | File | Purpose |
@@ -200,14 +213,28 @@ npx prisma db push        # Push schema (dev)
 | `src/components/layout/splash-screen.tsx` | Animated splash screen |
 | `src/components/layout/HeroSection.tsx` | Unified hero component (`"dashboard"` / `"page"` variants) |
 
-### Couple Components
+### Couple/Group Components
 | File | Purpose |
 |------|---------|
-| `src/components/couple/couple-card.tsx` | Partner info card |
+| `src/components/couple/couple-card.tsx` | Group/partner info card with balance & status |
 | `src/components/couple/invite-code-card.tsx` | Invite code display + copy |
-| `src/components/couple/create-couple-sheet.tsx` | Create couple bottom sheet form |
-| `src/components/couple/couple-menu-sheet.tsx` | Bottom sheet to manage couple settings/options |
+| `src/components/couple/create-couple-sheet.tsx` | Create group bottom sheet (type selector: personal/pareja/grupo, split config) |
+| `src/components/couple/couple-menu-sheet.tsx` | Bottom sheet to manage group settings/options |
 | `src/components/couple/invite-member-sheet.tsx` | Bottom sheet displaying invite code with copy/QR |
+| `src/components/couple/join-group-sheet.tsx` | Join group via invite code (manual entry + QR scanner placeholder) |
+
+### Expense/Movement Components
+| File | Purpose |
+|------|---------|
+| `src/components/expenses/recent-expenses-card.tsx` | Recent expenses list card with category icons |
+| `src/components/expenses/expense-hero-card.tsx` | Expense detail hero card |
+| `src/components/expenses/expense-information.tsx` | Expense info (amount, category, date) |
+| `src/components/expenses/expense-participants.tsx` | Expense participants display |
+| `src/components/expenses/expense-split.tsx` | Expense split breakdown |
+| `src/components/expenses/expense-receipt.tsx` | Expense receipt section |
+| `src/components/expenses/expense-timeline.tsx` | Expense timeline |
+| `src/components/expenses/expense-actions.tsx` | Expense actions (edit/delete) |
+| `src/components/movements/create-expense-sheet.tsx` | Unified bottom sheet form for creating expenses |
 
 ### Dashboard Components
 | File | Purpose |

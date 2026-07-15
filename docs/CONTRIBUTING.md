@@ -76,11 +76,12 @@ DuoBalance-app/
 │   │       ├── gastos.tsx     # Expenses
 │   │       ├── reportes.tsx   # Reports & analytics
 │   │       ├── perfil.tsx     # Profile
-│   │       └── pareja/        # Couple stack routes
-│   │           ├── index.tsx         # Couple list
-│   │           ├── [id].tsx          # Couple detail
-│   │           └── [id]/             # Couple sub-routes
-│   │               └── configuracion.tsx  # Group settings
+│   │       └── grupos/        # Group stack routes
+│   │           ├── index.tsx         # Group list
+│   │           ├── [id].tsx          # Group detail
+│   │           └── [id]/             # Group sub-routes
+│   │               ├── configuracion.tsx  # Group settings
+│   │               └── gastos.tsx         # Per-group expense list
 │   ├── components/            # Reusable UI components
 │   │   ├── ui/                # Primitives (Button, Input, Card, BottomSheet, etc.)
 │   │   ├── auth/              # Auth-specific (AuthHeader, AuthDivider, etc.)
@@ -90,7 +91,7 @@ DuoBalance-app/
 │   │   ├── category/          # Category badge component
 │   │   ├── couple/            # Couple-related components
 │   │   └── dashboard/         # Dashboard components
-│   ├── features/              # Feature modules (auth/, couple/, dashboard/, expenses/, payments/ — auth has context, rest are empty scaffolding)
+│   ├── features/              # Feature modules (auth/ has AuthContext; couple/, dashboard/, expenses/, payments/ are empty — pending API service creation)
 │   ├── services/              # API client and external services
 │   ├── storage/               # Secure storage wrappers
 │   ├── hooks/                 # Custom React hooks

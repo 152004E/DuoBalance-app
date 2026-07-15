@@ -19,12 +19,13 @@
 | Gastos (lista) | `(protected)/gastos/index.tsx` | 🚧 HeroSection + "Próximamente..." placeholder |
 | Add Expense | `(protected)/gastos/add.tsx` | 🚧 Stub navegable |
 | Expense Detail | `(protected)/gastos/[id].tsx` | 🚧 Stub navegable |
-| Couple List | `(protected)/pareja/index.tsx` | ✅ (mock data) |
-| Couple Detail | `(protected)/pareja/[id].tsx` | ✅ (mock data) |
-| Join Couple | `(protected)/pareja/join.tsx` | ❌ |
+| Group List | `(protected)/grupos/index.tsx` | ✅ (mock data) |
+| Group Detail | `(protected)/grupos/[id].tsx` | ✅ (mock data) |
+| Join Group | `(protected)/grupos/join.tsx` | ❌ (JoinGroupSheet implemented as bottom sheet) |
+| Group Expenses | `(protected)/grupos/[id]/gastos.tsx` | ✅ (mock data, date/category filters) |
 | Reports | `(protected)/reportes.tsx` | ✅ (mock data) |
 | Perfil | `(protected)/perfil.tsx` | ✅ (avatar, user info, menu options, logout) |
-| Group Settings | `(protected)/pareja/[id]/configuracion.tsx` | ✅ (name, split %, members, invite code, notifications, danger zone — mock data) |
+| Group Settings | `(protected)/grupos/[id]/configuracion.tsx` | ✅ (name, split %, members, invite code, notifications, danger zone — mock data) |
 | Pay Screen | `(protected)/pagos/index.tsx` | ❌ |
 | Payment History | `(protected)/pagos/` | ❌ |
 | Receipt Capture | `(protected)/gastos/receipt.tsx` | ❌ |
@@ -42,11 +43,12 @@
 - [❌] Join Group — completar flujo de unión
 
 ### P2 — Importantes
-- [❌] Backend API — Dashboard
-- [❌] Backend API — Groups
+- [❌] Backend API — Groups (CREATE `src/services/api/couples.ts`)
+- [❌] Backend API — Expenses (CREATE `src/services/api/expenses.ts`)
+- [❌] Backend API — Dashboard (CREATE `src/services/api/dashboard.ts`)
 - [❌] Backend API — Reports
+- [❌] Backend API — Payments/Settlements (CREATE `src/services/api/payments.ts`)
 - [❌] Expense Edit Mode
-- [❌] Backend API — Expenses
 - [❌] Response Interceptor 401
 
 ### P3 — Mejoras
@@ -86,11 +88,12 @@
 - [❌] Response interceptor (401 → redirect to login)
 
 ## Phase 3: Group Management (antes "Couple Management")
-- [✅] Group list screen — cards, invite code display/copy/refresh, FloatingAddMenu (FAB → create/join group bottom sheet), group menu sheet, invite member sheet
+- [✅] Group list screen — CoupleCard, FloatingAddMenu (FAB → create/join group bottom sheet), group menu sheet, invite member sheet, JoinGroupSheet
 - [✅] Group creation bottom sheet — name, percentage split slider, generate invite code, type selector (PERSONAL/COUPLE/GROUP)
-- [✅] Group detail screen — balance cards (owed/debt/settled), distribution bar, transactions, settings (leave group), group menu sheet, invite member sheet
+- [✅] Group detail screen — financial hero card, settlement status, distribution bar, expenses, settings, group menu sheet, invite member sheet
 - [✅] Group settings screen — name, split %, members, invite code, type, notifications, danger zone (mock data)
-- [❌] Join group via invite code (enter code form)
+- [✅] JoinGroupSheet — bottom sheet with invite code entry form + QR scanner placeholder
+- [✅] Per-group expense list (`grupos/[id]/gastos.tsx`) — date/category filters, RecentExpensesCard, CreateExpenseSheet
 - [❌] Backend API integration (currently mock data)
 
 ## Phase 4: Expense Screens
@@ -154,7 +157,9 @@
 
 ## Fase Post-MVP: Multi-actor Support (v2.0+)
 
-Una vez completado el MVP (frontend + backend conectados), se generaliza la plataforma para que no esté limitada a parejas, sino que soporte **tres tipos de actores**:
+Una vez completado el MVP (frontend + backend conectados), se generaliza la plataforma para que no esté limitada a parejas, sino que soporte **tres tipos de actores**.
+
+> **Nota importante:** El frontend ya comenzó esta migración. Las rutas están en `grupos/` (no `pareja/`), la terminología usa "Grupos", y `CreateCoupleSheet` ya incluye un selector de tipo (personal/pareja/grupo). Lo que falta es la migración del backend y conectar los endpoints de grupos.
 
 | Tipo | Emoji | Descripción | Miembros máx | Split típico |
 |------|-------|-------------|--------------|--------------|
@@ -162,8 +167,20 @@ Una vez completado el MVP (frontend + backend conectados), se generaliza la plat
 | Pareja | ❤️ | Gastos compartidos entre dos | 2 | 50/50, % personalizado |
 | Grupo | 👥 | Roommates, familia, viaje, amigos | N (3+) | Equal, %, por producto |
 
-### Cambios necesarios en backend
+### ✅ Ya implementado en frontend
 
+| Cambio | Estado |
+|--------|--------|
+| Rutas renombradas `pareja/` → `grupos/` | ✅ Completo |
+| Tab "Grupos" en lugar de "Parejas" | ✅ Completo |
+| Terminología "Grupos", "Miembros" | ✅ En su mayoría |
+| `CreateCoupleSheet` con selector de tipo | ✅ Completo |
+| `JoinGroupSheet` con entrada de código | ✅ Completo |
+| `GroupSelector` UI component | ✅ Completo |
+
+### ❌ Pendiente para v2.0 (backend + frontend)
+
+#### Backend
 1. **Base de datos**
    - Tabla `groups` (reemplaza `couples`): agregar columna `type: PERSONAL | COUPLE | GROUP`
    - Tabla `group_members`: relación N:N con roles opcionales
@@ -207,28 +224,17 @@ Splits
 ├── amount
 ```
 
-### Cambios necesarios en frontend
-
-1. **Terminología**
-   - "Parejas" → "Grupos" en tabs, menús, títulos
-   - "Tu pareja" → "Miembros"
-   - "Crear pareja" → "Crear grupo" con selector de tipo
-
-2. **Rutas**
-   - `(protected)/pareja/` → `(protected)/grupos/`
-   - `(protected)/pareja/[id]` → `(protected)/grupos/[id]`
-   - Mantener redirects por compatibilidad
-
-3. **Nuevas pantallas**
+#### Frontend (pendiente)
+1. **Nuevas pantallas**
    - `grupos/crear.tsx` con selector de tipo (Personal/Pareja/Grupo)
    - `grupos/[id]/miembros.tsx` listado y gestión de miembros (solo GROUP)
    - Dashboard: selector de grupo global con indicador de tipo
 
-4. **Componentes a generalizar**
+2. **Componentes a generalizar**
    - `CoupleSelector` → `GroupSelector`
    - `CoupleCard` → `GroupCard` (con badge de tipo)
    - `PartnerBalance` → `MemberBalance` (soporta N miembros)
-   - `CreateCoupleSheet` → `CreateGroupSheet` con tipo seleccionable
+   - `CreateCoupleSheet` → `CreateGroupSheet`
 
 5. **Split picker**
    - PERSONAL: sin split (100% usuario)
