@@ -1,6 +1,7 @@
+import { router } from 'expo-router';
 import type { AxiosInstance } from 'axios';
 
-import { tokenStorage } from '@/storage/token';
+import { tokenStorage, userStorage } from '@/storage/token';
 
 export function setupInterceptors(api: AxiosInstance) {
   api.interceptors.request.use(
@@ -21,7 +22,9 @@ export function setupInterceptors(api: AxiosInstance) {
 
     async (error) => {
       if (error.response?.status === 401) {
-        console.warn('Unauthorized - token expired');
+        await tokenStorage.remove();
+        await userStorage.remove();
+        router.replace('/login');
       }
 
       return Promise.reject(error);

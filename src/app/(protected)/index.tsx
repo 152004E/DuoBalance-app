@@ -1,11 +1,11 @@
 import { useCallback, useState, useRef } from 'react';
-import { View, Text, FlatList, ScrollView } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect, useScrollToTop } from 'expo-router';
+import { useFocusEffect, useScrollToTop, router } from 'expo-router';
 import { useAuth } from '@/hooks/use-auth';
+import { useGroups } from '@/hooks/use-groups';
 import { HeroSection } from '@/components/layout/HeroSection';
-import { CoupleCard } from '@/components/dashboard/CoupleCard';
-import { AddCoupleCard } from '@/components/dashboard/AddCoupleCard';
+import { GroupSection } from '@/components/ui/group-section';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
 import { TopCategory } from '@/components/dashboard/TopCategory';
 import { PartnerBalance } from '@/components/dashboard/PartnerBalance';
@@ -16,11 +16,6 @@ const MOCK_BALANCE = {
   partnerShare: 50000,
   direction: 'I_OWE' as const,
 };
-
-const MOCK_COUPLES = [
-  { id: '1', name: 'Andrea', balance: 250000, status: 'positive' as const },
-  { id: '2', name: 'Carlos', balance: 0, status: 'neutral' as const },
-];
 
 const MOCK_TRANSACTIONS = [
   {
@@ -69,6 +64,7 @@ const MOCK_PARTNER_BALANCE = {
 
 export default function DashboardScreen() {
   const { user } = useAuth();
+  const { personalGroups, coupleGroups, sharedGroups } = useGroups();
   const [focusCount, setFocusCount] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
@@ -102,20 +98,28 @@ export default function DashboardScreen() {
             Tus Grupos
           </Text>
 
-          <FlatList
-            data={MOCK_COUPLES}
+          <GroupSection
+            title="Personal"
+            groups={personalGroups}
             horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerClassName="gap-4"
-            renderItem={({ item }) => (
-              <CoupleCard
-                name={item.name}
-                balance={item.balance}
-                status={item.status}
-              />
-            )}
-            keyExtractor={(item) => item.id}
-            ListFooterComponent={<AddCoupleCard />}
+            onPress={(group) => router.push(`/grupos/${group.id}`)}
+            currentUserId={user?.id}
+          />
+
+          <GroupSection
+            title="Parejas"
+            groups={coupleGroups}
+            horizontal
+            onPress={(group) => router.push(`/grupos/${group.id}`)}
+            currentUserId={user?.id}
+          />
+
+          <GroupSection
+            title="Grupos"
+            groups={sharedGroups}
+            horizontal
+            onPress={(group) => router.push(`/grupos/${group.id}`)}
+            currentUserId={user?.id}
           />
         </View>
 

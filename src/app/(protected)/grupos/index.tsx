@@ -1,64 +1,23 @@
 import { useState, useRef, useCallback } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated from 'react-native-reanimated';
-import { router, useFocusEffect } from 'expo-router';
+import { router } from 'expo-router';
 import { HeroSection } from '@/components/layout/HeroSection';
-import { CoupleCard } from '@/components/dashboard/CoupleCard';
 import { FloatingAddMenu } from '@/components/dashboard/FloatingAddMenu';
 import { CoupleMenuSheet, type CoupleMenuAction } from '@/components/couple/couple-menu-sheet';
 import { InviteMemberSheet } from '@/components/couple/invite-member-sheet';
 import { JoinGroupSheet } from '@/components/couple/join-group-sheet';
 import { AlertModal } from '@/components/ui/alert-modal';
+import { GroupSection } from '@/components/ui/group-section';
 import { useAuth } from '@/hooks/use-auth';
-import { useStaggeredEntrance } from '@/hooks/use-staggered-entrance';
-
-const MOCK_COUPLES = [
-  { id: '1', name: 'Andrea', balance: 250000, status: 'positive' as const },
-  { id: '2', name: 'Carlos', balance: 80000, status: 'positive' as const },
-  { id: '3', name: 'María', balance: 15000, status: 'neutral' as const },
-  { id: '4', name: 'Pedro', balance: 120000, status: 'negative' as const },
-];
-
-function StaggeredCoupleCard({
-  item,
-  index,
-  onPress,
-  onMenu,
-  focusCount,
-}: {
-  item: (typeof MOCK_COUPLES)[number];
-  index: number;
-  onPress: () => void;
-  onMenu: () => void;
-  focusCount: number;
-}) {
-  const animatedStyle = useStaggeredEntrance(index, { trigger: focusCount });
-  return (
-    <Animated.View style={animatedStyle}>
-      <CoupleCard
-        id={item.id}
-        name={item.name}
-        balance={item.balance}
-        status={item.status}
-        onPress={onPress}
-        onMenu={onMenu}
-      />
-    </Animated.View>
-  );
-}
+import { useGroups } from '@/hooks/use-groups';
+import type { GroupResponse } from '@/types/api';
 
 export default function ParejaScreen() {
   const { user } = useAuth();
-  const [focusCount, setFocusCount] = useState(0);
+  const { personalGroups, coupleGroups, sharedGroups } = useGroups();
   const [menuVisible, setMenuVisible] = useState(false);
-
-  useFocusEffect(
-    useCallback(() => {
-      setFocusCount(c => c + 1);
-    }, []),
-  );
-  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<GroupResponse | null>(null);
   const [inviteVisible, setInviteVisible] = useState(false);
   const [showJoinSheet, setShowJoinSheet] = useState(false);
   const [showComingSoon, setShowComingSoon] = useState(false);
@@ -95,7 +54,7 @@ export default function ParejaScreen() {
         setInviteVisible(true);
         break;
       case 'settings':
-        router.push(`/grupos/${selectedCardId ?? '1'}/configuracion`);
+        router.push(`/grupos/${selectedGroup?.id ?? '1'}/configuracion`);
         break;
       case 'export':
       case 'history':
@@ -105,7 +64,7 @@ export default function ParejaScreen() {
         setShowLeaveConfirm(true);
         break;
     }
-  }, [selectedCardId]);
+  }, [selectedGroup]);
 
   return (
     <SafeAreaView className="relative flex-1 bg-[#F8FAFC]" edges={['top']}>
@@ -115,7 +74,6 @@ export default function ParejaScreen() {
         showsVerticalScrollIndicator={false}
       >
         <HeroSection
-          key={focusCount}
           variant="page"
           userName={user?.firstName ?? 'Usuario'}
           title="Grupos"
@@ -128,21 +86,41 @@ export default function ParejaScreen() {
             Tus Grupos
           </Text>
 
-          <View className="gap-4">
-            {MOCK_COUPLES.map((item, index) => (
-              <StaggeredCoupleCard
-                key={item.id}
-                item={item}
-                index={index}
-                focusCount={focusCount}
-                onPress={() => router.push(`/grupos/${item.id}`)}
-                onMenu={() => {
-                  setSelectedCardId(item.id);
-                  setMenuVisible(true);
-                }}
-              />
-            ))}
-          </View>
+          <GroupSection
+            title="Personal"
+            groups={personalGroups}
+            showMenu
+            onPress={(group) => router.push(`/grupos/${group.id}`)}
+            onMenu={(group) => {
+              setSelectedGroup(group);
+              setMenuVisible(true);
+            }}
+            currentUserId={user?.id}
+          />
+
+          <GroupSection
+            title="Parejas"
+            groups={coupleGroups}
+            showMenu
+            onPress={(group) => router.push(`/grupos/${group.id}`)}
+            onMenu={(group) => {
+              setSelectedGroup(group);
+              setMenuVisible(true);
+            }}
+            currentUserId={user?.id}
+          />
+
+          <GroupSection
+            title="Grupos"
+            groups={sharedGroups}
+            showMenu
+            onPress={(group) => router.push(`/grupos/${group.id}`)}
+            onMenu={(group) => {
+              setSelectedGroup(group);
+              setMenuVisible(true);
+            }}
+            currentUserId={user?.id}
+          />
         </View>
       </ScrollView>
 

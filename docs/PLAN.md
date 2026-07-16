@@ -88,13 +88,17 @@
 - [❌] Response interceptor (401 → redirect to login)
 
 ## Phase 3: Group Management (antes "Couple Management")
-- [✅] Group list screen — CoupleCard, FloatingAddMenu (FAB → create/join group bottom sheet), group menu sheet, invite member sheet, JoinGroupSheet
+- [✅] Group list screen — GroupCard, GroupSection, FloatingAddMenu (FAB → create/join group bottom sheet), group menu sheet, invite member sheet, JoinGroupSheet
 - [✅] Group creation bottom sheet — name, percentage split slider, generate invite code, type selector (PERSONAL/COUPLE/GROUP)
 - [✅] Group detail screen — financial hero card, settlement status, distribution bar, expenses, settings, group menu sheet, invite member sheet
 - [✅] Group settings screen — name, split %, members, invite code, type, notifications, danger zone (mock data)
 - [✅] JoinGroupSheet — bottom sheet with invite code entry form + QR scanner placeholder
 - [✅] Per-group expense list (`grupos/[id]/gastos.tsx`) — date/category filters, RecentExpensesCard, CreateExpenseSheet
+- [✅] useGroups() hook — loads groups from API, classifies by type (PERSONAL/COUPLE/GROUP), exposes refetch
+- [✅] GroupCard component — reusable card with type icon, member count, mock balance, optional menu
+- [✅] GroupSection component — reusable section with horizontal/vertical orientation
 - [❌] Backend API integration (currently mock data)
+- [❌] **Reemplazar balance mock en GroupCard por balance real del backend** — Actualmente `src/components/ui/group-card.tsx` usa `MOCK_BALANCE` hardcodeado. Cuando exista el endpoint `GET /groups/:id/balance` (o similar), se debe reemplazar el mock por el balance real y eliminar el objeto `MOCK_BALANCE`.
 
 ## Phase 4: Expense Screens
 - [❌] Expense list screen (flat list with category filters + group filter)
