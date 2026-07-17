@@ -28,8 +28,8 @@ interface MenuItem {
 }
 
 const MENU_ITEMS: MenuItem[] = [
-  { action: 'create-couple', icon: 'user-plus', label: 'Crear pareja', iconBg: '#10B981' },
-  { action: 'join-couple', icon: 'link', label: 'Unirse a pareja', iconBg: '#3B82F6' },
+  { action: 'create-couple', icon: 'user-plus', label: 'Crear Grupo', iconBg: '#10B981' },
+  { action: 'join-couple', icon: 'link', label: 'Unirse a un Grupo', iconBg: '#3B82F6' },
 ];
 
 interface ItemAnimationState {
@@ -150,7 +150,7 @@ export function FloatingAddMenu({ heightRatio = 0.45, headerFinalTranslateY = 0.
     <BottomSheetHeader
       visible={menuVisible}
       title="Agregar"
-      subtitle="Crea o únete a una pareja para gestionar gastos"
+      subtitle="Crea o únete a un grupo para gestionar gastos"
       onClose={handleCloseMenu}
       gradientPaddingBottom={500}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}

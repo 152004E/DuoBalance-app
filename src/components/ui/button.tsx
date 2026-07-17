@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { Pressable, Text, View, ActivityIndicator, Animated } from 'react-native';
+import { Pressable, Text, View, ActivityIndicator, Animated, type StyleProp, type ViewStyle } from 'react-native';
 import { Link, type Href } from 'expo-router';
 import { FontAwesome6 } from '@expo/vector-icons';
 
@@ -14,6 +14,7 @@ interface ButtonProps {
   onPress?: () => void;
   disabled?: boolean;
   className?: string;
+  style?: StyleProp<ViewStyle>;
   isLoading?: boolean;
   loadingType?: LoadingType;
   loadingText?: string;
@@ -95,6 +96,7 @@ export function Button({
   onPress,
   disabled,
   className,
+  style,
   isLoading = false,
   loadingType = 'spinner',
   loadingText,
@@ -141,7 +143,7 @@ export function Button({
   if (to && !isLoading) {
     return (
       <Link href={to} asChild>
-        <Pressable disabled={isDisabled} className={pressableClasses}>
+        <Pressable disabled={isDisabled} className={pressableClasses} style={style}>
           {content}
         </Pressable>
       </Link>
@@ -153,6 +155,7 @@ export function Button({
       onPress={onPress}
       disabled={isDisabled}
       className={pressableClasses}
+      style={style}
     >
       {content}
     </Pressable>

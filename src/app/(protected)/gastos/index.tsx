@@ -4,12 +4,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect, useScrollToTop } from 'expo-router';
 import { HeroSection } from '@/components/layout/HeroSection';
 import { useAuth } from '@/hooks/use-auth';
+import { useGroups } from '@/hooks/use-groups';
 import { GroupSelector, type GroupOption } from '@/components/ui/group-selector';
+import { GroupSection } from '@/components/ui/group-section';
 import { RecentExpensesCard, type RecentExpense } from '@/components/expenses/recent-expenses-card';
-import { CoupleExpenseCard, type CoupleExpense } from '@/components/expenses/couple-expense-card';
 import { FloatingAddButton } from '@/components/dashboard/FloatingAddButton';
 
-const MOCK_COUPLE_EXPENSES: CoupleExpense[] = [
+const MOCK_COUPLE_RAW = [
   { id: '1', name: 'Andrea', partnerName: 'Ana', totalExpenses: 1200000, partnerExpenses: 800000, transactionCount: 15 },
   { id: '2', name: 'Carlos', partnerName: 'María', totalExpenses: 450000, partnerExpenses: 350000, transactionCount: 8 },
   { id: '3', name: 'Daniela', partnerName: 'Luis', totalExpenses: 280000, partnerExpenses: 190000, transactionCount: 5 },
@@ -25,6 +26,7 @@ const MOCK_EXPENSES: RecentExpense[] = [
 
 export default function GastosScreen() {
   const { user } = useAuth();
+  const { groups } = useGroups();
   const [focusCount, setFocusCount] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
@@ -36,16 +38,16 @@ export default function GastosScreen() {
     }, []),
   );
 
-  const totalExpensesAll = MOCK_COUPLE_EXPENSES.reduce(
+  const totalExpensesAll = MOCK_COUPLE_RAW.reduce(
     (sum, c) => sum + c.totalExpenses + c.partnerExpenses, 0,
   );
-  const totalTransactionsAll = MOCK_COUPLE_EXPENSES.reduce(
+  const totalTransactionsAll = MOCK_COUPLE_RAW.reduce(
     (sum, c) => sum + c.transactionCount, 0,
   );
 
-  const filteredCouples = selectedGroup === 'all'
-    ? MOCK_COUPLE_EXPENSES
-    : MOCK_COUPLE_EXPENSES.filter(c => c.id === selectedGroup);
+  const filteredGroups = selectedGroup === 'all'
+    ? groups
+    : groups.filter(g => g.id === selectedGroup);
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]" edges={['top']}>
@@ -101,11 +103,12 @@ export default function GastosScreen() {
             Gastos por Pareja
           </Text>
 
-          <View className="gap-4">
-            {filteredCouples.map((couple) => (
-              <CoupleExpenseCard key={couple.id} couple={couple} />
-            ))}
-          </View>
+          <GroupSection
+            title=""
+            groups={filteredGroups}
+            onPress={(group) => router.push(`/grupos/${group.id}`)}
+            currentUserId={user?.id}
+          />
 
           <View className="mt-6">
             <Text className="mb-3 text-base font-bold text-[#0F172A]">

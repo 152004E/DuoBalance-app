@@ -51,6 +51,12 @@ export function useGroups(): UseGroupsReturn {
     [groups],
   );
 
+  console.log('Filtered groups:', {
+    personal: personalGroups.length,
+    couple: coupleGroups.length,
+    shared: sharedGroups.length,
+  });
+
   return {
     groups,
     personalGroups,

@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
 import type { GroupResponse } from '@/types/api';
+import { Button } from './button';
+import { AlertModal } from './alert-modal';
 
 interface GroupBalanceMock {
   userAmount: number;
@@ -12,6 +15,9 @@ const MOCK_BALANCE_DETAIL: Record<string, GroupBalanceMock> = {
   '2': { userAmount: 80000, partnerAmount: 45000 },
   '3': { userAmount: 15000, partnerAmount: 10000 },
   '4': { userAmount: 120000, partnerAmount: 60000 },
+  'gastos-1': { userAmount: 1200000, partnerAmount: 800000 },
+  'gastos-2': { userAmount: 450000, partnerAmount: 350000 },
+  'gastos-3': { userAmount: 280000, partnerAmount: 190000 },
 };
 
 const DEFAULT_BALANCE: GroupBalanceMock = {
@@ -34,6 +40,7 @@ export function GroupCard({
   onMenu,
   currentUserId,
 }: GroupCardProps) {
+  const [showAddAlert, setShowAddAlert] = useState(false);
   const balances = MOCK_BALANCE_DETAIL[group.id] ?? DEFAULT_BALANCE;
   const total = balances.userAmount + balances.partnerAmount;
   const userPercent = total > 0 ? (balances.userAmount / total) * 100 : 0;
@@ -62,7 +69,7 @@ export function GroupCard({
   return (
     <Pressable
       onPress={onPress}
-      className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white shadow-sm active:opacity-80"
+      className="w-full overflow-hidden rounded-xl border border-[#E2E8F0] bg-white shadow-sm active:opacity-80"
       style={{
         shadowColor: '#0F172A',
         shadowOffset: { width: 0, height: 2 },
@@ -79,7 +86,7 @@ export function GroupCard({
             </View>
             <View>
               <Text className="text-lg font-bold text-[#0F172A]">
-                {group.name}
+                {group.name.length > 15 ? group.name.slice(0, 15) + '...' : group.name}
               </Text>
               <Text className="text-sm text-[#64748B]">
                 {transactionCount} transacciones este mes
@@ -87,30 +94,14 @@ export function GroupCard({
             </View>
           </View>
 
-          <View className="flex-row items-center gap-2">
-            <View className="items-end">
-              <Text
-                className="text-lg font-bold text-[#006c49]"
-                style={{ fontFamily: 'JetBrains Mono' }}
-              >
-                ${total.toLocaleString('es-CL')}
-              </Text>
-              <Text className="text-xs text-[#64748B]">Total</Text>
-            </View>
-
-            {showMenu && onMenu && (
-              <Pressable
-                onPress={onMenu}
-                className="ml-2 h-10 w-10 items-center justify-center"
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <FontAwesome6
-                  name="ellipsis-vertical"
-                  size={18}
-                  color="#64748B"
-                />
-              </Pressable>
-            )}
+          <View className="items-end">
+            <Text
+              className="text-lg font-bold text-[#006c49]"
+              style={{ fontFamily: 'JetBrains Mono' }}
+            >
+              ${total.toLocaleString('es-CL')}
+            </Text>
+            <Text className="text-xs text-[#64748B]">Total</Text>
           </View>
         </View>
 
@@ -127,7 +118,7 @@ export function GroupCard({
           </View>
           <View className="mt-2 flex-row justify-between">
             <View className="flex-row items-center gap-1.5">
-              <View className="h-2.5 w-2.5 rounded-full bg-[#006c49]" />
+              <View className="h-2.5 w-2.5 rounded-full bg-[#006c49]" />  
               <Text className="text-xs text-[#64748B]">
                 {userLabel}: ${balances.userAmount.toLocaleString('es-CL')}
               </Text>
@@ -141,6 +132,39 @@ export function GroupCard({
           </View>
         </View>
       </View>
+
+      {showMenu && onMenu && (
+        <View className="border-t border-[#E2E8F0] flex-row items-center justify-between px-5 py-3">
+          <Pressable onPress={(e) => e.stopPropagation()}>
+            <Button
+              text="Agregar gasto"
+              iconLeft="money-bill"
+              style={{ paddingVertical: 8, paddingHorizontal: 28 }}
+              onPress={() => setShowAddAlert(true)}
+            />
+          </Pressable>
+
+          <Pressable
+            onPress={onMenu}
+            className="h-10 w-10 items-center justify-center"
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <FontAwesome6
+              name="ellipsis-vertical"
+              size={18}
+              color="#64748B"
+            />
+          </Pressable>
+        </View>
+      )}
+
+      <AlertModal
+        visible={showAddAlert}
+        type="info"
+        title="Función no disponible"
+        message="Próximamente podrás agregar gastos desde aquí."
+        onClose={() => setShowAddAlert(false)}
+      />
     </Pressable>
   );
 }
