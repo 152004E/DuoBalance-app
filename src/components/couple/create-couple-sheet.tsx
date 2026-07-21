@@ -8,9 +8,11 @@ import {
 } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { createGroup } from '@/services/api/groups';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
 import { Button } from '@/components/ui/button';
+import { AlertModal } from '@/components/ui/alert-modal';
 
 type GroupType = 'personal' | 'pareja' | 'grupo';
 type SplitOption = '50_50' | 'equal' | 'percentage';
@@ -83,6 +85,8 @@ export function CreateCoupleSheet({
   const [coupleName, setCoupleName] = useState('');
   const [splitOption, setSplitOption] = useState<SplitOption>('50_50');
   const [yourPercentage, setYourPercentage] = useState(50);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const partnerPercentage = 100 - yourPercentage;
 
@@ -119,37 +123,32 @@ export function CreateCoupleSheet({
     return ['equal', 'percentage'];
   };
 
-  const handleCreate = () => {
-    const mockId = Date.now().toString();
-    const groupName = coupleName;
+  const handleCreate = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    setErrorMessage(null);
 
-    const splitType =
-      groupType === 'personal'
-        ? null
-        : groupType === 'pareja'
-          ? splitOption === '50_50'
-            ? '50/50'
-            : 'porcentaje'
-          : splitOption === 'equal'
-            ? 'equitativa'
-            : 'porcentaje';
+    try {
+      const TYPE_MAP: Record<string, string> = {
+        personal: 'PERSONAL',
+        pareja: 'COUPLE',
+        grupo: 'GROUP',
+      };
 
-    const percentageToLog =
-      groupType === 'pareja' && splitOption === 'percentage'
-        ? yourPercentage
-        : groupType === 'pareja'
-          ? 50
-          : undefined;
+      const group = await createGroup({
+        name: coupleName,
+        type: TYPE_MAP[groupType] as 'PERSONAL' | 'COUPLE' | 'GROUP',
+      });
 
-    console.log({
-      type: groupType,
-      name: groupName,
-      splitType,
-      yourPercentage: percentageToLog,
-    });
-
-    onClose();
-    router.push(`/grupos/${mockId}`);
+      onClose();
+      router.push(`/grupos/${group.id}`);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : 'Error al crear el grupo';
+      setErrorMessage(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const header = (
@@ -401,11 +400,21 @@ export function CreateCoupleSheet({
             }
             iconRight="arrow-right"
             onPress={handleCreate}
-            disabled={isDisabled}
+            disabled={isDisabled || isSubmitting}
+            isLoading={isSubmitting}
             className="rounded-full py-4"
           />
         </View>
       </View>
+
+      <AlertModal
+        visible={errorMessage !== null}
+        type="error"
+        title="Error al crear el grupo"
+        message={errorMessage ?? ''}
+        buttonText="Cerrar"
+        onClose={() => setErrorMessage(null)}
+      />
     </BottomSheet>
   );
 }
