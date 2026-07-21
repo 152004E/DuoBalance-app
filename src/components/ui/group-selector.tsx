@@ -27,11 +27,13 @@ interface GroupSelectorProps {
   selectedId?: string;
   onSelect?: (group: GroupOption) => void;
   variant?: 'light' | 'dark';
+  options?: GroupOption[];
 }
 
-export function GroupSelector({ selectedId, onSelect, variant = 'light' }: GroupSelectorProps) {
+export function GroupSelector({ selectedId, onSelect, variant = 'light', options }: GroupSelectorProps) {
   const [open, setOpen] = useState(false);
-  const selected = MOCK_GROUPS.find(g => g.id === (selectedId ?? 'all')) ?? MOCK_GROUPS[0];
+  const items = options ?? MOCK_GROUPS;
+  const selected = items.find(g => g.id === (selectedId ?? 'all')) ?? items[0];
   const selIcon = TYPE_ICONS[selected.type];
 
   return (
@@ -53,7 +55,7 @@ export function GroupSelector({ selectedId, onSelect, variant = 'light' }: Group
         <Pressable className="flex-1 bg-black/30" onPress={() => setOpen(false)}>
           <View className="mt-32 mx-4 rounded-xl bg-white border border-[#E2E8F0] shadow-lg overflow-hidden">
             <FlatList
-              data={MOCK_GROUPS}
+              data={items}
               keyExtractor={item => item.id}
               renderItem={({ item }) => {
                 const icon = TYPE_ICONS[item.type];

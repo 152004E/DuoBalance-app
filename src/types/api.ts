@@ -58,6 +58,7 @@ export interface UserResponse {
   firstName: string;
   lastName: string;
   email: string;
+  avatarUrl?: string | null;
   createdAt: string;
 }
 

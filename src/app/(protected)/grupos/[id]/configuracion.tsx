@@ -14,7 +14,8 @@ import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
 import { useStaggeredEntrance } from '@/hooks/use-staggered-entrance';
 import { Loading } from '@/components/ui/loading';
 import { Button } from '@/components/ui/button';
-import { getGroup, updateGroup, deleteGroup, archiveGroup, updateMemberSplit } from '@/services/api/groups';
+import { getGroup, updateGroup, deleteGroup, archiveGroup, updateMemberSplit, regenerateInviteCode } from '@/services/api/groups';
+import { InviteMemberSheet } from '@/components/couple/invite-member-sheet';
 import type { GroupResponse, GroupMember } from '@/types/api';
 
 export default function ConfiguracionGrupoScreen() {
@@ -34,6 +35,9 @@ export default function ConfiguracionGrupoScreen() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const [inviteVisible, setInviteVisible] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   const [toggleStates, setToggleStates] = useState({
     newExpense: true,
@@ -131,6 +135,22 @@ export default function ConfiguracionGrupoScreen() {
     }
   };
 
+  const handleRegenerateCode = useCallback(async () => {
+    if (!group) return;
+    setIsRegenerating(true);
+    try {
+      const updated = await regenerateInviteCode(id);
+      setGroup(updated);
+      setSuccessMessage('Código regenerado');
+      setTimeout(() => setSuccessMessage(null), 2500);
+    } catch {
+      setSuccessMessage('Error al regenerar el código');
+      setTimeout(() => setSuccessMessage(null), 2500);
+    } finally {
+      setIsRegenerating(false);
+    }
+  }, [id, group]);
+
   const handleDelete = async () => {
     setDeleteLoading(true);
     try {
@@ -201,11 +221,10 @@ export default function ConfiguracionGrupoScreen() {
               </Text>
 
               <View className="mt-4 space-y-4">
-                <Pressable className="flex-row items-center justify-between" style={({ pressed }) => [
-                  {
-                    opacity: pressed ? 0.7 : 1,
-                  },
-                ]}>
+                <Pressable
+                onPress={() => setEditNameVisible(true)}
+                className="flex-row items-center justify-between active:opacity-70"
+              >
                   <View className="flex-1">
                     <Text className="text-sm text-[#64748B]">Nombre del grupo</Text>
                     <Text className="mt-1 text-base font-semibold text-[#0F172A]">{group.name}</Text>
@@ -371,7 +390,10 @@ export default function ConfiguracionGrupoScreen() {
                 </View>
               ))}
 
-              <Pressable className="w-full flex-row items-center justify-center gap-2 border-t border-dashed border-[#E2E8F0] px-5 py-4 active:opacity-80">
+              <Pressable
+                onPress={() => setInviteVisible(true)}
+                className="w-full flex-row items-center justify-center gap-2 border-t border-dashed border-[#E2E8F0] px-5 py-4 active:opacity-80"
+              >
                 <FontAwesome6 name="user-plus" size={16} color="#10B981" />
                 <Text className="text-sm font-semibold text-[#10B981]">Invitar nuevo miembro</Text>
               </Pressable>
@@ -530,6 +552,17 @@ export default function ConfiguracionGrupoScreen() {
           </Animated.View>
         </View>
       </ScrollView>
+
+      {/* Invitar miembro */}
+      <InviteMemberSheet
+        visible={inviteVisible}
+        onClose={() => setInviteVisible(false)}
+        invitationCode={group?.inviteCode ?? ''}
+        onRegenerate={handleRegenerateCode}
+        isRegenerating={isRegenerating}
+        heightRatio={0.65}
+        headerFinalTranslateY={0.17}
+      />
 
       {/* Modals */}
       <AlertModal

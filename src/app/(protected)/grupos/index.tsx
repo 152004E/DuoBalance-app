@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { joinGroup, regenerateInviteCode } from '@/services/api/groups';
 import { HeroSection } from '@/components/layout/HeroSection';
+import { GroupSelector, type GroupOption } from '@/components/ui/group-selector';
 import { FloatingAddMenu } from '@/components/dashboard/FloatingAddMenu';
 import { CoupleMenuSheet, type CoupleMenuAction } from '@/components/couple/couple-menu-sheet';
 import { InviteMemberSheet } from '@/components/couple/invite-member-sheet';
@@ -14,9 +15,45 @@ import { useAuth } from '@/hooks/use-auth';
 import { useGroups } from '@/hooks/use-groups';
 import type { GroupResponse } from '@/types/api';
 
+const GROUP_FILTER_KEY = 'duobalance_grupos_filter';
+
+function getSavedFilter(): string {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      return localStorage.getItem(GROUP_FILTER_KEY) ?? 'all';
+    }
+  } catch {}
+  return 'all';
+}
+
+function saveFilter(id: string) {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(GROUP_FILTER_KEY, id);
+    }
+  } catch {}
+}
+
+const FILTER_OPTIONS: GroupOption[] = [
+  { id: 'all', name: 'Todos', type: 'personal' },
+  { id: 'personal', name: 'Personal', type: 'personal' },
+  { id: 'couple', name: 'Parejas', type: 'couple' },
+  { id: 'group', name: 'Grupos', type: 'group' },
+];
+
 export default function ParejaScreen() {
   const { user } = useAuth();
   const { personalGroups, coupleGroups, sharedGroups, refetch } = useGroups();
+  const [selectedFilter, setSelectedFilter] = useState<string>(getSavedFilter);
+
+  const handleFilterSelect = useCallback((group: GroupOption) => {
+    setSelectedFilter(group.id);
+    saveFilter(group.id);
+  }, []);
+
+  const showPersonal = selectedFilter === 'all' || selectedFilter === 'personal';
+  const showCouple = selectedFilter === 'all' || selectedFilter === 'couple';
+  const showGroup = selectedFilter === 'all' || selectedFilter === 'group';
   const [menuVisible, setMenuVisible] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<GroupResponse | null>(null);
   const [inviteVisible, setInviteVisible] = useState(false);
@@ -120,6 +157,14 @@ export default function ParejaScreen() {
           title="Grupos"
           subtitle="Administra tus grupos"
           height={220}
+          rightAction={
+            <GroupSelector
+              selectedId={selectedFilter}
+              onSelect={handleFilterSelect}
+              options={FILTER_OPTIONS}
+              variant="dark"
+            />
+          }
         />
 
         <View className="px-5 pt-8">
@@ -127,41 +172,47 @@ export default function ParejaScreen() {
             Tus Grupos
           </Text>
 
-          <GroupSection
-            title="Personal"
-            groups={personalGroups}
-            showMenu
-            onPress={(group) => router.push(`/grupos/${group.id}`)}
-            onMenu={(group) => {
-              setSelectedGroup(group);
-              setMenuVisible(true);
-            }}
-            currentUserId={user?.id}
-          />
+          {showPersonal && (
+            <GroupSection
+              title="Personal"
+              groups={personalGroups}
+              showMenu
+              onPress={(group) => router.push(`/grupos/${group.id}`)}
+              onMenu={(group) => {
+                setSelectedGroup(group);
+                setMenuVisible(true);
+              }}
+              currentUserId={user?.id}
+            />
+          )}
 
-          <GroupSection
-            title="Parejas"
-            groups={coupleGroups}
-            showMenu
-            onPress={(group) => router.push(`/grupos/${group.id}`)}
-            onMenu={(group) => {
-              setSelectedGroup(group);
-              setMenuVisible(true);
-            }}
-            currentUserId={user?.id}
-          />
+          {showCouple && (
+            <GroupSection
+              title="Parejas"
+              groups={coupleGroups}
+              showMenu
+              onPress={(group) => router.push(`/grupos/${group.id}`)}
+              onMenu={(group) => {
+                setSelectedGroup(group);
+                setMenuVisible(true);
+              }}
+              currentUserId={user?.id}
+            />
+          )}
 
-          <GroupSection
-            title="Grupos"
-            groups={sharedGroups}
-            showMenu
-            onPress={(group) => router.push(`/grupos/${group.id}`)}
-            onMenu={(group) => {
-              setSelectedGroup(group);
-              setMenuVisible(true);
-            }}
-            currentUserId={user?.id}
-          />
+          {showGroup && (
+            <GroupSection
+              title="Grupos"
+              groups={sharedGroups}
+              showMenu
+              onPress={(group) => router.push(`/grupos/${group.id}`)}
+              onMenu={(group) => {
+                setSelectedGroup(group);
+                setMenuVisible(true);
+              }}
+              currentUserId={user?.id}
+            />
+          )}
         </View>
       </ScrollView>
 
