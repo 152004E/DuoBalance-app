@@ -30,6 +30,15 @@ export const getGroup = async (id: string): Promise<GroupResponse> => {
   return data;
 };
 
+export const regenerateInviteCode = async (
+  id: string,
+): Promise<GroupResponse> => {
+  const { data } = await api.post<GroupResponse>(
+    `/groups/${id}/regenerate-invite`,
+  );
+  return data;
+};
+
 export const leaveGroup = async (
   id: string,
 ): Promise<LeaveGroupResponse> => {

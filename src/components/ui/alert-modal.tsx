@@ -104,6 +104,7 @@ export function AlertModal({
         <BlurView
           intensity={25}
           tint="dark"
+          pointerEvents="none"
           style={{
             position: 'absolute',
             top: 0,

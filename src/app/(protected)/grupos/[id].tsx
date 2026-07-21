@@ -3,7 +3,11 @@ import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { getGroup, regenerateInviteCode } from '@/services/api/groups';
+import type { GroupResponse, GroupType } from '@/types/api';
 import { ScreenHeader } from '@/components/ui/screen-header';
+import { Loading } from '@/components/ui/loading';
+import { EmptyState } from '@/components/ui/empty-state';
 import { RecentExpensesCard, type RecentExpense } from '@/components/expenses/recent-expenses-card';
 import {
   CoupleMenuSheet,
@@ -45,14 +49,51 @@ const MOCK_EXPENSES = [
   },
 ] as const;
 
+const TYPE_CONFIG: Record<GroupType, { label: string; color: string; bg: string; subtitle: string }> = {
+  PERSONAL: { label: 'Personal', color: '#64748B', bg: '#F1F5F9', subtitle: 'Solo tú' },
+  COUPLE: { label: 'Pareja', color: '#10B981', bg: '#F0FDF4', subtitle: '2 miembros' },
+  GROUP: { label: 'Grupo', color: '#3B82F6', bg: '#EFF6FF', subtitle: '' },
+};
+
 export default function CoupleDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const [group, setGroup] = useState<GroupResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [inviteVisible, setInviteVisible] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [showComingSoon, setShowComingSoon] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const [regenerateError, setRegenerateError] = useState<string | null>(null);
+  const [regenerateSuccess, setRegenerateSuccess] = useState(false);
   const lastActionRef = useRef<CoupleMenuAction | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    setIsLoading(true);
+    setError(null);
+    getGroup(id)
+      .then((data) => {
+        if (mounted) setGroup(data);
+      })
+      .catch((err: unknown) => {
+        if (mounted) {
+          const message = err instanceof Error ? err.message : 'Error al cargar el grupo';
+          setError(message);
+        }
+      })
+      .finally(() => {
+        if (mounted) setIsLoading(false);
+      });
+    return () => { mounted = false; };
+  }, [id]);
+
+  const groupType: GroupType = group?.type ?? 'COUPLE';
+  const typeConfig = TYPE_CONFIG[groupType];
+  const memberCount = group?.members.length ?? 0;
+  const subtitle = `${typeConfig.label} · ${groupType === 'PERSONAL' ? 'Solo tú' : groupType === 'COUPLE' ? '2 miembros' : `${memberCount} miembros`}`;
 
   const handleCopyCode = () => {
     setShowToast(true);
@@ -91,6 +132,48 @@ export default function CoupleDetail() {
     }
   }, [id]);
 
+  const handleRegenerateCode = useCallback(async () => {
+    setIsRegenerating(true);
+    setRegenerateError(null);
+    try {
+      const updated = await regenerateInviteCode(id);
+      setGroup(updated);
+      setInviteVisible(false);
+      setRegenerateSuccess(true);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al regenerar el código';
+      setRegenerateError(message);
+    } finally {
+      setIsRegenerating(false);
+    }
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-[#F8FAFC]">
+        <Loading message="Cargando grupo..." />
+      </SafeAreaView>
+    );
+  }
+
+  if (error || !group) {
+    return (
+      <SafeAreaView className="flex-1 bg-[#F8FAFC]">
+        <View className="pt-1">
+          <ScreenHeader
+            title="Grupo"
+            subtitle=""
+            onBack={() => router.push('/(protected)/grupos')}
+          />
+        </View>
+        <EmptyState
+          title={error ?? 'Grupo no encontrado'}
+          description="No se pudo cargar la información del grupo"
+        />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]">
       <ScrollView
@@ -100,8 +183,8 @@ export default function CoupleDetail() {
       >
         <View className="pt-1">
           <ScreenHeader
-            title="Ana Juan"
-            subtitle="Creada hace 2 meses"
+            title={group.name}
+            subtitle={subtitle}
             onBack={() => router.push('/(protected)/grupos')}
             onAction={() => setMenuVisible(true)}
             actionIcon="ellipsis-vertical"
@@ -148,131 +231,144 @@ export default function CoupleDetail() {
                 </Text>
               </Pressable>
 
-              <Pressable
-                onPress={() => setInviteVisible(true)}
-                className="flex-row items-center gap-2 rounded-lg border border-[#E2E8F0] bg-white px-4 py-3 active:bg-[#F2F4F6]"
-              >
-                <FontAwesome6 name="share-nodes" size={14} color="#0F172A" />
-                <Text className="text-sm font-semibold text-[#0F172A]">
-                  Invitar
-                </Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-
-        {/* Settlement Status - Alert Card */}
-        <View className="mt-4 px-5">
-          <View
-            className="rounded-xl border border-[#E2E8F0] bg-white p-4"
-            style={{
-              borderLeftWidth: 4,
-              borderLeftColor: '#F59E0B',
-              shadowColor: '#0F172A',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.05,
-              shadowRadius: 12,
-              elevation: 2,
-            }}
-          >
-            <View className="flex-row items-center justify-between">
-              <View className="shrink flex-row items-center gap-3">
-                <View className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F59E0B]/10">
-                  <FontAwesome6
-                    name="hand-holding-dollar"
-                    size={20}
-                    color="#F59E0B"
-                  />
-                </View>
-                <View className="shrink">
-                  <Text className="text-[17px] font-bold text-[#0F172A]">
-                    Juan debe $150.000
-                  </Text>
-                  <Text className="text-sm text-[#64748B]">
-                    Balance pendiente de este mes
-                  </Text>
-                </View>
-              </View>
-
-              <Pressable className="rounded-lg bg-[#006c49] px-3 py-2 active:opacity-80">
-                <Text className="text-xs font-semibold text-white">
-                  Marcar como pagado
-                </Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-
-        {/* Distribución de Gastos - Progress Bar Card */}
-        <View className="mt-4 px-5">
-          <View
-            className="rounded-xl border border-[#E2E8F0] bg-white p-5"
-            style={{
-              shadowColor: '#0F172A',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.05,
-              shadowRadius: 12,
-              elevation: 2,
-            }}
-          >
-            <Text className="text-[13px] font-semibold uppercase tracking-wider text-[#64748B]">
-              Distribución de Gastos
-            </Text>
-
-            {/* Progress Bar */}
-            <View className="mt-4 h-8 flex-row overflow-hidden rounded-full bg-[#ECEEF0]">
-              <View
-                className="h-full items-center justify-center bg-[#006c49]"
-                style={{ width: '70%' }}
-              >
-                <Text className="text-xs font-bold text-white">70%</Text>
-              </View>
-              <View
-                className="h-full items-center justify-center bg-[#8B5CF6]"
-                style={{ width: '30%' }}
-              >
-                <Text className="text-xs font-bold text-white">30%</Text>
-              </View>
-            </View>
-
-            <View className="mt-3">
-              <View className="flex-row items-center justify-between rounded-lg p-3">
-                <View className="flex-row items-center gap-2">
-                  <View className="h-3 w-3 rounded-full bg-[#006c49]" />
-                  <Text className="text-[#0F172A]">Ana</Text>
-                </View>
-                <Text
-                  className="font-bold text-[#006c49]"
-                  style={{ fontFamily: 'monospace' }}
+              {groupType !== 'PERSONAL' && (
+                <Pressable
+                  onPress={() => setInviteVisible(true)}
+                  className="flex-row items-center gap-2 rounded-lg border border-[#E2E8F0] bg-white px-4 py-3 active:bg-[#F2F4F6]"
                 >
-                  $1.200.000
-                </Text>
-              </View>
-
-              <View className="flex-row items-center justify-between rounded-lg p-3">
-                <View className="flex-row items-center gap-2">
-                  <View className="h-3 w-3 rounded-full bg-[#8B5CF6]" />
-                  <Text className="text-[#0F172A]">Juan</Text>
-                </View>
-                <Text
-                  className="font-bold text-[#8B5CF6]"
-                  style={{ fontFamily: 'monospace' }}
-                >
-                  $800.000
-                </Text>
-              </View>
-            </View>
-
-            <View className="mt-4 border-t border-[#E2E8F0] pt-4">
-              <Pressable className="w-full flex-row items-center justify-center gap-1">
-                <Text className="text-sm font-semibold text-[#006c49]">
-                  Ajustar porcentaje
-                </Text>
-                <FontAwesome6 name="gear" size={12} color="#006c49" />
-              </Pressable>
+                  <FontAwesome6 name="share-nodes" size={14} color="#0F172A" />
+                  <Text className="text-sm font-semibold text-[#0F172A]">
+                    Invitar
+                  </Text>
+                </Pressable>
+              )}
             </View>
           </View>
         </View>
+
+        {/* Settlement Status - Alert Card (solo COUPLE y GROUP) */}
+        {groupType !== 'PERSONAL' && (
+          <View className="mt-4 px-5">
+            <View
+              className="rounded-xl border border-[#E2E8F0] bg-white p-4"
+              style={{
+                borderLeftWidth: 4,
+                borderLeftColor: '#F59E0B',
+                shadowColor: '#0F172A',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.05,
+                shadowRadius: 12,
+                elevation: 2,
+              }}
+            >
+              <View className="flex-row items-center justify-between">
+                <View className="shrink flex-row items-center gap-3">
+                  <View className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F59E0B]/10">
+                    <FontAwesome6
+                      name="hand-holding-dollar"
+                      size={20}
+                      color="#F59E0B"
+                    />
+                  </View>
+                  <View className="shrink">
+                    <Text className="text-[17px] font-bold text-[#0F172A]">
+                      Pendiente de liquidar
+                    </Text>
+                    <Text className="text-sm text-[#64748B]">
+                      Balance pendiente de este mes
+                    </Text>
+                  </View>
+                </View>
+
+                <Pressable className="rounded-lg bg-[#006c49] px-3 py-2 active:opacity-80">
+                  <Text className="text-xs font-semibold text-white">
+                    Liquidar
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        )}
+
+        {/* Distribución de Gastos - Progress Bar Card (solo COUPLE y GROUP) */}
+        {groupType !== 'PERSONAL' && (
+          <View className="mt-4 px-5">
+            <View
+              className="rounded-xl border border-[#E2E8F0] bg-white p-5"
+              style={{
+                shadowColor: '#0F172A',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.05,
+                shadowRadius: 12,
+                elevation: 2,
+              }}
+            >
+              <Text className="text-[13px] font-semibold uppercase tracking-wider text-[#64748B]">
+                Distribución de Gastos
+              </Text>
+
+              {/* Progress Bar */}
+              <View className="mt-4 h-8 flex-row overflow-hidden rounded-full bg-[#ECEEF0]">
+                <View
+                  className="h-full items-center justify-center bg-[#006c49]"
+                  style={{ width: '70%' }}
+                >
+                  <Text className="text-xs font-bold text-white">70%</Text>
+                </View>
+                <View
+                  className="h-full items-center justify-center bg-[#8B5CF6]"
+                  style={{ width: '30%' }}
+                >
+                  <Text className="text-xs font-bold text-white">30%</Text>
+                </View>
+              </View>
+
+              <View className="mt-3">
+                <View className="flex-row items-center justify-between rounded-lg p-3">
+                  <View className="flex-row items-center gap-2">
+                    <View className="h-3 w-3 rounded-full bg-[#006c49]" />
+                    <Text className="text-[#0F172A]">Tú</Text>
+                  </View>
+                  <Text
+                    className="font-bold text-[#006c49]"
+                    style={{ fontFamily: 'monospace' }}
+                  >
+                    $1.200.000
+                  </Text>
+                </View>
+
+                <View className="flex-row items-center justify-between rounded-lg p-3">
+                  <View className="flex-row items-center gap-2">
+                    <View className="h-3 w-3 rounded-full bg-[#8B5CF6]" />
+                    <Text className="text-[#0F172A]">
+                      {groupType === 'COUPLE' && group.members.length >= 2
+                        ? group.members.find(m => m.role !== 'OWNER')?.user.firstName ?? 'Miembro'
+                        : 'Grupo'}
+                    </Text>
+                  </View>
+                  <Text
+                    className="font-bold text-[#8B5CF6]"
+                    style={{ fontFamily: 'monospace' }}
+                  >
+                    $800.000
+                  </Text>
+                </View>
+              </View>
+
+              <View className="mt-4 border-t border-[#E2E8F0] pt-4">
+                <Pressable
+                  onPress={() => router.push(`/grupos/${id}/configuracion`)}
+                  className="w-full flex-row items-center justify-center gap-1"
+                >
+                  <Text className="text-sm font-semibold text-[#006c49]">
+                    Ajustar porcentaje
+                  </Text>
+                  <FontAwesome6 name="gear" size={12} color="#006c49" />
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        )}
 
         {/* Gastos Recientes - List Card */}
         <View className="mt-4 px-5">
@@ -342,9 +438,11 @@ export default function CoupleDetail() {
       <InviteMemberSheet
         visible={inviteVisible}
         onClose={() => setInviteVisible(false)}
+        invitationCode={group.inviteCode ?? ''}
+        onRegenerate={handleRegenerateCode}
+        isRegenerating={isRegenerating}
         heightRatio={0.65}
         headerFinalTranslateY={0.17}
-
       />
 
       <AlertModal
@@ -363,6 +461,24 @@ export default function CoupleDetail() {
         message="¿Estás seguro de que quieres salir del grupo? Perderás acceso a todos los gastos y estadísticas compartidas."
         buttonText="Sí, salir"
         onClose={() => setShowLeaveConfirm(false)}
+      />
+
+      <AlertModal
+        visible={regenerateSuccess}
+        type="success"
+        title="Código regenerado"
+        message="El código de invitación se ha actualizado. Ahora puedes compartir el nuevo código."
+        buttonText="Entendido"
+        onClose={() => setRegenerateSuccess(false)}
+      />
+
+      <AlertModal
+        visible={regenerateError !== null}
+        type="error"
+        title="Error al regenerar"
+        message={regenerateError ?? ''}
+        buttonText="Cerrar"
+        onClose={() => setRegenerateError(null)}
       />
     </SafeAreaView>
   );

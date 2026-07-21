@@ -5,6 +5,7 @@ import {
   TextInput,
   ScrollView,
   Pressable,
+  ActivityIndicator,
 } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
@@ -14,6 +15,7 @@ interface JoinGroupSheetProps {
   visible: boolean;
   onClose: () => void;
   onJoin?: (code: string) => void;
+  isLoading?: boolean;
   heightRatio?: number;
   headerFinalTranslateY?: number;
 }
@@ -22,26 +24,24 @@ export function JoinGroupSheet({
   visible,
   onClose,
   onJoin,
+  isLoading = false,
   heightRatio = 0.75,
   headerFinalTranslateY = Math.max(0.01, 0.37 - heightRatio * 0.75),
 }: JoinGroupSheetProps) {
   const [code, setCode] = useState('');
 
-  const isDisabled = code.trim().length === 0;
+  const isDisabled = code.trim().length === 0 || isLoading;
 
   const handleJoin = () => {
     if (code.trim().length === 0) return;
-    console.log('Joining with code:', code.trim());
     onJoin?.(code.trim());
-    setCode('');
-    onClose();
   };
 
   const header = (
     <BottomSheetHeader
       visible={visible}
-      title="Unirse a una pareja"
-      subtitle="Pide a tu pareja su código de invitación o escanea su código QR."
+      title="Unirse a un grupo"
+      subtitle="Ingresa el código de invitación del grupo al que quieres unirte."
       onClose={onClose}
       gradientPaddingBottom={600}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
@@ -75,6 +75,7 @@ export function JoinGroupSheet({
             onChangeText={setCode}
             autoCapitalize="characters"
             maxLength={9}
+            editable={!isLoading}
           />
 
           <Pressable
@@ -95,7 +96,11 @@ export function JoinGroupSheet({
                 : undefined
             }
           >
-            <Text className="text-base font-semibold text-white">Unirme</Text>
+            {isLoading ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Text className="text-base font-semibold text-white">Unirme</Text>
+            )}
           </Pressable>
 
           {/* Sección 2: QR Scanner placeholder */}

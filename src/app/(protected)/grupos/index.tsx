@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { joinGroup, regenerateInviteCode } from '@/services/api/groups';
 import { HeroSection } from '@/components/layout/HeroSection';
 import { FloatingAddMenu } from '@/components/dashboard/FloatingAddMenu';
 import { CoupleMenuSheet, type CoupleMenuAction } from '@/components/couple/couple-menu-sheet';
@@ -15,13 +16,19 @@ import type { GroupResponse } from '@/types/api';
 
 export default function ParejaScreen() {
   const { user } = useAuth();
-  const { personalGroups, coupleGroups, sharedGroups } = useGroups();
+  const { personalGroups, coupleGroups, sharedGroups, refetch } = useGroups();
   const [menuVisible, setMenuVisible] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<GroupResponse | null>(null);
   const [inviteVisible, setInviteVisible] = useState(false);
   const [showJoinSheet, setShowJoinSheet] = useState(false);
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const [isJoining, setIsJoining] = useState(false);
+  const [joinSuccess, setJoinSuccess] = useState(false);
+  const [joinError, setJoinError] = useState<string | null>(null);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const [regenerateSuccess, setRegenerateSuccess] = useState(false);
+  const [regenerateError, setRegenerateError] = useState<string | null>(null);
   const lastActionRef = useRef<CoupleMenuAction | null>(null);
 
   const handleMenuAction = (action: CoupleMenuAction) => {
@@ -65,6 +72,40 @@ export default function ParejaScreen() {
         break;
     }
   }, [selectedGroup]);
+
+  const handleJoinGroup = useCallback(async (code: string) => {
+    setIsJoining(true);
+    setJoinError(null);
+    try {
+      await joinGroup({ inviteCode: code });
+      setShowJoinSheet(false);
+      setJoinSuccess(true);
+      refetch();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al unirse al grupo';
+      setJoinError(message);
+    } finally {
+      setIsJoining(false);
+    }
+  }, [refetch]);
+
+  const handleRegenerateCode = useCallback(async () => {
+    if (!selectedGroup) return;
+    setIsRegenerating(true);
+    setRegenerateError(null);
+    try {
+      const updated = await regenerateInviteCode(selectedGroup.id);
+      setSelectedGroup(updated);
+      setInviteVisible(false);
+      setRegenerateSuccess(true);
+      refetch();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al regenerar el código';
+      setRegenerateError(message);
+    } finally {
+      setIsRegenerating(false);
+    }
+  }, [selectedGroup, refetch]);
 
   return (
     <SafeAreaView className="relative flex-1 bg-[#F8FAFC]" edges={['top']}>
@@ -144,13 +185,20 @@ export default function ParejaScreen() {
       <InviteMemberSheet
         visible={inviteVisible}
         onClose={() => setInviteVisible(false)}
+        invitationCode={selectedGroup?.inviteCode ?? ''}
+        onRegenerate={handleRegenerateCode}
+        isRegenerating={isRegenerating}
         heightRatio={0.65}
         headerFinalTranslateY={0.17}
       />
 
       <JoinGroupSheet
         visible={showJoinSheet}
-        onClose={() => setShowJoinSheet(false)}
+        onClose={() => {
+          if (!isJoining) setShowJoinSheet(false);
+        }}
+        onJoin={handleJoinGroup}
+        isLoading={isJoining}
         heightRatio={0.7}
         headerFinalTranslateY={0.1}
       />
@@ -171,6 +219,42 @@ export default function ParejaScreen() {
         message="¿Estás seguro de que quieres salir del grupo? Perderás acceso a todos los gastos y estadísticas compartidas."
         buttonText="Sí, salir"
         onClose={() => setShowLeaveConfirm(false)}
+      />
+
+      <AlertModal
+        visible={joinSuccess}
+        type="success"
+        title="¡Te has unido!"
+        message="Ahora formas parte del grupo. Puedes empezar a registrar gastos compartidos."
+        buttonText="Entendido"
+        onClose={() => setJoinSuccess(false)}
+      />
+
+      <AlertModal
+        visible={joinError !== null}
+        type="error"
+        title="Error al unirse"
+        message={joinError ?? ''}
+        buttonText="Cerrar"
+        onClose={() => setJoinError(null)}
+      />
+
+      <AlertModal
+        visible={regenerateSuccess}
+        type="success"
+        title="Código regenerado"
+        message="El código de invitación se ha actualizado. Ahora puedes compartir el nuevo código."
+        buttonText="Entendido"
+        onClose={() => setRegenerateSuccess(false)}
+      />
+
+      <AlertModal
+        visible={regenerateError !== null}
+        type="error"
+        title="Error al regenerar"
+        message={regenerateError ?? ''}
+        buttonText="Cerrar"
+        onClose={() => setRegenerateError(null)}
       />
     </SafeAreaView>
   );

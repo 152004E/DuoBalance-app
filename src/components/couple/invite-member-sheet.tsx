@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import * as Clipboard from 'expo-clipboard';
 import { FontAwesome6 } from '@expo/vector-icons';
@@ -10,16 +10,18 @@ export interface InviteMemberSheetProps {
   visible: boolean;
   onClose: () => void;
   invitationCode?: string;
+  onRegenerate?: () => void;
+  isRegenerating?: boolean;
   heightRatio?: number;
   headerFinalTranslateY?: number;
 }
 
-const MOCK_CODE = 'ABCD-EFGH';
-
 export function InviteMemberSheet({
   visible,
   onClose,
-  invitationCode = MOCK_CODE,
+  invitationCode = '------',
+  onRegenerate,
+  isRegenerating = false,
   heightRatio = 0.75,
   headerFinalTranslateY = 0.17,
 }: InviteMemberSheetProps) {
@@ -35,7 +37,7 @@ export function InviteMemberSheet({
     <BottomSheetHeader
       visible={visible}
       title="Invitar miembro"
-      subtitle="Comparte este código con tu pareja"
+      subtitle="Comparte este código para que otros se unan al grupo"
       onClose={onClose}
       gradientPaddingBottom={600}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
@@ -80,8 +82,8 @@ export function InviteMemberSheet({
         {/* Texto explicativo */}
         <View className="mt-3 rounded-2xl bg-[#ECFDF5] p-3">
           <Text className="text-[12px] leading-4 text-[#065F46]">
-            Tu pareja debe ingresar este código en la sección "Unirse a grupo"
-            de su app para conectarse contigo. El código expirará en 24 horas.
+            Los miembros deben ingresar este código en "Unirse a grupo"
+            para conectarse al grupo. El código expirará en 24 horas.
           </Text>
         </View>
 
@@ -100,15 +102,30 @@ export function InviteMemberSheet({
           </Text>
         </Pressable>
 
-        {/* Placeholders para futuras acciones */}
-        <View className="mt-8 gap-3">
-          <Text className="text-center text-xs font-medium uppercase tracking-wider text-[#94A3B8]">
-            Próximamente
-          </Text>
+        {/* Regenerar código */}
+        <Pressable
+          onPress={onRegenerate}
+          disabled={isRegenerating}
+          className={`mt-4 flex-row items-center justify-center gap-2 rounded-xl py-4 ${
+            isRegenerating ? 'bg-[#10B981]/50' : 'bg-[#10B981]'
+          }`}
+        >
+          {isRegenerating ? (
+            <ActivityIndicator size="small" color="#FFFFFF" />
+          ) : (
+            <>
+              <FontAwesome6 name="rotate" size={16} color="#FFFFFF" />
+              <Text className="text-base font-semibold text-white">
+                Regenerar código
+              </Text>
+            </>
+          )}
+        </Pressable>
 
+        {/* Placeholders para futuras acciones */}
+        <View className="mt-4 gap-3">
           {[
             { icon: 'share-nodes', label: 'Compartir código' },
-            { icon: 'rotate', label: 'Regenerar código' },
             { icon: 'link', label: 'Invitar mediante enlace' },
           ].map((item) => (
             <View
