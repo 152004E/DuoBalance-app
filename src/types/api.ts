@@ -100,6 +100,23 @@ export interface LeaveGroupResponse {
   message: string;
 }
 
+export interface UpdateGroupPayload {
+  name?: string;
+}
+
+export interface MemberSplitResponse {
+  id: string;
+  role: 'OWNER' | 'ADMIN' | 'MEMBER';
+  splitPercentage: number | null;
+  userId: string;
+  groupId: string;
+  user: UserBrief;
+}
+
+export interface MessageResponse {
+  message: string;
+}
+
 // ─── Expenses ────────────────────────────────────────
 export interface CreateExpenseSplitPayload {
   userId: string;
