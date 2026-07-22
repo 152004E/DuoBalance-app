@@ -9,7 +9,7 @@ const tabs = [
   { name: 'perfil', label: 'Perfil', icon: 'user' },
 ];
 
-const NESTED_TABS = ['gastos', 'grupos'];
+const NESTED_TABS = ['gastos', 'grupos', 'perfil'];
 
 export default function BottomTab({ state, navigation, insets }: any) {
   return (

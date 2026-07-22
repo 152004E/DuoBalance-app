@@ -2,15 +2,16 @@ import { View, Text, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useAuth } from '@/hooks/use-auth';
 import { Loading } from '@/components/ui/loading';
 import { useRef } from 'react';
 import { useScrollToTop } from 'expo-router';
 
 const menuItems = [
-  { icon: 'pen-to-square', label: 'Editar Perfil' },
-  { icon: 'bell', label: 'Notificaciones' },
-  { icon: 'shield-halved', label: 'Seguridad' },
+  { icon: 'pen-to-square', label: 'Editar Perfil', route: '/perfil/editar' },
+  { icon: 'bell', label: 'Notificaciones', route: '/perfil/notificaciones' },
+  { icon: 'shield-halved', label: 'Seguridad', route: '/perfil/seguridad' },
 ] as const;
 
 export default function PerfilScreen() {
@@ -45,12 +46,10 @@ export default function PerfilScreen() {
           contentContainerClassName="pb-8"
           showsVerticalScrollIndicator={false}
         >
-          {/* Header */}
           <Text className="mt-6 text-center text-2xl font-bold text-[#0F172A]">
             Perfil
           </Text>
 
-          {/* Avatar + User Info */}
           <View className="mt-10 items-center">
             <View className="h-[120px] w-[120px] items-center justify-center rounded-full bg-[#E2E8F0] border-[4px] border-[#10B981]">
               <FontAwesome6 name="user" size={44} color="#94A3B8" />
@@ -63,11 +62,11 @@ export default function PerfilScreen() {
             </Text>
           </View>
 
-          {/* Menu Options Card */}
           <View className="mx-5 mt-10 rounded-2xl bg-white shadow-sm">
             {menuItems.map((item, index) => (
               <Pressable
                 key={item.label}
+                onPress={() => router.push(item.route)}
                 className="flex-row items-center justify-between px-4 py-4 active:bg-[#F8FAFC]"
               >
                 <View className="flex-row items-center gap-4">
@@ -86,7 +85,6 @@ export default function PerfilScreen() {
             ))}
           </View>
 
-          {/* Logout Card */}
           <View className="mx-5 mt-4 rounded-2xl bg-white shadow-sm">
             <Pressable
               onPress={handleLogout}

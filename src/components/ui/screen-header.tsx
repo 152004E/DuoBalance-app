@@ -16,8 +16,8 @@ export function ScreenHeader({
   subtitle,
   onBack,
   onAction,
-  actionIcon = 'ellipsis-vertical',
-  actionColor = '#64748B',
+  actionIcon,
+  actionColor = '#0F766E',
 }: ScreenHeaderProps) {
   return (
     <AnimatedReanimated.View entering={FadeInDown.delay(300).duration(400)}>
@@ -40,9 +40,10 @@ export function ScreenHeader({
           </Text>
         </View>
 
-        {onAction && (
+        {actionIcon && (
           <Pressable
             onPress={onAction}
+            disabled={!onAction}
             className="h-10 w-10 items-center justify-center"
           >
             <FontAwesome6 name={actionIcon} size={18} color={actionColor} />
