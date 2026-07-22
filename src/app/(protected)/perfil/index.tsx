@@ -55,6 +55,7 @@ export default function PerfilScreen() {
             firstName={user?.firstName ?? ''}
             lastName={user?.lastName ?? ''}
             email={user?.email ?? ''}
+            avatarUrl={user?.avatarUrl}
           />
 
           <View className="mx-5 mt-10 rounded-2xl bg-white shadow-sm">

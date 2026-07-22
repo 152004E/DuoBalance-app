@@ -1,20 +1,86 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, TextInput } from 'react-native';
+import { View, Text, ScrollView, TextInput, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { ProfileCard } from '@/components/perfil/profile-card';
+import { AlertModal } from '@/components/ui/alert-modal';
+import * as authService from '@/services/api/auth';
 
 export default function EditarPerfilScreen() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [firstName, setFirstName] = useState(user?.firstName ?? '');
   const [lastName, setLastName] = useState(user?.lastName ?? '');
   const [email, setEmail] = useState(user?.email ?? '');
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(user?.avatarUrl ?? null);
+  const [saving, setSaving] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
-  const handleSave = () => {
+  const handleChangePhoto = async () => {
+    console.log('[handleChangePhoto] opening picker...');
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+      exif: false,
+    });
+
+    console.log('[handleChangePhoto] result keys:', Object.keys(result));
+    console.log('[handleChangePhoto] canceled:', result.canceled);
+
+    if (!result.canceled && result.assets[0]) {
+      const asset = result.assets[0];
+      console.log('[handleChangePhoto] asset keys:', Object.keys(asset));
+      console.log('[handleChangePhoto] asset:', JSON.stringify(asset, null, 2));
+
+      try {
+        let source: any;
+        if ((asset as any).file) {
+          console.log('[handleChangePhoto] using web File object');
+          source = (asset as any).file;
+        } else {
+          source = {
+            uri: asset.uri,
+            name: asset.fileName ?? asset.uri.split("/").pop() ?? "avatar.jpg",
+            type: asset.mimeType ?? "image/jpeg",
+          };
+        }
+        const updated = await authService.uploadAvatar(source);
+        console.log('[handleChangePhoto] updated user:', JSON.stringify(updated, null, 2));
+        if (updated.avatarUrl) {
+          setAvatarUrl(updated.avatarUrl);
+        }
+        await updateUser(updated);
+        console.log('[handleChangePhoto] done');
+      } catch (err: any) {
+        console.log('[handleChangePhoto] error:', err.message, err.response?.status, err.response?.data ? JSON.stringify(err.response.data).slice(0,200) : 'no data');
+        Alert.alert('Error', 'No se pudo subir la foto. Intenta de nuevo.');
+      }
+    } else {
+      console.log('[handleChangePhoto] cancelled or no asset');
+    }
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const updated = await authService.updateProfile({ firstName, lastName, email });
+      await updateUser(updated);
+      setShowSuccess(true);
+    } catch {
+      Alert.alert('Error', 'No se pudo guardar el perfil. Intenta de nuevo.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSuccessClose = () => {
+    setShowSuccess(false);
     router.back();
   };
 
@@ -42,7 +108,9 @@ export default function EditarPerfilScreen() {
             firstName={firstName}
             lastName={lastName}
             email={email}
+            avatarUrl={avatarUrl}
             showChangePhoto
+            onChangePhoto={handleChangePhoto}
           />
 
           <View className="mx-5 mt-8 space-y-5">
@@ -86,14 +154,32 @@ export default function EditarPerfilScreen() {
             </View>
           </View>
 
-          <View className="mx-5 mt-10">
+          <View className="mx-5 mt-10 gap-3">
+            <Button
+              text="Cancelar"
+              variant="secondary"
+              iconLeft="xmark"
+              onPress={() => router.back()}
+            />
             <Button
               text="Guardar cambios"
               variant="primary"
+              iconLeft="floppy-disk"
               onPress={handleSave}
+              isLoading={saving}
+              loadingText="Guardando..."
             />
           </View>
         </ScrollView>
+
+        <AlertModal
+          visible={showSuccess}
+          type="success"
+          title="¡Perfil actualizado!"
+          message="Tus datos se han guardado correctamente."
+          buttonText="Continuar"
+          onClose={handleSuccessClose}
+        />
       </SafeAreaView>
     </View>
   );

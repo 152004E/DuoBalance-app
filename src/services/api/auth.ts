@@ -1,4 +1,4 @@
-import { LoginPayload, RegisterPayload } from "@/types/api";
+import { LoginPayload, RegisterPayload, UpdateProfilePayload, UserResponse } from "@/types/api";
 import { api } from "./client";
 
 export const login = async (payload: LoginPayload) => {
@@ -30,4 +30,36 @@ export const logout = async (refreshToken: string) => {
 export const getProfile = async () => {
   const { data } = await api.get("/auth/profile");
   return data;
+};
+
+export const updateProfile = async (payload: UpdateProfilePayload) => {
+  const { data } = await api.patch("/auth/profile", payload);
+  return data as UserResponse;
+};
+
+export const uploadAvatar = async (
+  source: { uri: string; name?: string; type?: string } | File,
+) => {
+  const isFile = typeof File !== "undefined" && source instanceof File;
+  console.log("[uploadAvatar] source:", isFile ? "File" : source);
+
+  const formData = new FormData();
+
+  if (isFile) {
+    formData.append("file", source as File, (source as File).name);
+  } else {
+    const s = source as { uri: string; name?: string; type?: string };
+    const filename = s.name ?? s.uri.split("/").pop() ?? "avatar.jpg";
+    const ext = filename.split(".").pop() ?? "jpg";
+    formData.append("file", {
+      uri: s.uri,
+      name: filename,
+      type: s.type ?? `image/${ext}`,
+    } as any);
+  }
+
+  console.log("[uploadAvatar] sending POST...");
+  const { data } = await api.post("/auth/profile/avatar", formData);
+  console.log("[uploadAvatar] response data:", JSON.stringify(data, null, 2));
+  return data as UserResponse;
 };

@@ -317,7 +317,9 @@ export function HeroSection(props: HeroSectionProps) {
               />
               <Text className="text-base text-white">
                 Bienvenido,{' '}
-                <Text className="font-semibold">{userName}</Text>
+                <Text className="font-semibold">
+                  {userName.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ")}
+                </Text>
               </Text>
             </Animated.View>
 
@@ -374,7 +376,9 @@ export function HeroSection(props: HeroSectionProps) {
               />
               <Text className="text-base text-white">
                 Bienvenido,{' '}
-                <Text className="font-semibold">{userName}</Text>
+                <Text className="font-semibold">
+                  {userName.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ")}
+                </Text>
               </Text>
             </View>
 

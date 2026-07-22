@@ -15,6 +15,7 @@ interface AuthContextType {
 
   signIn: (user: User, token: string) => Promise<void>;
   signOut: () => Promise<void>;
+  updateUser: (user: User) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -40,6 +41,11 @@ export function AuthProvider({ children }: Props) {
     await userStorage.remove();
 
     setUser(null);
+  }
+
+  async function updateUser(userData: User) {
+    await userStorage.set(userData);
+    setUser(userData);
   }
 
   async function restoreSession() {
@@ -71,6 +77,7 @@ export function AuthProvider({ children }: Props) {
         isLoading,
         signIn,
         signOut,
+        updateUser,
       }}
     >
       {children}

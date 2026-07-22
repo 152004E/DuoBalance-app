@@ -62,6 +62,12 @@ export interface UserResponse {
   createdAt: string;
 }
 
+export interface UpdateProfilePayload {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+}
+
 // ─── Groups ────────────────────────────────────────
 export interface UserBrief {
   id: string;
