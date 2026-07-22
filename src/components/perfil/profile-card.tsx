@@ -14,6 +14,7 @@ interface ProfileCardProps {
 function resolveAvatar(url: string | null | undefined): string | null {
   if (!url) return null;
   if (url.startsWith("http")) return url;
+  if (url.startsWith("file:") || url.startsWith("blob:")) return url;
   const base = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
   return `${base}${url}`;
 }

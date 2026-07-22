@@ -16,12 +16,14 @@ export default function EditarPerfilScreen() {
   const [firstName, setFirstName] = useState(user?.firstName ?? '');
   const [lastName, setLastName] = useState(user?.lastName ?? '');
   const [email, setEmail] = useState(user?.email ?? '');
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(user?.avatarUrl ?? null);
+  const [localPhotoUri, setLocalPhotoUri] = useState<string | null>(null);
+  const [localPhotoSource, setLocalPhotoSource] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
+  const displayAvatar = localPhotoUri ?? user?.avatarUrl ?? null;
+
   const handleChangePhoto = async () => {
-    console.log('[handleChangePhoto] opening picker...');
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
@@ -30,47 +32,31 @@ export default function EditarPerfilScreen() {
       exif: false,
     });
 
-    console.log('[handleChangePhoto] result keys:', Object.keys(result));
-    console.log('[handleChangePhoto] canceled:', result.canceled);
-
     if (!result.canceled && result.assets[0]) {
       const asset = result.assets[0];
-      console.log('[handleChangePhoto] asset keys:', Object.keys(asset));
-      console.log('[handleChangePhoto] asset:', JSON.stringify(asset, null, 2));
-
-      try {
-        let source: any;
-        if ((asset as any).file) {
-          console.log('[handleChangePhoto] using web File object');
-          source = (asset as any).file;
-        } else {
-          source = {
-            uri: asset.uri,
-            name: asset.fileName ?? asset.uri.split("/").pop() ?? "avatar.jpg",
-            type: asset.mimeType ?? "image/jpeg",
-          };
-        }
-        const updated = await authService.uploadAvatar(source);
-        console.log('[handleChangePhoto] updated user:', JSON.stringify(updated, null, 2));
-        if (updated.avatarUrl) {
-          setAvatarUrl(updated.avatarUrl);
-        }
-        await updateUser(updated);
-        console.log('[handleChangePhoto] done');
-      } catch (err: any) {
-        console.log('[handleChangePhoto] error:', err.message, err.response?.status, err.response?.data ? JSON.stringify(err.response.data).slice(0,200) : 'no data');
-        Alert.alert('Error', 'No se pudo subir la foto. Intenta de nuevo.');
-      }
-    } else {
-      console.log('[handleChangePhoto] cancelled or no asset');
+      const source = (asset as any).file ?? {
+        uri: asset.uri,
+        name: asset.fileName ?? asset.uri.split("/").pop() ?? "avatar.jpg",
+        type: asset.mimeType ?? "image/jpeg",
+      };
+      setLocalPhotoUri(asset.uri);
+      setLocalPhotoSource(source);
     }
   };
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      const updated = await authService.updateProfile({ firstName, lastName, email });
-      await updateUser(updated);
+      let currentUser = user;
+
+      if (localPhotoSource) {
+        const updated = await authService.uploadAvatar(localPhotoSource);
+        currentUser = updated;
+      }
+
+      const profileUpdated = await authService.updateProfile({ firstName, lastName, email });
+      const merged = { ...profileUpdated, avatarUrl: currentUser?.avatarUrl ?? profileUpdated.avatarUrl };
+      await updateUser(merged);
       setShowSuccess(true);
     } catch {
       Alert.alert('Error', 'No se pudo guardar el perfil. Intenta de nuevo.');
@@ -108,7 +94,7 @@ export default function EditarPerfilScreen() {
             firstName={firstName}
             lastName={lastName}
             email={email}
-            avatarUrl={avatarUrl}
+            avatarUrl={displayAvatar}
             showChangePhoto
             onChangePhoto={handleChangePhoto}
           />

@@ -41,7 +41,6 @@ export const uploadAvatar = async (
   source: { uri: string; name?: string; type?: string } | File,
 ) => {
   const isFile = typeof File !== "undefined" && source instanceof File;
-  console.log("[uploadAvatar] source:", isFile ? "File" : source);
 
   const formData = new FormData();
 
@@ -58,8 +57,6 @@ export const uploadAvatar = async (
     } as any);
   }
 
-  console.log("[uploadAvatar] sending POST...");
   const { data } = await api.post("/auth/profile/avatar", formData);
-  console.log("[uploadAvatar] response data:", JSON.stringify(data, null, 2));
   return data as UserResponse;
 };
