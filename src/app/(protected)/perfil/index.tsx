@@ -5,6 +5,7 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useAuth } from '@/hooks/use-auth';
 import { Loading } from '@/components/ui/loading';
+import { ProfileCard } from '@/components/perfil/profile-card';
 import { useRef } from 'react';
 import { useScrollToTop } from 'expo-router';
 
@@ -50,17 +51,11 @@ export default function PerfilScreen() {
             Perfil
           </Text>
 
-          <View className="mt-10 items-center">
-            <View className="h-[120px] w-[120px] items-center justify-center rounded-full bg-[#E2E8F0] border-[4px] border-[#10B981]">
-              <FontAwesome6 name="user" size={44} color="#94A3B8" />
-            </View>
-            <Text className="mt-4 text-2xl font-bold text-[#0F172A]">
-              {user?.firstName} {user?.lastName}
-            </Text>
-            <Text className="mt-1 text-sm text-[#64748B]">
-              {user?.email}
-            </Text>
-          </View>
+          <ProfileCard
+            firstName={user?.firstName ?? ''}
+            lastName={user?.lastName ?? ''}
+            email={user?.email ?? ''}
+          />
 
           <View className="mx-5 mt-10 rounded-2xl bg-white shadow-sm">
             {menuItems.map((item, index) => (

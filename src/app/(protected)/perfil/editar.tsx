@@ -3,10 +3,10 @@ import { View, Text, ScrollView, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { FontAwesome6 } from '@expo/vector-icons';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { ScreenHeader } from '@/components/ui/screen-header';
+import { ProfileCard } from '@/components/perfil/profile-card';
 
 export default function EditarPerfilScreen() {
   const { user } = useAuth();
@@ -38,14 +38,12 @@ export default function EditarPerfilScreen() {
             actionIcon="pen-to-square"
           />
 
-          <View className="mt-6 items-center">
-            <View className="h-[100px] w-[100px] items-center justify-center rounded-full bg-[#E2E8F0] border-[4px] border-[#10B981]">
-              <FontAwesome6 name="user" size={36} color="#94A3B8" />
-            </View>
-            <Text className="mt-2 text-sm font-medium text-[#10B981]">
-              Cambiar foto
-            </Text>
-          </View>
+          <ProfileCard
+            firstName={firstName}
+            lastName={lastName}
+            email={email}
+            showChangePhoto
+          />
 
           <View className="mx-5 mt-8 space-y-5">
             <View>
