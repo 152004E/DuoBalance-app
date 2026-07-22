@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { ProfileCard } from '@/components/perfil/profile-card';
+import { ImagePreviewModal } from '@/components/perfil/image-preview-modal';
 import { AlertModal } from '@/components/ui/alert-modal';
 import * as authService from '@/services/api/auth';
 
@@ -18,6 +19,9 @@ export default function EditarPerfilScreen() {
   const [email, setEmail] = useState(user?.email ?? '');
   const [localPhotoUri, setLocalPhotoUri] = useState<string | null>(null);
   const [localPhotoSource, setLocalPhotoSource] = useState<any>(null);
+  const [pendingPhotoUri, setPendingPhotoUri] = useState<string | null>(null);
+  const [pendingPhotoSource, setPendingPhotoSource] = useState<any>(null);
+  const [showPreview, setShowPreview] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -39,9 +43,22 @@ export default function EditarPerfilScreen() {
         name: asset.fileName ?? asset.uri.split("/").pop() ?? "avatar.jpg",
         type: asset.mimeType ?? "image/jpeg",
       };
-      setLocalPhotoUri(asset.uri);
-      setLocalPhotoSource(source);
+      setPendingPhotoUri(asset.uri);
+      setPendingPhotoSource(source);
+      setShowPreview(true);
     }
+  };
+
+  const handlePreviewConfirm = () => {
+    setLocalPhotoUri(pendingPhotoUri);
+    setLocalPhotoSource(pendingPhotoSource);
+    setShowPreview(false);
+  };
+
+  const handlePreviewCancel = () => {
+    setPendingPhotoUri(null);
+    setPendingPhotoSource(null);
+    setShowPreview(false);
   };
 
   const handleSave = async () => {
@@ -165,6 +182,13 @@ export default function EditarPerfilScreen() {
           message="Tus datos se han guardado correctamente."
           buttonText="Continuar"
           onClose={handleSuccessClose}
+        />
+
+        <ImagePreviewModal
+          visible={showPreview}
+          imageUri={pendingPhotoUri ?? ''}
+          onConfirm={handlePreviewConfirm}
+          onCancel={handlePreviewCancel}
         />
       </SafeAreaView>
     </View>
