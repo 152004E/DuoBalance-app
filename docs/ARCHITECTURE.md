@@ -10,11 +10,12 @@
 - **Secure Storage**: expo-secure-store
 - **Animations**: react-native-reanimated
 - **Image Capture**: expo-image-picker / expo-camera (planned)
+- **Charts**: react-native-svg (custom BarChart/DonutChart)
 - **Package Manager**: pnpm
 
 ## Current State
 
-The mobile app has its auth flow fully implemented, a growing set of reusable UI components, dashboard/couple/reports screens built with mock data, and custom layout components.
+The mobile app has its auth flow fully implemented, a growing set of reusable UI components, dashboard/couple/reports screens, group management connected to the API, expense detail components, and custom layout components.
 
 ```
 DuoBalance-app/
@@ -29,17 +30,22 @@ DuoBalance-app/
 │   │   │   └── forgot-password.tsx  Forgot password screen (UI complete)
 │   │   └── (protected)/             Protected group (authenticated routes)
 │   │       ├── _layout.tsx          Protected layout (auth guard + BottomTab)
-│   │       ├── index.tsx            Dashboard screen (mock data: hero, balances, charts)
-│   │       ├── gastos.tsx           Expenses screen (HeroSection + "Próximamente")
+│   │       ├── index.tsx            Dashboard screen (groups from API via useGroups, mock balance/transactions)
 │   │       ├── reportes.tsx         Reports screen (mock data: bar chart, donut chart, stats cards)
 │   │       ├── perfil.tsx           Profile screen (avatar, user info, menu options, logout)
+│   │       ├── gastos/              Expense routes (directory-based)
+│   │       │   ├── _layout.tsx      Gastos Stack navigator
+│   │       │   ├── index.tsx        Expense list with filters
+│   │       │   ├── add.tsx          Add expense form
+│   │       │   └── detalle/
+│   │       │       └── [id].tsx     Expense detail (hero, info, participants, split, receipt, timeline, actions)
 │   │   └── grupos/               Group stack routes
 │   │           ├── _layout.tsx      Grupos Stack navigator
-│   │           ├── index.tsx        Group list (cards, invite code, create/join group sheets)
+│   │           ├── index.tsx        Group list (GroupSection, group filter, create/join sheets — API connected)
 │   │           ├── [id].tsx         Group detail (financial hero, settlement, distribution, expenses)
 │   │           └── [id]/            Group sub-routes
-│   │               ├── configuracion.tsx  Group settings (name, split %, members, notifications, danger zone)
-│   │               └── gastos.tsx        Per-group expense list with date/category filters
+│   │               ├── configuracion.tsx  Group settings (name, split %, members, invite code, regenerate code, notifications, danger zone — API connected)
+│   │               └── gastos.tsx        Per-group expense list with date/category filters + CreateExpenseSheet
 │   │
 │   ├── components/                  Reusable UI components
 │   │   ├── ui/                      Primitives
@@ -53,7 +59,9 @@ DuoBalance-app/
 │   │   │   ├── percentage-slider.tsx  Animated percentage slider with gradient fill
 │   │   │   ├── bottom-sheet-header.tsx  Reusable header for bottom sheets (gradient, animations, safe area)
 │   │   │   ├── screen-header.tsx    Feature-rich header (back button, action button, animated entry)
-│   │   │   └── distribution-bar.tsx  Horizontal stacked distribution bar with legends
+│   │   │   ├── distribution-bar.tsx  Horizontal stacked distribution bar with legends
+│   │   │   ├── group-section.tsx    Reusable section component for group lists (horizontal/vertical)
+│   │   │   └── group-selector.tsx   Dropdown-style group selector for filtering
 │   │   ├── auth/                    Auth-specific reusable components
 │   │   │   ├── auth-header.tsx      Logo + title + optional subtitle
 │   │   │   ├── auth-divider.tsx     "O continúa con" separator
@@ -83,7 +91,6 @@ DuoBalance-app/
 │   │   │   └── invite-member-sheet.tsx  Bottom sheet displaying invite code with copy/QR
 │   │   └── dashboard/               Dashboard-specific components
 │   │       ├── BalanceCard.tsx      Balance summary (income/expenses/net)
-│   │       ├── CoupleSelector.tsx   Dropdown-style couple switcher
 │   │       ├── PartnerBalance.tsx   Partner balance card (owed/to whom)
 │   │       ├── RecentTransactions.tsx  Transaction list with pull-to-refresh
 │   │       ├── FloatingAddButton.tsx   Simple floating action button with shadow (used in Dashboard)
@@ -105,9 +112,9 @@ DuoBalance-app/
 │   │   └── api/
 │   │       ├── client.ts            Axios instance (baseURL, timeout)
 │   │       ├── interceptor.ts       Bearer token request interceptor
-│   │       ├── auth.ts              authService (login, register, getProfile, etc.)
-│   │       ├── couples.ts           ❌ (pending) — group CRUD (create, list, join, leave)
-│   │       ├── expenses.ts          ❌ (pending) — expense CRUD (create, list, detail, update, delete)
+│   │       ├── auth.ts              authService (login, register, getProfile)
+│   │       ├── groups.ts            Groups API service (create, join, list, get, update, delete, archive, regenerate invite, remove member, update split)
+│   │       ├── expenses.ts          ❌ (pending) — expense CRUD
 │   │       ├── balances.ts          ❌ (pending) — balance summary
 │   │       ├── payments.ts          ❌ (pending) — payments + settlements
 │   │       └── dashboard.ts         ❌ (pending) — dashboard summary
@@ -119,7 +126,8 @@ DuoBalance-app/
 │   │   ├── use-auth.ts              useAuth hook (AuthContext wrapper with guard + token persistence)
 │   │   ├── use-bottom-sheet.ts      BottomSheet lifecycle (TransitionState, startClose/finishClose, callbacks)
 │   │   ├── use-staggered-entrance.ts  Reusable staggered entrance animations for lists
-│   │   └── use-dashboard-hero-animation.ts  Dashboard hero staggered animation
+│   │   ├── use-dashboard-hero-animation.ts  Dashboard hero staggered animation
+│   │   └── use-groups.ts            Groups loader from API, classifies by type (PERSONAL/COUPLE/GROUP)
 │   │
 │   ├── types/
 │   │   ├── api.ts                   All backend DTOs and response types
@@ -173,33 +181,35 @@ App (Expo Router)
 └── (protected) — Authenticated (redirects to /login if no user)
     │   Bottom Tab: Inicio | Gastos | Pareja | Reportes | Perfil
     ├── /inicio (index)
-    │   └── Dashboard (HeroSection, BalanceCard, CoupleSelector, PartnerBalance,
-    │                  RecentTransactions, FloatingAddButton)
+    │       └── Dashboard (HeroSection, GroupSection, MemberBalance,
+    │                          RecentTransactions, TopCategory, FloatingAddButton)
     ├── /gastos
-    │   └── Expense list (HeroSection + "Próximamente...")
+    │   ├── /gastos (index) — Expense list with filters
+    │   ├── /gastos/add — Add expense form
+    │   └── /gastos/detalle/[id] — Expense detail (hero, info, participants, split, receipt, timeline, actions)
     ├── /grupos
-    │   ├── /grupos (index) — Group list
+    │   ├── /grupos (index) — Group list (API connected via useGroups)
+    │   │   ├── Group filter (dropdown: All / Personal / Couple / Group)
+    │   │   ├── GroupSection (renders groups by type)
     │   │   ├── FloatingAddMenu (FAB → bottom sheet: create group, join group)
-    │   │   ├── CoupleCard → /grupos/[id]
-    │   │   ├── InviteCodeCard
-    │   │   ├── CreateCoupleSheet (bottom sheet modal with type selector)
-    │   │   ├── JoinGroupSheet (invite code entry + QR scanner placeholder)
-    │   │   └── AddCoupleCard
+    │   │   ├── CreateCoupleSheet (bottom sheet with type selector, API connected)
+    │   │   ├── JoinGroupSheet (invite code entry, API connected)
+    │   │   ├── CoupleMenuSheet (invite member, settings, leave group)
+    │   │   └── InviteMemberSheet (invite code display + copy)
     │   └── /grupos/[id] — Group detail
     │       ├── Financial hero card (total consolidated spending)
     │       ├── Settlement status card
     │       ├── DistributionBar
     │       ├── Recent expenses (RecentExpensesCard)
-    │       ├── "Registrar gasto" → /gastos/add?groupId=[id]
-    │       ├── CoupleMenuSheet (settings → /grupos/[id]/configuracion)
-    │       ├── CoupleMenuSheet (invite → InviteMemberSheet)
-    │       └── /grupos/[id]/configuracion — Group settings
+    │       ├── "Registrar gasto" → CreateExpenseSheet (bottom sheet)
+    │       ├── CoupleMenuSheet (settings, invite)
+    │       └── /grupos/[id]/configuracion — Group settings (API connected)
     │       │   ├── Info (name, created date, avatars)
     │       │   ├── Distribution (split percentage + DistributionBar)
     │       │   ├── Members list
-    │       │   ├── Invite code (copy + QR)
+    │       │   ├── Invite code (copy + QR + regenerate)
     │       │   ├── Notification toggles
-    │       │   └── Danger zone (archive/delete group)
+    │       │   └── Danger zone (archive/delete/leave group)
     │       └── /grupos/[id]/gastos — Per-group expense list
     │           ├── Date filter chips
     │           ├── Category filter chips

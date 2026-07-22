@@ -20,6 +20,8 @@ enum SplitType {
   PERSONAL = 'PERSONAL',
   CUSTOM = 'CUSTOM',
 }
+
+type GroupType = 'PERSONAL' | 'COUPLE' | 'GROUP';
 ```
 
 ## Request Payloads
@@ -42,10 +44,18 @@ interface RefreshTokenPayload {
   refreshToken: string;
 }
 
-// Couples
-// POST /couples/join
-interface JoinCouplePayload {
+// Groups
+interface CreateGroupPayload {
+  name: string;
+  type?: GroupType;
+}
+
+interface JoinGroupPayload {
   inviteCode: string;
+}
+
+interface UpdateGroupPayload {
+  name?: string;
 }
 
 // Expenses
@@ -104,19 +114,38 @@ interface UserResponse {
   createdAt: string;
 }
 
-// Couples
-interface UserBrief {
+// Groups
+interface GroupMember {
   id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
+  role: 'OWNER' | 'ADMIN' | 'MEMBER';
+  joinedAt: string;
+  user: UserBrief;
 }
 
-interface CoupleResponse {
+interface GroupResponse {
   id: string;
-  inviteCode: string;
+  name: string;
+  inviteCode: string | null;
+  type: GroupType;
   createdAt: string;
-  users: UserBrief[];
+  members: GroupMember[];
+}
+
+interface LeaveGroupResponse {
+  message: string;
+}
+
+interface MemberSplitResponse {
+  id: string;
+  role: 'OWNER' | 'ADMIN' | 'MEMBER';
+  splitPercentage: number | null;
+  userId: string;
+  groupId: string;
+  user: UserBrief;
+}
+
+interface MessageResponse {
+  message: string;
 }
 
 // Expenses
@@ -135,7 +164,7 @@ interface ExpenseResponse {
   category: ExpenseCategory;
   splitType: SplitType;
   paidById: string;
-  coupleId: string;
+  groupId: string;
   splits: ExpenseSplitResponse[];
   createdAt: string;
   updatedAt: string;
@@ -253,10 +282,17 @@ interface ApiError {
 | POST | /auth/refresh | No | Refresh access token |
 | POST | /auth/logout | No | Revoke refresh token |
 | GET | /auth/profile | Yes | Get current user |
-| POST | /couples | Yes | Create couple |
-| POST | /couples/join | Yes | Join couple via invite code |
-| GET | /couples/me | Yes | Get my couple |
-| DELETE | /couples/leave | Yes | Leave couple |
+| POST | /groups | Yes | Create group |
+| GET | /groups | Yes | Get my groups |
+| GET | /groups/:id | Yes | Get group detail |
+| PATCH | /groups/:id | Yes | Update group |
+| DELETE | /groups/:id | Yes | Delete group |
+| POST | /groups/join | Yes | Join group via invite code |
+| POST | /groups/:id/regenerate-invite | Yes | Regenerate invite code |
+| POST | /groups/:id/archive | Yes | Archive group |
+| DELETE | /groups/:id/leave | Yes | Leave group |
+| DELETE | /groups/:id/members/:memberId | Yes | Remove member |
+| PATCH | /groups/:id/members/:memberId/split | Yes | Update member split % |
 | POST | /expenses | Yes | Create expense |
 | GET | /expenses | Yes | List expenses (with filters) |
 | GET | /expenses/:id | Yes | Get expense detail |

@@ -15,17 +15,17 @@
 | Login | `(auth)/login.tsx` | ✅ |
 | Register | `(auth)/register.tsx` | ✅ |
 | Forgot Password | `(auth)/forgot-password.tsx` | 🚧 UI lista, backend pendiente |
-| Dashboard | `(protected)/index.tsx` | ✅ (mock data) |
-| Gastos (lista) | `(protected)/gastos/index.tsx` | 🚧 HeroSection + "Próximamente..." placeholder |
-| Add Expense | `(protected)/gastos/add.tsx` | 🚧 Stub navegable |
-| Expense Detail | `(protected)/gastos/[id].tsx` | 🚧 Stub navegable |
-| Group List | `(protected)/grupos/index.tsx` | ✅ (mock data) |
-| Group Detail | `(protected)/grupos/[id].tsx` | ✅ (mock data) |
-| Join Group | `(protected)/grupos/join.tsx` | ❌ (JoinGroupSheet implemented as bottom sheet) |
-| Group Expenses | `(protected)/grupos/[id]/gastos.tsx` | ✅ (mock data, date/category filters) |
+| Dashboard | `(protected)/index.tsx` | ✅ (groups from API via useGroups, mock balance/transactions) |
+| Gastos (lista) | `(protected)/gastos/index.tsx` | ✅ (expense list with filters) |
+| Add Expense | `(protected)/gastos/add.tsx` | ✅ (standalone form) |
+| Expense Detail | `(protected)/gastos/detalle/[id].tsx` | ✅ (hero, info, participants, split, receipt, timeline, actions) |
+| Group List | `(protected)/grupos/index.tsx` | ✅ (API connected via useGroups, group filtering by type) |
+| Group Detail | `(protected)/grupos/[id].tsx` | ✅ (API connected) |
+| Join Group | `(protected)/grupos/join.tsx` | ✅ (JoinGroupSheet implemented as bottom sheet, API connected) |
+| Group Expenses | `(protected)/grupos/[id]/gastos.tsx` | ✅ (date/category filters, CreateExpenseSheet) |
 | Reports | `(protected)/reportes.tsx` | ✅ (mock data) |
 | Perfil | `(protected)/perfil.tsx` | ✅ (avatar, user info, menu options, logout) |
-| Group Settings | `(protected)/grupos/[id]/configuracion.tsx` | ✅ (name, split %, members, invite code, notifications, danger zone — mock data) |
+| Group Settings | `(protected)/grupos/[id]/configuracion.tsx` | ✅ (name, split %, members, invite code, regenerate code, notifications, danger zone — API connected) |
 | Pay Screen | `(protected)/pagos/index.tsx` | ❌ |
 | Payment History | `(protected)/pagos/` | ❌ |
 | Receipt Capture | `(protected)/gastos/receipt.tsx` | ❌ |
@@ -34,16 +34,16 @@
 
 ### P1 — Imprescindibles (MVP)
 - [❌] Split Picker Component — prerrequisito del Add Expense
-- [❌] Expense List Screen — reemplazar placeholder de Gastos
-- [❌] Add Expense Screen — core de la app (ver diseño detallado abajo)
-- [❌] Conectar botón "Registrar gasto" en detalle de grupo → `gastos/add?groupId=123`
-- [❌] Expense Detail Screen — tap en lista lleva aquí
+- [✅] Expense List Screen — reemplazar placeholder de Gastos
+- [✅] Add Expense Screen — core de la app
+- [✅] Conectar botón "Registrar gasto" en detalle de grupo → CreateExpenseSheet
+- [✅] Expense Detail Screen — tap en lista lleva aquí
 - [✅] Profile Screen — avatar, user info, menu options, logout
 - [✅] Group Settings Screen — nombre, split %, miembros, notificaciones, zona peligrosa
-- [❌] Join Group — completar flujo de unión
+- [✅] Join Group — completar flujo de unión
 
 ### P2 — Importantes
-- [❌] Backend API — Groups (CREATE `src/services/api/couples.ts`)
+- [✅] Backend API — Groups (CREATE `src/services/api/groups.ts`)
 - [❌] Backend API — Expenses (CREATE `src/services/api/expenses.ts`)
 - [❌] Backend API — Dashboard (CREATE `src/services/api/dashboard.ts`)
 - [❌] Backend API — Reports
@@ -89,31 +89,31 @@
 
 ## Phase 3: Group Management (antes "Couple Management")
 - [✅] Group list screen — GroupCard, GroupSection, FloatingAddMenu (FAB → create/join group bottom sheet), group menu sheet, invite member sheet, JoinGroupSheet
-- [✅] Group creation bottom sheet — name, percentage split slider, generate invite code, type selector (PERSONAL/COUPLE/GROUP)
-- [✅] Group detail screen — financial hero card, settlement status, distribution bar, expenses, settings, group menu sheet, invite member sheet
-- [✅] Group settings screen — name, split %, members, invite code, type, notifications, danger zone (mock data)
-- [✅] JoinGroupSheet — bottom sheet with invite code entry form + QR scanner placeholder
+- [✅] Group creation bottom sheet — name, percentage split slider, generate invite code, type selector (PERSONAL/COUPLE/GROUP) — connected to API
+- [✅] Group detail screen — financial hero card, settlement status, distribution bar, expenses, settings, group menu sheet, invite member sheet — connected to API
+- [✅] Group settings screen — name, split %, members, invite code, regenerate code, type, notifications, danger zone — connected to API
+- [✅] JoinGroupSheet — bottom sheet with invite code entry form + QR scanner placeholder — connected to API
 - [✅] Per-group expense list (`grupos/[id]/gastos.tsx`) — date/category filters, RecentExpensesCard, CreateExpenseSheet
 - [✅] useGroups() hook — loads groups from API, classifies by type (PERSONAL/COUPLE/GROUP), exposes refetch
-- [✅] GroupCard component — reusable card with type icon, member count, mock balance, optional menu
+- [✅] GroupCard component — reusable card with type icon, member count, balance, optional menu
 - [✅] GroupSection component — reusable section with horizontal/vertical orientation
-- [❌] Backend API integration (currently mock data)
-- [❌] **Reemplazar balance mock en GroupCard por balance real del backend** — Actualmente `src/components/ui/group-card.tsx` usa `MOCK_BALANCE` hardcodeado. Cuando exista el endpoint `GET /groups/:id/balance` (o similar), se debe reemplazar el mock por el balance real y eliminar el objeto `MOCK_BALANCE`.
+- [✅] groups.ts API service — full CRUD (create, join, list, get, update, delete, archive, regenerate invite, remove member, update split)
+- [❌] **Reemplazar balance mock en GroupCard por balance real del backend** — Pendiente endpoint `GET /groups/:id/balance`
 
 ## Phase 4: Expense Screens
-- [❌] Expense list screen (flat list with category filters + group filter)
-- [❌] Add expense screen (amount, description, category, split picker)
-- [❌] Expense detail screen (full info + edit/delete)
-- [❌] Split picker UI component (equal/percentage/custom)
+- [✅] Expense list screen (flat list with category filters + group filter)
+- [✅] Add expense screen (amount, description, category, split picker)
+- [✅] Expense detail screen (full info with hero, info, participants, split, receipt, timeline, actions)
+- [❌] Split picker UI component (equal/percentage/custom) — pending
 
 ## Phase 5: Dashboard
-- [✅] Dashboard screen — HeroSection, BalanceCard, GroupSelector (mock data)
+- [✅] Dashboard screen — HeroSection, GroupSection (groups from API), MemberBalance, TopCategory, RecentTransactions, FloatingAddButton
 - [✅] Partner/Member balance display (MemberBalance component)
 - [✅] Category breakdown chart (DonutChart component)
 - [✅] Recent transactions list (RecentTransactions component)
 - [✅] Floating action button (FloatingAddButton)
 - [❌] Settlement suggestions list
-- [❌] Backend API integration (currently mock data)
+- [❌] Backend API integration for dashboard/balances (mock data remains)
 
 ## Phase 6: Reports & Analytics
 - [✅] Reports screen — period filter, donut chart, top categories, stats cards (mock data)
@@ -121,14 +121,15 @@
 
 ## Phase 7: New UI Components
 - [✅] BottomSheet — reusable modal with backdrop, drag indicator, spring animations
+- [✅] BottomSheetHeader — reusable header with premium gradients, spring transitions, safe-area insets
 - [✅] PercentageSlider — animated slider with gradient fill
 - [✅] DistributionBar — stacked horizontal distribution bar
 - [✅] Button — reusable with 5 variants (primary/secondary/outline/danger/link)
 - [✅] AlertModal — reusable with 4 types, BlurView backdrop
 - [✅] Card, Loading, EmptyState — all generic primitives
 - [✅] Layout components — BottomTab (5 tabs), ScreenHeader, SplashScreen, HeroSection (unified dashboard/page variants)
-- [✅] Dashboard components — BalanceCard, GroupSelector, MemberBalance, RecentTransactions, FloatingAddButton, FloatingAddMenu, TopCategory, AddGroupCard, BarChart, DonutChart
-- [✅] Group components — GroupCard, InviteCodeCard, CreateGroupSheet
+- [✅] Dashboard components — BalanceCard, MemberBalance, RecentTransactions, FloatingAddButton, FloatingAddMenu, TopCategory, AddGroupCard, BarChart, DonutChart
+- [✅] Group components — GroupCard, GroupSection, GroupSelector, InviteCodeCard, CreateGroupSheet, CoupleMenuSheet, InviteMemberSheet, JoinGroupSheet
 
 ## Phase 8: Receipt Capture
 - [❌] Camera/gallery integration (expo-image-picker / expo-camera)

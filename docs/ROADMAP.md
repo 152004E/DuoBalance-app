@@ -54,12 +54,12 @@
 
 ## Phase 3: Dashboard & Reports (v0.3) — Done
 **Goal**: See balances, spending breakdown, and reports
-*(Frontend complete; remaining items are backend concerns)*
-- [✅] Dashboard screen (HeroSection, BalanceCard, GroupSelector, MemberBalance, RecentTransactions, FloatingAddButton — simple FAB)
+*(Frontend mostly complete; remaining items are backend concerns)*
+- [✅] Dashboard screen (HeroSection, GroupSection from API, MemberBalance, RecentTransactions, TopCategory, FloatingAddButton)
 - [✅] Reports screen (bar chart, donut chart, stats cards)
 - [✅] Balance visualization (MemberBalance)
 - [✅] Category breakdown chart (DonutChart)
-- [❌] Backend API integration (currently mock data)
+- [🔄] Backend API integration for dashboard/balances (mock data remains)
 - [❌] Settlement suggestions
 
 **Estimated**: 1-2 weeks (API integration)
@@ -68,16 +68,18 @@
 
 ## Phase 4: Group Management (v0.3) — Done
 **Goal**: Users can create and manage groups (couples for now, multi-type later)
-*(Frontend complete; remaining items are backend concerns)*
-- [✅] Group list screen (`grupos/index.tsx`) — CoupleCard, FloatingAddMenu (create/join group), CoupleMenuSheet, InviteMemberSheet, JoinGroupSheet
-- [✅] Create group (`CreateCoupleSheet` — bottom sheet with type selector: personal/pareja/grupo, split config)
-- [✅] Group detail screen (`grupos/[id].tsx`) — financial hero, settlement status, distribution, expenses, group menu, invite member
-- [✅] Group settings screen (`grupos/[id]/configuracion.tsx`) — name, split %, members, invite code, type, notifications, danger zone (mock data)
-- [✅] Join group via invite code (`JoinGroupSheet` — enter code form + QR scanner placeholder)
+*(Frontend complete with API integration)*
+- [✅] Group list screen (`grupos/index.tsx`) — GroupSection, group filter, FloatingAddMenu, CoupleMenuSheet, InviteMemberSheet, JoinGroupSheet — API connected
+- [✅] Create group (`CreateCoupleSheet` — bottom sheet with type selector, split config — API connected)
+- [✅] Group detail screen (`grupos/[id].tsx`) — financial hero, settlement status, distribution, expenses, group menu, invite member — API connected
+- [✅] Group settings screen (`grupos/[id]/configuracion.tsx`) — name, split %, members, invite code, regenerate code, type, notifications, danger zone — API connected
+- [✅] Join group via invite code (`JoinGroupSheet` — enter code form + QR scanner placeholder — API connected)
 - [✅] Per-group expense list (`grupos/[id]/gastos.tsx`) — date/category filters, RecentExpensesCard, CreateExpenseSheet
-- [❌] Backend API integration (currently mock data)
+- [✅] Groups API service (`src/services/api/groups.ts`) — full CRUD + invite + members + archive
+- [✅] useGroups hook — loads groups from API, classifies by type, refetch
+- [❌] Balance real del backend en GroupCard (pendiente endpoint)
 
-**Estimated**: 1 week (API integration)
+**Estimated**: Complete
 
 ---
 
@@ -151,31 +153,31 @@ Selector visual con tarjetas (NO dropdown/picker):
 **Goal**: Add, view, edit, and delete expenses
 - [✅] Expense detail screen (`gastos/detalle/[id].tsx`) with 7 components: ExpenseHeroCard, ExpenseInformation, ExpenseParticipants, ExpenseSplit, ExpenseReceipt, ExpenseTimeline, ExpenseActions
 - [✅] CreateExpenseSheet (bottom sheet: amount, description, category, date, paid-by, participants, split type, receipt placeholder)
+- [✅] Expense list screen (`gastos/index.tsx`) with filters
 - [❌] Edit expense UI
 - [❌] Delete expense UI
-- [❌] Expense list full refactor (`gastos/index.tsx` conversion to flat chronological list)
-- [❌] Backend API integration (currently mock data)
+- [❌] Backend API integration (expenses.ts service pending)
 
-**Estimated**: 2-3 weeks (edit/delete UI + list refactor + API integration)
+**Estimated**: 1-2 weeks (edit/delete UI + API integration)
 
 ---
 
-## Phase 5b: Backend API Integration (v0.5) — Current Priority
+## Phase 5b: Backend API Integration (v0.5) — Partial
 **Goal**: All screens connected to real backend API
 
-### Order of Integration:
-1. **Couples/Groups API service** — create `src/services/api/couples.ts` (POST /couples, GET /couples/me, POST /couples/join, DELETE /couples/leave)
-2. **Connect Group list** — replace MOCK_COUPLES with API data from GET /couples/me
-3. **Connect CreateCoupleSheet** — POST /couples on form submit → navigate to new group
-4. **Connect JoinGroupSheet** — POST /couples/join with invite code
-5. **Connect Group settings** — PATCH group name/split via API
-6. **Expenses API service** — create `src/services/api/expenses.ts`
-7. **Connect expense screens** — replace mock data with real API
-8. **Balances API** — connect group detail balance data
-9. **Dashboard API** — create service + connect dashboard
-10. **Payments/Settlements API** — create service + connect
+### Status:
+1. ✅ **Groups API service** — `src/services/api/groups.ts` (POST /groups, GET /groups, GET /groups/:id, PATCH /groups/:id, DELETE /groups/:id, POST /groups/join, POST /groups/:id/regenerate-invite, POST /groups/:id/archive, DELETE /groups/:id/leave, DELETE /groups/:id/members/:memberId, PATCH /groups/:id/members/:memberId/split)
+2. ✅ **Connect Group list** — useGroups hook replaces MOCK_COUPLES with API data
+3. ✅ **Connect CreateCoupleSheet** — POST /groups on form submit
+4. ✅ **Connect JoinGroupSheet** — POST /groups/join with invite code
+5. ✅ **Connect Group settings** — PATCH /groups/:id for name/split
+6. ❌ **Expenses API service** — create `src/services/api/expenses.ts`
+7. ❌ **Connect expense screens** — replace mock data with real API
+8. ❌ **Balances API** — connect group detail balance data
+9. ❌ **Dashboard API** — create service + connect dashboard
+10. ❌ **Payments/Settlements API** — create service + connect
 
-**Estimated**: 1-2 weeks for groups + expenses; 2-3 weeks total
+**Estimated**: 1-2 weeks for remaining items
 
 ---
 
@@ -271,13 +273,11 @@ Selector visual con tarjetas (NO dropdown/picker):
 ```
 v0.1  ████████████████████████████████  (Foundation — COMPLETE)
 v0.2  ████████████████████████████████  (Auth — COMPLETE)
-v0.3  ███████████████████████████░░░░░  (UI Components + Dashboard + Groups + Perfil + Settings — ~75% DONE)
-v0.4  ██░░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Movement Hub — CreateExpenseSheet implemented, rest pending)
-v0.5  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Receipts)
+v0.3  ████████████████████████████████  (UI Components + Dashboard + Groups + Perfil — COMPLETE)
+v0.4  ████░░░░░░░░░░░░░░░░░░░░░░░░░░  (Movement Hub — Expenses UI + create expense sheet implemented, pending API)
+v0.5  ████░░░░░░░░░░░░░░░░░░░░░░░░░░  (Group Management API integration — groups.ts + useGroups + screens connected)
 v0.6  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Payments)
-v0.7  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Backend Integration)
-v1.0  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Production)
-v2.0  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Multi-actor: Personal + Pareja + Grupo)
+v1.0  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Production: remaining API + receipts + polish)
 ```
 
 **Total estimated time to v1.0**: 14-20 weeks
