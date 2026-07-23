@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, TextInput, Pressable } from 'react-native';
+import { View, Text, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScreenHeader } from '@/components/ui/screen-header';
 
@@ -52,51 +53,37 @@ export default function SeguridadScreen() {
             </View>
           </View>
 
-          <View className="mx-5 mt-6 space-y-5">
-            <View>
-              <Text className="mb-2 text-sm font-semibold text-[#0F172A]">
-                Contraseña actual
-              </Text>
-              <TextInput
-                value={currentPassword}
-                onChangeText={setCurrentPassword}
-                placeholder="Ingresa tu contraseña actual"
-                placeholderTextColor="#94A3B8"
-                secureTextEntry
-                className="rounded-xl border border-[#E2E8F0] bg-white px-4 py-3.5 text-base text-[#0F172A]"
-              />
-            </View>
-            <View>
-              <Text className="mb-2 text-sm font-semibold text-[#0F172A]">
-                Nueva contraseña
-              </Text>
-              <TextInput
-                value={newPassword}
-                onChangeText={setNewPassword}
-                placeholder="Mínimo 6 caracteres"
-                placeholderTextColor="#94A3B8"
-                secureTextEntry
-                className="rounded-xl border border-[#E2E8F0] bg-white px-4 py-3.5 text-base text-[#0F172A]"
-              />
-            </View>
-            <View>
-              <Text className="mb-2 text-sm font-semibold text-[#0F172A]">
-                Confirmar nueva contraseña
-              </Text>
-              <TextInput
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                placeholder="Repite la nueva contraseña"
-                placeholderTextColor="#94A3B8"
-                secureTextEntry
-                className="rounded-xl border border-[#E2E8F0] bg-white px-4 py-3.5 text-base text-[#0F172A]"
-              />
-            </View>
+          <View className="mx-5 mt-6 gap-5">
+            <Input
+              label="Contraseña actual"
+              value={currentPassword}
+              onChangeText={setCurrentPassword}
+              placeholder="Ingresa tu contraseña actual"
+              iconLeft="lock"
+              secureTextEntry
+            />
+            <Input
+              label="Nueva contraseña"
+              value={newPassword}
+              onChangeText={setNewPassword}
+              placeholder="Mínimo 6 caracteres"
+              iconLeft="lock"
+              secureTextEntry
+            />
+            <Input
+              label="Confirmar nueva contraseña"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              placeholder="Repite la nueva contraseña"
+              iconLeft="lock"
+              secureTextEntry
+            />
           </View>
 
           <View className="mx-5 mt-10">
             <Button
               text="Cambiar contraseña"
+              iconLeft="lock"
               variant="primary"
               onPress={handleChangePassword}
             />
