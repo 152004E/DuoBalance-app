@@ -40,6 +40,17 @@ interface LoginPayload {
   password: string;
 }
 
+interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
+interface UpdateProfilePayload {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+}
+
 interface RefreshTokenPayload {
   refreshToken: string;
 }
@@ -282,6 +293,9 @@ interface ApiError {
 | POST | /auth/refresh | No | Refresh access token |
 | POST | /auth/logout | No | Revoke refresh token |
 | GET | /auth/profile | Yes | Get current user |
+| PATCH | /auth/profile | Yes | Update profile (firstName, lastName, email) |
+| PATCH | /auth/password | Yes | Change password (currentPassword, newPassword) |
+| POST | /auth/profile/avatar | Yes | Upload avatar image |
 | POST | /groups | Yes | Create group |
 | GET | /groups | Yes | Get my groups |
 | GET | /groups/:id | Yes | Get group detail |

@@ -25,11 +25,13 @@
 - [✅] Register screen (UI + full API integration with auto-login + AlertModal)
 - [🔄] Forgot password screen (UI complete, pending backend connection)
 - [✅] Reusable auth components (AuthHeader, AuthDivider, SocialLoginButton, AuthFooter)
-- [✅] Enhanced Input component (iconLeft, focus border with instant green + blur transition)
+- [✅] Enhanced Input component (iconLeft, iconRight, onIconRightPress, secureTextEntry toggle, focus border with instant green + blur transition)
 - [✅] Custom AlertModal with BlurView backdrop (success/error/warning/info)
 - [✅] Toast notifications (react-native-toast-message)
 - [✅] Protected route guard
 - [✅] Conditional routing (index.tsx → WelcomeScreen or Dashboard)
+- [✅] Change password screen — full implementation (PATCH /auth/password, validation, AlertModal)
+- [✅] Edit profile screen — name/email update + avatar upload
 - [❌] Response interceptor (401 handling)
 
 **Estimated**: Complete

@@ -33,6 +33,9 @@ DuoBalance-app/
 │   │       ├── index.tsx            Dashboard screen (groups from API via useGroups, mock balance/transactions)
 │   │       ├── reportes.tsx         Reports screen (mock data: bar chart, donut chart, stats cards)
 │   │       ├── perfil.tsx           Profile screen (avatar, user info, menu options, logout)
+│   │       ├── perfil/              Profile sub-routes
+│   │       │   ├── editar.tsx       Edit profile (name, email, avatar upload)
+│   │       │   └── seguridad.tsx    Security/change password (validation, API, AlertModal)
 │   │       ├── gastos/              Expense routes (directory-based)
 │   │       │   ├── _layout.tsx      Gastos Stack navigator
 │   │       │   ├── index.tsx        Expense list with filters
@@ -51,7 +54,7 @@ DuoBalance-app/
 │   │   ├── ui/                      Primitives
 │   │   │   ├── alert-modal.tsx       Custom AlertModal (BlurView backdrop, 4 types, animated)
 │   │   │   ├── button.tsx           Reusable Button (5 variants: primary/secondary/outline/danger/link)
-│   │   │   ├── input.tsx            Enhanced Input (iconLeft, focus border instant green)
+│   │   │   ├── input.tsx            Enhanced Input (iconLeft, iconRight, onIconRightPress, secureTextEntry toggle, focus border instant green)
 │   │   │   ├── card.tsx             Generic Card (default/highlight variants)
 │   │   │   ├── loading.tsx          Full-screen loading spinner
 │   │   │   ├── empty-state.tsx      Empty state placeholder (icon, title, subtitle, action)
@@ -81,6 +84,8 @@ DuoBalance-app/
 │   │   │   ├── stat-card.tsx        Stat display card
 │   │   │   ├── amount.tsx           Formatted money amount
 │   │   │   └── balance-card.tsx     Balance direction card (owed/debt/settled)
+│   │   ├── movements/               Movement-related components
+│   │   │   └── create-expense-sheet.tsx  Bottom sheet form: amount, description, category, date, paid-by, participants, split (uses Input with icons)
 │   │   ├── category/
 │   │   │   └── category-badge.tsx   Colored category pill
 │   │   ├── couple/                  Couple-related components
@@ -112,7 +117,7 @@ DuoBalance-app/
 │   │   └── api/
 │   │       ├── client.ts            Axios instance (baseURL, timeout)
 │   │       ├── interceptor.ts       Bearer token request interceptor
-│   │       ├── auth.ts              authService (login, register, getProfile)
+│   │       ├── auth.ts              authService (login, register, getProfile, updateProfile, changePassword, uploadAvatar)
 │   │       ├── groups.ts            Groups API service (create, join, list, get, update, delete, archive, regenerate invite, remove member, update split)
 │   │       ├── expenses.ts          ❌ (pending) — expense CRUD
 │   │       ├── balances.ts          ❌ (pending) — balance summary
@@ -218,7 +223,9 @@ App (Expo Router)
     ├── /reportes
     │   └── Reports (bar chart, donut chart, stats cards)
     └── /perfil
-        └── Profile (avatar, user info, menu options, logout)
+        ├── Profile (avatar, user info, menu options, logout)
+        ├── /perfil/editar — Edit profile (name, email, avatar upload)
+        └── /perfil/seguridad — Change password (validation, API call, success/error AlertModal)
 ```
 
 ## Data Flow
@@ -266,6 +273,21 @@ User submits form
   → AlertModal "Registro exitoso"
   → user taps "Continuar"
   → router.replace("/(protected)/dashboard")
+```
+
+## Auth Flow (Change Password)
+
+```
+User submits form
+  → validate() (currentPassword required, newPassword ≥ 6 chars, confirmPassword must match)
+  → authService.changePassword({ currentPassword, newPassword })
+  → PATCH /auth/password (backend, JwtAuthGuard)
+  → Backend: bcrypt.compare(currentPassword, stored hash)
+  → If mismatch → 401 "La contraseña actual no es correcta"
+  → If match → bcrypt.hash(newPassword, 10) → update DB
+  → Response: { message: "Contraseña actualizada correctamente" }
+  → Frontend: AlertModal (success) → router.back()
+  → On error: AlertModal (error) or inline error message
 ```
 
 ## Design Patterns

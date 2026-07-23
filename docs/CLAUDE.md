@@ -25,7 +25,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **Response interceptor (401)**: Exists (logs warning on 401) — login redirect not implemented 🔄
 
 ### UI Components — All built
-- **Enhanced Input**: iconLeft support + focus border (instant green on focus, instant reset on blur) ✅
+- **Enhanced Input**: iconLeft, iconRight, onIconRightPress, secureTextEntry toggle (auto eye/eye-slash), focus border (instant green on focus, instant reset on blur), dynamic padding ✅
 - **AlertModal**: Custom modal with BlurView backdrop, 4 types (success/error/warning/info), spring animations ✅
 - **Toast notifications**: react-native-toast-message configured in root layout ✅
 - **Button**: Reusable styled button with 5 variants (primary/secondary/outline/danger/link), loading spinner, icon support ✅
@@ -46,6 +46,8 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **Expense Detail** (`(protected)/gastos/detalle/[id].tsx`): Full expense detail with hero card, information, participants, split breakdown, receipt section, timeline, actions ✅
 - **Reportes** (`(protected)/reportes.tsx`): Reports screen with period filter (dropdown), donut chart, top categories list, stats cards — mock data ✅
 - **Perfil** (`(protected)/perfil.tsx`): Profile screen with avatar, user info, menu options (Editar Perfil, Notificaciones, Seguridad), and logout ✅
+- **Editar Perfil** (`(protected)/perfil/editar.tsx`): Edit profile screen with name, email fields (uses Input with iconLeft), avatar upload via ImagePicker + ImagePreviewModal, save to API (updateProfile/uploadAvatar) ✅
+- **Seguridad** (`(protected)/perfil/seguridad.tsx`): Change password screen with 3 inputs (currentPassword, newPassword, confirmPassword) using Input with iconLeft="lock" + secureTextEntry, per-field validation, API call to changePassword, AlertModal for success/error ✅
 - **Group List** (`(protected)/grupos/index.tsx`): Group list with GroupSection, FloatingAddMenu (FAB → bottom sheet: create/join group), CoupleMenuSheet, InviteMemberSheet, JoinGroupSheet, group filtering by type — connected to API via useGroups ✅
 - **Group Detail** (`(protected)/grupos/[id].tsx`): Group detail with financial hero card, settlement status, distribution bar, recent expenses, CoupleMenuSheet, InviteMemberSheet ✅
 - **Group Settings** (`(protected)/grupos/[id]/configuracion.tsx`): Group settings with name, split %, members, invite code, regenerate code, notifications, danger zone — connected to API ✅
@@ -86,7 +88,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **useGroups**: Loads groups from API (GET /groups), classifies by type (PERSONAL/COUPLE/GROUP), exposes refetch ✅
 
 ### API Services — Built
-- **auth.ts**: Auth service (login, register, getProfile) ✅
+- **auth.ts**: Auth service (login, register, getProfile, updateProfile, changePassword, uploadAvatar) ✅
 - **groups.ts**: Full group CRUD (create, join, list, get, update, delete, archive, regenerate invite code, remove member, update member split) ✅
 - **Expenses API** (`src/services/api/expenses.ts`): ❌ Pending
 - **Payments API** (`src/services/api/payments.ts`): ❌ Pending
@@ -185,6 +187,8 @@ npx prisma db push        # Push schema (dev)
 | `src/app/(protected)/gastos/detalle/[id].tsx` | Expense detail screen (hero, info, participants, split, receipt, timeline, actions) |
 | `src/app/(protected)/reportes.tsx` | Reports screen (mock data: bar chart, donut chart, stats cards) |
 | `src/app/(protected)/perfil.tsx` | Profile screen (avatar, user info, menu options, logout) |
+| `src/app/(protected)/perfil/editar.tsx` | Edit profile (name, email, avatar upload) |
+| `src/app/(protected)/perfil/seguridad.tsx` | Change password (validation, API, AlertModal) |
 | `src/app/(protected)/grupos/_layout.tsx` | Grupos stack navigator (index, [id], [id]/configuracion, [id]/gastos) |
 | `src/app/(protected)/grupos/index.tsx` | Group list screen (CoupleCard, FloatingAddMenu, CoupleMenuSheet, InviteMemberSheet, JoinGroupSheet) |
 | `src/app/(protected)/grupos/[id].tsx` | Group detail screen (financial hero, settlement, distribution, recent expenses) |
@@ -195,7 +199,7 @@ npx prisma db push        # Push schema (dev)
 | File | Purpose |
 |------|---------|
 | `src/components/ui/alert-modal.tsx` | Custom AlertModal (BlurView, success/error/warning/info, animated) |
-| `src/components/ui/input.tsx` | Enhanced Input (iconLeft, focus border) |
+| `src/components/ui/input.tsx` | Enhanced Input (iconLeft, iconRight, onIconRightPress, secureTextEntry toggle, focus border) |
 | `src/components/ui/button.tsx` | Reusable Button (5 variants, loading, icons) |
 | `src/components/ui/card.tsx` | Generic Card (default/highlight) |
 | `src/components/ui/loading.tsx` | Full-screen loading spinner |
@@ -284,7 +288,7 @@ npx prisma db push        # Push schema (dev)
 | `src/storage/token.ts` | SecureStore wrapper (with localStorage fallback for web) |
 | `src/services/api/client.ts` | Axios instance |
 | `src/services/api/interceptor.ts` | Bearer token interceptor |
-| `src/services/api/auth.ts` | Auth service (login, register, getProfile) |
+| `src/services/api/auth.ts` | Auth service (login, register, getProfile, updateProfile, changePassword, uploadAvatar) |
 | `src/services/api/groups.ts` | Groups API service (create, join, list, get, update, delete, archive, regenerate invite, remove member, update split) |
 | `src/types/api.ts` | Backend DTOs and response types |
 | `src/constants/config.ts` | Environment variables |

@@ -25,6 +25,8 @@
 | Group Expenses | `(protected)/grupos/[id]/gastos.tsx` | ✅ (date/category filters, CreateExpenseSheet) |
 | Reports | `(protected)/reportes.tsx` | ✅ (mock data) |
 | Perfil | `(protected)/perfil.tsx` | ✅ (avatar, user info, menu options, logout) |
+| Editar Perfil | `(protected)/perfil/editar.tsx` | ✅ (name, email, avatar upload via ImagePicker) |
+| Seguridad / Change Password | `(protected)/perfil/seguridad.tsx` | ✅ (validation, API changePassword, AlertModal success/error) |
 | Group Settings | `(protected)/grupos/[id]/configuracion.tsx` | ✅ (name, split %, members, invite code, regenerate code, notifications, danger zone — API connected) |
 | Pay Screen | `(protected)/pagos/index.tsx` | ❌ |
 | Payment History | `(protected)/pagos/` | ❌ |
@@ -75,11 +77,12 @@
 - [✅] useAuth hook (with token persistence on mount)
 - [✅] Route scaffolding ((auth)/ and (protected)/ groups)
 - [✅] WelcomeScreen with HeroSection + BenefitCards
-- [✅] Enhanced Input component (iconLeft, focus border with instant green + blur border reset)
+- [✅] Enhanced Input component (iconLeft, iconRight, onIconRightPress, secureTextEntry toggle, focus border with instant green + blur border reset)
 - [✅] Reusable auth components (AuthHeader, AuthDivider, SocialLoginButton, AuthFooter)
 - [✅] Login screen (email + password form) — UI + full API integration (authService.login → getProfile → signIn)
 - [✅] Register screen (firstName + lastName + email + password) — UI + full API integration (register → login → getProfile → signIn → AlertModal → dashboard)
 - [🔄] Forgot password screen — UI complete (email form), pending backend connection + endpoint
+- [✅] Change password screen — full implementation with validation, API call (PATCH /auth/password), success/error AlertModal
 - [✅] Custom AlertModal component (success/error/warning/info, BlurView backdrop, animated)
 - [✅] Toast notifications via react-native-toast-message (configured in root layout)
 - [✅] Root layout with AuthProvider + conditional routing (index.tsx)
