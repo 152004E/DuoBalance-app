@@ -1,4 +1,4 @@
-import { LoginPayload, RegisterPayload, UpdateProfilePayload, UserResponse } from "@/types/api";
+import { ChangePasswordPayload, LoginPayload, RegisterPayload, UpdateProfilePayload, UserResponse } from "@/types/api";
 import { api } from "./client";
 
 export const login = async (payload: LoginPayload) => {
@@ -35,6 +35,11 @@ export const getProfile = async () => {
 export const updateProfile = async (payload: UpdateProfilePayload) => {
   const { data } = await api.patch("/auth/profile", payload);
   return data as UserResponse;
+};
+
+export const changePassword = async (payload: ChangePasswordPayload) => {
+  const { data } = await api.patch("/auth/password", payload);
+  return data;
 };
 
 export const uploadAvatar = async (

@@ -62,6 +62,11 @@ export interface UserResponse {
   createdAt: string;
 }
 
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export interface UpdateProfilePayload {
   firstName?: string;
   lastName?: string;

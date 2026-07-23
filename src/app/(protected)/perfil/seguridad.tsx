@@ -7,13 +7,68 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScreenHeader } from '@/components/ui/screen-header';
+import { AlertModal } from '@/components/ui/alert-modal';
+import { changePassword } from '@/services/api/auth';
 
 export default function SeguridadScreen() {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<{
+    currentPassword?: string;
+    newPassword?: string;
+    confirmPassword?: string;
+    general?: string;
+  }>({});
+  const [showSuccess, setShowSuccess] = useState(false);
 
-  const handleChangePassword = () => {
+  const validate = () => {
+    const newErrors: typeof errors = {};
+
+    if (!currentPassword.trim()) {
+      newErrors.currentPassword = 'La contraseña actual es requerida';
+    }
+
+    if (!newPassword.trim()) {
+      newErrors.newPassword = 'La nueva contraseña es requerida';
+    } else if (newPassword.length < 6) {
+      newErrors.newPassword = 'Mínimo 6 caracteres';
+    }
+
+    if (!confirmPassword.trim()) {
+      newErrors.confirmPassword = 'Confirma tu nueva contraseña';
+    } else if (newPassword !== confirmPassword) {
+      newErrors.confirmPassword = 'Las contraseñas no coinciden';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleChangePassword = async () => {
+    if (!validate()) return;
+
+    setIsSubmitting(true);
+    setErrors({});
+
+    try {
+      await changePassword({
+        currentPassword,
+        newPassword,
+      });
+      setShowSuccess(true);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : 'Error al cambiar la contraseña';
+      setErrors({ general: message });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSuccessClose = () => {
+    setShowSuccess(false);
     router.back();
   };
 
@@ -57,28 +112,49 @@ export default function SeguridadScreen() {
             <Input
               label="Contraseña actual"
               value={currentPassword}
-              onChangeText={setCurrentPassword}
+              onChangeText={(text) => {
+                setCurrentPassword(text);
+                if (errors.currentPassword)
+                  setErrors((prev) => ({ ...prev, currentPassword: undefined }));
+              }}
               placeholder="Ingresa tu contraseña actual"
               iconLeft="lock"
               secureTextEntry
+              error={errors.currentPassword}
             />
             <Input
               label="Nueva contraseña"
               value={newPassword}
-              onChangeText={setNewPassword}
+              onChangeText={(text) => {
+                setNewPassword(text);
+                if (errors.newPassword)
+                  setErrors((prev) => ({ ...prev, newPassword: undefined }));
+              }}
               placeholder="Mínimo 6 caracteres"
               iconLeft="lock"
               secureTextEntry
+              error={errors.newPassword}
             />
             <Input
               label="Confirmar nueva contraseña"
               value={confirmPassword}
-              onChangeText={setConfirmPassword}
+              onChangeText={(text) => {
+                setConfirmPassword(text);
+                if (errors.confirmPassword)
+                  setErrors((prev) => ({ ...prev, confirmPassword: undefined }));
+              }}
               placeholder="Repite la nueva contraseña"
               iconLeft="lock"
               secureTextEntry
+              error={errors.confirmPassword}
             />
           </View>
+
+          {errors.general && (
+            <Text className="mx-5 mt-4 text-center text-sm text-[#EF4444]">
+              {errors.general}
+            </Text>
+          )}
 
           <View className="mx-5 mt-10">
             <Button
@@ -86,6 +162,8 @@ export default function SeguridadScreen() {
               iconLeft="lock"
               variant="primary"
               onPress={handleChangePassword}
+              isLoading={isSubmitting}
+              loadingText="Cambiando..."
             />
           </View>
 
@@ -105,6 +183,26 @@ export default function SeguridadScreen() {
           </View>
         </ScrollView>
       </SafeAreaView>
+
+      <AlertModal
+        visible={showSuccess}
+        type="success"
+        title="¡Contraseña actualizada!"
+        message="Tu contraseña se ha cambiado correctamente."
+        buttonText="Continuar"
+        onClose={handleSuccessClose}
+      />
+
+      {errors.general && (
+        <AlertModal
+          visible={!!errors.general}
+          type="error"
+          title="Error"
+          message={errors.general}
+          buttonText="Cerrar"
+          onClose={() => setErrors((prev) => ({ ...prev, general: undefined }))}
+        />
+      )}
     </View>
   );
 }

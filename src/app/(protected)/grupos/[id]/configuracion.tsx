@@ -1,11 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
-import { View, Text, ScrollView, Pressable, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useFocusEffect } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { Input } from '@/components/ui/input';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { DistributionBar } from '@/components/ui/distribution-bar';
 import { AlertModal } from '@/components/ui/alert-modal';
@@ -599,10 +600,9 @@ export default function ConfiguracionGrupoScreen() {
         headerFinalTranslateY={0.15}
       >
         <View className="flex-1 px-5 pt-4">
-          <TextInput
-            className="rounded-xl border border-[#E2E8F0] bg-white px-4 py-3.5 text-base text-[#0F172A] shadow-sm"
+          <Input
+            iconLeft="pen"
             placeholder="Nombre del grupo"
-            placeholderTextColor="#94A3B8"
             value={editNameValue}
             onChangeText={setEditNameValue}
             autoFocus

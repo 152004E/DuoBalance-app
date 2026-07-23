@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { View, Text, TextInput, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView, Pressable } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { Input } from '@/components/ui/input';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
 import { Button } from '@/components/ui/button';
@@ -104,27 +105,19 @@ export function CreateExpenseSheet({
           showsVerticalScrollIndicator={false}
           contentContainerClassName="pb-4"
         >
-          {/* Amount */}
-          <Text className="mb-2 mt-2 text-sm font-semibold text-[#0F172A]">
-            💰 Valor
-          </Text>
-          <TextInput
-            className="rounded-xl border border-[#E2E8F0] bg-white px-4 py-3.5 text-base text-[#0F172A] shadow-sm"
+          <Input
+            label="Valor"
+            iconLeft="dollar-sign"
             placeholder="$ 0"
-            placeholderTextColor="#94A3B8"
             value={amount}
             onChangeText={setAmount}
             keyboardType="numeric"
           />
 
-          {/* Description */}
-          <Text className="mb-2 mt-5 text-sm font-semibold text-[#0F172A]">
-            📝 Descripción
-          </Text>
-          <TextInput
-            className="rounded-xl border border-[#E2E8F0] bg-white px-4 py-3.5 text-base text-[#0F172A] shadow-sm"
+          <Input
+            label="Descripción"
+            iconLeft="note-sticky"
             placeholder="Ej: Mercado, Cena, Gasolina..."
-            placeholderTextColor="#94A3B8"
             value={description}
             onChangeText={setDescription}
           />
@@ -164,14 +157,10 @@ export function CreateExpenseSheet({
             </View>
           </ScrollView>
 
-          {/* Date */}
-          <Text className="mb-2 mt-5 text-sm font-semibold text-[#0F172A]">
-            📅 Fecha
-          </Text>
-          <TextInput
-            className="rounded-xl border border-[#E2E8F0] bg-white px-4 py-3.5 text-base text-[#0F172A] shadow-sm"
+          <Input
+            label="Fecha"
+            iconLeft="calendar"
             placeholder="dd/mm/aaaa"
-            placeholderTextColor="#94A3B8"
             value={date}
             onChangeText={setDate}
           />

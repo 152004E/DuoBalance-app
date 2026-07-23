@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  TextInput,
   ScrollView,
   Pressable,
 } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { Input } from '@/components/ui/input';
 import { createGroup } from '@/services/api/groups';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
@@ -226,13 +226,10 @@ export function CreateCoupleSheet({
           {/* Step 2: Dynamic form per type */}
           {groupType === 'personal' && (
             <>
-              <Text className="mb-2 mt-6 text-sm font-semibold text-[#0F172A]">
-                Nombre del espacio
-              </Text>
-              <TextInput
-                className="rounded-xl border border-[#E2E8F0] bg-white px-4 py-3.5 text-base text-[#0F172A] shadow-sm"
+              <Input
+                label="Nombre del espacio"
+                iconLeft="pen"
                 placeholder="Ej: Mis gastos, Viaje personal"
-                placeholderTextColor="#94A3B8"
                 value={coupleName}
                 onChangeText={setCoupleName}
               />
@@ -246,13 +243,10 @@ export function CreateCoupleSheet({
 
           {groupType === 'pareja' && (
             <>
-              <Text className="mb-2 mt-6 text-sm font-semibold text-[#0F172A]">
-                Nombre de la pareja
-              </Text>
-              <TextInput
-                className="rounded-xl border border-[#E2E8F0] bg-white px-4 py-3.5 text-base text-[#0F172A] shadow-sm"
+              <Input
+                label="Nombre de la pareja"
+                iconLeft="pen"
                 placeholder="Ej: Hogar, Viaje a Italia"
-                placeholderTextColor="#94A3B8"
                 value={coupleName}
                 onChangeText={setCoupleName}
               />
@@ -350,13 +344,10 @@ export function CreateCoupleSheet({
 
           {groupType === 'grupo' && (
             <>
-              <Text className="mb-2 mt-6 text-sm font-semibold text-[#0F172A]">
-                Nombre del grupo
-              </Text>
-              <TextInput
-                className="rounded-xl border border-[#E2E8F0] bg-white px-4 py-3.5 text-base text-[#0F172A] shadow-sm"
+              <Input
+                label="Nombre del grupo"
+                iconLeft="pen"
                 placeholder="Ej: Compañeros de piso"
-                placeholderTextColor="#94A3B8"
                 value={coupleName}
                 onChangeText={setCoupleName}
               />

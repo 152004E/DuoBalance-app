@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, TextInput, Alert } from 'react-native';
+import { View, Text, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '@/hooks/use-auth';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { ProfileCard } from '@/components/perfil/profile-card';
@@ -116,45 +117,30 @@ export default function EditarPerfilScreen() {
             onChangePhoto={handleChangePhoto}
           />
 
-          <View className="mx-5 mt-8 space-y-5">
-            <View>
-              <Text className="mb-2 text-sm font-semibold text-[#0F172A]">
-                Nombre
-              </Text>
-              <TextInput
-                value={firstName}
-                onChangeText={setFirstName}
-                placeholder="Tu nombre"
-                placeholderTextColor="#94A3B8"
-                className="rounded-xl border border-[#E2E8F0] bg-white px-4 py-3.5 text-base text-[#0F172A]"
-              />
-            </View>
-            <View>
-              <Text className="mb-2 text-sm font-semibold text-[#0F172A]">
-                Apellido
-              </Text>
-              <TextInput
-                value={lastName}
-                onChangeText={setLastName}
-                placeholder="Tu apellido"
-                placeholderTextColor="#94A3B8"
-                className="rounded-xl border border-[#E2E8F0] bg-white px-4 py-3.5 text-base text-[#0F172A]"
-              />
-            </View>
-            <View>
-              <Text className="mb-2 text-sm font-semibold text-[#0F172A]">
-                Correo electrónico
-              </Text>
-              <TextInput
-                value={email}
-                onChangeText={setEmail}
-                placeholder="tu@email.com"
-                placeholderTextColor="#94A3B8"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                className="rounded-xl border border-[#E2E8F0] bg-white px-4 py-3.5 text-base text-[#0F172A]"
-              />
-            </View>
+          <View className="mx-5 mt-8 gap-5">
+            <Input
+              label="Nombre"
+              iconLeft="user"
+              value={firstName}
+              onChangeText={setFirstName}
+              placeholder="Tu nombre"
+            />
+            <Input
+              label="Apellido"
+              iconLeft="user"
+              value={lastName}
+              onChangeText={setLastName}
+              placeholder="Tu apellido"
+            />
+            <Input
+              label="Correo electrónico"
+              iconLeft="envelope"
+              value={email}
+              onChangeText={setEmail}
+              placeholder="tu@email.com"
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
           </View>
 
           <View className="mx-5 mt-10 gap-3">
