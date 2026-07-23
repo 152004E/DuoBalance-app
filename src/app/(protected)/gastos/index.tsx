@@ -1,4 +1,4 @@
-import { useCallback, useState, useRef } from 'react';
+import { useCallback, useState, useRef, useEffect } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect, useScrollToTop } from 'expo-router';
@@ -9,20 +9,41 @@ import { GroupSelector, type GroupOption } from '@/components/ui/group-selector'
 import { GroupSection } from '@/components/ui/group-section';
 import { RecentExpensesCard, type RecentExpense } from '@/components/expenses/recent-expenses-card';
 import { FloatingAddButton } from '@/components/dashboard/FloatingAddButton';
+import { getExpenses } from '@/services/api/expenses';
+import type { ExpenseResponse } from '@/types/api';
 
-const MOCK_COUPLE_RAW = [
-  { id: '1', name: 'Andrea', partnerName: 'Ana', totalExpenses: 1200000, partnerExpenses: 800000, transactionCount: 15 },
-  { id: '2', name: 'Carlos', partnerName: 'María', totalExpenses: 450000, partnerExpenses: 350000, transactionCount: 8 },
-  { id: '3', name: 'Daniela', partnerName: 'Luis', totalExpenses: 280000, partnerExpenses: 190000, transactionCount: 5 },
+const FILTER_OPTIONS: GroupOption[] = [
+  { id: 'all', name: 'Todos', type: 'personal' },
+  { id: 'personal', name: 'Personal', type: 'personal' },
+  { id: 'couple', name: 'Parejas', type: 'couple' },
+  { id: 'group', name: 'Grupos', type: 'group' },
 ];
 
-const MOCK_EXPENSES: RecentExpense[] = [
-  { id: '1', name: 'Pizza Hut', amount: 80000, paidBy: 'Ana', date: '15 Jun', category: 'ALIMENTACIÓN', icon: 'utensils', iconBg: '#F97316' },
-  { id: '2', name: 'Artículos de Aseo', amount: 120000, paidBy: 'Carlos', date: 'Hace 2 días', category: 'HOGAR', icon: 'soap', iconBg: '#3B82F6' },
-  { id: '3', name: 'Uber a Aeropuerto', amount: 45000, paidBy: 'Ana', date: '14 Jun', category: 'TRANSPORTE', icon: 'car', iconBg: '#8B5CF6' },
-  { id: '4', name: 'Cine Colombia', amount: 62500, paidBy: 'Andrea', date: '12 Jun', category: 'ENTRETENCIÓN', icon: 'film', iconBg: '#06B6D4' },
-  { id: '5', name: 'Juan Valdez', amount: 12000, paidBy: 'Emerson', date: 'Ayer', category: 'ALIMENTACIÓN', icon: 'mug-hot', iconBg: '#F97316' },
-];
+const CATEGORY_ICONS: Record<string, { icon: string; bg: string }> = {
+  ALIMENTACIÓN: { icon: 'basket-shopping', bg: '#F97316' },
+  TRANSPORTE: { icon: 'car', bg: '#8B5CF6' },
+  VIVIENDA: { icon: 'house', bg: '#3B82F6' },
+  SERVICIOS: { icon: 'bolt', bg: '#F59E0B' },
+  ENTRETENCIÓN: { icon: 'film', bg: '#06B6D4' },
+  OTROS: { icon: 'tag', bg: '#64748B' },
+};
+
+function expenseToRecent(e: ExpenseResponse, userId: string): RecentExpense {
+  const cat = CATEGORY_ICONS[e.category] ?? { icon: 'tag', bg: '#64748B' };
+  return {
+    id: e.id,
+    name: e.description,
+    amount: e.amount,
+    paidBy: e.paidById === userId ? 'Tú' : 'Otro',
+    date: new Date(e.createdAt).toLocaleDateString('es-CO', {
+      day: 'numeric',
+      month: 'short',
+    }),
+    category: e.category,
+    icon: cat.icon,
+    iconBg: cat.bg,
+  };
+}
 
 export default function GastosScreen() {
   const { user } = useAuth();
@@ -30,24 +51,37 @@ export default function GastosScreen() {
   const [focusCount, setFocusCount] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
-  const [selectedGroup, setSelectedGroup] = useState<string>('all');
+  const [selectedFilter, setSelectedFilter] = useState<string>('all');
+  const [allExpenses, setAllExpenses] = useState<ExpenseResponse[]>([]);
 
   useFocusEffect(
     useCallback(() => {
       setFocusCount(c => c + 1);
+      getExpenses().then(setAllExpenses);
     }, []),
   );
 
-  const totalExpensesAll = MOCK_COUPLE_RAW.reduce(
-    (sum, c) => sum + c.totalExpenses + c.partnerExpenses, 0,
-  );
-  const totalTransactionsAll = MOCK_COUPLE_RAW.reduce(
-    (sum, c) => sum + c.transactionCount, 0,
-  );
+  const showPersonal = selectedFilter === 'all' || selectedFilter === 'personal';
+  const showCouple   = selectedFilter === 'all' || selectedFilter === 'couple';
+  const showGroup    = selectedFilter === 'all' || selectedFilter === 'group';
 
-  const filteredGroups = selectedGroup === 'all'
-    ? groups
-    : groups.filter(g => g.id === selectedGroup);
+  const filteredGroups = groups.filter((g) => {
+    if (selectedFilter === 'all') return true;
+    if (selectedFilter === 'personal' && g.type === ('PERSONAL' as const)) return true;
+    if (selectedFilter === 'couple' && g.type === ('COUPLE' as const)) return true;
+    if (selectedFilter === 'group' && g.type === ('GROUP' as const)) return true;
+    return false;
+  });
+
+  const filteredGroupIds = new Set(filteredGroups.map((g) => g.id));
+  const filteredExpenses = allExpenses.filter((e) => filteredGroupIds.has(e.groupId));
+
+  const totalExpensesAll = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
+  const totalTransactionsAll = filteredExpenses.length;
+
+  const recentExpenses = filteredExpenses
+    .slice(0, 10)
+    .map((e) => expenseToRecent(e, user?.id ?? ''));
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]" edges={['top']}>
@@ -62,12 +96,13 @@ export default function GastosScreen() {
           variant="page"
           userName={user?.firstName ?? 'Usuario'}
           title="Gastos"
-          subtitle="Gastos totales por pareja"
+          subtitle="Gastos totales"
           height={220}
           rightAction={
             <GroupSelector
-              selectedId={selectedGroup}
-              onSelect={(g: GroupOption) => setSelectedGroup(g.id)}
+              selectedId={selectedFilter}
+              onSelect={(g: GroupOption) => setSelectedFilter(g.id)}
+              options={FILTER_OPTIONS}
               variant="dark"
             />
           }
@@ -115,7 +150,7 @@ export default function GastosScreen() {
               Últimos Movimientos
             </Text>
             <RecentExpensesCard
-              expenses={MOCK_EXPENSES}
+              expenses={recentExpenses}
               onExpensePress={(expense) => router.push(`/gastos/detalle/${expense.id}`)}
             />
           </View>

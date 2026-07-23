@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
@@ -6,23 +6,21 @@ import { ScreenHeader } from '@/components/ui/screen-header';
 import { RecentExpensesCard, type RecentExpense } from '@/components/expenses/recent-expenses-card';
 import { FloatingAddButton } from '@/components/dashboard/FloatingAddButton';
 import { CreateExpenseSheet } from '@/components/movements/create-expense-sheet';
+import { getGroup } from '@/services/api/groups';
+import { getExpenses, createExpense } from '@/services/api/expenses';
+import { useAuth } from '@/hooks/use-auth';
+import type { GroupResponse, ExpenseResponse } from '@/types/api';
 
-const MOCK_GROUP_NAMES: Record<string, string> = {
-  '1': 'Andrea',
-  '2': 'Carlos',
-  '3': 'Daniela',
-  '4': 'Viaje Cartagena',
-};
-
-const MOCK_MEMBERS: Record<string, { id: string; name: string }[]> = {
-  '1': [{ id: 'user1', name: 'Tú' }, { id: 'user2', name: 'Ana' }],
-  '2': [{ id: 'user1', name: 'Tú' }, { id: 'user3', name: 'María' }],
-  '3': [{ id: 'user1', name: 'Tú' }, { id: 'user4', name: 'Luis' }],
-  '4': [{ id: 'user1', name: 'Tú' }, { id: 'user5', name: 'Pedro' }, { id: 'user6', name: 'Sofía' }],
+const CATEGORY_ICONS: Record<string, { icon: string; bg: string }> = {
+  ALIMENTACIÓN: { icon: 'basket-shopping', bg: '#F97316' },
+  TRANSPORTE: { icon: 'car', bg: '#8B5CF6' },
+  VIVIENDA: { icon: 'house', bg: '#3B82F6' },
+  SERVICIOS: { icon: 'bolt', bg: '#F59E0B' },
+  ENTRETENCIÓN: { icon: 'film', bg: '#06B6D4' },
+  OTROS: { icon: 'tag', bg: '#64748B' },
 };
 
 const DATE_FILTERS = ['Este mes', 'Últimos 3 meses', 'Este año', 'Todo'] as const;
-
 const CATEGORY_FILTERS = [
   { label: '📋 Todas', value: 'all' },
   { label: '🍔 Comida', value: 'ALIMENTACIÓN' },
@@ -33,23 +31,56 @@ const CATEGORY_FILTERS = [
   { label: '📦 Otros', value: 'OTROS' },
 ] as const;
 
-const MOCK_EXPENSES: RecentExpense[] = [
-  { id: '1', name: 'Mercado Semanal', amount: 185000, paidBy: 'Ana', date: '15 Jun 2026', category: 'ALIMENTACIÓN', icon: 'basket-shopping', iconBg: '#F97316' },
-  { id: '2', name: 'Cuenta de Luz', amount: 95000, paidBy: 'Juan', date: '12 Jun 2026', category: 'SERVICIOS', icon: 'bolt', iconBg: '#F59E0B' },
-  { id: '3', name: 'Cine + Cena', amount: 120000, paidBy: 'Ana', date: '10 Jun 2026', category: 'ENTRETENCIÓN', icon: 'film', iconBg: '#06B6D4' },
-  { id: '4', name: 'Gasolina', amount: 85000, paidBy: 'Juan', date: '8 Jun 2026', category: 'TRANSPORTE', icon: 'gas-pump', iconBg: '#8B5CF6' },
-  { id: '5', name: 'Arriendo', amount: 800000, paidBy: 'Ana', date: '5 Jun 2026', category: 'VIVIENDA', icon: 'house', iconBg: '#3B82F6' },
-  { id: '6', name: 'Uber', amount: 15000, paidBy: 'Juan', date: '3 Jun 2026', category: 'TRANSPORTE', icon: 'car', iconBg: '#8B5CF6' },
-];
+function expenseToRecent(e: ExpenseResponse, userId: string): RecentExpense {
+  const payer = e.splits?.find((s) => s.userId === e.paidById)
+    ? undefined
+    : undefined;
+  const cat = CATEGORY_ICONS[e.category] ?? { icon: 'tag', bg: '#64748B' };
+  return {
+    id: e.id,
+    name: e.description,
+    amount: e.amount,
+    paidBy: e.paidById === userId ? 'Tú' : 'Otro',
+    date: new Date(e.createdAt).toLocaleDateString('es-CO', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    }),
+    category: e.category,
+    icon: cat.icon,
+    iconBg: cat.bg,
+  };
+}
 
 export default function GroupExpensesScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { user } = useAuth();
+  const [group, setGroup] = useState<GroupResponse | null>(null);
+  const [expenses, setExpenses] = useState<ExpenseResponse[]>([]);
   const [selectedDateFilter, setSelectedDateFilter] = useState<string>('Este mes');
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
   const [sheetVisible, setSheetVisible] = useState(false);
 
-  const groupName = MOCK_GROUP_NAMES[id ?? ''] ?? 'Grupo';
-  const members = MOCK_MEMBERS[id ?? ''] ?? [];
+  useEffect(() => {
+    if (!id) return;
+    getGroup(id).then(setGroup);
+    loadExpenses();
+  }, [id]);
+
+  const loadExpenses = async () => {
+    if (!id) return;
+    const data = await getExpenses({ groupId: id });
+    setExpenses(data);
+  };
+
+  if (!group || !user) return null;
+
+  const members = group.members.map((m) => ({
+    id: m.user.id,
+    name: m.user.id === user.id ? 'Tú' : m.user.firstName,
+  }));
+
+  const recentExpenses = expenses.map((e) => expenseToRecent(e, user.id));
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]" edges={['top']}>
@@ -59,7 +90,7 @@ export default function GroupExpensesScreen() {
         showsVerticalScrollIndicator={false}
       >
         <ScreenHeader
-          title={groupName}
+          title={group.name}
           subtitle="Todos los gastos del grupo"
           onBack={() => router.push(`/grupos/${id}`)}
         />
@@ -139,7 +170,7 @@ export default function GroupExpensesScreen() {
         {/* Expenses List */}
         <View className="mt-6 px-5">
           <RecentExpensesCard
-            expenses={MOCK_EXPENSES}
+            expenses={recentExpenses}
             onExpensePress={(expense) =>
               router.push(`/gastos/detalle/${expense.id}`)
             }
@@ -163,8 +194,13 @@ export default function GroupExpensesScreen() {
         visible={sheetVisible}
         onClose={() => setSheetVisible(false)}
         groupId={id ?? ''}
-        groupName={groupName}
+        groupName={group.name}
         members={members}
+        onCreateExpense={async (payload) => {
+          await createExpense(payload as any);
+          setSheetVisible(false);
+          loadExpenses();
+        }}
       />
     </SafeAreaView>
   );

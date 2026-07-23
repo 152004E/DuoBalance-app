@@ -17,6 +17,15 @@ interface CreateExpenseSheetProps {
   groupId: string;
   groupName: string;
   members: Member[];
+  onCreateExpense?: (payload: {
+    description: string;
+    amount: number;
+    category: string;
+    splitType: 'EQUAL' | 'PERCENTAGE';
+    groupId: string;
+    paidById: string;
+    splits?: { userId: string; percentage: number }[];
+  }) => void;
 }
 
 const CATEGORIES = [
@@ -39,8 +48,10 @@ function getTodayDate(): string {
 export function CreateExpenseSheet({
   visible,
   onClose,
+  groupId,
   groupName,
   members,
+  onCreateExpense,
 }: CreateExpenseSheetProps) {
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
@@ -340,7 +351,29 @@ export function CreateExpenseSheet({
           <Button
             text="Registrar gasto"
             iconRight="check"
-            onPress={onClose}
+            onPress={() => {
+              const splits = members
+                .filter((m) => selectedParticipants.includes(m.id))
+                .map((m) => ({
+                  userId: m.id,
+                  percentage:
+                    splitType === 'EQUAL'
+                      ? Math.round(100 / selectedParticipants.length)
+                      : m.id === members[0]?.id
+                        ? yourPercentage
+                        : 100 - yourPercentage,
+                }));
+
+              onCreateExpense?.({
+                description,
+                amount: parseFloat(amount),
+                category,
+                splitType,
+                groupId,
+                paidById: paidBy,
+                splits,
+              });
+            }}
             disabled={!isFormValid}
             className="rounded-full py-4"
           />
