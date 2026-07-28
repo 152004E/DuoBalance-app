@@ -1,5 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
 export interface RecentExpense {
   id: string;
@@ -34,7 +35,7 @@ export function RecentExpensesCard({ expenses, onViewAll, onExpensePress }: Rece
         <Text className="text-[17px] font-bold text-[#0F172A]">
           Gastos Recientes
         </Text>
-        <Pressable onPress={onViewAll}>
+        <Pressable onPress={() => router.push('/gastos/Movimientos')}>
           <Text className="text-sm font-semibold text-[#006c49]">
             Ver todo
           </Text>

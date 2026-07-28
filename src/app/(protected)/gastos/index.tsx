@@ -162,7 +162,7 @@ export default function GastosScreen() {
         </View>
       </ScrollView>
 
-      <FloatingAddButton onPress={() => router.push('/gastos/add')} />
+      <FloatingAddButton icon="angle-up" />
     </SafeAreaView>
   );
 }

@@ -2,10 +2,87 @@
 
 > **Nota:** El despliegue en tiendas de aplicaciones ocurre ÚNICAMENTE cuando el proyecto alcance estado beta. Hasta entonces todo corre en localhost con Expo Go.
 
+---
+
+## Estado del Backend (revisión por módulos)
+
+> **Conclusión clave:** El backend está prácticamente completo. Ya no estamos en una etapa de construir lógica de negocio, sino en una etapa de **integrar y consumir esa lógica desde el frontend**.
+
+| Módulo | Estado | Cobertura |
+|--------|--------|-----------|
+| **Auth** | ✅ Completo | Login, register, profile, password, avatar |
+| **Groups** | ✅ Completo | CRUD, invite, join, members, archive (10/10) |
+| **Expenses** | ✅ Muy sólido | EQUAL, PERSONAL, PERCENTAGE, Soft Delete + recalc balance |
+| **Balance** | ✅ Completo | Recalculado en tiempo real, no persistido |
+| **Payments** | ✅ Completo | Validaciones: amount 0, pago a sí mismo, usuario inexistente, sin grupo |
+| **Settlement** | ✅ Completo | Separa Balance (deudas) de Settlement (pagos) |
+| **Settlement Suggestions** | ✅ Completo | Algoritmo tipo Splitwise "Pedro → Ana: $150" |
+| **Percentage Split** | ✅ Completo | Tests: 70/30, 60/40, 90%, 110% |
+| **Dashboard** | ✅ Completo | Balance, settlement, month expenses, count, top category, by category, last expense, monthly comparison |
+
+### Lo que esto significa
+- ✅ Toda la lógica de negocio existe en backend
+- ✅ Recalcula balances en soft-delete (no persiste, se calcula on-demand)
+- ✅ Separa Balance vs Settlement (bien diseñado)
+- ✅ Dashboard ya devuelve resumen completo del MVP
+- 🚧 **Lo único que falta es frontend**: conectar pantallas
+
+### Decisión de producto
+**No desarrollar más lógica de negocio. Dedicarse a conectar pantallas.**
+
+### Ejemplo real — Balance Engine ya funciona en backend
+
+```json
+{
+  "totalExpenses": 300,
+  "totalPaidByMe": 200,
+  "totalPaidByPartner": 100,
+  "myShare": 150,
+  "partnerShare": 150,
+  "balance": 50,
+  "direction": "OWED_TO_ME"
+}
+```
+
+Tras soft-delete: balance se recalcula automáticamente. Eso demuestra que el cálculo es correcto y reactivo.
+
+### Separación Balance vs Settlement (ya implementada en backend)
+
+| Concepto | Ejemplo |
+|----------|---------|
+| **Balance** | "Debes 150" (deuda actual) |
+| **Settlement** | "Pagaste 50" (pago histórico) |
+| **Balance neto** | "Debes 100" (después del pago) |
+
+Backend ya maneja ambos conceptos separados. Frontend solo debe consumirlos.
+
+---
+
+## Arquitectura de Datos (Dependency Chain)
+
+```
+Expenses
+    │
+    ▼
+Shares (división por miembro)
+    │
+    ▼
+Balance (agregación: paid - share)
+    │
+    ▼
+Settlements (pagos para saldar balance)
+```
+
+Cada nivel depende estrictamente del anterior. No se puede calcular balance sin shares, ni shares sin expenses.
+
+---
+
 ## Legend
 - ✅ Done
 - 🔄 In Progress / Partial
 - ❌ Not Started
+
+---
 
 ## Vistas — Estado actual
 
@@ -14,147 +91,282 @@
 | WelcomeScreen | `(auth)/` → `index.tsx` | ✅ |
 | Login | `(auth)/login.tsx` | ✅ |
 | Register | `(auth)/register.tsx` | ✅ |
-| Forgot Password | `(auth)/forgot-password.tsx` | 🚧 UI lista, backend pendiente |
-| Dashboard | `(protected)/index.tsx` | ✅ (groups from API via useGroups, mock balance/transactions) |
-| Gastos (lista) | `(protected)/gastos/index.tsx` | ✅ (expense list with filters) |
+| Forgot Password | `(auth)/forgot-password.tsx` | 🔄 UI lista, backend pendiente |
+| Dashboard | `(protected)/index.tsx` | 🔄 UI lista, mocks (balance/transactions/categories) |
+| Gastos (lista) | `(protected)/gastos/index.tsx` | ✅ (API connected via getExpenses, filtros) |
 | Add Expense | `(protected)/gastos/add.tsx` | ✅ (standalone form) |
-| Expense Detail | `(protected)/gastos/detalle/[id].tsx` | ✅ (hero, info, participants, split, receipt, timeline, actions) |
-| Group List | `(protected)/grupos/index.tsx` | ✅ (API connected via useGroups, group filtering by type) |
-| Group Detail | `(protected)/grupos/[id].tsx` | ✅ (API connected) |
-| Join Group | `(protected)/grupos/join.tsx` | ✅ (JoinGroupSheet implemented as bottom sheet, API connected) |
-| Group Expenses | `(protected)/grupos/[id]/gastos.tsx` | ✅ (date/category filters, CreateExpenseSheet) |
-| Reports | `(protected)/reportes.tsx` | ✅ (mock data) |
-| Perfil | `(protected)/perfil.tsx` | ✅ (avatar, user info, menu options, logout) |
-| Editar Perfil | `(protected)/perfil/editar.tsx` | ✅ (name, email, avatar upload via ImagePicker) |
-| Seguridad / Change Password | `(protected)/perfil/seguridad.tsx` | ✅ (validation, API changePassword, AlertModal success/error) |
-| Group Settings | `(protected)/grupos/[id]/configuracion.tsx` | ✅ (name, split %, members, invite code, regenerate code, notifications, danger zone — API connected) |
+| Expense Detail | `(protected)/gastos/detalle/[id].tsx` | ✅ (API connected: getExpense, deleteExpense) |
+| Group List | `(protected)/grupos/index.tsx` | ✅ (API connected via useGroups) |
+| Group Detail | `(protected)/grupos/[id].tsx` | 🔄 UI + API group, MOCK_EXPENSES pendiente |
+| Join Group | `(protected)/grupos/join.tsx` | ✅ (JoinGroupSheet, API connected) |
+| Group Expenses | `(protected)/grupos/[id]/gastos.tsx` | ✅ (API connected: getExpenses, createExpense) |
+| Reports | `(protected)/reportes.tsx` | 🔄 UI lista, mock data (BAR_DATA, DONUT_DATA) |
+| Perfil | `(protected)/perfil.tsx` | ✅ |
+| Editar Perfil | `(protected)/perfil/editar.tsx` | ✅ (API connected, ImagePicker) |
+| Seguridad / Change Password | `(protected)/perfil/seguridad.tsx` | ✅ (validation, API, AlertModal) |
+| Group Settings | `(protected)/grupos/[id]/configuracion.tsx` | ✅ (API connected) |
 | Pay Screen | `(protected)/pagos/index.tsx` | ❌ |
 | Payment History | `(protected)/pagos/` | ❌ |
 | Receipt Capture | `(protected)/gastos/receipt.tsx` | ❌ |
 
-## Prioridad de implementación
+---
 
-### P1 — Imprescindibles (MVP)
-- [❌] Split Picker Component — prerrequisito del Add Expense
-- [✅] Expense List Screen — reemplazar placeholder de Gastos
-- [✅] Add Expense Screen — core de la app
-- [✅] Conectar botón "Registrar gasto" en detalle de grupo → CreateExpenseSheet
-- [✅] Expense Detail Screen — tap en lista lleva aquí
-- [✅] Profile Screen — avatar, user info, menu options, logout
-- [✅] Group Settings Screen — nombre, split %, miembros, notificaciones, zona peligrosa
-- [✅] Join Group — completar flujo de unión
+# Sprint 1: Expenses CRUD + Users + Groups (MVP Core)
 
-### P2 — Importantes
-- [✅] Backend API — Groups (CREATE `src/services/api/groups.ts`)
-- [❌] Backend API — Expenses (CREATE `src/services/api/expenses.ts`)
-- [❌] Backend API — Dashboard (CREATE `src/services/api/dashboard.ts`)
-- [❌] Backend API — Reports
-- [❌] Backend API — Payments/Settlements (CREATE `src/services/api/payments.ts`)
-- [❌] Expense Edit Mode
-- [❌] Response Interceptor 401
+**Objetivo**: Registro completo de gastos con categorías, quién pagó, fecha, comprobante, tipo de división.
 
-### P3 — Mejoras
-- [❌] Settlement + Payment screens
-- [❌] Receipt Capture
-- [❌] Forgot Password backend
-- [❌] Polish (dark mode, i18n, offline, notificaciones)
+En esta fase **aún no se muestra quién le debe a quién** (eso es Sprint 3). Solo se guarda la información correctamente.
 
-## Phase 1: Foundation
-- [✅] Expo project init (`create-expo-app` with SDK 56)
+## ✅ Foundation (transversal)
+- [✅] Expo project init (`create-expo-app` con SDK 56)
 - [✅] TypeScript strict mode config
 - [✅] Navigation setup (Expo Router file-based routing)
 - [✅] Styling config (NativeWind v4 + Tailwind CSS v3)
 - [✅] Theme configuration (colors, typography, spacing)
 - [✅] ESLint + Prettier integration
 - [✅] Import aliases (`@components/*`, `@features/*`, `@context/*`, `@storage/*`, etc.)
-- [✅] Environment config (`.env` with `EXPO_PUBLIC_*` prefix)
+- [✅] Environment config (`.env` con `EXPO_PUBLIC_*` prefix)
 - [✅] API client (Axios instance with request interceptor)
 - [✅] Secure token storage (expo-secure-store)
 - [✅] API types (all backend DTOs mapped in `src/types/api.ts`)
+- [✅] BottomSheet, BottomSheetHeader (backdrop, drag indicator, spring animations)
+- [✅] Button (5 variants), Input, Card, Loading, EmptyState, AlertModal
+- [✅] PercentageSlider, DistributionBar
+- [✅] GroupSection, GroupSelector
+- [✅] BottomTab (5 tabs), ScreenHeader, SplashScreen, HeroSection
+- [✅] Toast notifications, staggered entrance animations
 
-## Phase 2: Auth Screens
-- [✅] Auth context/provider (AuthContext + AuthProvider)
-- [✅] useAuth hook (with token persistence on mount)
-- [✅] Route scaffolding ((auth)/ and (protected)/ groups)
-- [✅] WelcomeScreen with HeroSection + BenefitCards
-- [✅] Enhanced Input component (iconLeft, iconRight, onIconRightPress, secureTextEntry toggle, focus border with instant green + blur border reset)
-- [✅] Reusable auth components (AuthHeader, AuthDivider, SocialLoginButton, AuthFooter)
-- [✅] Login screen (email + password form) — UI + full API integration (authService.login → getProfile → signIn)
-- [✅] Register screen (firstName + lastName + email + password) — UI + full API integration (register → login → getProfile → signIn → AlertModal → dashboard)
-- [🔄] Forgot password screen — UI complete (email form), pending backend connection + endpoint
-- [✅] Change password screen — full implementation with validation, API call (PATCH /auth/password), success/error AlertModal
-- [✅] Custom AlertModal component (success/error/warning/info, BlurView backdrop, animated)
-- [✅] Toast notifications via react-native-toast-message (configured in root layout)
-- [✅] Root layout with AuthProvider + conditional routing (index.tsx)
-- [✅] Protected route wrapper (redirect to login if no token)
-- [✅] Token persistence — use-auth reads stored token on mount and triggers auth state
-- [❌] Response interceptor (401 → redirect to login)
+## ✅ Auth
+- [✅] AuthContext + AuthProvider
+- [✅] useAuth hook (con token persistence on mount)
+- [✅] Route scaffolding ((auth)/ y (protected)/ groups)
+- [✅] WelcomeScreen con HeroSection + BenefitCards
+- [✅] Login screen (API integration: login → getProfile → signIn)
+- [✅] Register screen (register → login → getProfile → signIn → AlertModal)
+- [✅] Change password screen (PATCH /auth/password, validation, AlertModal)
+- [✅] Edit profile screen (name, email, avatar upload)
+- [✅] Protected route wrapper (redirect a login si no token)
+- [✅] Token persistence
+- [🔄] Forgot password — UI completa, backend endpoint pendiente
+- [❌] Response interceptor (401 → redirect a login)
 
-## Phase 3: Group Management (antes "Couple Management")
-- [✅] Group list screen — GroupCard, GroupSection, FloatingAddMenu (FAB → create/join group bottom sheet), group menu sheet, invite member sheet, JoinGroupSheet
-- [✅] Group creation bottom sheet — name, percentage split slider, generate invite code, type selector (PERSONAL/COUPLE/GROUP) — connected to API
-- [✅] Group detail screen — financial hero card, settlement status, distribution bar, expenses, settings, group menu sheet, invite member sheet — connected to API
-- [✅] Group settings screen — name, split %, members, invite code, regenerate code, type, notifications, danger zone — connected to API
-- [✅] JoinGroupSheet — bottom sheet with invite code entry form + QR scanner placeholder — connected to API
-- [✅] Per-group expense list (`grupos/[id]/gastos.tsx`) — date/category filters, RecentExpensesCard, CreateExpenseSheet
-- [✅] useGroups() hook — loads groups from API, classifies by type (PERSONAL/COUPLE/GROUP), exposes refetch
-- [✅] GroupCard component — reusable card with type icon, member count, balance, optional menu
-- [✅] GroupSection component — reusable section with horizontal/vertical orientation
-- [✅] groups.ts API service — full CRUD (create, join, list, get, update, delete, archive, regenerate invite, remove member, update split)
-- [❌] **Reemplazar balance mock en GroupCard por balance real del backend** — Pendiente endpoint `GET /groups/:id/balance`
+## ✅ Groups (API connected)
+- [✅] Group list screen (GroupCard, FloatingAddMenu, JoinGroupSheet, InviteMemberSheet)
+- [✅] Create group (`CreateCoupleSheet` con type selector, API connected)
+- [✅] Group detail screen (financial hero, settlement status, distribution, expenses)
+- [✅] Group settings screen (name, split %, members, invite code, regenerate, danger zone)
+- [✅] JoinGroupSheet (invite code entry + QR placeholder)
+- [✅] Per-group expense list (`grupos/[id]/gastos.tsx`)
+- [✅] useGroups() hook (loads from API, classifies by type, refetch)
+- [✅] GroupCard component
+- [✅] groups.ts API service (full CRUD)
 
-## Phase 4: Expense Screens
-- [✅] Expense list screen (flat list with category filters + group filter)
-- [✅] Add expense screen (amount, description, category, split picker)
-- [✅] Expense detail screen (full info with hero, info, participants, split, receipt, timeline, actions)
-- [❌] Split picker UI component (equal/percentage/custom) — pending
+## 🔄 Expenses CRUD — Estado actual
+- [🔄] **Expense List** (`gastos/index.tsx`) — usa `getExpenses`, falta verificar filtros completos
+- [🔄] **Expense Detail** (`gastos/detalle/[id].tsx`) — usa `getExpense`, `deleteExpense`, falta confirmar UI edit/delete
+- [✅] **Group Expenses** (`grupos/[id]/gastos.tsx`) — usa `getExpenses`, `createExpense`
+- [✅] **CreateExpenseSheet** (bottom sheet: amount, description, category, date, paid-by, participants, split type)
+- [✅] **Expense Hero Card** + 6 componentes del detalle (info, participants, split, receipt, timeline, actions)
+- [✅] **expenses.ts API service** (create, list, get, update, delete)
 
-## Phase 5: Dashboard
-- [✅] Dashboard screen — HeroSection, GroupSection (groups from API), MemberBalance, TopCategory, RecentTransactions, FloatingAddButton
-- [✅] Partner/Member balance display (MemberBalance component)
-- [✅] Category breakdown chart (DonutChart component)
-- [✅] Recent transactions list (RecentTransactions component)
-- [✅] Floating action button (FloatingAddButton)
-- [❌] Settlement suggestions list
-- [❌] Backend API integration for dashboard/balances (mock data remains)
+## ❌ Sprint 1 — Pendiente
+- [❌] **Edit Expense UI** — pantalla/hoja de edición (reutilizar CreateExpenseSheet con `mode="edit"`)
+- [❌] **Delete Expense UI** — confirmación en detail/actions
+- [❌] **Split Picker Component** — selector visual EQUAL / PERCENTAGE / CUSTOM / PERSONAL
+- [❌] **Receipt Capture (básico)** — ImagePicker, preview, upload placeholder
+- [❌] **Categories** — verificar/definir enum (FOOD, TRANSPORT, RENT, SERVICES, ENTERTAINMENT, OTHER)
+- [❌] **Split type guardado** — verificar que `POST /expenses` acepta y guarda `splitType`
 
-## Phase 6: Reports & Analytics
-- [✅] Reports screen — period filter, donut chart, top categories, stats cards (mock data)
-- [❌] Reports backend API integration
+### Criterios de done Sprint 1
+- Usuario puede crear, ver, editar, eliminar gastos
+- Gasto guarda: monto, descripción, categoría, fecha, pagado por, split type
+- Lista de gastos muestra datos reales (no mock)
+- Filtros por fecha/categoría/grupo funcionan
 
-## Phase 7: New UI Components
-- [✅] BottomSheet — reusable modal with backdrop, drag indicator, spring animations
-- [✅] BottomSheetHeader — reusable header with premium gradients, spring transitions, safe-area insets
-- [✅] PercentageSlider — animated slider with gradient fill
-- [✅] DistributionBar — stacked horizontal distribution bar
-- [✅] Button — reusable with 5 variants (primary/secondary/outline/danger/link)
-- [✅] AlertModal — reusable with 4 types, BlurView backdrop
-- [✅] Card, Loading, EmptyState — all generic primitives
-- [✅] Layout components — BottomTab (5 tabs), ScreenHeader, SplashScreen, HeroSection (unified dashboard/page variants)
-- [✅] Dashboard components — BalanceCard, MemberBalance, RecentTransactions, FloatingAddButton, FloatingAddMenu, TopCategory, AddGroupCard, BarChart, DonutChart
-- [✅] Group components — GroupCard, GroupSection, GroupSelector, InviteCodeCard, CreateGroupSheet, CoupleMenuSheet, InviteMemberSheet, JoinGroupSheet
+---
 
-## Phase 8: Receipt Capture
-- [❌] Camera/gallery integration (expo-image-picker / expo-camera)
-- [❌] Receipt preview screen
-- [❌] Upload progress indicator
-- [❌] Extracted data confirmation screen
+# Sprint 2: Expense Shares + Splits Engine
 
-## Phase 9: Payment Screens
-- [❌] Pay screen (select amount, confirm payment)
-- [❌] Payment history list
-- [❌] Settlement suggestion cards
+**Objetivo**: Calcular y persistir la participación de cada miembro al crear un gasto.
 
-## Phase 10: Polish
+Capa crítica que se suele olvidar pero hace el sistema escalable:
+
+```
+Expense
+├── id: 20
+├── amount: 100000
+├── paidBy: Andrea
+│
+└── Genera automáticamente ExpenseShares:
+    ├── Andrea: share = 50000
+    └── Emerson: share = 50000
+```
+
+Una vez persistidas las shares, **ya no necesitas recalcular el reparto** en cada lectura.
+
+## Tipos de Split
+
+| Split Type | Lógica |
+|------------|--------|
+| **EQUAL** | Monto / N miembros |
+| **PERCENTAGE** | Monto × % de cada miembro (configurado en grupo) |
+| **CUSTOM** | Usuario define monto exacto por miembro |
+| **PERSONAL** | 100% al usuario que paga (grupo tipo PERSONAL) |
+
+## ❌ Sprint 2 — Pendiente
+
+### Backend
+- [❌] **Verificar**: `POST /expenses` crea registros en tabla `expense_shares` (o `splits`)
+- [❌] **Verificar**: Endpoint acepta payload con `splits: [{ userId, percentage, amount }]`
+- [❌] **Verificar**: Schema Prisma tiene tabla `ExpenseShare` (o equivalente)
+- [❌] **Endpoint**: `GET /expenses/:id` devuelve shares con datos del usuario (UserBrief)
+
+### Frontend
+- [❌] **Split Picker UI completo** — tarjetas visuales con preview de cuánto le toca a cada uno
+- [❌] **CreateExpenseSheet** — calcula shares en cliente antes de enviar, preview en vivo
+- [❌] **ExpenseDetail** — `ExpenseSplit` component ya existe, conectar a shares reales
+- [❌] **EditExpenseSheet** — recalcula shares al editar
+- [❌] **Validación** — suma de splits debe ser 100% (PERCENTAGE) o 100% del monto (CUSTOM)
+- [❌] **Adaptar a tipos de grupo**:
+  - PERSONAL (1 miembro): sin split, 100% al usuario
+  - COUPLE (2): EQUAL o PERCENTAGE
+  - GROUP (N): EQUAL, PERCENTAGE, CUSTOM
+
+### Criterios de done Sprint 2
+- Al crear gasto, se persisten shares correctos en backend
+- UI muestra preview: "Andrea paga $50.000, Emerson debe $50.000"
+- Split Picker funciona para los 4 tipos
+- Edit expense recalcula shares
+- `GET /expenses/:id` devuelve shares con info del usuario
+
+---
+
+# Sprint 3: Balance Engine + Dashboard Real
+
+**Objetivo**: Agregar shares → balance por usuario → mostrar en Dashboard y Group Detail.
+
+## Fórmula (algoritmo pequeño)
+
+```
+Para cada usuario en un grupo:
+  paid   = SUM(expenses WHERE paidBy = user)
+  share  = SUM(expense_shares WHERE userId = user)
+  balance = paid - share
+
+  direction:
+    balance > 0  → OWED_TO_ME  (me deben)
+    balance < 0  → I_OWE       (debo)
+    balance = 0  → SETTLED     (saldado)
+```
+
+## ❌ Sprint 3 — Pendiente
+
+### Backend (verificar)
+- [❌] `GET /balances` — agregación global por usuario
+- [❌] `GET /groups/:id/balance` — balance por grupo
+- [❌] `GET /dashboard` — summary del dashboard
+- [❌] `GET /reports` (o equivalente) — agregaciones para Reports
+
+### Frontend API services (crear)
+- [❌] `src/services/api/balances.ts` — getBalances, getGroupBalance
+- [❌] `src/services/api/dashboard.ts` — getDashboard
+
+### Pantallas a conectar con API real
+- [❌] **Dashboard** (`index.tsx`) — reemplazar MOCK_BALANCE, MOCK_TRANSACTIONS, MOCK_TOP_CATEGORY, MOCK_PARTNER_BALANCE
+- [❌] **Group Detail** (`grupos/[id].tsx`) — reemplazar MOCK_EXPENSES con expenses reales + balance real del grupo
+- [❌] **Reports** (`reportes.tsx`) — reemplazar BAR_DATA y DONUT_DATA con agregaciones reales
+
+### Componentes a conectar
+- [❌] **MemberBalance** component — conectar a balance real
+- [❌] **RecentTransactions** — conectar a expenses reales del usuario
+- [❌] **TopCategory** — conectar a agregación real por categoría
+- [❌] **DonutChart / BarChart** — alimentar con datos reales
+
+### Criterios de done Sprint 3
+- Dashboard muestra balance real: "Te deben $X" / "Debes $X" / "Saldado"
+- Group Detail muestra hero financiero con totales reales
+- Reports muestran datos reales del período seleccionado
+- No queda mock data en Dashboard, Group Detail, Reports
+
+---
+
+# Sprint 4: Settlements + Payments
+
+**Objetivo**: Registrar pagos entre usuarios para saldar balances.
+
+## Flujo completo
+
+```
+Balance: Emerson debe $70.000 a Andrea
+    │
+    ▼
+Emerson transfiere $70.000 (fuera de la app o integración bancaria futura)
+    │
+    ▼
+Registrar Payment en app:
+    POST /payments { amount: 70000, toUserId: andrea_id, groupId }
+    │
+    ▼
+Balance se actualiza → $0 (SETTLED)
+    │
+    ▼
+Settlements history muestra:
+    "Emerson pagó $70.000 a Andrea el 15/01/2026"
+```
+
+## ❌ Sprint 4 — Pendiente
+
+### Backend (verificar)
+- [❌] `POST /payments` — registrar pago entre usuarios
+- [❌] `GET /payments` — historial de pagos (con filtros)
+- [❌] `GET /settlements` — neto histórico por grupo
+- [❌] `GET /settlements/suggestions` — algoritmo "quién le debe a quién"
+
+### Frontend API services
+- [❌] `src/services/api/payments.ts` — createPayment, getPayments
+- [❌] `src/services/api/settlements.ts` — getSettlements, getSettlementSuggestions
+
+### Pantallas
+- [❌] **Pay Screen** (`pagos/index.tsx`) — seleccionar monto, confirmar pago, registrar en API
+- [❌] **Payment History** — lista de pagos realizados/recibidos
+- [❌] **Settlement Suggestions** — cards "Transfiere $X a Y para saldar"
+- [❌] **Dashboard** — sección de suggestions si hay balances pendientes
+- [❌] **Group Detail** — settlement status card con botón "Saldar"
+
+### Criterios de done Sprint 4
+- Usuario puede registrar pago y ver historial
+- Sugerencias automáticas: "Para saldar, transfiere $70.000 a Andrea"
+- Balance cambia a SETTLED tras payment
+- Settlements endpoint devuelve neto histórico
+
+---
+
+# Post-MVP: Polish + Production (v1.0)
+
+| Área | Tareas |
+|------|--------|
+| **Receipt Capture completo** | OCR, extracción datos, confirmación |
+| **Push Notifications** | expo-notifications, permisos, handlers |
+| **Dark Mode** | Theme context, toggle, persist |
+| **i18n** | Español/Inglés, react-i18next |
+| **Offline Support** | React Query / TanStack Query, optimistic updates |
+| **Response Interceptor 401** | Redirect a login en axios interceptor |
+| **Forgot Password** | Backend endpoint + frontend connect |
+| **App Store Deploy** | EAS Build, TestFlight/Play Console, icons, splash |
+
 - [❌] Push notifications (expo-notifications)
 - [❌] Dark mode
 - [❌] i18n (multi-language)
 - [❌] Offline support
 - [✅] App icon + splash screen
-- [✅] Staggered entrance animations on auth screens (Logo, Title, Inputs, Buttons)
+- [✅] Staggered entrance animations
 
-## Phase 11: Deployment — Beta
+---
+
+# Phase Deployment — Beta
+
 > Todo el desarrollo previo corre en localhost con Expo Go. Solo al llegar a beta se despliega.
+
 - [❌] Conectar con backend desplegado (URL de producción)
 - [❌] Generar APK con EAS Build (`eas build --platform android`)
 - [❌] Pruebas en dispositivo físico con APK
@@ -163,11 +375,11 @@
 
 ---
 
-## Fase Post-MVP: Multi-actor Support (v2.0+)
+# Fase Post-MVP: Multi-actor Support (v2.0+)
 
-Una vez completado el MVP (frontend + backend conectados), se generaliza la plataforma para que no esté limitada a parejas, sino que soporte **tres tipos de actores**.
+Una vez completado el MVP (Sprints 1-4 completos), se generaliza la plataforma para soporte de **tres tipos de actores**.
 
-> **Nota importante:** El frontend ya comenzó esta migración. Las rutas están en `grupos/` (no `pareja/`), la terminología usa "Grupos", y `CreateCoupleSheet` ya incluye un selector de tipo (personal/pareja/grupo). Lo que falta es la migración del backend y conectar los endpoints de grupos.
+> **Nota**: El frontend ya comenzó esta migración. Las rutas están en `grupos/`, la terminología usa "Grupos", y `CreateCoupleSheet` ya incluye un selector de tipo.
 
 | Tipo | Emoji | Descripción | Miembros máx | Split típico |
 |------|-------|-------------|--------------|--------------|
@@ -175,7 +387,7 @@ Una vez completado el MVP (frontend + backend conectados), se generaliza la plat
 | Pareja | ❤️ | Gastos compartidos entre dos | 2 | 50/50, % personalizado |
 | Grupo | 👥 | Roommates, familia, viaje, amigos | N (3+) | Equal, %, por producto |
 
-### ✅ Ya implementado en frontend
+## ✅ Ya implementado en frontend
 
 | Cambio | Estado |
 |--------|--------|
@@ -186,9 +398,9 @@ Una vez completado el MVP (frontend + backend conectados), se generaliza la plat
 | `JoinGroupSheet` con entrada de código | ✅ Completo |
 | `GroupSelector` UI component | ✅ Completo |
 
-### ❌ Pendiente para v2.0 (backend + frontend)
+## ❌ Pendiente para v2.0 (backend + frontend)
 
-#### Backend
+### Backend
 1. **Base de datos**
    - Tabla `groups` (reemplaza `couples`): agregar columna `type: PERSONAL | COUPLE | GROUP`
    - Tabla `group_members`: relación N:N con roles opcionales
@@ -218,21 +430,22 @@ GroupMembers
 
 Expenses
 ├── id
-├── groupId (FK → groups, no coupleId)
+├── groupId (FK → groups)
 ├── paidById
 ├── amount
 ├── category
 ├── splitType (EQUAL | PERCENTAGE | CUSTOM | PERSONAL)
 
-Splits
+ExpenseShares (Sprint 2 — capa crítica)
 ├── id
 ├── expenseId
 ├── userId
-├── percentage
-├── amount
+├── shareAmount (lo que le toca)
+├── percentage (% aplicado)
+└── createdAt
 ```
 
-#### Frontend (pendiente)
+### Frontend (pendiente)
 1. **Nuevas pantallas**
    - `grupos/crear.tsx` con selector de tipo (Personal/Pareja/Grupo)
    - `grupos/[id]/miembros.tsx` listado y gestión de miembros (solo GROUP)
@@ -244,7 +457,7 @@ Splits
    - `PartnerBalance` → `MemberBalance` (soporta N miembros)
    - `CreateCoupleSheet` → `CreateGroupSheet`
 
-5. **Split picker**
+3. **Split picker adaptativo** (relacionado con Sprint 2)
    - PERSONAL: sin split (100% usuario)
    - COUPLE: 50/50, %, o personal
    - GROUP: equal, %, o custom por producto
@@ -253,13 +466,13 @@ Splits
 
 | Fase | Actor | Prioridad |
 |------|-------|-----------|
-| 1 | ❤️ Pareja (ya implementado, conectar API) | Alta |
+| 1 | ❤️ Pareja (conectar API existente, base del MVP) | Alta |
 | 2 | 👤 Personal (modo individual, sin splits) | Media |
 | 3 | 👥 Grupo (3+ miembros, splits N-way) | Baja |
 
 ---
 
-## Decisiones de Diseño — Routing de Gastos
+# Decisiones de Diseño — Routing de Gastos
 
 ### Problema
 El tab Gastos no debe competir con Grupos. Ambos necesitan acceso a la creación de gastos, pero con comportamientos distintos.
@@ -301,3 +514,32 @@ El tab Gastos no debe competir con Grupos. Ambos necesitan acceso a la creación
 - El resumen financiero del grupo se actualiza al regresar
 - No hay duplicación de lógica: un solo componente de formulario,
   un solo endpoint, un solo `router.back()`
+
+---
+
+# Prioridad de implementación (resumen)
+
+## 🔴 P0 — Inmediato (Sprint 1)
+- Edit/Delete Expense UI
+- Split Picker Component
+- Verificar expense screens conectados a API real
+
+## 🟡 P1 — Sprints 2-3
+- Expense Shares persistidas en backend
+- Balance Engine (API + cálculo)
+- Dashboard con datos reales
+- Reports con datos reales
+
+## 🟢 P2 — Sprint 4
+- Payments API service
+- Pay Screen
+- Payment History
+- Settlement Suggestions
+
+## 🔵 P3 — Post-MVP
+- Receipt Capture (OCR completo)
+- Polish: dark mode, i18n, offline, push, 401 interceptor
+- Deployment (EAS Build + stores)
+
+## 🟣 P4 — v2.0
+- Multi-actor (Personal/Pareja/Grupo) — backend DB + N-way splits
