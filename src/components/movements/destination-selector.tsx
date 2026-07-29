@@ -1,4 +1,3 @@
-import { useState, useRef, useCallback } from 'react';
 import { View, Text, Pressable, FlatList } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
@@ -21,16 +20,6 @@ interface DestItem {
   icon: string;
   iconColor: string;
   label: string;
-}
-
-function useItemAnimations(count: number) {
-  const anims = useRef(
-    Array.from({ length: count }, () => ({
-      opacity: { value: 0 },
-      translateX: { value: 30 },
-    })),
-  ).current;
-  return anims;
 }
 
 const TYPE_CONFIG: Record<string, { icon: string; iconColor: string }> = {
@@ -112,7 +101,7 @@ export function DestinationSelector({
       title={config.title}
       subtitle={config.subtitle}
       onClose={onClose}
-      gradientPaddingBottom={500}
+      gradientPaddingBottom={120}
     />
   );
 
