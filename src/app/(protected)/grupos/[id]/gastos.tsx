@@ -193,8 +193,7 @@ export default function GroupExpensesScreen() {
       <CreateExpenseSheet
         visible={sheetVisible}
         onClose={() => setSheetVisible(false)}
-        groupId={id ?? ''}
-        groupName={group.name}
+        group={group}
         members={members}
         onCreateExpense={async (payload) => {
           await createExpense(payload as any);

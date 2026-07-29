@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
 import { Button } from '@/components/ui/button';
+import type { GroupResponse } from '@/types/api';
 
 interface Member {
   id: string;
@@ -14,8 +15,7 @@ interface Member {
 interface CreateExpenseSheetProps {
   visible: boolean;
   onClose: () => void;
-  groupId: string;
-  groupName: string;
+  group: GroupResponse;
   members: Member[];
   onCreateExpense?: (payload: {
     description: string;
@@ -48,11 +48,12 @@ function getTodayDate(): string {
 export function CreateExpenseSheet({
   visible,
   onClose,
-  groupId,
-  groupName,
+  group,
   members,
   onCreateExpense,
 }: CreateExpenseSheetProps) {
+  const isPersonal = group.type === 'PERSONAL' || members.length === 1;
+
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('ALIMENTACIÓN');
@@ -96,7 +97,7 @@ export function CreateExpenseSheet({
     <BottomSheetHeader
       visible={visible}
       title="Nuevo gasto"
-      subtitle={`Registra un gasto compartido en ${groupName}`}
+      subtitle={`Registra un gasto compartido en ${group.name}`}
       onClose={onClose}
       gradientPaddingBottom={600}
       
@@ -177,135 +178,147 @@ export function CreateExpenseSheet({
           />
 
           {/* Paid by */}
-          <Text className="mb-2 mt-5 text-sm font-semibold text-[#0F172A]">
-            👤 Pagado por
-          </Text>
-          <View className="flex-row flex-wrap gap-2">
-            {members.map((member) => {
-              const isActive = paidBy === member.id;
-              return (
-                <Pressable
-                  key={member.id}
-                  onPress={() => setPaidBy(member.id)}
-                  className={`flex-row items-center gap-2 rounded-full px-4 py-2.5 ${
-                    isActive
-                      ? 'bg-[#10B981]'
-                      : 'border border-[#E2E8F0] bg-white'
-                  }`}
-                >
-                  <FontAwesome6
-                    name="user"
-                    size={12}
-                    color={isActive ? 'white' : '#64748B'}
-                  />
-                  <Text
-                    className={`text-sm font-medium ${
-                      isActive ? 'text-white' : 'text-[#0F172A]'
-                    }`}
-                  >
-                    {member.name}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
+          {!isPersonal && (
+            <>
+              <Text className="mb-2 mt-5 text-sm font-semibold text-[#0F172A]">
+                👤 Pagado por
+              </Text>
+              <View className="flex-row flex-wrap gap-2">
+                {members.map((member) => {
+                  const isActive = paidBy === member.id;
+                  return (
+                    <Pressable
+                      key={member.id}
+                      onPress={() => setPaidBy(member.id)}
+                      className={`flex-row items-center gap-2 rounded-full px-4 py-2.5 ${
+                        isActive
+                          ? 'bg-[#10B981]'
+                          : 'border border-[#E2E8F0] bg-white'
+                      }`}
+                    >
+                      <FontAwesome6
+                        name="user"
+                        size={12}
+                        color={isActive ? 'white' : '#64748B'}
+                      />
+                      <Text
+                        className={`text-sm font-medium ${
+                          isActive ? 'text-white' : 'text-[#0F172A]'
+                        }`}
+                      >
+                        {member.name}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </>
+          )}
 
           {/* Participants */}
-          <Text className="mb-2 mt-5 text-sm font-semibold text-[#0F172A]">
-            👥 Participantes
-          </Text>
-          <View className="gap-2">
-            {members.map((member) => {
-              const isSelected = selectedParticipants.includes(member.id);
-              return (
+          {!isPersonal && (
+            <>
+              <Text className="mb-2 mt-5 text-sm font-semibold text-[#0F172A]">
+                👥 Participantes
+              </Text>
+              <View className="gap-2">
+                {members.map((member) => {
+                  const isSelected = selectedParticipants.includes(member.id);
+                  return (
+                    <Pressable
+                      key={member.id}
+                      onPress={() => toggleParticipant(member.id)}
+                      className={`flex-row items-center justify-between rounded-xl border px-4 py-3 ${
+                        isSelected
+                          ? 'border-[#10B981] bg-[#F0FDF4]'
+                          : 'border-[#E2E8F0] bg-white'
+                      }`}
+                    >
+                      <View className="flex-row items-center gap-3">
+                        <View
+                          className={`h-6 w-6 items-center justify-center rounded-full border-2 ${
+                            isSelected
+                              ? 'border-[#10B981] bg-[#10B981]'
+                              : 'border-[#94A3B8]'
+                          }`}
+                        >
+                          {isSelected && (
+                            <FontAwesome6 name="check" size={10} color="white" />
+                          )}
+                        </View>
+                        <Text className="text-sm font-medium text-[#0F172A]">
+                          {member.name}
+                        </Text>
+                      </View>
+                      {isSelected && (
+                        <Text className="text-xs text-[#64748B]">
+                          {splitType === 'EQUAL'
+                            ? `${Math.round(100 / selectedParticipants.length)}%`
+                            : `${member.id === members[0]?.id ? yourPercentage : 100 - yourPercentage}%`}
+                        </Text>
+                      )}
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </>
+          )}
+
+          {/* Split Type */}
+          {!isPersonal && (
+            <>
+              <Text className="mb-2 mt-5 text-sm font-semibold text-[#0F172A]">
+                🔄 Tipo de división
+              </Text>
+              <View className="flex-row gap-2">
                 <Pressable
-                  key={member.id}
-                  onPress={() => toggleParticipant(member.id)}
-                  className={`flex-row items-center justify-between rounded-xl border px-4 py-3 ${
-                    isSelected
+                  onPress={() => setSplitType('EQUAL')}
+                  className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl border py-3 ${
+                    splitType === 'EQUAL'
                       ? 'border-[#10B981] bg-[#F0FDF4]'
                       : 'border-[#E2E8F0] bg-white'
                   }`}
                 >
-                  <View className="flex-row items-center gap-3">
-                    <View
-                      className={`h-6 w-6 items-center justify-center rounded-full border-2 ${
-                        isSelected
-                          ? 'border-[#10B981] bg-[#10B981]'
-                          : 'border-[#94A3B8]'
-                      }`}
-                    >
-                      {isSelected && (
-                        <FontAwesome6 name="check" size={10} color="white" />
-                      )}
-                    </View>
-                    <Text className="text-sm font-medium text-[#0F172A]">
-                      {member.name}
-                    </Text>
-                  </View>
-                  {isSelected && (
-                    <Text className="text-xs text-[#64748B]">
-                      {splitType === 'EQUAL'
-                        ? `${Math.round(100 / selectedParticipants.length)}%`
-                        : `${member.id === members[0]?.id ? yourPercentage : 100 - yourPercentage}%`}
-                    </Text>
-                  )}
+                  <FontAwesome6
+                    name="scale-balanced"
+                    size={14}
+                    color={splitType === 'EQUAL' ? '#10B981' : '#64748B'}
+                  />
+                  <Text
+                    className={`text-sm font-medium ${
+                      splitType === 'EQUAL' ? 'text-[#10B981]' : 'text-[#64748B]'
+                    }`}
+                  >
+                    Igual
+                  </Text>
                 </Pressable>
-              );
-            })}
-          </View>
-
-          {/* Split Type */}
-          <Text className="mb-2 mt-5 text-sm font-semibold text-[#0F172A]">
-            🔄 Tipo de división
-          </Text>
-          <View className="flex-row gap-2">
-            <Pressable
-              onPress={() => setSplitType('EQUAL')}
-              className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl border py-3 ${
-                splitType === 'EQUAL'
-                  ? 'border-[#10B981] bg-[#F0FDF4]'
-                  : 'border-[#E2E8F0] bg-white'
-              }`}
-            >
-              <FontAwesome6
-                name="scale-balanced"
-                size={14}
-                color={splitType === 'EQUAL' ? '#10B981' : '#64748B'}
-              />
-              <Text
-                className={`text-sm font-medium ${
-                  splitType === 'EQUAL' ? 'text-[#10B981]' : 'text-[#64748B]'
-                }`}
-              >
-                Igual
-              </Text>
-            </Pressable>
-            <Pressable
-              onPress={() => setSplitType('PERCENTAGE')}
-              className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl border py-3 ${
-                splitType === 'PERCENTAGE'
-                  ? 'border-[#10B981] bg-[#F0FDF4]'
-                  : 'border-[#E2E8F0] bg-white'
-              }`}
-            >
-              <FontAwesome6
-                name="percent"
-                size={14}
-                color={splitType === 'PERCENTAGE' ? '#10B981' : '#64748B'}
-              />
-              <Text
-                className={`text-sm font-medium ${
-                  splitType === 'PERCENTAGE' ? 'text-[#10B981]' : 'text-[#64748B]'
-                }`}
-              >
-                Porcentaje
-              </Text>
-            </Pressable>
-          </View>
+                <Pressable
+                  onPress={() => setSplitType('PERCENTAGE')}
+                  className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl border py-3 ${
+                    splitType === 'PERCENTAGE'
+                      ? 'border-[#10B981] bg-[#F0FDF4]'
+                      : 'border-[#E2E8F0] bg-white'
+                  }`}
+                >
+                  <FontAwesome6
+                    name="percent"
+                    size={14}
+                    color={splitType === 'PERCENTAGE' ? '#10B981' : '#64748B'}
+                  />
+                  <Text
+                    className={`text-sm font-medium ${
+                      splitType === 'PERCENTAGE' ? 'text-[#10B981]' : 'text-[#64748B]'
+                    }`}
+                  >
+                    Porcentaje
+                  </Text>
+                </Pressable>
+              </View>
+            </>
+          )}
 
           {/* Percentage controls (only if PERCENTAGE and 2+ participants) */}
-          {splitType === 'PERCENTAGE' && selectedParticipants.length >= 2 && (
+          {!isPersonal && splitType === 'PERCENTAGE' && selectedParticipants.length >= 2 && (
             <View className="mt-4 rounded-xl border border-[#E2E8F0] bg-white p-4">
               <Text className="mb-3 text-center text-sm font-medium text-[#0F172A]">
                 Tu porcentaje
@@ -369,7 +382,7 @@ export function CreateExpenseSheet({
                 amount: parseFloat(amount),
                 category,
                 splitType,
-                groupId,
+                groupId: group.id,
                 paidById: paidBy,
                 splits,
               });
