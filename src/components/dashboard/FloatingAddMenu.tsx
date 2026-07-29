@@ -28,8 +28,18 @@ interface MenuItem {
 }
 
 const MENU_ITEMS: MenuItem[] = [
-  { action: 'create-couple', icon: 'user-plus', label: 'Crear Grupo', iconBg: '#10B981' },
-  { action: 'join-couple', icon: 'link', label: 'Unirse a un Grupo', iconBg: '#3B82F6' },
+  {
+    action: 'create-couple',
+    icon: 'user-plus',
+    label: 'Crear Grupo',
+    iconBg: '#10B981',
+  },
+  {
+    action: 'join-couple',
+    icon: 'link',
+    label: 'Unirse a un Grupo',
+    iconBg: '#3B82F6',
+  },
 ];
 
 interface ItemAnimationState {
@@ -62,7 +72,11 @@ function MenuItemRow({
             className="h-12 w-12 items-center justify-center rounded-full"
             style={{ backgroundColor: `${item.iconBg}26` }}
           >
-            <FontAwesome6 name={item.icon as any} size={18} color={item.iconBg} />
+            <FontAwesome6
+              name={item.icon as any}
+              size={18}
+              color={item.iconBg}
+            />
           </View>
           <Text className="text-base font-semibold text-[#0F172A]">
             {item.label}
@@ -74,7 +88,13 @@ function MenuItemRow({
   );
 }
 
-export function FloatingAddMenu({ heightRatio = 0.45, headerFinalTranslateY = 0.27, createCoupleHeightRatio = 0.65, createCoupleHeaderFinalTranslateY = 0.17, onJoinCouple }: FloatingAddMenuProps) {
+export function FloatingAddMenu({
+  heightRatio = 0.45,
+  headerFinalTranslateY = 0.27,
+  createCoupleHeightRatio = 0.65,
+  createCoupleHeaderFinalTranslateY = 0.17,
+  onJoinCouple,
+}: FloatingAddMenuProps) {
   const [menuVisible, setMenuVisible] = useState(false);
   const [showCreateSheet, setShowCreateSheet] = useState(false);
 
@@ -98,16 +118,19 @@ export function FloatingAddMenu({ heightRatio = 0.45, headerFinalTranslateY = 0.
       });
 
       const itemTimers = itemAnimations.map((state, idx) =>
-        setTimeout(() => {
-          state.opacity.value = withTiming(1, {
-            duration: 350,
-            easing: Easing.out(Easing.cubic),
-          });
-          state.translateX.value = withTiming(0, {
-            duration: 350,
-            easing: Easing.out(Easing.cubic),
-          });
-        }, 1150 + idx * 100),
+        setTimeout(
+          () => {
+            state.opacity.value = withTiming(1, {
+              duration: 350,
+              easing: Easing.out(Easing.cubic),
+            });
+            state.translateX.value = withTiming(0, {
+              duration: 350,
+              easing: Easing.out(Easing.cubic),
+            });
+          },
+          1150 + idx * 100,
+        ),
       );
 
       return () => {
@@ -171,7 +194,6 @@ export function FloatingAddMenu({ heightRatio = 0.45, headerFinalTranslateY = 0.
         activeOpacity={0.8}
       >
         <Animated.View style={animatedIconStyle}>
-
           <FontAwesome6 name="angle-up" size={22} color="white" />
         </Animated.View>
       </TouchableOpacity>

@@ -5,13 +5,13 @@ import { GroupCard } from './group-card';
 const CARD_WIDTH = Dimensions.get('window').width * 0.82;
 
 interface GroupSectionProps {
-  title: string
-  groups: GroupResponse[]
-  horizontal?: boolean
-  showMenu?: boolean
-  onPress?: (group: GroupResponse) => void
-  onMenu?: (group: GroupResponse) => void
-  currentUserId?: string
+  title: string;
+  groups: GroupResponse[];
+  horizontal?: boolean;
+  showMenu?: boolean;
+  onPress?: (group: GroupResponse) => void;
+  onMenu?: (group: GroupResponse) => void;
+  currentUserId?: string;
 }
 
 export function GroupSection({
@@ -27,9 +27,7 @@ export function GroupSection({
 
   return (
     <View className="mb-6">
-      <Text className="mb-3 text-base font-bold text-[#0F172A]">
-        {title}
-      </Text>
+      <Text className="mb-3 text-base font-bold text-[#0F172A]">{title}</Text>
 
       {horizontal ? (
         groups.length > 1 ? (

@@ -85,7 +85,7 @@ export function ImagePreviewModal({
       statusBarTranslucent
     >
       <StatusBar barStyle="light-content" />
-      <View className="flex-1 bg-black/80 justify-center items-center">
+      <View className="flex-1 items-center justify-center bg-black/80">
         <View
           style={{
             width: CIRCLE_SIZE,
@@ -97,9 +97,7 @@ export function ImagePreviewModal({
           }}
         >
           <GestureDetector gesture={composedGesture}>
-            <Animated.View
-              style={[{ flex: 1 }, imageAnimatedStyle]}
-            >
+            <Animated.View style={[{ flex: 1 }, imageAnimatedStyle]}>
               <Image
                 source={{ uri: imageUri }}
                 style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}
@@ -109,16 +107,16 @@ export function ImagePreviewModal({
           </GestureDetector>
         </View>
 
-        <View className="flex-row justify-center gap-8 mt-10">
+        <View className="mt-10 flex-row justify-center gap-8">
           <Pressable
             onPress={onCancel}
-            className="w-14 h-14 rounded-full bg-white/20 justify-center items-center active:bg-white/30"
+            className="h-14 w-14 items-center justify-center rounded-full bg-white/20 active:bg-white/30"
           >
             <FontAwesome6 name="xmark" size={22} color="#fff" />
           </Pressable>
           <Pressable
             onPress={onConfirm}
-            className="w-14 h-14 rounded-full bg-[#10B981] justify-center items-center active:bg-[#059669]"
+            className="h-14 w-14 items-center justify-center rounded-full bg-[#10B981] active:bg-[#059669]"
           >
             <FontAwesome6 name="check" size={22} color="#fff" />
           </Pressable>

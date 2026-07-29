@@ -12,7 +12,6 @@ export function AuthHeader({ subtitle }: AuthHeaderProps) {
         style={{
           width: 60,
           height: 60,
-
         }}
         resizeMode="contain"
       />

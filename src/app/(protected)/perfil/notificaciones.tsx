@@ -89,7 +89,7 @@ export default function NotificacionesScreen() {
                     : ''
                 }`}
               >
-                <View className="flex-row items-center gap-4 flex-1">
+                <View className="flex-1 flex-row items-center gap-4">
                   <View className="h-10 w-10 items-center justify-center rounded-full bg-[#10B98126]">
                     <FontAwesome6
                       name={option.icon as any}

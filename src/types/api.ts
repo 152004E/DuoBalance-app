@@ -14,7 +14,6 @@ export interface UserBrief {
   email: string;
 }
 
-
 export enum SplitType {
   EQUAL = 'EQUAL',
   PERCENTAGE = 'PERCENTAGE',

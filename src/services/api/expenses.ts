@@ -31,10 +31,7 @@ export const updateExpense = async (
   id: string,
   payload: UpdateExpensePayload,
 ): Promise<ExpenseResponse> => {
-  const { data } = await api.patch<ExpenseResponse>(
-    `/expenses/${id}`,
-    payload,
-  );
+  const { data } = await api.patch<ExpenseResponse>(`/expenses/${id}`, payload);
   return data;
 };
 

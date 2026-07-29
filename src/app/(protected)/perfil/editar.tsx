@@ -41,8 +41,8 @@ export default function EditarPerfilScreen() {
       const asset = result.assets[0];
       const source = (asset as any).file ?? {
         uri: asset.uri,
-        name: asset.fileName ?? asset.uri.split("/").pop() ?? "avatar.jpg",
-        type: asset.mimeType ?? "image/jpeg",
+        name: asset.fileName ?? asset.uri.split('/').pop() ?? 'avatar.jpg',
+        type: asset.mimeType ?? 'image/jpeg',
       };
       setPendingPhotoUri(asset.uri);
       setPendingPhotoSource(source);
@@ -72,8 +72,15 @@ export default function EditarPerfilScreen() {
         currentUser = updated;
       }
 
-      const profileUpdated = await authService.updateProfile({ firstName, lastName, email });
-      const merged = { ...profileUpdated, avatarUrl: currentUser?.avatarUrl ?? profileUpdated.avatarUrl };
+      const profileUpdated = await authService.updateProfile({
+        firstName,
+        lastName,
+        email,
+      });
+      const merged = {
+        ...profileUpdated,
+        avatarUrl: currentUser?.avatarUrl ?? profileUpdated.avatarUrl,
+      };
       await updateUser(merged);
       setShowSuccess(true);
     } catch {

@@ -3,7 +3,10 @@ import { View, Text, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 import { ScreenHeader } from '@/components/ui/screen-header';
-import { RecentExpensesCard, type RecentExpense } from '@/components/expenses/recent-expenses-card';
+import {
+  RecentExpensesCard,
+  type RecentExpense,
+} from '@/components/expenses/recent-expenses-card';
 import { FloatingAddButton } from '@/components/dashboard/FloatingAddButton';
 import { CreateExpenseSheet } from '@/components/movements/create-expense-sheet';
 import { getGroup } from '@/services/api/groups';
@@ -20,7 +23,12 @@ const CATEGORY_ICONS: Record<string, { icon: string; bg: string }> = {
   OTROS: { icon: 'tag', bg: '#64748B' },
 };
 
-const DATE_FILTERS = ['Este mes', 'Últimos 3 meses', 'Este año', 'Todo'] as const;
+const DATE_FILTERS = [
+  'Este mes',
+  'Últimos 3 meses',
+  'Este año',
+  'Todo',
+] as const;
 const CATEGORY_FILTERS = [
   { label: '📋 Todas', value: 'all' },
   { label: '🍔 Comida', value: 'ALIMENTACIÓN' },
@@ -57,8 +65,10 @@ export default function GroupExpensesScreen() {
   const { user } = useAuth();
   const [group, setGroup] = useState<GroupResponse | null>(null);
   const [expenses, setExpenses] = useState<ExpenseResponse[]>([]);
-  const [selectedDateFilter, setSelectedDateFilter] = useState<string>('Este mes');
-  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
+  const [selectedDateFilter, setSelectedDateFilter] =
+    useState<string>('Este mes');
+  const [selectedCategoryFilter, setSelectedCategoryFilter] =
+    useState<string>('all');
   const [sheetVisible, setSheetVisible] = useState(false);
 
   useEffect(() => {

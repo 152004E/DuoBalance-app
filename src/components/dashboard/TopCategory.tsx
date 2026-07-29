@@ -25,9 +25,7 @@ export function TopCategory({
         >
           <FontAwesome6 name={icon} size={14} color={color} solid />
         </View>
-        <Text className="text-sm font-semibold text-[#0F172A]">
-          {category}
-        </Text>
+        <Text className="text-sm font-semibold text-[#0F172A]">{category}</Text>
         <Text className="ml-auto text-sm font-medium text-[#0F172A]">
           ${amount.toLocaleString('es-CL')}
         </Text>

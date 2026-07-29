@@ -77,28 +77,39 @@ export default function ExpenseDetailScreen() {
   if (!user) return null;
 
   if (state === 'loading') {
-    return renderLayout('Detalle del gasto', 'Cargando...', <Loading message="Cargando detalle del gasto..." />);
+    return renderLayout(
+      'Detalle del gasto',
+      'Cargando...',
+      <Loading message="Cargando detalle del gasto..." />,
+    );
   }
 
   if (state === 'error') {
-    return renderLayout('Detalle del gasto', 'Error', (
+    return renderLayout(
+      'Detalle del gasto',
+      'Error',
       <EmptyState
         title="Error al cargar"
         description="No se pudo cargar la información del gasto. Intenta de nuevo."
-      />
-    ));
+      />,
+    );
   }
 
   if (!expense || !group) {
-    return renderLayout('Detalle del gasto', 'Gasto no encontrado', (
+    return renderLayout(
+      'Detalle del gasto',
+      'Gasto no encontrado',
       <EmptyState
         title="Gasto no encontrado"
         description={`No existe un gasto con ID "${id}".`}
-      />
-    ));
+      />,
+    );
   }
 
-  const catConfig = CATEGORY_CONFIG[expense.category] ?? { icon: 'tag', color: '#64748B' };
+  const catConfig = CATEGORY_CONFIG[expense.category] ?? {
+    icon: 'tag',
+    color: '#64748B',
+  };
 
   const memberMap = new Map(group.members.map((m) => [m.user.id, m.user]));
   const paidByUser = memberMap.get(expense.paidById);
@@ -183,7 +194,9 @@ export default function ExpenseDetailScreen() {
             paidByName={paidByName}
             paidByInitials={paidByInitials}
             createdAt={formatDateTime(expense.createdAt)}
-            updatedAt={expense.updatedAt ? formatDateTime(expense.updatedAt) : undefined}
+            updatedAt={
+              expense.updatedAt ? formatDateTime(expense.updatedAt) : undefined
+            }
           />
 
           <ExpenseParticipants
@@ -200,26 +213,40 @@ export default function ExpenseDetailScreen() {
 
           <ExpenseTimeline
             entries={[
-              { label: `Registrado por ${paidByName}`, value: formatDateTime(expense.createdAt) },
+              {
+                label: `Registrado por ${paidByName}`,
+                value: formatDateTime(expense.createdAt),
+              },
               ...(expense.updatedAt
-                ? [{ label: 'Última actualización', value: formatDateTime(expense.updatedAt) }]
+                ? [
+                    {
+                      label: 'Última actualización',
+                      value: formatDateTime(expense.updatedAt),
+                    },
+                  ]
                 : []),
             ]}
           />
 
-          <ExpenseActions
-            onDelete={handleDelete}
-          />
+          <ExpenseActions onDelete={handleDelete} />
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-function renderLayout(title: string, subtitle: string, content: React.ReactNode) {
+function renderLayout(
+  title: string,
+  subtitle: string,
+  content: React.ReactNode,
+) {
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]" edges={['top']}>
-      <ScreenHeader title={title} subtitle={subtitle} onBack={() => router.back()} />
+      <ScreenHeader
+        title={title}
+        subtitle={subtitle}
+        onBack={() => router.back()}
+      />
       {content}
     </SafeAreaView>
   );

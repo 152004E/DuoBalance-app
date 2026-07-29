@@ -24,7 +24,14 @@ const GROUP_TYPE_ICON: Record<string, string> = {
 };
 
 export function ExpenseHeroCard({
-  name, amount, category, categoryIcon, categoryColor, date, groupType, status,
+  name,
+  amount,
+  category,
+  categoryIcon,
+  categoryColor,
+  date,
+  groupType,
+  status,
 }: ExpenseHeroCardProps) {
   return (
     <View
@@ -39,7 +46,12 @@ export function ExpenseHeroCard({
     >
       <View className="absolute right-4 top-4">
         <View className="flex-row items-center gap-1 rounded-full bg-[#10B981]/10 px-3 py-1">
-          <FontAwesome6 name={GROUP_TYPE_ICON[groupType]} size={12} color="#006c49" solid />
+          <FontAwesome6
+            name={GROUP_TYPE_ICON[groupType]}
+            size={12}
+            color="#006c49"
+            solid
+          />
           <Text className="text-[11px] font-semibold uppercase tracking-wider text-[#006c49]">
             {STATUS_LABEL[status]}
           </Text>
@@ -50,7 +62,12 @@ export function ExpenseHeroCard({
         className="mb-4 h-20 w-20 items-center justify-center rounded-2xl shadow-sm"
         style={{ backgroundColor: `${categoryColor}1A` }}
       >
-        <FontAwesome6 name={categoryIcon as any} size={36} color={categoryColor} solid />
+        <FontAwesome6
+          name={categoryIcon as any}
+          size={36}
+          color={categoryColor}
+          solid
+        />
       </View>
 
       <Text

@@ -86,7 +86,9 @@ export function GroupCard({
             </View>
             <View>
               <Text className="text-lg font-bold text-[#0F172A]">
-                {group.name.length > 15 ? group.name.slice(0, 15) + '...' : group.name}
+                {group.name.length > 15
+                  ? group.name.slice(0, 15) + '...'
+                  : group.name}
               </Text>
               <Text className="text-sm text-[#64748B]">
                 {transactionCount} transacciones este mes
@@ -118,7 +120,7 @@ export function GroupCard({
           </View>
           <View className="mt-2 flex-row justify-between">
             <View className="flex-row items-center gap-1.5">
-              <View className="h-2.5 w-2.5 rounded-full bg-[#006c49]" />  
+              <View className="h-2.5 w-2.5 rounded-full bg-[#006c49]" />
               <Text className="text-xs text-[#64748B]">
                 {userLabel}: ${balances.userAmount.toLocaleString('es-CL')}
               </Text>
@@ -126,7 +128,8 @@ export function GroupCard({
             <View className="flex-row items-center gap-1.5">
               <View className="h-2.5 w-2.5 rounded-full bg-[#8B5CF6]" />
               <Text className="text-xs text-[#64748B]">
-                {partnerLabel}: ${balances.partnerAmount.toLocaleString('es-CL')}
+                {partnerLabel}: $
+                {balances.partnerAmount.toLocaleString('es-CL')}
               </Text>
             </View>
           </View>
@@ -134,7 +137,7 @@ export function GroupCard({
       </View>
 
       {showMenu && onMenu && (
-        <View className="border-t border-[#E2E8F0] flex-row items-center justify-between px-5 py-3">
+        <View className="flex-row items-center justify-between border-t border-[#E2E8F0] px-5 py-3">
           <Pressable onPress={(e) => e.stopPropagation()}>
             <Button
               text="Agregar gasto"
@@ -149,11 +152,7 @@ export function GroupCard({
             className="h-10 w-10 items-center justify-center"
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <FontAwesome6
-              name="ellipsis-vertical"
-              size={18}
-              color="#64748B"
-            />
+            <FontAwesome6 name="ellipsis-vertical" size={18} color="#64748B" />
           </Pressable>
         </View>
       )}

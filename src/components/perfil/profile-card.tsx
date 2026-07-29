@@ -13,18 +13,18 @@ interface ProfileCardProps {
 
 function resolveAvatar(url: string | null | undefined): string | null {
   if (!url) return null;
-  if (url.startsWith("http")) return url;
-  if (url.startsWith("file:") || url.startsWith("blob:")) return url;
-  const base = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
+  if (url.startsWith('http')) return url;
+  if (url.startsWith('file:') || url.startsWith('blob:')) return url;
+  const base = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
   return `${base}${url}`;
 }
 
 function capitalize(str: string): string {
   if (!str) return str;
   return str
-    .split(" ")
+    .split(' ')
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-    .join(" ");
+    .join(' ');
 }
 
 export function ProfileCard({
@@ -38,8 +38,8 @@ export function ProfileCard({
   const imageUri = resolveAvatar(avatarUrl);
 
   return (
-    <View className="mx-5 mt-8 rounded-2xl bg-white px-6 py-8 items-center shadow-sm">
-      <View className="h-[100px] w-[100px] items-center justify-center rounded-full bg-[#E2E8F0] border-[4px] border-[#10B981] overflow-hidden">
+    <View className="mx-5 mt-8 items-center rounded-2xl bg-white px-6 py-8 shadow-sm">
+      <View className="h-[100px] w-[100px] items-center justify-center overflow-hidden rounded-full border-[4px] border-[#10B981] bg-[#E2E8F0]">
         {imageUri ? (
           <Image
             source={{ uri: imageUri }}
@@ -64,9 +64,7 @@ export function ProfileCard({
       >
         {capitalize(firstName ?? '')} {capitalize(lastName ?? '')}
       </Text>
-      <Text className="mt-1 text-sm text-[#64748B]">
-        {email}
-      </Text>
+      <Text className="mt-1 text-sm text-[#64748B]">{email}</Text>
     </View>
   );
 }

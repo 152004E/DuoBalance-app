@@ -59,7 +59,8 @@ export function DonutChart({ data }: DonutChartProps) {
 
       <View className="mt-4 flex-row flex-wrap justify-center gap-x-4 gap-y-2">
         {data.map((segment) => {
-          const percent = total > 0 ? Math.round((segment.value / total) * 100) : 0;
+          const percent =
+            total > 0 ? Math.round((segment.value / total) * 100) : 0;
           return (
             <View key={segment.label} className="flex-row items-center gap-1.5">
               <View

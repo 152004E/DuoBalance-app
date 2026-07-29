@@ -40,8 +40,7 @@ export function BottomSheet({
     SCREEN_HEIGHT * MAX_HEIGHT_RATIO,
   );
 
-  const HEADER_FINAL_TRANSLATE_Y =
-    SCREEN_HEIGHT * headerFinalTranslateY;
+  const HEADER_FINAL_TRANSLATE_Y = SCREEN_HEIGHT * headerFinalTranslateY;
 
   const {
     internalVisible,
@@ -77,10 +76,7 @@ export function BottomSheet({
             },
           ]}
         >
-          <Pressable
-            style={StyleSheet.absoluteFill}
-            onPress={handleClose}
-          />
+          <Pressable style={StyleSheet.absoluteFill} onPress={handleClose} />
         </Animated.View>
 
         {header && (
@@ -129,9 +125,7 @@ export function BottomSheet({
               <View className="h-1 w-10 rounded-full bg-[#D1D5DB]" />
             </View>
 
-            <View className="flex-1">
-              {children}
-            </View>
+            <View className="flex-1">{children}</View>
           </Animated.View>
         </GestureDetector>
       </View>

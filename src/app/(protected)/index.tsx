@@ -71,7 +71,7 @@ export default function DashboardScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      setFocusCount(c => c + 1);
+      setFocusCount((c) => c + 1);
     }, []),
   );
 

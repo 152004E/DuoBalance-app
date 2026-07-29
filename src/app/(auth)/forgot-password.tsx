@@ -41,7 +41,8 @@ export default function ForgotPasswordScreen() {
 
         <View className="gap-5">
           <Text className="text-center text-sm text-[#64748B]">
-            Ingresa tu email y te enviaremos un enlace para restablecer tu contraseña.
+            Ingresa tu email y te enviaremos un enlace para restablecer tu
+            contraseña.
           </Text>
 
           <Input
@@ -66,11 +67,7 @@ export default function ForgotPasswordScreen() {
           />
         </View>
 
-        <AuthFooter
-          question="Volver a"
-          action="Iniciar sesión"
-          href="/login"
-        />
+        <AuthFooter question="Volver a" action="Iniciar sesión" href="/login" />
       </ScrollView>
     </SafeAreaView>
   );

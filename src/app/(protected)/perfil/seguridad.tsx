@@ -115,7 +115,10 @@ export default function SeguridadScreen() {
               onChangeText={(text) => {
                 setCurrentPassword(text);
                 if (errors.currentPassword)
-                  setErrors((prev) => ({ ...prev, currentPassword: undefined }));
+                  setErrors((prev) => ({
+                    ...prev,
+                    currentPassword: undefined,
+                  }));
               }}
               placeholder="Ingresa tu contraseña actual"
               iconLeft="lock"
@@ -141,7 +144,10 @@ export default function SeguridadScreen() {
               onChangeText={(text) => {
                 setConfirmPassword(text);
                 if (errors.confirmPassword)
-                  setErrors((prev) => ({ ...prev, confirmPassword: undefined }));
+                  setErrors((prev) => ({
+                    ...prev,
+                    confirmPassword: undefined,
+                  }));
               }}
               placeholder="Repite la nueva contraseña"
               iconLeft="lock"
@@ -168,14 +174,8 @@ export default function SeguridadScreen() {
           </View>
 
           <View className="mx-5 mt-10 rounded-2xl bg-white shadow-sm">
-            <Pressable
-              className="flex-row items-center justify-center gap-3 px-4 py-4 active:bg-[#FEF2F2]"
-            >
-              <FontAwesome6
-                name="trash-can"
-                size={16}
-                color="#EF4444"
-              />
+            <Pressable className="flex-row items-center justify-center gap-3 px-4 py-4 active:bg-[#FEF2F2]">
+              <FontAwesome6 name="trash-can" size={16} color="#EF4444" />
               <Text className="text-base font-semibold text-[#EF4444]">
                 Eliminar cuenta
               </Text>

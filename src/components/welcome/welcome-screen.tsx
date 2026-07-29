@@ -44,7 +44,7 @@ export function WelcomeScreen() {
         ))}
       </ScrollView>
 
-      <View className="absolute bottom-0 left-0 right-0 bg-[#F8FAFC] pt-4 pb-6">
+      <View className="absolute bottom-0 left-0 right-0 bg-[#F8FAFC] pb-6 pt-4">
         <View className="gap-3 px-6">
           <Button
             text="Iniciar Sesión"

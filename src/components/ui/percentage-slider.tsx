@@ -28,10 +28,13 @@ export function PercentageSlider({ value, onChange }: PercentageSliderProps) {
 
   const updateThumb = (pct: number) => {
     const usable = containerWidth.current - TRACK_H_MARGIN * 2 - THUMB_SIZE;
-    thumbPosition.value = withTiming(TRACK_H_MARGIN + THUMB_SIZE / 2 + (pct / 100) * usable, {
-      duration: 150,
-      easing: Easing.out(Easing.cubic),
-    });
+    thumbPosition.value = withTiming(
+      TRACK_H_MARGIN + THUMB_SIZE / 2 + (pct / 100) * usable,
+      {
+        duration: 150,
+        easing: Easing.out(Easing.cubic),
+      },
+    );
   };
 
   const pctFromX = (x: number): number => {
@@ -70,16 +73,14 @@ export function PercentageSlider({ value, onChange }: PercentageSliderProps) {
     containerWidth.current = e.nativeEvent.layout.width;
     const pct = value;
     const usable = containerWidth.current - TRACK_H_MARGIN * 2 - THUMB_SIZE;
-    thumbPosition.value = TRACK_H_MARGIN + THUMB_SIZE / 2 + (pct / 100) * usable;
+    thumbPosition.value =
+      TRACK_H_MARGIN + THUMB_SIZE / 2 + (pct / 100) * usable;
   };
 
   return (
     <View>
       <GestureDetector gesture={panGesture}>
-        <View
-          className="relative h-10 justify-center"
-          onLayout={handleLayout}
-        >
+        <View className="relative h-10 justify-center" onLayout={handleLayout}>
           <View
             className="absolute h-2 rounded-full bg-[#E2E8F0]"
             style={{
@@ -112,7 +113,9 @@ export function PercentageSlider({ value, onChange }: PercentageSliderProps) {
           />
         </View>
       </GestureDetector>
-      <Text className="mt-3 text-center text-lg font-bold text-[#0F172A]">{value}%</Text>
+      <Text className="mt-3 text-center text-lg font-bold text-[#0F172A]">
+        {value}%
+      </Text>
     </View>
   );
 }

@@ -12,7 +12,14 @@ interface CoupleCardProps {
   onMenu?: () => void;
 }
 
-export function CoupleCard({ id, name, balance, status, onPress, onMenu }: CoupleCardProps) {
+export function CoupleCard({
+  id,
+  name,
+  balance,
+  status,
+  onPress,
+  onMenu,
+}: CoupleCardProps) {
   const dotColor =
     status === 'positive'
       ? '#10B981'
@@ -21,7 +28,10 @@ export function CoupleCard({ id, name, balance, status, onPress, onMenu }: Coupl
         : '#F59E0B';
 
   return (
-    <Pressable onPress={onPress} className="min-w-[240px] flex-row items-center gap-3 rounded-xl border border-[#E2E8F0] bg-white p-4 shadow-sm">
+    <Pressable
+      onPress={onPress}
+      className="min-w-[240px] flex-row items-center gap-3 rounded-xl border border-[#E2E8F0] bg-white p-4 shadow-sm"
+    >
       <View className="h-12 w-12 items-center justify-center rounded-full border-2 border-[#bbcabf] bg-[#eceef0]">
         <FontAwesome6 name="user" size={18} color="#64748B" />
       </View>

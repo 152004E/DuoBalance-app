@@ -42,12 +42,8 @@ export const regenerateInviteCode = async (
   return data;
 };
 
-export const leaveGroup = async (
-  id: string,
-): Promise<LeaveGroupResponse> => {
-  const { data } = await api.delete<LeaveGroupResponse>(
-    `/groups/${id}/leave`,
-  );
+export const leaveGroup = async (id: string): Promise<LeaveGroupResponse> => {
+  const { data } = await api.delete<LeaveGroupResponse>(`/groups/${id}/leave`);
   return data;
 };
 
@@ -59,16 +55,12 @@ export const updateGroup = async (
   return data;
 };
 
-export const deleteGroup = async (
-  id: string,
-): Promise<MessageResponse> => {
+export const deleteGroup = async (id: string): Promise<MessageResponse> => {
   const { data } = await api.delete<MessageResponse>(`/groups/${id}`);
   return data;
 };
 
-export const archiveGroup = async (
-  id: string,
-): Promise<GroupResponse> => {
+export const archiveGroup = async (id: string): Promise<GroupResponse> => {
   const { data } = await api.post<GroupResponse>(`/groups/${id}/archive`);
   return data;
 };

@@ -38,8 +38,20 @@ export const MOCK_EXPENSE_DETAIL: ExpenseDetail = {
   paidBy: { name: 'Emerson', initials: 'E' },
   group: { id: '1', name: 'Andrea', type: 'COUPLE' },
   participants: [
-    { name: 'Emerson', initials: 'E', amount: 40000, percentage: 50, isPayer: true },
-    { name: 'Andrea', initials: 'A', amount: 40000, percentage: 50, isPayer: false },
+    {
+      name: 'Emerson',
+      initials: 'E',
+      amount: 40000,
+      percentage: 50,
+      isPayer: true,
+    },
+    {
+      name: 'Andrea',
+      initials: 'A',
+      amount: 40000,
+      percentage: 50,
+      isPayer: false,
+    },
   ],
   receipt: 'https://placehold.co/600x400/006c49/ffffff?text=Comprobante',
   status: 'shared',

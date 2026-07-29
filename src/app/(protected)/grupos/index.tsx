@@ -6,7 +6,10 @@ import { joinGroup, regenerateInviteCode } from '@/services/api/groups';
 import { HeroSection } from '@/components/layout/HeroSection';
 import { GroupSelector } from '@/components/ui/group-selector';
 import { FloatingAddMenu } from '@/components/dashboard/FloatingAddMenu';
-import { CoupleMenuSheet, type CoupleMenuAction } from '@/components/couple/couple-menu-sheet';
+import {
+  CoupleMenuSheet,
+  type CoupleMenuAction,
+} from '@/components/couple/couple-menu-sheet';
 import { InviteMemberSheet } from '@/components/couple/invite-member-sheet';
 import { JoinGroupSheet } from '@/components/couple/join-group-sheet';
 import { AlertModal } from '@/components/ui/alert-modal';
@@ -24,11 +27,14 @@ export default function ParejaScreen() {
     groupId: null,
   });
 
-  const showPersonal = filter.category === 'all' || filter.category === 'personal';
+  const showPersonal =
+    filter.category === 'all' || filter.category === 'personal';
   const showCouple = filter.category === 'all' || filter.category === 'couple';
   const showGroup = filter.category === 'all' || filter.category === 'group';
   const [menuVisible, setMenuVisible] = useState(false);
-  const [selectedGroup, setSelectedGroup] = useState<GroupResponse | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<GroupResponse | null>(
+    null,
+  );
   const [inviteVisible, setInviteVisible] = useState(false);
   const [showJoinSheet, setShowJoinSheet] = useState(false);
   const [showComingSoon, setShowComingSoon] = useState(false);
@@ -83,21 +89,25 @@ export default function ParejaScreen() {
     }
   }, [selectedGroup]);
 
-  const handleJoinGroup = useCallback(async (code: string) => {
-    setIsJoining(true);
-    setJoinError(null);
-    try {
-      await joinGroup({ inviteCode: code });
-      setShowJoinSheet(false);
-      setJoinSuccess(true);
-      refetch();
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Error al unirse al grupo';
-      setJoinError(message);
-    } finally {
-      setIsJoining(false);
-    }
-  }, [refetch]);
+  const handleJoinGroup = useCallback(
+    async (code: string) => {
+      setIsJoining(true);
+      setJoinError(null);
+      try {
+        await joinGroup({ inviteCode: code });
+        setShowJoinSheet(false);
+        setJoinSuccess(true);
+        refetch();
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : 'Error al unirse al grupo';
+        setJoinError(message);
+      } finally {
+        setIsJoining(false);
+      }
+    },
+    [refetch],
+  );
 
   const handleRegenerateCode = useCallback(async () => {
     if (!selectedGroup) return;
@@ -110,7 +120,8 @@ export default function ParejaScreen() {
       setRegenerateSuccess(true);
       refetch();
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Error al regenerar el código';
+      const message =
+        err instanceof Error ? err.message : 'Error al regenerar el código';
       setRegenerateError(message);
     } finally {
       setIsRegenerating(false);

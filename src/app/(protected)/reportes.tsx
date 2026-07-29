@@ -28,7 +28,7 @@ export default function ReportesScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      setFocusCount(c => c + 1);
+      setFocusCount((c) => c + 1);
     }, []),
   );
 
@@ -70,12 +70,16 @@ export default function ReportesScreen() {
               <Text className="mt-1 text-lg font-bold text-[#0F172A]">
                 $96k
               </Text>
-              <Text className="mt-0.5 text-[10px] text-[#22C55E]">+12% vs mes anterior</Text>
+              <Text className="mt-0.5 text-[10px] text-[#22C55E]">
+                +12% vs mes anterior
+              </Text>
             </View>
             <View className="flex-1 rounded-xl border border-[#E2E8F0] bg-white p-4 shadow-sm">
               <Text className="text-xs text-[#64748B]">Transacciones</Text>
               <Text className="mt-1 text-lg font-bold text-[#0F172A]">47</Text>
-              <Text className="mt-0.5 text-[10px] text-[#22C55E]">+8% vs mes anterior</Text>
+              <Text className="mt-0.5 text-[10px] text-[#22C55E]">
+                +8% vs mes anterior
+              </Text>
             </View>
           </View>
         </View>

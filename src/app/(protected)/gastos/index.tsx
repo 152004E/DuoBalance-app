@@ -7,7 +7,10 @@ import { useAuth } from '@/hooks/use-auth';
 import { useGroups } from '@/hooks/use-groups';
 import { GroupSelector } from '@/components/ui/group-selector';
 import { GroupSection } from '@/components/ui/group-section';
-import { RecentExpensesCard, type RecentExpense } from '@/components/expenses/recent-expenses-card';
+import {
+  RecentExpensesCard,
+  type RecentExpense,
+} from '@/components/expenses/recent-expenses-card';
 import { FloatingAddButton } from '@/components/dashboard/FloatingAddButton';
 import { CreateExpenseSheet } from '@/components/movements/create-expense-sheet';
 import { DestinationSelector } from '@/components/movements/destination-selector';
@@ -60,20 +63,20 @@ export default function GastosScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      setFocusCount(c => c + 1);
+      setFocusCount((c) => c + 1);
       getExpenses().then(setAllExpenses);
     }, []),
   );
 
   const handleCreateExpense = useCallback(() => {
     if (filter.groupId) {
-      const group = groups.find(g => g.id === filter.groupId);
+      const group = groups.find((g) => g.id === filter.groupId);
       if (!group) {
         setFilter({ category: filter.category, groupId: null });
         setDestSelectorVisible(true);
         return;
       }
-      const members = group.members.map(m => ({
+      const members = group.members.map((m) => ({
         id: m.user.id,
         name: m.user.firstName,
       }));
@@ -85,7 +88,7 @@ export default function GastosScreen() {
 
   const handleDestSelect = useCallback((group: GroupResponse) => {
     setDestSelectorVisible(false);
-    const members = group.members.map(m => ({
+    const members = group.members.map((m) => ({
       id: m.user.id,
       name: m.user.firstName,
     }));
@@ -96,40 +99,46 @@ export default function GastosScreen() {
     setCreatingExpenseGroup(null);
   }, []);
 
-  const filteredGroups = useMemo(() => groups.filter((g) => {
-    if (filter.category === 'all') return true;
-    if (filter.category === 'personal' && g.type === 'PERSONAL') return true;
-    if (filter.category === 'couple' && g.type === 'COUPLE') {
-      return filter.groupId ? g.id === filter.groupId : true;
-    }
-    if (filter.category === 'group' && g.type === 'GROUP') {
-      return filter.groupId ? g.id === filter.groupId : true;
-    }
-    return false;
-  }), [groups, filter]);
+  const filteredGroups = useMemo(
+    () =>
+      groups.filter((g) => {
+        if (filter.category === 'all') return true;
+        if (filter.category === 'personal' && g.type === 'PERSONAL')
+          return true;
+        if (filter.category === 'couple' && g.type === 'COUPLE') {
+          return filter.groupId ? g.id === filter.groupId : true;
+        }
+        if (filter.category === 'group' && g.type === 'GROUP') {
+          return filter.groupId ? g.id === filter.groupId : true;
+        }
+        return false;
+      }),
+    [groups, filter],
+  );
 
   const filteredGroupIds = useMemo(
     () => new Set(filteredGroups.map((g) => g.id)),
-    [filteredGroups]
+    [filteredGroups],
   );
 
   const filteredExpenses = useMemo(
     () => allExpenses.filter((e) => filteredGroupIds.has(e.groupId)),
-    [allExpenses, filteredGroupIds]
+    [allExpenses, filteredGroupIds],
   );
 
   const totalExpensesAll = useMemo(
     () => filteredExpenses.reduce((sum, e) => sum + e.amount, 0),
-    [filteredExpenses]
+    [filteredExpenses],
   );
 
   const totalTransactionsAll = filteredExpenses.length;
 
   const recentExpenses = useMemo(
-    () => filteredExpenses
-      .slice(0, 10)
-      .map((e) => expenseToRecent(e, user?.id ?? '')),
-    [filteredExpenses, user?.id]
+    () =>
+      filteredExpenses
+        .slice(0, 10)
+        .map((e) => expenseToRecent(e, user?.id ?? '')),
+    [filteredExpenses, user?.id],
   );
 
   return (
@@ -202,12 +211,16 @@ export default function GastosScreen() {
             </Text>
             <RecentExpensesCard
               expenses={recentExpenses}
-              onExpensePress={(expense) => router.push(`/gastos/detalle/${expense.id}`)}
+              onExpensePress={(expense) =>
+                router.push(`/gastos/detalle/${expense.id}`)
+              }
             />
           </View>
 
           <Pressable className="mt-5 flex-row items-center justify-center gap-2 rounded-xl border border-[#E2E8F0] bg-white py-4 active:opacity-80">
-            <Text className="font-semibold text-[#0F766E]">Cargar más movimientos</Text>
+            <Text className="font-semibold text-[#0F766E]">
+              Cargar más movimientos
+            </Text>
             <Text className="text-[#0F766E] opacity-40">›</Text>
           </Pressable>
         </View>

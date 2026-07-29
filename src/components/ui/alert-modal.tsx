@@ -1,11 +1,5 @@
 import { useEffect, useRef } from 'react';
-import {
-  Modal,
-  View,
-  Text,
-  Pressable,
-  Animated,
-} from 'react-native';
+import { Modal, View, Text, Pressable, Animated } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { FontAwesome6 } from '@expo/vector-icons';
 
@@ -123,10 +117,7 @@ export function AlertModal({
             paddingHorizontal: 24,
             paddingBottom: 24,
             paddingTop: 56,
-            transform: [
-              { scale },
-              { translateY },
-            ],
+            transform: [{ scale }, { translateY }],
 
             shadowColor: '#000',
             shadowOffset: {
@@ -167,12 +158,7 @@ export function AlertModal({
                 elevation: 12,
               }}
             >
-              <FontAwesome6
-                name={icon}
-                size={34}
-                color="#FFFFFF"
-                solid
-              />
+              <FontAwesome6 name={icon} size={34} color="#FFFFFF" solid />
             </View>
           </View>
 

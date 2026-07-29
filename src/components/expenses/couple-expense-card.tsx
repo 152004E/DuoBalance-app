@@ -79,7 +79,8 @@ export function CoupleExpenseCard({ couple }: CoupleExpenseCardProps) {
             <View className="flex-row items-center gap-1.5">
               <View className="h-2.5 w-2.5 rounded-full bg-[#8B5CF6]" />
               <Text className="text-xs text-[#64748B]">
-                {couple.partnerName}: ${couple.partnerExpenses.toLocaleString('es-CL')}
+                {couple.partnerName}: $
+                {couple.partnerExpenses.toLocaleString('es-CL')}
               </Text>
             </View>
           </View>

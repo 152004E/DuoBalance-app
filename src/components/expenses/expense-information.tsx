@@ -18,7 +18,13 @@ const GROUP_TYPE_LABEL: Record<string, string> = {
 };
 
 export function ExpenseInformation({
-  description, groupName, groupType, paidByName, paidByInitials, createdAt, updatedAt,
+  description,
+  groupName,
+  groupType,
+  paidByName,
+  paidByInitials,
+  createdAt,
+  updatedAt,
 }: ExpenseInformationProps) {
   return (
     <View
@@ -36,7 +42,9 @@ export function ExpenseInformation({
           <Text className="mb-1 text-xs font-semibold uppercase tracking-wider text-[#64748B]">
             Descripción
           </Text>
-          <Text className="text-base font-semibold text-[#0F172A]">{description}</Text>
+          <Text className="text-base font-semibold text-[#0F172A]">
+            {description}
+          </Text>
         </View>
         <FontAwesome6 name="file-lines" size={18} color="#64748B" />
       </View>
@@ -46,13 +54,17 @@ export function ExpenseInformation({
           <Text className="mb-1 text-xs font-semibold uppercase tracking-wider text-[#64748B]">
             Grupo
           </Text>
-          <Text className="text-base font-semibold text-[#0F172A]">{groupName}</Text>
+          <Text className="text-base font-semibold text-[#0F172A]">
+            {groupName}
+          </Text>
         </View>
         <View className="flex-1">
           <Text className="mb-1 text-xs font-semibold uppercase tracking-wider text-[#64748B]">
             Tipo
           </Text>
-          <Text className="text-base font-semibold text-[#0F172A]">{GROUP_TYPE_LABEL[groupType]}</Text>
+          <Text className="text-base font-semibold text-[#0F172A]">
+            {GROUP_TYPE_LABEL[groupType]}
+          </Text>
         </View>
       </View>
 
@@ -61,10 +73,14 @@ export function ExpenseInformation({
           <Text className="mb-1 text-xs font-semibold uppercase tracking-wider text-[#64748B]">
             Pagado por
           </Text>
-          <Text className="text-base font-semibold text-[#006c49]">{paidByName}</Text>
+          <Text className="text-base font-semibold text-[#006c49]">
+            {paidByName}
+          </Text>
         </View>
         <View className="flex h-8 w-8 items-center justify-center rounded-full bg-[#4edea3]">
-          <Text className="text-[12px] font-bold text-[#002113]">{paidByInitials}</Text>
+          <Text className="text-[12px] font-bold text-[#002113]">
+            {paidByInitials}
+          </Text>
         </View>
       </View>
 

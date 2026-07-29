@@ -47,7 +47,7 @@ export default function BottomTab({ state, navigation, insets }: any) {
                 const hasNestedStack = NESTED_TABS.includes(route.name);
                 navigation.navigate(
                   route.name,
-                  hasNestedStack ? { screen: 'index' } : undefined
+                  hasNestedStack ? { screen: 'index' } : undefined,
                 );
               }
             };

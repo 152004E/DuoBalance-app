@@ -75,7 +75,7 @@ export default function MovimientosScreen() {
         subtitle="Historial de tu actividad financiera"
         onBack={() => router.back()}
       />
-      <View className=" px-5 pb-5 pt-4">
+      <View className="px-5 pb-5 pt-4">
         {/* Buscador + Filtros */}
         <View className="flex-row items-center gap-3">
           <View className="flex-1 flex-row items-center rounded-full bg-white px-4 py-3">
@@ -89,20 +89,14 @@ export default function MovimientosScreen() {
 
           <Pressable className="flex-row items-center rounded-full bg-[#00795D] px-5 py-3 active:opacity-80">
             <FontAwesome6 name="sliders" size={14} color="#FFFFFF" />
-            <Text className="ml-2 font-semibold text-white">
-              Filtros
-            </Text>
+            <Text className="ml-2 font-semibold text-white">Filtros</Text>
           </Pressable>
         </View>
 
         {/* Fechas */}
         <Pressable className="mt-4 flex-row items-center justify-between rounded-2xl bg-white px-4 py-4 shadow-sm">
           <View className="flex-row items-center">
-            <FontAwesome6
-              name="calendar"
-              size={16}
-              color="#64748B"
-            />
+            <FontAwesome6 name="calendar" size={16} color="#64748B" />
             <Text className="ml-2 font-medium text-[#334155]">
               Desde: 01/07
             </Text>
@@ -111,21 +105,13 @@ export default function MovimientosScreen() {
           <Text className="text-[#94A3B8]">—</Text>
 
           <View className="flex-row items-center">
-            <FontAwesome6
-              name="calendar"
-              size={16}
-              color="#64748B"
-            />
+            <FontAwesome6 name="calendar" size={16} color="#64748B" />
             <Text className="ml-2 font-medium text-[#334155]">
               Hasta: 28/07
             </Text>
           </View>
 
-          <FontAwesome6
-            name="chevron-right"
-            size={14}
-            color="#94A3B8"
-          />
+          <FontAwesome6 name="chevron-right" size={14} color="#94A3B8" />
         </Pressable>
       </View>
 
@@ -146,18 +132,18 @@ export default function MovimientosScreen() {
               router.push(`/gastos/detalle/${expense.id}`)
             }
           />
-           {/* Load More Button */}
-        <View className="mt-5 px-5">
-          <Pressable className="flex-row items-center justify-center gap-2 rounded-xl border border-[#E2E8F0] bg-white py-4 active:opacity-80">
-            <Text className="font-semibold text-[#0F766E]">
-              Cargar más movimientos
-            </Text>
-            <Text className="text-[#0F766E] opacity-40">›</Text>
-          </Pressable>
-        </View>
+          {/* Load More Button */}
+          <View className="mt-5 px-5">
+            <Pressable className="flex-row items-center justify-center gap-2 rounded-xl border border-[#E2E8F0] bg-white py-4 active:opacity-80">
+              <Text className="font-semibold text-[#0F766E]">
+                Cargar más movimientos
+              </Text>
+              <Text className="text-[#0F766E] opacity-40">›</Text>
+            </Pressable>
+          </View>
         </View>
       )}
-       <FloatingAddButton onPress={() => router.push('/gastos/Movimientos')} />
+      <FloatingAddButton onPress={() => router.push('/gastos/Movimientos')} />
     </SafeAreaView>
   );
 }

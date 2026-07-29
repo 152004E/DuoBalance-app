@@ -3,13 +3,13 @@ import { getMyGroups } from '@/services/api/groups';
 import type { GroupResponse } from '@/types/api';
 
 interface UseGroupsReturn {
-  groups: GroupResponse[]
-  personalGroups: GroupResponse[]
-  coupleGroups: GroupResponse[]
-  sharedGroups: GroupResponse[]
-  isLoading: boolean
-  error: string | null
-  refetch: () => Promise<void>
+  groups: GroupResponse[];
+  personalGroups: GroupResponse[];
+  coupleGroups: GroupResponse[];
+  sharedGroups: GroupResponse[];
+  isLoading: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
 }
 
 export function useGroups(): UseGroupsReturn {

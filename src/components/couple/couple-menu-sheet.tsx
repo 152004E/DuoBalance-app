@@ -1,10 +1,5 @@
 import { useEffect } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  Pressable,
-} from 'react-native';
+import { View, Text, ScrollView, Pressable } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -17,7 +12,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
 
-export type CoupleMenuAction = 'invite' | 'settings' | 'export' | 'history' | 'leave';
+export type CoupleMenuAction =
+  | 'invite'
+  | 'settings'
+  | 'export'
+  | 'history'
+  | 'leave';
 
 interface MenuItem {
   action: CoupleMenuAction;
@@ -28,11 +28,37 @@ interface MenuItem {
 }
 
 const MENU_ITEMS: MenuItem[] = [
-  { action: 'invite', icon: 'user-plus', label: 'Invitar miembro', iconBg: '#10B981' },
-  { action: 'settings', icon: 'gear', label: 'Configuración del grupo', iconBg: '#0F766E' },
-  { action: 'export', icon: 'file-export', label: 'Exportar gastos', iconBg: '#3B82F6' },
-  { action: 'history', icon: 'clock-rotate-left', label: 'Historial liquidaciones', iconBg: '#8B5CF6' },
-  { action: 'leave', icon: 'right-from-bracket', label: 'Salir del grupo', iconBg: '#EF4444', isDestructive: true },
+  {
+    action: 'invite',
+    icon: 'user-plus',
+    label: 'Invitar miembro',
+    iconBg: '#10B981',
+  },
+  {
+    action: 'settings',
+    icon: 'gear',
+    label: 'Configuración del grupo',
+    iconBg: '#0F766E',
+  },
+  {
+    action: 'export',
+    icon: 'file-export',
+    label: 'Exportar gastos',
+    iconBg: '#3B82F6',
+  },
+  {
+    action: 'history',
+    icon: 'clock-rotate-left',
+    label: 'Historial liquidaciones',
+    iconBg: '#8B5CF6',
+  },
+  {
+    action: 'leave',
+    icon: 'right-from-bracket',
+    label: 'Salir del grupo',
+    iconBg: '#EF4444',
+    isDestructive: true,
+  },
 ];
 
 interface CoupleMenuSheetProps {
@@ -79,7 +105,11 @@ function MenuItemRow({
             className="h-12 w-12 items-center justify-center rounded-full"
             style={{ backgroundColor: `${item.iconBg}26` }}
           >
-            <FontAwesome6 name={item.icon as any} size={18} color={item.iconBg} />
+            <FontAwesome6
+              name={item.icon as any}
+              size={18}
+              color={item.iconBg}
+            />
           </View>
           <Text
             className={`text-base font-semibold ${
@@ -91,14 +121,22 @@ function MenuItemRow({
         </View>
         <FontAwesome6 name="chevron-right" size={14} color="#CBD5E1" />
       </Pressable>
-      {index < MENU_ITEMS.length - 1 && !MENU_ITEMS[index + 1]?.isDestructive && (
-        <View className="ml-16 border-b border-[#F1F5F9]" />
-      )}
+      {index < MENU_ITEMS.length - 1 &&
+        !MENU_ITEMS[index + 1]?.isDestructive && (
+          <View className="ml-16 border-b border-[#F1F5F9]" />
+        )}
     </Animated.View>
   );
 }
 
-export function CoupleMenuSheet({ visible, onClose, onAction, heightRatio = 0.65, headerFinalTranslateY, onCloseComplete }: CoupleMenuSheetProps) {
+export function CoupleMenuSheet({
+  visible,
+  onClose,
+  onAction,
+  heightRatio = 0.65,
+  headerFinalTranslateY,
+  onCloseComplete,
+}: CoupleMenuSheetProps) {
   const insets = useSafeAreaInsets();
 
   const itemAnimations: ItemAnimationState[] = MENU_ITEMS.map(() => ({
@@ -109,10 +147,19 @@ export function CoupleMenuSheet({ visible, onClose, onAction, heightRatio = 0.65
   useEffect(() => {
     if (visible) {
       const itemTimers = itemAnimations.map((state, idx) =>
-        setTimeout(() => {
-          state.opacity.value = withTiming(1, { duration: 350, easing: Easing.out(Easing.cubic) });
-          state.translateX.value = withTiming(0, { duration: 350, easing: Easing.out(Easing.cubic) });
-        }, 1150 + idx * 100)
+        setTimeout(
+          () => {
+            state.opacity.value = withTiming(1, {
+              duration: 350,
+              easing: Easing.out(Easing.cubic),
+            });
+            state.translateX.value = withTiming(0, {
+              duration: 350,
+              easing: Easing.out(Easing.cubic),
+            });
+          },
+          1150 + idx * 100,
+        ),
       );
 
       return () => {
@@ -133,7 +180,14 @@ export function CoupleMenuSheet({ visible, onClose, onAction, heightRatio = 0.65
   );
 
   return (
-    <BottomSheet visible={visible} onClose={onClose} header={header} heightRatio={heightRatio} headerFinalTranslateY={headerFinalTranslateY} onCloseComplete={onCloseComplete}>
+    <BottomSheet
+      visible={visible}
+      onClose={onClose}
+      header={header}
+      heightRatio={heightRatio}
+      headerFinalTranslateY={headerFinalTranslateY}
+      onCloseComplete={onCloseComplete}
+    >
       <View className="flex-1">
         <ScrollView
           className="flex-1 px-5"

@@ -1,10 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  Pressable,
-} from 'react-native';
+import { View, Text, ScrollView, Pressable } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Input } from '@/components/ui/input';
@@ -55,9 +50,7 @@ function SplitToggle({
             key={values[i]}
             onPress={() => onChange(values[i])}
             className={`flex-1 items-center rounded-xl py-2.5 ${
-              isActive
-                ? 'bg-[#10B981]'
-                : 'border border-[#E2E8F0] bg-white'
+              isActive ? 'bg-[#10B981]' : 'border border-[#E2E8F0] bg-white'
             }`}
           >
             <Text
@@ -311,9 +304,7 @@ export function CreateCoupleSheet({
                         elevation: 4,
                       }}
                     >
-                      <Text className="text-xl font-bold text-white">
-                        −
-                      </Text>
+                      <Text className="text-xl font-bold text-white">−</Text>
                     </Pressable>
 
                     <Text className="text-3xl font-extrabold text-[#10B981]">
@@ -332,9 +323,7 @@ export function CreateCoupleSheet({
                         elevation: 4,
                       }}
                     >
-                      <Text className="text-xl font-bold text-white">
-                        +
-                      </Text>
+                      <Text className="text-xl font-bold text-white">+</Text>
                     </Pressable>
                   </View>
                 </View>
@@ -371,8 +360,7 @@ export function CreateCoupleSheet({
               ) : (
                 <View className="mt-4 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
                   <Text className="text-sm text-[#64748B]">
-                    Podrás configurar los porcentajes después de crear el
-                    grupo.
+                    Podrás configurar los porcentajes después de crear el grupo.
                   </Text>
                 </View>
               )}

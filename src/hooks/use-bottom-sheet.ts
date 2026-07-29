@@ -177,10 +177,7 @@ export function useBottomSheet({
     });
 
   const sheetAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: translateY.value },
-      { scale: scale.value },
-    ],
+    transform: [{ translateY: translateY.value }, { scale: scale.value }],
   }));
 
   const overlayAnimatedStyle = useAnimatedStyle(() => ({

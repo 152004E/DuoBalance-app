@@ -1,5 +1,11 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  Pressable,
+  ActivityIndicator,
+} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import * as Clipboard from 'expo-clipboard';
 import { FontAwesome6 } from '@expo/vector-icons';
@@ -58,7 +64,7 @@ export function InviteMemberSheet({
         contentContainerClassName="pb-3"
       >
         {/* Código de invitación */}
-        <View className="mt-1 items-center  rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2">
+        <View className="mt-1 items-center rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2">
           <Text className="text-sm font-medium text-[#64748B]">
             Código de invitación
           </Text>
@@ -70,10 +76,10 @@ export function InviteMemberSheet({
         {/* QR Code */}
         <View className="mt-3 items-center">
           <View className="items-center justify-center rounded-2xl border border-[#E2E8F0] bg-white px-4 py-3">
-            <Text className=" text-sm font-medium text-[#64748B] mb-3">
+            <Text className="mb-3 text-sm font-medium text-[#64748B]">
               Escanea para unirte
             </Text>
-            <View className="h-62 w-62 items-center justify-center rounded-xl bg-white ">
+            <View className="h-62 w-62 items-center justify-center rounded-xl bg-white">
               <QRCode value={invitationCode} size={180} />
             </View>
           </View>
@@ -82,8 +88,8 @@ export function InviteMemberSheet({
         {/* Texto explicativo */}
         <View className="mt-3 rounded-2xl bg-[#ECFDF5] p-3">
           <Text className="text-[12px] leading-4 text-[#065F46]">
-            Los miembros deben ingresar este código en "Unirse a grupo"
-            para conectarse al grupo. El código expirará en 24 horas.
+            Los miembros deben ingresar este código en "Unirse a grupo" para
+            conectarse al grupo. El código expirará en 24 horas.
           </Text>
         </View>
 

@@ -58,8 +58,6 @@ export function HeroSection({ width }: HeroSectionProps) {
             0,${HEADER_HEIGHT}
           `}
         />
-
-
       </Svg>
 
       {/* Contenido */}
@@ -75,7 +73,6 @@ export function HeroSection({ width }: HeroSectionProps) {
           style={{
             width: 60,
             height: 60,
-            
           }}
           resizeMode="contain"
         />

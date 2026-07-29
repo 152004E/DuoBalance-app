@@ -59,9 +59,13 @@ export function CreateExpenseSheet({
   const [category, setCategory] = useState('ALIMENTACIÓN');
   const [date, setDate] = useState(getTodayDate());
   const [paidBy, setPaidBy] = useState('');
-  const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
+  const [selectedParticipants, setSelectedParticipants] = useState<string[]>(
+    [],
+  );
   const [splitType, setSplitType] = useState<'EQUAL' | 'PERCENTAGE'>('EQUAL');
   const [yourPercentage, setYourPercentage] = useState(50);
+
+  const resetKey = useMemo(() => (visible ? Date.now() : 0), [visible]);
 
   useEffect(() => {
     if (visible && members.length > 0) {
@@ -74,13 +78,11 @@ export function CreateExpenseSheet({
       setSplitType('EQUAL');
       setYourPercentage(50);
     }
-  }, [visible, members]);
+  }, [resetKey, members]);
 
   const toggleParticipant = (id: string) => {
     setSelectedParticipants((prev) =>
-      prev.includes(id)
-        ? prev.filter((p) => p !== id)
-        : [...prev, id],
+      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
     );
   };
 
@@ -100,7 +102,6 @@ export function CreateExpenseSheet({
       subtitle={`Registra un gasto compartido en ${group.name}`}
       onClose={onClose}
       gradientPaddingBottom={600}
-      
     />
   );
 
@@ -243,7 +244,11 @@ export function CreateExpenseSheet({
                           }`}
                         >
                           {isSelected && (
-                            <FontAwesome6 name="check" size={10} color="white" />
+                            <FontAwesome6
+                              name="check"
+                              size={10}
+                              color="white"
+                            />
                           )}
                         </View>
                         <Text className="text-sm font-medium text-[#0F172A]">
@@ -286,7 +291,9 @@ export function CreateExpenseSheet({
                   />
                   <Text
                     className={`text-sm font-medium ${
-                      splitType === 'EQUAL' ? 'text-[#10B981]' : 'text-[#64748B]'
+                      splitType === 'EQUAL'
+                        ? 'text-[#10B981]'
+                        : 'text-[#64748B]'
                     }`}
                   >
                     Igual
@@ -307,7 +314,9 @@ export function CreateExpenseSheet({
                   />
                   <Text
                     className={`text-sm font-medium ${
-                      splitType === 'PERCENTAGE' ? 'text-[#10B981]' : 'text-[#64748B]'
+                      splitType === 'PERCENTAGE'
+                        ? 'text-[#10B981]'
+                        : 'text-[#64748B]'
                     }`}
                   >
                     Porcentaje
@@ -318,37 +327,39 @@ export function CreateExpenseSheet({
           )}
 
           {/* Percentage controls (only if PERCENTAGE and 2+ participants) */}
-          {!isPersonal && splitType === 'PERCENTAGE' && selectedParticipants.length >= 2 && (
-            <View className="mt-4 rounded-xl border border-[#E2E8F0] bg-white p-4">
-              <Text className="mb-3 text-center text-sm font-medium text-[#0F172A]">
-                Tu porcentaje
-              </Text>
-              <View className="flex-row items-center justify-center gap-4">
-                <Pressable
-                  onPress={() =>
-                    setYourPercentage(Math.max(10, yourPercentage - 5))
-                  }
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-[#10B981]"
-                >
-                  <Text className="text-lg font-bold text-white">−</Text>
-                </Pressable>
-                <Text className="text-2xl font-extrabold text-[#10B981]">
-                  {yourPercentage}%
+          {!isPersonal &&
+            splitType === 'PERCENTAGE' &&
+            selectedParticipants.length >= 2 && (
+              <View className="mt-4 rounded-xl border border-[#E2E8F0] bg-white p-4">
+                <Text className="mb-3 text-center text-sm font-medium text-[#0F172A]">
+                  Tu porcentaje
                 </Text>
-                <Pressable
-                  onPress={() =>
-                    setYourPercentage(Math.min(90, yourPercentage + 5))
-                  }
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-[#10B981]"
-                >
-                  <Text className="text-lg font-bold text-white">+</Text>
-                </Pressable>
+                <View className="flex-row items-center justify-center gap-4">
+                  <Pressable
+                    onPress={() =>
+                      setYourPercentage(Math.max(10, yourPercentage - 5))
+                    }
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-[#10B981]"
+                  >
+                    <Text className="text-lg font-bold text-white">−</Text>
+                  </Pressable>
+                  <Text className="text-2xl font-extrabold text-[#10B981]">
+                    {yourPercentage}%
+                  </Text>
+                  <Pressable
+                    onPress={() =>
+                      setYourPercentage(Math.min(90, yourPercentage + 5))
+                    }
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-[#10B981]"
+                  >
+                    <Text className="text-lg font-bold text-white">+</Text>
+                  </Pressable>
+                </View>
+                <Text className="mt-2 text-center text-xs text-[#64748B]">
+                  El otro participante recibirá el {100 - yourPercentage}%
+                </Text>
               </View>
-              <Text className="mt-2 text-center text-xs text-[#64748B]">
-                El otro participante recibirá el {100 - yourPercentage}%
-              </Text>
-            </View>
-          )}
+            )}
 
           {/* Receipt (placeholder) */}
           <Text className="mb-2 mt-5 text-sm font-semibold text-[#0F172A]">

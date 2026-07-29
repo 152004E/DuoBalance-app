@@ -59,7 +59,10 @@ const providerConfig = {
   },
 };
 
-export function SocialLoginButton({ provider, onPress }: SocialLoginButtonProps) {
+export function SocialLoginButton({
+  provider,
+  onPress,
+}: SocialLoginButtonProps) {
   const config = providerConfig[provider];
   const { Icon } = config;
 

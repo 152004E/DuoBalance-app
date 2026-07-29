@@ -1,5 +1,11 @@
 import { useEffect } from 'react';
-import { View, Text, Image, Pressable, type ImageSourcePropType } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  Pressable,
+  type ImageSourcePropType,
+} from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -43,12 +49,24 @@ export function BottomSheetHeader({
   useEffect(() => {
     if (visible) {
       const t1 = setTimeout(() => {
-        titleOpacity.value = withTiming(1, { duration: 350, easing: Easing.out(Easing.cubic) });
-        titleTranslateY.value = withTiming(0, { duration: 350, easing: Easing.out(Easing.cubic) });
+        titleOpacity.value = withTiming(1, {
+          duration: 350,
+          easing: Easing.out(Easing.cubic),
+        });
+        titleTranslateY.value = withTiming(0, {
+          duration: 350,
+          easing: Easing.out(Easing.cubic),
+        });
       }, titleAnimationDelay);
       const t2 = setTimeout(() => {
-        subtitleOpacity.value = withTiming(1, { duration: 350, easing: Easing.out(Easing.cubic) });
-        subtitleTranslateY.value = withTiming(0, { duration: 350, easing: Easing.out(Easing.cubic) });
+        subtitleOpacity.value = withTiming(1, {
+          duration: 350,
+          easing: Easing.out(Easing.cubic),
+        });
+        subtitleTranslateY.value = withTiming(0, {
+          duration: 350,
+          easing: Easing.out(Easing.cubic),
+        });
       }, subtitleAnimationDelay);
 
       return () => {
@@ -76,7 +94,6 @@ export function BottomSheetHeader({
   return (
     <View
       style={{
-       
         borderTopLeftRadius: 32,
         borderTopRightRadius: 32,
         overflow: 'hidden',
@@ -87,7 +104,10 @@ export function BottomSheetHeader({
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         className="flex-1 justify-end px-5"
-        style={{ padding: insets.top + 17, paddingBottom: insets.bottom + gradientPaddingBottom }}
+        style={{
+          padding: insets.top + 17,
+          paddingBottom: insets.bottom + gradientPaddingBottom,
+        }}
       >
         <Pressable
           onPress={onClose}
@@ -110,7 +130,7 @@ export function BottomSheetHeader({
         </Animated.View>
 
         {logo && (
-          <View className="pt-20 items-center">
+          <View className="items-center pt-20">
             <Image
               source={logo}
               style={{ width: 80, height: 80 }}

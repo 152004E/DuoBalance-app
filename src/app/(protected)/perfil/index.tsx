@@ -2,12 +2,11 @@ import { View, Text, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome6 } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useScrollToTop } from 'expo-router';
 import { useAuth } from '@/hooks/use-auth';
 import { Loading } from '@/components/ui/loading';
 import { ProfileCard } from '@/components/perfil/profile-card';
 import { useRef } from 'react';
-import { useScrollToTop } from 'expo-router';
 
 const menuItems = [
   { icon: 'pen-to-square', label: 'Editar Perfil', route: '/perfil/editar' },
@@ -86,7 +85,11 @@ export default function PerfilScreen() {
               onPress={handleLogout}
               className="flex-row items-center justify-center gap-3 px-4 py-4 active:bg-[#F8FAFC]"
             >
-              <FontAwesome6 name="right-from-bracket" size={16} color="#EF4444" />
+              <FontAwesome6
+                name="right-from-bracket"
+                size={16}
+                color="#EF4444"
+              />
               <Text className="text-base font-semibold text-[#EF4444]">
                 Cerrar sesión
               </Text>

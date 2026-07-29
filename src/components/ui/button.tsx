@@ -1,5 +1,13 @@
 import { useRef, useEffect } from 'react';
-import { Pressable, Text, View, ActivityIndicator, Animated, type StyleProp, type ViewStyle } from 'react-native';
+import {
+  Pressable,
+  Text,
+  View,
+  ActivityIndicator,
+  Animated,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import { Link, type Href } from 'expo-router';
 import { FontAwesome6 } from '@expo/vector-icons';
 
@@ -31,9 +39,17 @@ function LoadingDots() {
       Animated.loop(
         Animated.sequence([
           Animated.delay(delay),
-          Animated.timing(opacity, { toValue: 1, duration: 300, useNativeDriver: true }),
-          Animated.timing(opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
-        ])
+          Animated.timing(opacity, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+          Animated.timing(opacity, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+        ]),
       );
 
     const anims = [anim(opacity1, 0), anim(opacity2, 150), anim(opacity3, 300)];
@@ -60,9 +76,17 @@ function LoadingPulse() {
   useEffect(() => {
     const anim = Animated.loop(
       Animated.sequence([
-        Animated.timing(opacity, { toValue: 0.3, duration: 750, useNativeDriver: true }),
-        Animated.timing(opacity, { toValue: 1, duration: 750, useNativeDriver: true }),
-      ])
+        Animated.timing(opacity, {
+          toValue: 0.3,
+          duration: 750,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 750,
+          useNativeDriver: true,
+        }),
+      ]),
     );
     anim.start();
     return () => anim.stop();
@@ -112,7 +136,12 @@ export function Button({
       case 'pulse':
         return <LoadingPulse />;
       default:
-        return <ActivityIndicator size="small" color={variant === 'success' ? '#0F172A' : 'white'} />;
+        return (
+          <ActivityIndicator
+            size="small"
+            color={variant === 'success' ? '#0F172A' : 'white'}
+          />
+        );
     }
   };
 
@@ -130,9 +159,13 @@ export function Button({
         </>
       ) : (
         <>
-          {iconLeft && <FontAwesome6 name={iconLeft} size={iconSize} color={iconColor} />}
+          {iconLeft && (
+            <FontAwesome6 name={iconLeft} size={iconSize} color={iconColor} />
+          )}
           <Text className={`text-base font-semibold ${textColor}`}>{text}</Text>
-          {iconRight && <FontAwesome6 name={iconRight} size={iconSize} color={iconColor} />}
+          {iconRight && (
+            <FontAwesome6 name={iconRight} size={iconSize} color={iconColor} />
+          )}
         </>
       )}
     </View>
@@ -143,7 +176,11 @@ export function Button({
   if (to && !isLoading) {
     return (
       <Link href={to} asChild>
-        <Pressable disabled={isDisabled} className={pressableClasses} style={style}>
+        <Pressable
+          disabled={isDisabled}
+          className={pressableClasses}
+          style={style}
+        >
           {content}
         </Pressable>
       </Link>

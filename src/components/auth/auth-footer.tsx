@@ -9,7 +9,7 @@ interface AuthFooterProps {
 
 export function AuthFooter({ question, action, href }: AuthFooterProps) {
   return (
-    <View className="mt-auto flex-row justify-center pt-8 pb-4">
+    <View className="mt-auto flex-row justify-center pb-4 pt-8">
       <Text className="text-base text-[#0F172A]">
         {question}{' '}
         <Link href={href} className="font-semibold text-[#10B981]">

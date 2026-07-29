@@ -1,6 +1,12 @@
 import { useEffect, useRef } from 'react';
-import { View, Text, Image, Animated, Easing } from 'react-native';
-import { useWindowDimensions } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  Animated,
+  Easing,
+  useWindowDimensions,
+} from 'react-native';
 import Svg, {
   Defs,
   LinearGradient,
@@ -57,11 +63,7 @@ const PAGE_ICONS: Record<string, string[]> = {
     'M23 21v-2a4 4 0 0 0-3-3.87',
     'M16 3.13a4 4 0 0 1 0 7.75',
   ],
-  Reportes: [
-    'M18 20V10',
-    'M12 20V4',
-    'M6 20v-6',
-  ],
+  Reportes: ['M18 20V10', 'M12 20V4', 'M6 20v-6'],
 };
 
 function AnimatedCircles({ width, height }: { width: number; height: number }) {
@@ -140,20 +142,29 @@ function AnimatedWave({ width, height }: { width: number; height: number }) {
       withTiming(0, { duration: 450, easing: ReEasing.out(ReEasing.cubic) }),
     );
 
-    o2.value = withDelay(180, withSequence(
-      withTiming(7, { duration: 450, easing: ReEasing.inOut(ReEasing.sin) }),
-      withTiming(-3, { duration: 350, easing: ReEasing.inOut(ReEasing.sin) }),
-      withTiming(1, { duration: 300, easing: ReEasing.inOut(ReEasing.sin) }),
-      withTiming(-0.5, { duration: 300, easing: ReEasing.inOut(ReEasing.sin) }),
-      withTiming(0, { duration: 450, easing: ReEasing.out(ReEasing.cubic) }),
-    ));
+    o2.value = withDelay(
+      180,
+      withSequence(
+        withTiming(7, { duration: 450, easing: ReEasing.inOut(ReEasing.sin) }),
+        withTiming(-3, { duration: 350, easing: ReEasing.inOut(ReEasing.sin) }),
+        withTiming(1, { duration: 300, easing: ReEasing.inOut(ReEasing.sin) }),
+        withTiming(-0.5, {
+          duration: 300,
+          easing: ReEasing.inOut(ReEasing.sin),
+        }),
+        withTiming(0, { duration: 450, easing: ReEasing.out(ReEasing.cubic) }),
+      ),
+    );
 
-    mid.value = withDelay(90, withSequence(
-      withTiming(5, { duration: 400, easing: ReEasing.inOut(ReEasing.sin) }),
-      withTiming(-2, { duration: 350, easing: ReEasing.inOut(ReEasing.sin) }),
-      withTiming(1, { duration: 350, easing: ReEasing.inOut(ReEasing.sin) }),
-      withTiming(0, { duration: 450, easing: ReEasing.out(ReEasing.cubic) }),
-    ));
+    mid.value = withDelay(
+      90,
+      withSequence(
+        withTiming(5, { duration: 400, easing: ReEasing.inOut(ReEasing.sin) }),
+        withTiming(-2, { duration: 350, easing: ReEasing.inOut(ReEasing.sin) }),
+        withTiming(1, { duration: 350, easing: ReEasing.inOut(ReEasing.sin) }),
+        withTiming(0, { duration: 450, easing: ReEasing.out(ReEasing.cubic) }),
+      ),
+    );
   }, []);
 
   const animatedProps = useAnimatedProps(() => ({
@@ -185,8 +196,12 @@ export function HeroSection(props: HeroSectionProps) {
   const { variant, userName, height = 270 } = props;
   const { width } = useWindowDimensions();
 
-  const contentOpacity = useRef(new Animated.Value(variant === 'dashboard' ? 1 : 0)).current;
-  const contentSlideUp = useRef(new Animated.Value(variant === 'dashboard' ? 0 : 20)).current;
+  const contentOpacity = useRef(
+    new Animated.Value(variant === 'dashboard' ? 1 : 0),
+  ).current;
+  const contentSlideUp = useRef(
+    new Animated.Value(variant === 'dashboard' ? 0 : 20),
+  ).current;
   const subtitleOpacity = useRef(new Animated.Value(0)).current;
   const subtitleSlideUp = useRef(new Animated.Value(10)).current;
 
@@ -240,11 +255,7 @@ export function HeroSection(props: HeroSectionProps) {
         borderBottomRightRadius: 60,
       }}
     >
-      <Svg
-        width={width}
-        height={height + 40}
-        style={{ position: 'absolute' }}
-      >
+      <Svg width={width} height={height + 40} style={{ position: 'absolute' }}>
         <Defs>
           <LinearGradient id="heroGradient" x1="0" y1="0" x2="1" y2="1">
             <Stop offset="0%" stopColor="#065238ff" />
@@ -287,7 +298,9 @@ export function HeroSection(props: HeroSectionProps) {
           <AnimatedWave width={width} height={height} />
         )}
 
-        {variant === 'page' && <AnimatedCircles width={width} height={height} />}
+        {variant === 'page' && (
+          <AnimatedCircles width={width} height={height} />
+        )}
       </Svg>
 
       <Animated.View
@@ -318,14 +331,23 @@ export function HeroSection(props: HeroSectionProps) {
               <Text className="text-base text-white">
                 Bienvenido,{' '}
                 <Text className="font-semibold">
-                  {userName.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ")}
+                  {userName
+                    .split(' ')
+                    .map(
+                      (w) =>
+                        w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(),
+                    )
+                    .join(' ')}
                 </Text>
               </Text>
             </Animated.View>
 
             <View className="mt-4 items-center">
               <Animated.View
-                style={{ opacity: dashAnim.balanceOpacity, transform: [{ scale: dashAnim.numberScale }] }}
+                style={{
+                  opacity: dashAnim.balanceOpacity,
+                  transform: [{ scale: dashAnim.numberScale }],
+                }}
               >
                 <Text className="text-5xl font-bold tracking-tight text-white">
                   ${props.balance.toLocaleString('es-CL')}
@@ -377,7 +399,13 @@ export function HeroSection(props: HeroSectionProps) {
               <Text className="text-base text-white">
                 Bienvenido,{' '}
                 <Text className="font-semibold">
-                  {userName.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ")}
+                  {userName
+                    .split(' ')
+                    .map(
+                      (w) =>
+                        w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(),
+                    )
+                    .join(' ')}
                 </Text>
               </Text>
             </View>
@@ -417,9 +445,7 @@ export function HeroSection(props: HeroSectionProps) {
               )}
 
               {props.rightAction && (
-                <View className="mt-3">
-                  {props.rightAction}
-                </View>
+                <View className="mt-3">{props.rightAction}</View>
               )}
             </View>
           </>

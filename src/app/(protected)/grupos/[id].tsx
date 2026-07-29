@@ -8,7 +8,10 @@ import type { GroupResponse, GroupType } from '@/types/api';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Loading } from '@/components/ui/loading';
 import { EmptyState } from '@/components/ui/empty-state';
-import { RecentExpensesCard, type RecentExpense } from '@/components/expenses/recent-expenses-card';
+import {
+  RecentExpensesCard,
+  type RecentExpense,
+} from '@/components/expenses/recent-expenses-card';
 import {
   CoupleMenuSheet,
   type CoupleMenuAction,
@@ -49,9 +52,22 @@ const MOCK_EXPENSES = [
   },
 ] as const;
 
-const TYPE_CONFIG: Record<GroupType, { label: string; color: string; bg: string; subtitle: string }> = {
-  PERSONAL: { label: 'Personal', color: '#64748B', bg: '#F1F5F9', subtitle: 'Solo tú' },
-  COUPLE: { label: 'Pareja', color: '#10B981', bg: '#F0FDF4', subtitle: '2 miembros' },
+const TYPE_CONFIG: Record<
+  GroupType,
+  { label: string; color: string; bg: string; subtitle: string }
+> = {
+  PERSONAL: {
+    label: 'Personal',
+    color: '#64748B',
+    bg: '#F1F5F9',
+    subtitle: 'Solo tú',
+  },
+  COUPLE: {
+    label: 'Pareja',
+    color: '#10B981',
+    bg: '#F0FDF4',
+    subtitle: '2 miembros',
+  },
   GROUP: { label: 'Grupo', color: '#3B82F6', bg: '#EFF6FF', subtitle: '' },
 };
 
@@ -80,14 +96,17 @@ export default function CoupleDetail() {
       })
       .catch((err: unknown) => {
         if (mounted) {
-          const message = err instanceof Error ? err.message : 'Error al cargar el grupo';
+          const message =
+            err instanceof Error ? err.message : 'Error al cargar el grupo';
           setError(message);
         }
       })
       .finally(() => {
         if (mounted) setIsLoading(false);
       });
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [id]);
 
   const groupType: GroupType = group?.type ?? 'COUPLE';
@@ -141,7 +160,8 @@ export default function CoupleDetail() {
       setInviteVisible(false);
       setRegenerateSuccess(true);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Error al regenerar el código';
+      const message =
+        err instanceof Error ? err.message : 'Error al regenerar el código';
       setRegenerateError(message);
     } finally {
       setIsRegenerating(false);
@@ -342,7 +362,8 @@ export default function CoupleDetail() {
                     <View className="h-3 w-3 rounded-full bg-[#8B5CF6]" />
                     <Text className="text-[#0F172A]">
                       {groupType === 'COUPLE' && group.members.length >= 2
-                        ? group.members.find(m => m.role !== 'OWNER')?.user.firstName ?? 'Miembro'
+                        ? (group.members.find((m) => m.role !== 'OWNER')?.user
+                            .firstName ?? 'Miembro')
                         : 'Grupo'}
                     </Text>
                   </View>
@@ -378,7 +399,6 @@ export default function CoupleDetail() {
           />
         </View>
 
-
         {/* Mini Analytics Preview */}
         <View className="mt-4 px-5">
           <Pressable className="h-40 overflow-hidden rounded-xl">
@@ -402,7 +422,7 @@ export default function CoupleDetail() {
 
         {/* Toast feedback */}
         {showToast && (
-          <View className="absolute bottom-8 left-0 right-0 z-50 items-center pointer-events-none">
+          <View className="pointer-events-none absolute bottom-8 left-0 right-0 z-50 items-center">
             <View
               className="flex-row items-center gap-2 rounded-full bg-[#2D3133] px-6 py-3"
               style={{
@@ -413,11 +433,7 @@ export default function CoupleDetail() {
                 elevation: 8,
               }}
             >
-              <FontAwesome6
-                name="circle-check"
-                size={16}
-                color="#22C55E"
-              />
+              <FontAwesome6 name="circle-check" size={16} color="#22C55E" />
               <Text className="text-sm font-medium text-[#EFF1F3]">
                 Copiado al portapapeles
               </Text>

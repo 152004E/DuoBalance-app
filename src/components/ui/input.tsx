@@ -1,5 +1,11 @@
 import { useState } from 'react';
-import { TextInput, View, Text, Pressable, type TextInputProps } from 'react-native';
+import {
+  TextInput,
+  View,
+  Text,
+  Pressable,
+  type TextInputProps,
+} from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
 
 interface InputProps extends TextInputProps {
@@ -33,21 +39,11 @@ export function Input({
       : 'eye'
     : iconRight;
 
-  const borderColor = error
-    ? '#EF4444'
-    : isFocused
-      ? '#10B981'
-      : '#E2E8F0';
+  const borderColor = error ? '#EF4444' : isFocused ? '#10B981' : '#E2E8F0';
 
-  const backgroundColor = isFocused
-    ? '#FFFFFF'
-    : '#F8FAFC';
+  const backgroundColor = isFocused ? '#FFFFFF' : '#F8FAFC';
 
-  const iconColor = error
-    ? '#EF4444'
-    : isFocused
-      ? '#10B981'
-      : '#64748B';
+  const iconColor = error ? '#EF4444' : isFocused ? '#10B981' : '#64748B';
 
   const handleRightIconPress = isPassword
     ? () => setShowPassword((prev) => !prev)
@@ -59,19 +55,13 @@ export function Input({
   return (
     <View className="gap-1">
       {label && (
-        <Text className="text-sm font-medium text-[#64748B]">
-          {label}
-        </Text>
+        <Text className="text-sm font-medium text-[#64748B]">{label}</Text>
       )}
 
       <View className="relative">
         {iconLeft && (
           <View className="absolute inset-y-0 left-0 z-10 items-center justify-center pl-4">
-            <FontAwesome6
-              name={iconLeft}
-              size={16}
-              color={iconColor}
-            />
+            <FontAwesome6 name={iconLeft} size={16} color={iconColor} />
           </View>
         )}
 
@@ -108,16 +98,10 @@ export function Input({
         )}
       </View>
 
-      {error && (
-        <Text className="text-xs text-[#EF4444]">
-          {error}
-        </Text>
-      )}
+      {error && <Text className="text-xs text-[#EF4444]">{error}</Text>}
 
       {helperText && !error && (
-        <Text className="text-xs text-[#64748B]">
-          {helperText}
-        </Text>
+        <Text className="text-xs text-[#64748B]">{helperText}</Text>
       )}
     </View>
   );

@@ -19,7 +19,11 @@ interface RecentExpensesCardProps {
   onExpensePress?: (expense: RecentExpense) => void;
 }
 
-export function RecentExpensesCard({ expenses, onViewAll, onExpensePress }: RecentExpensesCardProps) {
+export function RecentExpensesCard({
+  expenses,
+  onViewAll,
+  onExpensePress,
+}: RecentExpensesCardProps) {
   return (
     <View
       className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white"
@@ -36,9 +40,7 @@ export function RecentExpensesCard({ expenses, onViewAll, onExpensePress }: Rece
           Gastos Recientes
         </Text>
         <Pressable onPress={() => router.push('/gastos/Movimientos')}>
-          <Text className="text-sm font-semibold text-[#006c49]">
-            Ver todo
-          </Text>
+          <Text className="text-sm font-semibold text-[#006c49]">Ver todo</Text>
         </Pressable>
       </View>
 
