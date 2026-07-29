@@ -1,23 +1,19 @@
-import { useCallback, useState, useRef, useEffect } from 'react';
+import { useCallback, useState, useRef, useEffect, useMemo } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect, useScrollToTop } from 'expo-router';
 import { HeroSection } from '@/components/layout/HeroSection';
 import { useAuth } from '@/hooks/use-auth';
 import { useGroups } from '@/hooks/use-groups';
-import { GroupSelector, type GroupOption } from '@/components/ui/group-selector';
+import { GroupSelector } from '@/components/ui/group-selector';
 import { GroupSection } from '@/components/ui/group-section';
 import { RecentExpensesCard, type RecentExpense } from '@/components/expenses/recent-expenses-card';
 import { FloatingAddButton } from '@/components/dashboard/FloatingAddButton';
+import { CreateExpenseSheet } from '@/components/movements/create-expense-sheet';
+import { DestinationSelector } from '@/components/movements/destination-selector';
 import { getExpenses } from '@/services/api/expenses';
-import type { ExpenseResponse } from '@/types/api';
-
-const FILTER_OPTIONS: GroupOption[] = [
-  { id: 'all', name: 'Todos', type: 'personal' },
-  { id: 'personal', name: 'Personal', type: 'personal' },
-  { id: 'couple', name: 'Parejas', type: 'couple' },
-  { id: 'group', name: 'Grupos', type: 'group' },
-];
+import type { ExpenseResponse, GroupResponse } from '@/types/api';
+import type { FilterState } from '@/types/filter';
 
 const CATEGORY_ICONS: Record<string, { icon: string; bg: string }> = {
   ALIMENTACIÓN: { icon: 'basket-shopping', bg: '#F97316' },
@@ -47,12 +43,20 @@ function expenseToRecent(e: ExpenseResponse, userId: string): RecentExpense {
 
 export default function GastosScreen() {
   const { user } = useAuth();
-  const { groups } = useGroups();
+  const { groups, personalGroups, coupleGroups, sharedGroups } = useGroups();
   const [focusCount, setFocusCount] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
-  const [selectedFilter, setSelectedFilter] = useState<string>('all');
+  const [filter, setFilter] = useState<FilterState>({
+    category: 'all',
+    groupId: null,
+  });
   const [allExpenses, setAllExpenses] = useState<ExpenseResponse[]>([]);
+  const [destSelectorVisible, setDestSelectorVisible] = useState(false);
+  const [creatingExpenseGroup, setCreatingExpenseGroup] = useState<{
+    group: GroupResponse;
+    members: { id: string; name: string }[];
+  } | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -61,27 +65,72 @@ export default function GastosScreen() {
     }, []),
   );
 
-  const showPersonal = selectedFilter === 'all' || selectedFilter === 'personal';
-  const showCouple   = selectedFilter === 'all' || selectedFilter === 'couple';
-  const showGroup    = selectedFilter === 'all' || selectedFilter === 'group';
+  const handleCreateExpense = useCallback(() => {
+    if (filter.groupId) {
+      const group = groups.find(g => g.id === filter.groupId);
+      if (!group) {
+        setFilter({ category: filter.category, groupId: null });
+        setDestSelectorVisible(true);
+        return;
+      }
+      const members = group.members.map(m => ({
+        id: m.user.id,
+        name: m.user.firstName,
+      }));
+      setCreatingExpenseGroup({ group, members });
+    } else {
+      setDestSelectorVisible(true);
+    }
+  }, [filter, groups]);
 
-  const filteredGroups = groups.filter((g) => {
-    if (selectedFilter === 'all') return true;
-    if (selectedFilter === 'personal' && g.type === ('PERSONAL' as const)) return true;
-    if (selectedFilter === 'couple' && g.type === ('COUPLE' as const)) return true;
-    if (selectedFilter === 'group' && g.type === ('GROUP' as const)) return true;
+  const handleDestSelect = useCallback((group: GroupResponse) => {
+    setDestSelectorVisible(false);
+    const members = group.members.map(m => ({
+      id: m.user.id,
+      name: m.user.firstName,
+    }));
+    setCreatingExpenseGroup({ group, members });
+  }, []);
+
+  const handleCloseCreateSheet = useCallback(() => {
+    setCreatingExpenseGroup(null);
+  }, []);
+
+  const filteredGroups = useMemo(() => groups.filter((g) => {
+    if (filter.category === 'all') return true;
+    if (filter.category === 'personal' && g.type === 'PERSONAL') return true;
+    if (filter.category === 'couple' && g.type === 'COUPLE') {
+      return filter.groupId ? g.id === filter.groupId : true;
+    }
+    if (filter.category === 'group' && g.type === 'GROUP') {
+      return filter.groupId ? g.id === filter.groupId : true;
+    }
     return false;
-  });
+  }), [groups, filter]);
 
-  const filteredGroupIds = new Set(filteredGroups.map((g) => g.id));
-  const filteredExpenses = allExpenses.filter((e) => filteredGroupIds.has(e.groupId));
+  const filteredGroupIds = useMemo(
+    () => new Set(filteredGroups.map((g) => g.id)),
+    [filteredGroups]
+  );
 
-  const totalExpensesAll = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
+  const filteredExpenses = useMemo(
+    () => allExpenses.filter((e) => filteredGroupIds.has(e.groupId)),
+    [allExpenses, filteredGroupIds]
+  );
+
+  const totalExpensesAll = useMemo(
+    () => filteredExpenses.reduce((sum, e) => sum + e.amount, 0),
+    [filteredExpenses]
+  );
+
   const totalTransactionsAll = filteredExpenses.length;
 
-  const recentExpenses = filteredExpenses
-    .slice(0, 10)
-    .map((e) => expenseToRecent(e, user?.id ?? ''));
+  const recentExpenses = useMemo(
+    () => filteredExpenses
+      .slice(0, 10)
+      .map((e) => expenseToRecent(e, user?.id ?? '')),
+    [filteredExpenses, user?.id]
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]" edges={['top']}>
@@ -100,9 +149,11 @@ export default function GastosScreen() {
           height={220}
           rightAction={
             <GroupSelector
-              selectedId={selectedFilter}
-              onSelect={(g: GroupOption) => setSelectedFilter(g.id)}
-              options={FILTER_OPTIONS}
+              value={filter}
+              onChange={setFilter}
+              personalGroups={personalGroups}
+              coupleGroups={coupleGroups}
+              sharedGroups={sharedGroups}
               variant="dark"
             />
           }
@@ -162,7 +213,30 @@ export default function GastosScreen() {
         </View>
       </ScrollView>
 
-      <FloatingAddButton />
+      <FloatingAddButton onPress={handleCreateExpense} />
+
+      <DestinationSelector
+        visible={destSelectorVisible}
+        onClose={() => setDestSelectorVisible(false)}
+        filter={filter}
+        personalGroups={personalGroups}
+        coupleGroups={coupleGroups}
+        sharedGroups={sharedGroups}
+        onSelect={handleDestSelect}
+      />
+
+      {creatingExpenseGroup && (
+        <CreateExpenseSheet
+          visible={!!creatingExpenseGroup}
+          onClose={handleCloseCreateSheet}
+          group={creatingExpenseGroup.group}
+          members={creatingExpenseGroup.members}
+          onCreateExpense={async (payload) => {
+            console.log('Create expense:', payload);
+            handleCloseCreateSheet();
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 }
