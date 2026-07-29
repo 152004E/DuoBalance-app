@@ -162,7 +162,7 @@ export default function GastosScreen() {
         </View>
       </ScrollView>
 
-      <FloatingAddButton icon="angle-up" />
+      <FloatingAddButton />
     </SafeAreaView>
   );
 }

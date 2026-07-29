@@ -157,9 +157,7 @@ export default function MovimientosScreen() {
         </View>
         </View>
       )}
-       <FloatingAddButton 
-        icon="plus"
-        onPress={() => router.push('/gastos/Movimientos')} />
+       <FloatingAddButton onPress={() => router.push('/gastos/Movimientos')} />
     </SafeAreaView>
   );
 }
