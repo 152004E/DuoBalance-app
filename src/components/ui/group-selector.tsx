@@ -85,10 +85,16 @@ export function GroupSelector({
       ]}
       keyExtractor={item => item.id}
       renderItem={({ item }) => {
-        const isSelected = item.type === value.category && (
-          item.id === value.groupId || (item.id === value.category && !value.groupId)
-        );
-        const isSelectedMain = value.category === 'all' && item.id === 'all';
+        const isSubmenu = 'isSubmenu' in item && item.isSubmenu;
+        const isAll = item.id === 'all';
+        const isPersonal = item.id === 'personal';
+        const isSelected = isSubmenu
+          ? value.category === item.type
+          : (isAll
+              ? value.category === 'all'
+              : isPersonal
+                ? value.category === 'personal'
+                : value.category === item.type && value.groupId === item.id);
 
         if ('isSubmenu' in item && item.isSubmenu) {
           return (
@@ -97,10 +103,14 @@ export function GroupSelector({
                 if (item.id === '__couples__') setCurrentView('couples');
                 if (item.id === '__groups__') setCurrentView('groups');
               }}
-              className="flex-row items-center gap-3 px-4 py-3.5 active:bg-[#F8FAFC]"
+              className={`flex-row items-center gap-3 px-4 py-3.5 active:bg-[#F8FAFC] ${
+                isSelected ? 'bg-[#10B981]/10 border-l-4 border-[#10B981]' : ''
+              }`}
             >
-              <Text className="flex-1 text-base font-medium text-[#0F172A]">{item.name}</Text>
-              <FontAwesome6 name="chevron-right" size={14} color="#CBD5E1" />
+              <Text className={`flex-1 text-base ${isSelected ? 'font-bold text-[#10B981]' : 'font-medium text-[#0F172A]'}`}>
+                {item.name}
+              </Text>
+              <FontAwesome6 name="chevron-right" size={14} color={isSelected ? '#10B981' : '#CBD5E1'} />
             </Pressable>
           );
         }
@@ -118,11 +128,11 @@ export function GroupSelector({
               setOpen(false);
             }}
             className={`flex-row items-center gap-3 px-4 py-3.5 active:bg-[#F8FAFC] ${
-              isSelected || isSelectedMain ? 'bg-[#10B981]/10 border-l-4 border-[#10B981]' : ''
+              isSelected ? 'bg-[#10B981]/10 border-l-4 border-[#10B981]' : ''
             }`}
           >
-            <FontAwesome6 name={item.icon as any} size={16} color={isSelected || isSelectedMain ? '#10B981' : item.color} solid />
-            <Text className={`text-base ${isSelected || isSelectedMain ? 'font-bold text-[#10B981]' : 'font-medium text-[#0F172A]'}`}>
+            <FontAwesome6 name={item.icon as any} size={16} color={isSelected ? '#10B981' : item.color} solid />
+            <Text className={`text-base ${isSelected ? 'font-bold text-[#10B981]' : 'font-medium text-[#0F172A]'}`}>
               {item.name}
             </Text>
           </Pressable>
