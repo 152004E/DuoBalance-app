@@ -15,6 +15,12 @@ import { useAuth } from '@/hooks/use-auth';
 import type { GroupResponse, ExpenseResponse } from '@/types/api';
 
 const CATEGORY_ICONS: Record<string, { icon: string; bg: string }> = {
+  FOOD: { icon: 'basket-shopping', bg: '#F97316' },
+  TRANSPORT: { icon: 'car', bg: '#8B5CF6' },
+  RENT: { icon: 'house', bg: '#3B82F6' },
+  SERVICES: { icon: 'bolt', bg: '#F59E0B' },
+  ENTERTAINMENT: { icon: 'film', bg: '#06B6D4' },
+  OTHER: { icon: 'tag', bg: '#64748B' },
   ALIMENTACIÓN: { icon: 'basket-shopping', bg: '#F97316' },
   TRANSPORTE: { icon: 'car', bg: '#8B5CF6' },
   VIVIENDA: { icon: 'house', bg: '#3B82F6' },
@@ -31,12 +37,12 @@ const DATE_FILTERS = [
 ] as const;
 const CATEGORY_FILTERS = [
   { label: '📋 Todas', value: 'all' },
-  { label: '🍔 Comida', value: 'ALIMENTACIÓN' },
-  { label: '🚗 Transporte', value: 'TRANSPORTE' },
-  { label: '🏠 Vivienda', value: 'VIVIENDA' },
-  { label: '💡 Servicios', value: 'SERVICIOS' },
-  { label: '🎉 Entretención', value: 'ENTRETENCIÓN' },
-  { label: '📦 Otros', value: 'OTROS' },
+  { label: '🍔 Comida', value: 'FOOD' },
+  { label: '🚗 Transporte', value: 'TRANSPORT' },
+  { label: '🏠 Vivienda', value: 'RENT' },
+  { label: '💡 Servicios', value: 'SERVICES' },
+  { label: '🎉 Entretención', value: 'ENTERTAINMENT' },
+  { label: '📦 Otros', value: 'OTHER' },
 ] as const;
 
 function expenseToRecent(e: ExpenseResponse, userId: string): RecentExpense {
@@ -206,7 +212,7 @@ export default function GroupExpensesScreen() {
         group={group}
         members={members}
         onCreateExpense={async (payload) => {
-          await createExpense(payload as any);
+          await createExpense(payload);
           setSheetVisible(false);
           loadExpenses();
         }}

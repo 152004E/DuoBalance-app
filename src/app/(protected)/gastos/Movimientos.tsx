@@ -16,6 +16,12 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import { FloatingAddButton } from '@/components/dashboard/FloatingAddButton';
 
 const CATEGORY_ICONS: Record<string, { icon: string; bg: string }> = {
+  FOOD: { icon: 'basket-shopping', bg: '#F97316' },
+  TRANSPORT: { icon: 'car', bg: '#8B5CF6' },
+  RENT: { icon: 'house', bg: '#3B82F6' },
+  SERVICES: { icon: 'bolt', bg: '#F59E0B' },
+  ENTERTAINMENT: { icon: 'film', bg: '#06B6D4' },
+  OTHER: { icon: 'tag', bg: '#64748B' },
   ALIMENTACIÓN: { icon: 'basket-shopping', bg: '#F97316' },
   TRANSPORTE: { icon: 'car', bg: '#8B5CF6' },
   VIVIENDA: { icon: 'house', bg: '#3B82F6' },

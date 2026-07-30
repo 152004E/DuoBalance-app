@@ -139,6 +139,7 @@ export interface CreateExpensePayload {
   amount: number;
   category: ExpenseCategory;
   splitType: SplitType;
+  groupId?: string;
   splits?: CreateExpenseSplitPayload[];
 }
 

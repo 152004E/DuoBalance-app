@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { Input } from '@/components/ui/input';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
 import { Button } from '@/components/ui/button';
-import type { GroupResponse } from '@/types/api';
+import type { ExpenseCategory, GroupResponse, SplitType } from '@/types/api';
 
 interface Member {
   id: string;
@@ -20,21 +20,22 @@ interface CreateExpenseSheetProps {
   onCreateExpense?: (payload: {
     description: string;
     amount: number;
-    category: string;
-    splitType: 'EQUAL' | 'PERCENTAGE';
+    category: ExpenseCategory;
+    splitType: SplitType;
     groupId: string;
-    paidById: string;
     splits?: { userId: string; percentage: number }[];
   }) => void;
+  heightRatio?: number;
+  headerFinalTranslateY?: number;
 }
 
 const CATEGORIES = [
-  { label: '🍔 Comida', value: 'ALIMENTACIÓN' },
-  { label: '🚗 Transporte', value: 'TRANSPORTE' },
-  { label: '🏠 Vivienda', value: 'VIVIENDA' },
-  { label: '💡 Servicios', value: 'SERVICIOS' },
-  { label: '🎉 Entretención', value: 'ENTRETENCIÓN' },
-  { label: '📦 Otros', value: 'OTROS' },
+  { label: '🍔 Comida', value: 'FOOD' },
+  { label: '🚗 Transporte', value: 'TRANSPORT' },
+  { label: '🏠 Vivienda', value: 'RENT' },
+  { label: '💡 Servicios', value: 'SERVICES' },
+  { label: '🎉 Entretención', value: 'ENTERTAINMENT' },
+  { label: '📦 Otros', value: 'OTHER' },
 ];
 
 function getTodayDate(): string {
@@ -51,12 +52,14 @@ export function CreateExpenseSheet({
   group,
   members,
   onCreateExpense,
+  heightRatio = 0.75,
+  headerFinalTranslateY,
 }: CreateExpenseSheetProps) {
   const isPersonal = group.type === 'PERSONAL' || members.length === 1;
 
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('ALIMENTACIÓN');
+  const [category, setCategory] = useState('FOOD');
   const [date, setDate] = useState(getTodayDate());
   const [paidBy, setPaidBy] = useState('');
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>(
@@ -73,7 +76,7 @@ export function CreateExpenseSheet({
       setSelectedParticipants(members.map((m) => m.id));
       setAmount('');
       setDescription('');
-      setCategory('ALIMENTACIÓN');
+      setCategory('FOOD');
       setDate(getTodayDate());
       setSplitType('EQUAL');
       setYourPercentage(50);
@@ -102,6 +105,8 @@ export function CreateExpenseSheet({
       subtitle={`Registra un gasto compartido en ${group.name}`}
       onClose={onClose}
       gradientPaddingBottom={600}
+      logo={require('@/assets/images/logo-white-green-bg-without.png')}
+
     />
   );
 
@@ -110,7 +115,8 @@ export function CreateExpenseSheet({
       visible={visible}
       onClose={onClose}
       header={header}
-      heightRatio={0.75}
+      heightRatio={heightRatio}
+      headerFinalTranslateY={headerFinalTranslateY}
     >
       <View className="flex-1">
         <ScrollView
@@ -151,16 +157,14 @@ export function CreateExpenseSheet({
                   <Pressable
                     key={cat.value}
                     onPress={() => setCategory(cat.value)}
-                    className={`rounded-full px-4 py-2.5 ${
-                      isActive
+                    className={`rounded-full px-4 py-2.5 ${isActive
                         ? 'bg-[#10B981]'
                         : 'border border-[#E2E8F0] bg-white'
-                    }`}
+                      }`}
                   >
                     <Text
-                      className={`text-sm font-medium ${
-                        isActive ? 'text-white' : 'text-[#64748B]'
-                      }`}
+                      className={`text-sm font-medium ${isActive ? 'text-white' : 'text-[#64748B]'
+                        }`}
                     >
                       {cat.label}
                     </Text>
@@ -191,11 +195,10 @@ export function CreateExpenseSheet({
                     <Pressable
                       key={member.id}
                       onPress={() => setPaidBy(member.id)}
-                      className={`flex-row items-center gap-2 rounded-full px-4 py-2.5 ${
-                        isActive
+                      className={`flex-row items-center gap-2 rounded-full px-4 py-2.5 ${isActive
                           ? 'bg-[#10B981]'
                           : 'border border-[#E2E8F0] bg-white'
-                      }`}
+                        }`}
                     >
                       <FontAwesome6
                         name="user"
@@ -203,9 +206,8 @@ export function CreateExpenseSheet({
                         color={isActive ? 'white' : '#64748B'}
                       />
                       <Text
-                        className={`text-sm font-medium ${
-                          isActive ? 'text-white' : 'text-[#0F172A]'
-                        }`}
+                        className={`text-sm font-medium ${isActive ? 'text-white' : 'text-[#0F172A]'
+                          }`}
                       >
                         {member.name}
                       </Text>
@@ -229,19 +231,17 @@ export function CreateExpenseSheet({
                     <Pressable
                       key={member.id}
                       onPress={() => toggleParticipant(member.id)}
-                      className={`flex-row items-center justify-between rounded-xl border px-4 py-3 ${
-                        isSelected
+                      className={`flex-row items-center justify-between rounded-xl border px-4 py-3 ${isSelected
                           ? 'border-[#10B981] bg-[#F0FDF4]'
                           : 'border-[#E2E8F0] bg-white'
-                      }`}
+                        }`}
                     >
                       <View className="flex-row items-center gap-3">
                         <View
-                          className={`h-6 w-6 items-center justify-center rounded-full border-2 ${
-                            isSelected
+                          className={`h-6 w-6 items-center justify-center rounded-full border-2 ${isSelected
                               ? 'border-[#10B981] bg-[#10B981]'
                               : 'border-[#94A3B8]'
-                          }`}
+                            }`}
                         >
                           {isSelected && (
                             <FontAwesome6
@@ -278,11 +278,10 @@ export function CreateExpenseSheet({
               <View className="flex-row gap-2">
                 <Pressable
                   onPress={() => setSplitType('EQUAL')}
-                  className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl border py-3 ${
-                    splitType === 'EQUAL'
+                  className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl border py-3 ${splitType === 'EQUAL'
                       ? 'border-[#10B981] bg-[#F0FDF4]'
                       : 'border-[#E2E8F0] bg-white'
-                  }`}
+                    }`}
                 >
                   <FontAwesome6
                     name="scale-balanced"
@@ -290,22 +289,20 @@ export function CreateExpenseSheet({
                     color={splitType === 'EQUAL' ? '#10B981' : '#64748B'}
                   />
                   <Text
-                    className={`text-sm font-medium ${
-                      splitType === 'EQUAL'
+                    className={`text-sm font-medium ${splitType === 'EQUAL'
                         ? 'text-[#10B981]'
                         : 'text-[#64748B]'
-                    }`}
+                      }`}
                   >
                     Igual
                   </Text>
                 </Pressable>
                 <Pressable
                   onPress={() => setSplitType('PERCENTAGE')}
-                  className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl border py-3 ${
-                    splitType === 'PERCENTAGE'
+                  className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl border py-3 ${splitType === 'PERCENTAGE'
                       ? 'border-[#10B981] bg-[#F0FDF4]'
                       : 'border-[#E2E8F0] bg-white'
-                  }`}
+                    }`}
                 >
                   <FontAwesome6
                     name="percent"
@@ -313,11 +310,10 @@ export function CreateExpenseSheet({
                     color={splitType === 'PERCENTAGE' ? '#10B981' : '#64748B'}
                   />
                   <Text
-                    className={`text-sm font-medium ${
-                      splitType === 'PERCENTAGE'
+                    className={`text-sm font-medium ${splitType === 'PERCENTAGE'
                         ? 'text-[#10B981]'
                         : 'text-[#64748B]'
-                    }`}
+                      }`}
                   >
                     Porcentaje
                   </Text>
@@ -391,10 +387,9 @@ export function CreateExpenseSheet({
               onCreateExpense?.({
                 description,
                 amount: parseFloat(amount),
-                category,
-                splitType,
+                category: category as ExpenseCategory,
+                splitType: splitType as SplitType,
                 groupId: group.id,
-                paidById: paidBy,
                 splits,
               });
             }}

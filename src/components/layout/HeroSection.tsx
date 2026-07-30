@@ -87,18 +87,18 @@ function AnimatedCircles({ width, height }: { width: number; height: number }) {
   }, []);
 
   const props1 = useAnimatedProps(() => ({
-    r: c1.value * 75,
-    opacity: c1.value * 0.04,
+    r: Math.max(0, c1.value * 75),
+    opacity: Math.max(0, c1.value * 0.04),
   }));
 
   const props2 = useAnimatedProps(() => ({
-    r: c2.value * 85,
-    opacity: c2.value * 0.05,
+    r: Math.max(0, c2.value * 85),
+    opacity: Math.max(0, c2.value * 0.05),
   }));
 
   const props3 = useAnimatedProps(() => ({
-    r: c3.value * 45,
-    opacity: c3.value * 0.03,
+    r: Math.max(0, c3.value * 45),
+    opacity: Math.max(0, c3.value * 0.03),
   }));
 
   return (

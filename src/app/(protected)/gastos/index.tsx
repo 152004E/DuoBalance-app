@@ -14,11 +14,17 @@ import {
 import { FloatingAddButton } from '@/components/dashboard/FloatingAddButton';
 import { CreateExpenseSheet } from '@/components/movements/create-expense-sheet';
 import { DestinationSelector } from '@/components/movements/destination-selector';
-import { getExpenses } from '@/services/api/expenses';
+import { getExpenses, createExpense } from '@/services/api/expenses';
 import type { ExpenseResponse, GroupResponse } from '@/types/api';
 import type { FilterState } from '@/types/filter';
 
 const CATEGORY_ICONS: Record<string, { icon: string; bg: string }> = {
+  FOOD: { icon: 'basket-shopping', bg: '#F97316' },
+  TRANSPORT: { icon: 'car', bg: '#8B5CF6' },
+  RENT: { icon: 'house', bg: '#3B82F6' },
+  SERVICES: { icon: 'bolt', bg: '#F59E0B' },
+  ENTERTAINMENT: { icon: 'film', bg: '#06B6D4' },
+  OTHER: { icon: 'tag', bg: '#64748B' },
   ALIMENTACIÓN: { icon: 'basket-shopping', bg: '#F97316' },
   TRANSPORTE: { icon: 'car', bg: '#8B5CF6' },
   VIVIENDA: { icon: 'house', bg: '#3B82F6' },
@@ -236,6 +242,9 @@ export default function GastosScreen() {
         coupleGroups={coupleGroups}
         sharedGroups={sharedGroups}
         onSelect={handleDestSelect}
+        heightRatio={0.35}
+        headerFinalTranslateY={0.45}
+
       />
 
       {creatingExpenseGroup && (
@@ -244,9 +253,16 @@ export default function GastosScreen() {
           onClose={handleCloseCreateSheet}
           group={creatingExpenseGroup.group}
           members={creatingExpenseGroup.members}
+          heightRatio={0.65}
+          headerFinalTranslateY={0.19}
           onCreateExpense={async (payload) => {
-            console.log('Create expense:', payload);
-            handleCloseCreateSheet();
+            try {
+              await createExpense(payload);
+              handleCloseCreateSheet();
+              getExpenses().then(setAllExpenses);
+            } catch (error) {
+              console.error('Error al crear gasto:', error);
+            }
           }}
         />
       )}
