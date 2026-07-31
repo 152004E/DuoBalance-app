@@ -351,7 +351,7 @@ export function HeroSection(props: HeroSectionProps) {
                 }}
               >
                 <Text className="text-5xl font-bold tracking-tight text-white">
-                  ${props.balance.toLocaleString('es-CL')}
+                  $ {props.balance.toLocaleString('es-CL')}
                 </Text>
               </Animated.View>
 
@@ -378,6 +378,7 @@ export function HeroSection(props: HeroSectionProps) {
 
               <Animated.View
                 style={{
+                  marginTop: 20,
                   opacity: dashAnim.selectorOpacity,
                   transform: [{ translateY: dashAnim.selectorTranslateY }],
                 }}

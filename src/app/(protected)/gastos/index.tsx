@@ -1,5 +1,5 @@
 import { useCallback, useState, useRef, useEffect, useMemo } from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect, useScrollToTop } from 'expo-router';
 import { HeroSection } from '@/components/layout/HeroSection';
@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useGroups } from '@/hooks/use-groups';
 import { GroupSelector } from '@/components/ui/group-selector';
 import { GroupSection } from '@/components/ui/group-section';
+import { LoadMoreButton } from '@/components/ui/load-more-button';
 import {
   RecentExpensesCard,
   type RecentExpense,
@@ -58,6 +59,7 @@ export default function GastosScreen() {
   useScrollToTop(scrollRef);
   const { workspace, setWorkspace } = useWorkspace();
   const [allExpenses, setAllExpenses] = useState<ExpenseResponse[]>([]);
+  const [visibleCount, setVisibleCount] = useState(5);
   const [destSelectorVisible, setDestSelectorVisible] = useState(false);
   const [creatingExpenseGroup, setCreatingExpenseGroup] = useState<{
     group: GroupResponse;
@@ -70,6 +72,11 @@ export default function GastosScreen() {
       getExpenses().then(setAllExpenses);
     }, []),
   );
+
+  // Al cambiar el filtro/workspace, reiniciar el número visible de movimientos
+  useEffect(() => {
+    setVisibleCount(5);
+  }, [workspace]);
 
   const handleCreateExpense = useCallback(() => {
     if (workspace.groupId) {
@@ -138,9 +145,7 @@ export default function GastosScreen() {
 
   const recentExpenses = useMemo(
     () =>
-      filteredExpenses
-        .slice(0, 10)
-        .map((e) => expenseToRecent(e, user?.id ?? '')),
+      filteredExpenses.map((e) => expenseToRecent(e, user?.id ?? '')),
     [filteredExpenses, user?.id],
   );
 
@@ -214,18 +219,22 @@ export default function GastosScreen() {
             </Text>
             <RecentExpensesCard
               expenses={recentExpenses}
+              maxItems={visibleCount}
+              onViewAll={() => router.push('/gastos/Movimientos')}
               onExpensePress={(expense) =>
                 router.push(`/gastos/detalle/${expense.id}`)
               }
             />
           </View>
 
-          <Pressable className="mt-5 flex-row items-center justify-center gap-2 rounded-xl border border-[#E2E8F0] bg-white py-4 active:opacity-80">
-            <Text className="font-semibold text-[#0F766E]">
-              Cargar más movimientos
-            </Text>
-            <Text className="text-[#0F766E] opacity-40">›</Text>
-          </Pressable>
+          <View className="mt-5">
+            <LoadMoreButton
+              visibleCount={visibleCount}
+              totalCount={filteredExpenses.length}
+              step={5}
+              onLoadMore={setVisibleCount}
+            />
+          </View>
         </View>
       </ScrollView>
 

@@ -1,6 +1,5 @@
 import { View, Text, Pressable } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
-import { router } from 'expo-router';
 
 export interface RecentExpense {
   id: string;
@@ -15,15 +14,20 @@ export interface RecentExpense {
 
 interface RecentExpensesCardProps {
   expenses: RecentExpense[];
+  maxItems?: number;
   onViewAll?: () => void;
   onExpensePress?: (expense: RecentExpense) => void;
 }
 
 export function RecentExpensesCard({
   expenses,
+  maxItems,
   onViewAll,
   onExpensePress,
 }: RecentExpensesCardProps) {
+  const visibleExpenses =
+    maxItems && maxItems > 0 ? expenses.slice(0, maxItems) : expenses;
+
   return (
     <View
       className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white"
@@ -39,12 +43,16 @@ export function RecentExpensesCard({
         <Text className="text-[17px] font-bold text-[#0F172A]">
           Gastos Recientes
         </Text>
-        <Pressable onPress={() => router.push('/gastos/Movimientos')}>
-          <Text className="text-sm font-semibold text-[#006c49]">Ver todo</Text>
-        </Pressable>
+        {onViewAll && (
+          <Pressable onPress={onViewAll}>
+            <Text className="text-sm font-semibold text-[#006c49]">
+              Ver todo
+            </Text>
+          </Pressable>
+        )}
       </View>
 
-      {expenses.map((expense, index) => (
+      {visibleExpenses.map((expense, index) => (
         <Pressable
           key={expense.id}
           onPress={() => onExpensePress?.(expense)}

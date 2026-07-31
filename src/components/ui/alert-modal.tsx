@@ -12,6 +12,9 @@ interface AlertModalProps {
   message: string;
   buttonText?: string;
   onClose: () => void;
+  /** Texto del botón secundario (ej. "Cancelar"). Si se pasa junto a onCancel, se muestran dos botones. */
+  cancelText?: string;
+  onCancel?: () => void;
 }
 
 const config = {
@@ -40,6 +43,8 @@ export function AlertModal({
   message,
   buttonText = 'Continuar',
   onClose,
+  cancelText,
+  onCancel,
 }: AlertModalProps) {
   const opacity = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(0.8)).current;
@@ -84,7 +89,7 @@ export function AlertModal({
       transparent
       animationType="none"
       statusBarTranslucent
-      onRequestClose={onClose}
+      onRequestClose={onCancel ?? onClose}
     >
       <Animated.View
         style={{
@@ -187,36 +192,93 @@ export function AlertModal({
             {message}
           </Text>
 
-          {/* Botón */}
-          <Pressable
-            onPress={onClose}
-            style={{
-              marginTop: 28,
-              backgroundColor: color,
-              paddingVertical: 16,
-              borderRadius: 18,
+          {/* Botones */}
+          {cancelText && onCancel ? (
+            <View style={{ marginTop: 28, flexDirection: 'row', gap: 12 }}>
+              <Pressable
+                onPress={onCancel}
+                style={{
+                  flex: 1,
+                  paddingVertical: 16,
+                  borderRadius: 18,
+                  borderWidth: 2,
+                  borderColor: '#E2E8F0',
+                  backgroundColor: '#FFFFFF',
+                }}
+              >
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    color: '#64748B',
+                    fontSize: 16,
+                    fontWeight: '700',
+                  }}
+                >
+                  {cancelText}
+                </Text>
+              </Pressable>
 
-              shadowColor: color,
-              shadowOffset: {
-                width: 0,
-                height: 8,
-              },
-              shadowOpacity: 0.25,
-              shadowRadius: 12,
-              elevation: 8,
-            }}
-          >
-            <Text
+              <Pressable
+                onPress={onClose}
+                style={{
+                  flex: 1,
+                  backgroundColor: color,
+                  paddingVertical: 16,
+                  borderRadius: 18,
+
+                  shadowColor: color,
+                  shadowOffset: {
+                    width: 0,
+                    height: 8,
+                  },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 12,
+                  elevation: 8,
+                }}
+              >
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    color: '#FFFFFF',
+                    fontSize: 16,
+                    fontWeight: '700',
+                  }}
+                >
+                  {buttonText}
+                </Text>
+              </Pressable>
+            </View>
+          ) : (
+            <Pressable
+              onPress={onClose}
               style={{
-                textAlign: 'center',
-                color: '#FFFFFF',
-                fontSize: 16,
-                fontWeight: '700',
+                marginTop: 28,
+                backgroundColor: color,
+                paddingVertical: 16,
+                borderRadius: 18,
+
+                shadowColor: color,
+                shadowOffset: {
+                  width: 0,
+                  height: 8,
+                },
+                shadowOpacity: 0.25,
+                shadowRadius: 12,
+                elevation: 8,
               }}
             >
-              {buttonText}
-            </Text>
-          </Pressable>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: '#FFFFFF',
+                  fontSize: 16,
+                  fontWeight: '700',
+                }}
+              >
+                {buttonText}
+              </Text>
+            </Pressable>
+          )}
         </Animated.View>
       </Animated.View>
     </Modal>

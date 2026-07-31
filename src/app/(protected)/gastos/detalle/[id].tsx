@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, ScrollView, Alert } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 import { ScreenHeader } from '@/components/ui/screen-header';
@@ -12,6 +12,7 @@ import { ExpenseSplit } from '@/components/expenses/expense-split';
 import { ExpenseReceipt } from '@/components/expenses/expense-receipt';
 import { ExpenseTimeline } from '@/components/expenses/expense-timeline';
 import { ExpenseActions } from '@/components/expenses/expense-actions';
+import { AlertModal } from '@/components/ui/alert-modal';
 import { getExpense, deleteExpense } from '@/services/api/expenses';
 import { getGroup } from '@/services/api/groups';
 import { useAuth } from '@/hooks/use-auth';
@@ -34,6 +35,9 @@ export default function ExpenseDetailScreen() {
   const [state, setState] = useState<ScreenState>('loading');
   const [expense, setExpense] = useState<ExpenseResponse | null>(null);
   const [group, setGroup] = useState<GroupResponse | null>(null);
+  const [deleteVisible, setDeleteVisible] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -52,26 +56,18 @@ export default function ExpenseDetailScreen() {
     }
   };
 
-  const handleDelete = () => {
-    Alert.alert(
-      'Eliminar gasto',
-      '¿Estás seguro de eliminar este gasto? Esta acción no se puede deshacer.',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Eliminar',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteExpense(id!);
-              router.back();
-            } catch {
-              Alert.alert('Error', 'No se pudo eliminar el gasto.');
-            }
-          },
-        },
-      ],
-    );
+  const handleConfirmDelete = async () => {
+    if (deleteLoading) return;
+    setDeleteLoading(true);
+    try {
+      await deleteExpense(id!);
+      setDeleteVisible(false);
+      router.back();
+    } catch {
+      setDeleteLoading(false);
+      setDeleteVisible(false);
+      setDeleteError(true);
+    }
   };
 
   if (!user) return null;
@@ -228,9 +224,35 @@ export default function ExpenseDetailScreen() {
             ]}
           />
 
-          <ExpenseActions onDelete={handleDelete} />
+          <ExpenseActions
+            onDelete={() => setDeleteVisible(true)}
+          />
         </View>
       </ScrollView>
+
+      {/* Confirmación de eliminación */}
+      <AlertModal
+        visible={deleteVisible}
+        type="warning"
+        title="¿Eliminar gasto?"
+        message="¿Estás seguro de eliminar este gasto? Esta acción no se puede deshacer."
+        buttonText={deleteLoading ? 'Eliminando...' : 'Sí, eliminar'}
+        cancelText="Cancelar"
+        onCancel={() => {
+          if (!deleteLoading) setDeleteVisible(false);
+        }}
+        onClose={handleConfirmDelete}
+      />
+
+      {/* Error al eliminar */}
+      <AlertModal
+        visible={deleteError}
+        type="error"
+        title="Error"
+        message="No se pudo eliminar el gasto. Intenta de nuevo."
+        buttonText="Entendido"
+        onClose={() => setDeleteError(false)}
+      />
     </SafeAreaView>
   );
 }
