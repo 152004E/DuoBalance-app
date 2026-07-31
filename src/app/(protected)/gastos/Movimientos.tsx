@@ -17,6 +17,7 @@ import {
 import { FloatingAddButton } from '@/components/dashboard/FloatingAddButton';
 import { DestinationSelector } from '@/components/movements/destination-selector';
 import { CreateExpenseSheet } from '@/components/movements/create-expense-sheet';
+import { FilterSheet } from '@/components/movements/filter-sheet';
 import { getExpenses, createExpense } from '@/services/api/expenses';
 import { useAuth } from '@/hooks/use-auth';
 import { useWorkspace } from '@/hooks/use-workspace';
@@ -38,23 +39,6 @@ const CATEGORY_ICONS: Record<string, { icon: string; bg: string }> = {
   ENTRETENCIÓN: { icon: 'film', bg: '#06B6D4' },
   OTROS: { icon: 'tag', bg: '#64748B' },
 };
-
-const PERIOD_FILTERS = [
-  'Este mes',
-  'Últimos 3 meses',
-  'Este año',
-  'Todo',
-] as const;
-
-const CATEGORY_FILTERS = [
-  { label: '📋 Todas', value: 'all' },
-  { label: '🍔 Comida', value: 'FOOD' },
-  { label: '🚗 Transporte', value: 'TRANSPORT' },
-  { label: '🏠 Vivienda', value: 'RENT' },
-  { label: '💡 Servicios', value: 'SERVICES' },
-  { label: '🎉 Entretención', value: 'ENTERTAINMENT' },
-  { label: '📦 Otros', value: 'OTHER' },
-] as const;
 
 function expenseToRecent(e: ExpenseResponse, userId: string): RecentExpense {
   const cat = CATEGORY_ICONS[e.category] ?? { icon: 'tag', bg: '#64748B' };
@@ -92,6 +76,7 @@ export default function MovimientosScreen() {
   const [selectedPeriod, setSelectedPeriod] = useState<string>('Todo');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [destSelectorVisible, setDestSelectorVisible] = useState(false);
+  const [filtersVisible, setFiltersVisible] = useState(false);
   const [creatingExpenseGroup, setCreatingExpenseGroup] = useState<{
     group: GroupResponse;
     members: { id: string; name: string }[];
@@ -166,6 +151,15 @@ export default function MovimientosScreen() {
     expenseToRecent(e, user?.id ?? ''),
   );
 
+  const activeFilterCount =
+    (selectedPeriod !== 'Todo' ? 1 : 0) +
+    (selectedCategory !== 'all' ? 1 : 0);
+
+  const handleClearFilters = useCallback(() => {
+    setSelectedPeriod('Todo');
+    setSelectedCategory('all');
+  }, []);
+
   // Al cambiar filtro/workspace/grupo, reiniciar el número visible
   useEffect(() => {
     setVisibleCount(10);
@@ -232,76 +226,21 @@ export default function MovimientosScreen() {
               className="ml-3 flex-1 text-[15px] text-[#0F172A]"
             />
           </View>
-        </View>
 
-        {/* Período */}
-        <View className="mt-4">
-          <Text className="mb-2 text-sm font-semibold text-[#64748B]">
-            Período
-          </Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerClassName="flex-row gap-2"
+          <Pressable
+            onPress={() => setFiltersVisible(true)}
+            className="flex-row items-center gap-2 rounded-full bg-[#10B981] px-4 py-3 active:opacity-80"
           >
-            {PERIOD_FILTERS.map((filter) => {
-              const isActive = selectedPeriod === filter;
-              return (
-                <Pressable
-                  key={filter}
-                  onPress={() => setSelectedPeriod(filter)}
-                  className={`rounded-full px-5 py-2.5 ${
-                    isActive
-                      ? 'bg-[#10B981]'
-                      : 'border border-[#E2E8F0] bg-white'
-                  }`}
-                >
-                  <Text
-                    className={`text-sm font-medium ${
-                      isActive ? 'text-white' : 'text-[#64748B]'
-                    }`}
-                  >
-                    {filter}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </ScrollView>
-        </View>
-
-        {/* Categoría */}
-        <View className="mt-4">
-          <Text className="mb-2 text-sm font-semibold text-[#64748B]">
-            Categoría
-          </Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerClassName="flex-row gap-2"
-          >
-            {CATEGORY_FILTERS.map((filter) => {
-              const isActive = selectedCategory === filter.value;
-              return (
-                <Pressable
-                  key={filter.value}
-                  onPress={() => setSelectedCategory(filter.value)}
-                  className={`rounded-full px-5 py-2.5 ${
-                    isActive
-                      ? 'bg-[#10B981]'
-                      : 'border border-[#E2E8F0] bg-white'
-                  }`}
-                >
-                  <Text
-                    className={`text-sm font-medium ${
-                      isActive ? 'text-white' : 'text-[#64748B]'
-                    }`}
-                  >
-                    {filter.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </ScrollView>
+            <FontAwesome6 name="sliders" size={16} color="#FFFFFF" />
+            <Text className="text-sm font-semibold text-white">Filtros</Text>
+            {activeFilterCount > 0 && (
+              <View className="h-5 min-w-5 items-center justify-center rounded-full bg-[#10B981] px-1.5">
+                <Text className="text-xs font-bold text-white">
+                  {activeFilterCount}
+                </Text>
+              </View>
+            )}
+          </Pressable>
         </View>
       </View>
 
@@ -342,6 +281,18 @@ export default function MovimientosScreen() {
       )}
 
       <FloatingAddButton onPress={handleCreateExpense} />
+
+      <FilterSheet
+        visible={filtersVisible}
+        onClose={() => setFiltersVisible(false)}
+        selectedPeriod={selectedPeriod}
+        selectedCategory={selectedCategory}
+        onSelectPeriod={setSelectedPeriod}
+        onSelectCategory={setSelectedCategory}
+        onClear={handleClearFilters}
+        heightRatio={0.48}
+        headerFinalTranslateY={0.35}
+      />
 
       <DestinationSelector
         visible={destSelectorVisible}
