@@ -8,7 +8,7 @@ import { DonutChart } from '@/components/dashboard/DonutChart';
 import { useAuth } from '@/hooks/use-auth';
 import { useGroups } from '@/hooks/use-groups';
 import { GroupSelector } from '@/components/ui/group-selector';
-import type { FilterState } from '@/types/filter';
+import { useWorkspace } from '@/hooks/use-workspace';
 
 const BAR_DATA = [
   { label: 'Comida', value: 180000, color: '#F97316' },
@@ -26,11 +26,8 @@ const DONUT_DATA = [
 export default function ReportesScreen() {
   const { user } = useAuth();
   const { personalGroups, coupleGroups, sharedGroups } = useGroups();
+  const { workspace, setWorkspace } = useWorkspace();
   const [focusCount, setFocusCount] = useState(0);
-  const [filter, setFilter] = useState<FilterState>({
-    category: 'all',
-    groupId: null,
-  });
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
 
@@ -57,8 +54,8 @@ export default function ReportesScreen() {
           height={220}
           rightAction={
             <GroupSelector
-              value={filter}
-              onChange={setFilter}
+              value={workspace}
+              onChange={setWorkspace}
               personalGroups={personalGroups}
               coupleGroups={coupleGroups}
               sharedGroups={sharedGroups}

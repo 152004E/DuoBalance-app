@@ -16,21 +16,19 @@ import { AlertModal } from '@/components/ui/alert-modal';
 import { GroupSection } from '@/components/ui/group-section';
 import { useAuth } from '@/hooks/use-auth';
 import { useGroups } from '@/hooks/use-groups';
+import { useWorkspace } from '@/hooks/use-workspace';
 import type { GroupResponse } from '@/types/api';
-import type { FilterState } from '@/types/filter';
 
 export default function ParejaScreen() {
   const { user } = useAuth();
   const { personalGroups, coupleGroups, sharedGroups, refetch } = useGroups();
-  const [filter, setFilter] = useState<FilterState>({
-    category: 'all',
-    groupId: null,
-  });
+  const { workspace, setWorkspace } = useWorkspace();
 
   const showPersonal =
-    filter.category === 'all' || filter.category === 'personal';
-  const showCouple = filter.category === 'all' || filter.category === 'couple';
-  const showGroup = filter.category === 'all' || filter.category === 'group';
+    workspace.category === 'all' || workspace.category === 'personal';
+  const showCouple =
+    workspace.category === 'all' || workspace.category === 'couple';
+  const showGroup = workspace.category === 'all' || workspace.category === 'group';
   const [menuVisible, setMenuVisible] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<GroupResponse | null>(
     null,
@@ -143,8 +141,8 @@ export default function ParejaScreen() {
           height={220}
           rightAction={
             <GroupSelector
-              value={filter}
-              onChange={setFilter}
+              value={workspace}
+              onChange={setWorkspace}
               personalGroups={personalGroups}
               coupleGroups={coupleGroups}
               sharedGroups={sharedGroups}

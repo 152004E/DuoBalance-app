@@ -15,8 +15,8 @@ import { FloatingAddButton } from '@/components/dashboard/FloatingAddButton';
 import { CreateExpenseSheet } from '@/components/movements/create-expense-sheet';
 import { DestinationSelector } from '@/components/movements/destination-selector';
 import { getExpenses, createExpense } from '@/services/api/expenses';
+import { useWorkspace } from '@/hooks/use-workspace';
 import type { ExpenseResponse, GroupResponse } from '@/types/api';
-import type { FilterState } from '@/types/filter';
 
 const CATEGORY_ICONS: Record<string, { icon: string; bg: string }> = {
   FOOD: { icon: 'basket-shopping', bg: '#F97316' },
@@ -56,10 +56,7 @@ export default function GastosScreen() {
   const [focusCount, setFocusCount] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
-  const [filter, setFilter] = useState<FilterState>({
-    category: 'all',
-    groupId: null,
-  });
+  const { workspace, setWorkspace } = useWorkspace();
   const [allExpenses, setAllExpenses] = useState<ExpenseResponse[]>([]);
   const [destSelectorVisible, setDestSelectorVisible] = useState(false);
   const [creatingExpenseGroup, setCreatingExpenseGroup] = useState<{
@@ -75,10 +72,10 @@ export default function GastosScreen() {
   );
 
   const handleCreateExpense = useCallback(() => {
-    if (filter.groupId) {
-      const group = groups.find((g) => g.id === filter.groupId);
+    if (workspace.groupId) {
+      const group = groups.find((g) => g.id === workspace.groupId);
       if (!group) {
-        setFilter({ category: filter.category, groupId: null });
+        setWorkspace({ category: workspace.category, groupId: null });
         setDestSelectorVisible(true);
         return;
       }
@@ -90,7 +87,7 @@ export default function GastosScreen() {
     } else {
       setDestSelectorVisible(true);
     }
-  }, [filter, groups]);
+  }, [workspace, groups]);
 
   const handleDestSelect = useCallback((group: GroupResponse) => {
     setDestSelectorVisible(false);
@@ -108,18 +105,18 @@ export default function GastosScreen() {
   const filteredGroups = useMemo(
     () =>
       groups.filter((g) => {
-        if (filter.category === 'all') return true;
-        if (filter.category === 'personal' && g.type === 'PERSONAL')
+        if (workspace.category === 'all') return true;
+        if (workspace.category === 'personal' && g.type === 'PERSONAL')
           return true;
-        if (filter.category === 'couple' && g.type === 'COUPLE') {
-          return filter.groupId ? g.id === filter.groupId : true;
+        if (workspace.category === 'couple' && g.type === 'COUPLE') {
+          return workspace.groupId ? g.id === workspace.groupId : true;
         }
-        if (filter.category === 'group' && g.type === 'GROUP') {
-          return filter.groupId ? g.id === filter.groupId : true;
+        if (workspace.category === 'group' && g.type === 'GROUP') {
+          return workspace.groupId ? g.id === workspace.groupId : true;
         }
         return false;
       }),
-    [groups, filter],
+    [groups, workspace],
   );
 
   const filteredGroupIds = useMemo(
@@ -164,8 +161,8 @@ export default function GastosScreen() {
           height={220}
           rightAction={
             <GroupSelector
-              value={filter}
-              onChange={setFilter}
+              value={workspace}
+              onChange={setWorkspace}
               personalGroups={personalGroups}
               coupleGroups={coupleGroups}
               sharedGroups={sharedGroups}
@@ -237,14 +234,13 @@ export default function GastosScreen() {
       <DestinationSelector
         visible={destSelectorVisible}
         onClose={() => setDestSelectorVisible(false)}
-        filter={filter}
+        filter={workspace}
         personalGroups={personalGroups}
         coupleGroups={coupleGroups}
         sharedGroups={sharedGroups}
         onSelect={handleDestSelect}
         heightRatio={0.35}
         headerFinalTranslateY={0.45}
-
       />
 
       {creatingExpenseGroup && (

@@ -2,6 +2,48 @@
 
 All types are defined in `src/types/api.ts`. This file mirrors the backend DTOs and response shapes.
 
+## Workspace (contexto global de trabajo)
+
+El **workspace** es el espacio de trabajo actual de la aplicación: sobre qué categoría de grupos (o grupo específico) el usuario está operando en un momento dado. No es un filtro visual — es el contexto global que comparten Inicio, Gastos, Grupos y Reportes.
+
+Definido en `src/features/workspace/workspace.types.ts`:
+
+```typescript
+type WorkspaceCategory = 'all' | 'personal' | 'couple' | 'group';
+
+interface WorkspaceState {
+  category: WorkspaceCategory;
+  groupId: string | null; // null = todos los grupos de la categoría
+}
+```
+
+Estados válidos:
+
+```typescript
+// Todos
+{ category: 'all', groupId: null }
+
+// Todos los personales
+{ category: 'personal', groupId: null }
+
+// Todas las parejas
+{ category: 'couple', groupId: null }
+
+// Grupo específico
+{ category: 'group', groupId: 'abc123' }
+```
+
+### Acceso desde las pantallas
+
+```typescript
+const { workspace, setWorkspace } = useWorkspace();
+
+// Atajos expresivos disponibles:
+const { selectPersonal, selectCouple, selectGroup, resetWorkspace } = useWorkspace();
+```
+
+`WorkspaceProvider` envuelve los Tabs en `src/app/(protected)/_layout.tsx`. Todas las pantallas leen el mismo estado: al cambiar el workspace en una, todas se actualizan.
+
 ## Enums
 
 ```typescript

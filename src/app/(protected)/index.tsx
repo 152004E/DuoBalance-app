@@ -11,7 +11,7 @@ import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
 import { TopCategory } from '@/components/dashboard/TopCategory';
 import { PartnerBalance } from '@/components/dashboard/PartnerBalance';
 import { FloatingAddButton } from '@/components/dashboard/FloatingAddButton';
-import type { FilterState } from '@/types/filter';
+import { useWorkspace } from '@/hooks/use-workspace';
 
 const MOCK_BALANCE = {
   amount: 185000,
@@ -67,18 +67,16 @@ const MOCK_PARTNER_BALANCE = {
 export default function DashboardScreen() {
   const { user } = useAuth();
   const { personalGroups, coupleGroups, sharedGroups } = useGroups();
+  const { workspace, setWorkspace } = useWorkspace();
   const [focusCount, setFocusCount] = useState(0);
-  const [filter, setFilter] = useState<FilterState>({
-    category: 'all',
-    groupId: null,
-  });
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
 
   const showPersonal =
-    filter.category === 'all' || filter.category === 'personal';
-  const showCouple = filter.category === 'all' || filter.category === 'couple';
-  const showGroup = filter.category === 'all' || filter.category === 'group';
+    workspace.category === 'all' || workspace.category === 'personal';
+  const showCouple =
+    workspace.category === 'all' || workspace.category === 'couple';
+  const showGroup = workspace.category === 'all' || workspace.category === 'group';
 
   useFocusEffect(
     useCallback(() => {
@@ -104,8 +102,8 @@ export default function DashboardScreen() {
           direction={MOCK_BALANCE.direction}
           rightAction={
             <GroupSelector
-              value={filter}
-              onChange={setFilter}
+              value={workspace}
+              onChange={setWorkspace}
               personalGroups={personalGroups}
               coupleGroups={coupleGroups}
               sharedGroups={sharedGroups}
