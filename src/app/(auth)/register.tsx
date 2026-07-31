@@ -14,7 +14,7 @@ import Toast from 'react-native-toast-message';
 import { useAuth } from '@/hooks/use-auth';
 import { AlertModal } from '@/components/ui/alert-modal';
 import * as authService from '@/services/api/auth';
-import { tokenStorage } from '@/storage/token';
+import { tokenStorage, refreshTokenStorage } from '@/storage/token';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -101,10 +101,11 @@ export default function RegisterScreen() {
       });
 
       await tokenStorage.set(authResponse.access_token);
+      await refreshTokenStorage.set(authResponse.refresh_token);
 
       const user = await authService.getProfile();
 
-      await signIn(user, authResponse.access_token);
+      await signIn(user, authResponse.access_token, authResponse.refresh_token);
 
       setModal({
         type: 'success',

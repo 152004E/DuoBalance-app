@@ -1,8 +1,9 @@
-// src/features/auth/context/auth.context.tsx
-
 import { createContext, useEffect, useState, ReactNode } from 'react';
 
-import { tokenStorage, userStorage } from '@/storage/token';
+import { tokenStorage, refreshTokenStorage, userStorage } from '@/storage/token';
+import { eventEmitter } from '@/utils/event-emitter';
+import { getJwtExp } from '@/utils/jwt';
+import { getProfile } from '@/services/api/auth';
 
 import type { UserResponse } from '@/types/api';
 
@@ -13,7 +14,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
 
-  signIn: (user: User, token: string) => Promise<void>;
+  signIn: (user: User, accessToken: string, refreshToken: string) => Promise<void>;
   signOut: () => Promise<void>;
   updateUser: (user: User) => Promise<void>;
 }
@@ -29,8 +30,9 @@ export function AuthProvider({ children }: Props) {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  async function signIn(userData: User, token: string) {
-    await tokenStorage.set(token);
+  async function signIn(userData: User, accessToken: string, refreshToken: string) {
+    await tokenStorage.set(accessToken);
+    await refreshTokenStorage.set(refreshToken);
     await userStorage.set(userData);
 
     setUser(userData);
@@ -38,6 +40,7 @@ export function AuthProvider({ children }: Props) {
 
   async function signOut() {
     await tokenStorage.remove();
+    await refreshTokenStorage.remove();
     await userStorage.remove();
 
     setUser(null);
@@ -54,19 +57,43 @@ export function AuthProvider({ children }: Props) {
       const savedUser = await userStorage.get();
 
       if (token && savedUser) {
-        setUser(savedUser as User);
-        return;
-      }
+        const exp = getJwtExp(token);
 
-      await tokenStorage.remove();
-      await userStorage.remove();
+        if (exp !== null && exp * 1000 <= Date.now()) {
+          await tokenStorage.remove();
+          await refreshTokenStorage.remove();
+          await userStorage.remove();
+          return;
+        }
+
+        setUser(savedUser as User);
+
+        getProfile()
+          .then((profile) => {
+            setUser(profile);
+            userStorage.set(profile);
+          })
+          .catch(() => {});
+      } else {
+        await tokenStorage.remove();
+        await refreshTokenStorage.remove();
+        await userStorage.remove();
+      }
     } finally {
       setIsLoading(false);
     }
   }
 
   useEffect(() => {
+    const unsubscribe = eventEmitter.on('session:expired', () => {
+      signOut();
+    });
+
     restoreSession();
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   return (

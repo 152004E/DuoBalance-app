@@ -5,6 +5,7 @@ const isWeb = Platform.OS === 'web';
 
 const KEYS = {
   ACCESS_TOKEN: 'duobalance_access_token',
+  REFRESH_TOKEN: 'duobalance_refresh_token',
   USER: 'duobalance_user',
 } as const;
 
@@ -39,5 +40,7 @@ function createStorage<T>(key: string) {
 }
 
 export const tokenStorage = createStorage<string>(KEYS.ACCESS_TOKEN);
+
+export const refreshTokenStorage = createStorage<string>(KEYS.REFRESH_TOKEN);
 
 export const userStorage = createStorage<unknown>(KEYS.USER);

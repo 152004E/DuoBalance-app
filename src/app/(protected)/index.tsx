@@ -72,6 +72,7 @@ export default function DashboardScreen() {
   useFocusEffect(
     useCallback(() => {
       setFocusCount((c) => c + 1);
+      console.log('[Dashboard] Sesión activa, token vigente');
     }, []),
   );
 

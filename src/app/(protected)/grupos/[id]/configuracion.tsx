@@ -403,9 +403,8 @@ export default function ConfiguracionGrupoScreen() {
               {group.members.map((member, index) => (
                 <View
                   key={member.id}
-                  className={`flex-row items-center justify-between px-5 py-4 ${
-                    index > 0 ? 'border-t border-[#E2E8F0]' : ''
-                  }`}
+                  className={`flex-row items-center justify-between px-5 py-4 ${index > 0 ? 'border-t border-[#E2E8F0]' : ''
+                    }`}
                 >
                   <View className="flex-row items-center gap-4">
                     <View className="h-10 w-10 items-center justify-center rounded-full bg-[#E2E8F0]">
@@ -721,10 +720,12 @@ export default function ConfiguracionGrupoScreen() {
             title="Ajustar porcentaje"
             subtitle="Define cómo se reparten los gastos"
             onClose={() => setAdjustPercentageVisible(false)}
+            gradientPaddingBottom={500}
+            logo={require('@/assets/images/logo-white-green-bg-without.png')}
           />
         }
-        heightRatio={0.7}
-        headerFinalTranslateY={0.17}
+        heightRatio={0.45}
+        headerFinalTranslateY={0.38}
       >
         <View className="flex-1 px-5 pt-4">
           <View className="flex-row gap-3">
