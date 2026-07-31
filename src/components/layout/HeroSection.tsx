@@ -38,6 +38,7 @@ interface DashboardVariantProps {
   direction: BalanceDirection;
   coupleName?: string;
   onCouplePress?: () => void;
+  rightAction?: React.ReactNode;
 }
 
 interface PageVariantProps {
@@ -381,10 +382,12 @@ export function HeroSection(props: HeroSectionProps) {
                   transform: [{ translateY: dashAnim.selectorTranslateY }],
                 }}
               >
-                <CoupleSelector
-                  coupleName={props.coupleName ?? ''}
-                  onPress={props.onCouplePress}
-                />
+                {props.rightAction ?? (
+                  <CoupleSelector
+                    coupleName={props.coupleName ?? ''}
+                    onPress={props.onCouplePress}
+                  />
+                )}
               </Animated.View>
             </View>
           </>

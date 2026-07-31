@@ -5,11 +5,13 @@ import { useFocusEffect, useScrollToTop, router } from 'expo-router';
 import { useAuth } from '@/hooks/use-auth';
 import { useGroups } from '@/hooks/use-groups';
 import { HeroSection } from '@/components/layout/HeroSection';
+import { GroupSelector } from '@/components/ui/group-selector';
 import { GroupSection } from '@/components/ui/group-section';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
 import { TopCategory } from '@/components/dashboard/TopCategory';
 import { PartnerBalance } from '@/components/dashboard/PartnerBalance';
 import { FloatingAddButton } from '@/components/dashboard/FloatingAddButton';
+import type { FilterState } from '@/types/filter';
 
 const MOCK_BALANCE = {
   amount: 185000,
@@ -66,8 +68,17 @@ export default function DashboardScreen() {
   const { user } = useAuth();
   const { personalGroups, coupleGroups, sharedGroups } = useGroups();
   const [focusCount, setFocusCount] = useState(0);
+  const [filter, setFilter] = useState<FilterState>({
+    category: 'all',
+    groupId: null,
+  });
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
+
+  const showPersonal =
+    filter.category === 'all' || filter.category === 'personal';
+  const showCouple = filter.category === 'all' || filter.category === 'couple';
+  const showGroup = filter.category === 'all' || filter.category === 'group';
 
   useFocusEffect(
     useCallback(() => {
@@ -91,7 +102,16 @@ export default function DashboardScreen() {
           balance={MOCK_BALANCE.amount}
           partnerShare={MOCK_BALANCE.partnerShare}
           direction={MOCK_BALANCE.direction}
-          coupleName="spi"
+          rightAction={
+            <GroupSelector
+              value={filter}
+              onChange={setFilter}
+              personalGroups={personalGroups}
+              coupleGroups={coupleGroups}
+              sharedGroups={sharedGroups}
+              variant="dark"
+            />
+          }
         />
 
         <View className="px-5 pt-8">
@@ -99,29 +119,35 @@ export default function DashboardScreen() {
             Tus Grupos
           </Text>
 
-          <GroupSection
-            title="Personal"
-            groups={personalGroups}
-            horizontal
-            onPress={(group) => router.push(`/grupos/${group.id}`)}
-            currentUserId={user?.id}
-          />
+          {showPersonal && (
+            <GroupSection
+              title="Personal"
+              groups={personalGroups}
+              horizontal
+              onPress={(group) => router.push(`/grupos/${group.id}`)}
+              currentUserId={user?.id}
+            />
+          )}
 
-          <GroupSection
-            title="Parejas"
-            groups={coupleGroups}
-            horizontal
-            onPress={(group) => router.push(`/grupos/${group.id}`)}
-            currentUserId={user?.id}
-          />
+          {showCouple && (
+            <GroupSection
+              title="Parejas"
+              groups={coupleGroups}
+              horizontal
+              onPress={(group) => router.push(`/grupos/${group.id}`)}
+              currentUserId={user?.id}
+            />
+          )}
 
-          <GroupSection
-            title="Grupos"
-            groups={sharedGroups}
-            horizontal
-            onPress={(group) => router.push(`/grupos/${group.id}`)}
-            currentUserId={user?.id}
-          />
+          {showGroup && (
+            <GroupSection
+              title="Grupos"
+              groups={sharedGroups}
+              horizontal
+              onPress={(group) => router.push(`/grupos/${group.id}`)}
+              currentUserId={user?.id}
+            />
+          )}
         </View>
 
         <View className="mt-6 space-y-6 px-5">

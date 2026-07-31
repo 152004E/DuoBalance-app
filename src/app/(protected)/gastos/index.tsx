@@ -38,7 +38,7 @@ function expenseToRecent(e: ExpenseResponse, userId: string): RecentExpense {
   return {
     id: e.id,
     name: e.description,
-    amount: e.amount,
+    amount: Number(e.amount),
     paidBy: e.paidById === userId ? 'Tú' : 'Otro',
     date: new Date(e.createdAt).toLocaleDateString('es-CO', {
       day: 'numeric',
@@ -133,7 +133,7 @@ export default function GastosScreen() {
   );
 
   const totalExpensesAll = useMemo(
-    () => filteredExpenses.reduce((sum, e) => sum + e.amount, 0),
+    () => filteredExpenses.reduce((sum, e) => sum + Number(e.amount), 0),
     [filteredExpenses],
   );
 
@@ -184,7 +184,7 @@ export default function GastosScreen() {
                 className="text-2xl font-bold text-[#006c49]"
                 style={{ fontFamily: 'JetBrains Mono' }}
               >
-                ${totalExpensesAll.toLocaleString('es-CL')}
+                $ {totalExpensesAll.toLocaleString('es-CL')}
               </Text>
             </View>
             <View className="flex-1 rounded-xl border border-[#E2E8F0] bg-white p-4 shadow-sm">

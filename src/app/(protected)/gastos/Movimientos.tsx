@@ -35,7 +35,7 @@ function expenseToRecent(e: ExpenseResponse, userId: string): RecentExpense {
   return {
     id: e.id,
     name: e.description,
-    amount: e.amount,
+    amount: Number(e.amount),
     paidBy: e.paidById === userId ? 'Tú' : 'Otro',
     date: new Date(e.createdAt).toLocaleDateString('es-CO', {
       day: 'numeric',

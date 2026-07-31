@@ -6,6 +6,9 @@ import { useFocusEffect, useScrollToTop } from 'expo-router';
 import { BarChart } from '@/components/dashboard/BarChart';
 import { DonutChart } from '@/components/dashboard/DonutChart';
 import { useAuth } from '@/hooks/use-auth';
+import { useGroups } from '@/hooks/use-groups';
+import { GroupSelector } from '@/components/ui/group-selector';
+import type { FilterState } from '@/types/filter';
 
 const BAR_DATA = [
   { label: 'Comida', value: 180000, color: '#F97316' },
@@ -22,7 +25,12 @@ const DONUT_DATA = [
 
 export default function ReportesScreen() {
   const { user } = useAuth();
+  const { personalGroups, coupleGroups, sharedGroups } = useGroups();
   const [focusCount, setFocusCount] = useState(0);
+  const [filter, setFilter] = useState<FilterState>({
+    category: 'all',
+    groupId: null,
+  });
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
 
@@ -47,6 +55,16 @@ export default function ReportesScreen() {
           title="Reportes"
           subtitle="Visualiza tus estadísticas"
           height={220}
+          rightAction={
+            <GroupSelector
+              value={filter}
+              onChange={setFilter}
+              personalGroups={personalGroups}
+              coupleGroups={coupleGroups}
+              sharedGroups={sharedGroups}
+              variant="dark"
+            />
+          }
         />
 
         <View className="gap-6 px-5 pt-8">
