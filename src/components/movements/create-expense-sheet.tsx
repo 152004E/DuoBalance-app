@@ -5,7 +5,12 @@ import { Input } from '@/components/ui/input';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
 import { Button } from '@/components/ui/button';
-import type { ExpenseCategory, GroupResponse, SplitType } from '@/types/api';
+import type {
+  ExpenseCategory,
+  ExpenseResponse,
+  GroupResponse,
+  SplitType,
+} from '@/types/api';
 
 interface Member {
   id: string;
@@ -18,6 +23,15 @@ interface CreateExpenseSheetProps {
   group: GroupResponse;
   members: Member[];
   onCreateExpense?: (payload: {
+    description: string;
+    amount: number;
+    category: ExpenseCategory;
+    splitType: SplitType;
+    groupId: string;
+    splits?: { userId: string; percentage: number }[];
+  }) => void;
+  initialExpense?: ExpenseResponse | null;
+  onUpdateExpense?: (payload: {
     description: string;
     amount: number;
     category: ExpenseCategory;
@@ -52,10 +66,13 @@ export function CreateExpenseSheet({
   group,
   members,
   onCreateExpense,
+  initialExpense,
+  onUpdateExpense,
   heightRatio = 0.75,
   headerFinalTranslateY,
 }: CreateExpenseSheetProps) {
   const isPersonal = group.type === 'PERSONAL' || members.length === 1;
+  const isEditing = !!initialExpense;
 
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
@@ -70,16 +87,39 @@ export function CreateExpenseSheet({
 
   const resetKey = useMemo(() => (visible ? Date.now() : 0), [visible]);
 
+  const getDefaultSplitType = (raw?: SplitType): 'EQUAL' | 'PERCENTAGE' =>
+    raw === 'PERCENTAGE' ? 'PERCENTAGE' : 'EQUAL';
+
   useEffect(() => {
     if (visible && members.length > 0) {
-      setPaidBy(members[0].id);
-      setSelectedParticipants(members.map((m) => m.id));
-      setAmount('');
-      setDescription('');
-      setCategory('FOOD');
+      const payer = isPersonal
+        ? members[0].id
+        : initialExpense?.paidById &&
+            members.some((m) => m.id === initialExpense.paidById)
+          ? initialExpense.paidById
+          : members[0].id;
+
+      const participantIds =
+        initialExpense && initialExpense.splits?.length
+          ? initialExpense.splits.map((s) => s.userId)
+          : members.map((m) => m.id);
+
+      const defaultSplitType = getDefaultSplitType(initialExpense?.splitType);
+
+      const initialYourPercentage =
+        initialExpense && initialExpense.splits?.length
+          ? (initialExpense.splits.find((s) => s.userId === members[0]?.id)
+              ?.percentage ?? 50)
+          : 50;
+
+      setPaidBy(payer);
+      setSelectedParticipants(participantIds);
+      setAmount(initialExpense ? String(initialExpense.amount) : '');
+      setDescription(initialExpense?.description ?? '');
+      setCategory(initialExpense?.category ?? 'FOOD');
       setDate(getTodayDate());
-      setSplitType('EQUAL');
-      setYourPercentage(50);
+      setSplitType(isEditing ? defaultSplitType : 'EQUAL');
+      setYourPercentage(isEditing ? initialYourPercentage : 50);
     }
   }, [resetKey, members]);
 
@@ -101,12 +141,15 @@ export function CreateExpenseSheet({
   const header = (
     <BottomSheetHeader
       visible={visible}
-      title="Nuevo gasto"
-      subtitle={`Registra un gasto compartido en ${group.name}`}
+      title={isEditing ? 'Editar gasto' : 'Nuevo gasto'}
+      subtitle={
+        isEditing
+          ? `Actualiza el gasto en ${group.name}`
+          : `Registra un gasto compartido en ${group.name}`
+      }
       onClose={onClose}
       gradientPaddingBottom={600}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
-
     />
   );
 
@@ -129,8 +172,8 @@ export function CreateExpenseSheet({
             iconLeft="dollar-sign"
             placeholder="$ 0"
             value={amount}
-            onChangeText={setAmount}
-            keyboardType="numeric"
+            onChangeText={(t) => setAmount(t.replace(/[^\d]/g, ''))}
+            keyboardType="number-pad"
           />
 
           <Input
@@ -157,14 +200,16 @@ export function CreateExpenseSheet({
                   <Pressable
                     key={cat.value}
                     onPress={() => setCategory(cat.value)}
-                    className={`rounded-full px-4 py-2.5 ${isActive
+                    className={`rounded-full px-4 py-2.5 ${
+                      isActive
                         ? 'bg-[#10B981]'
                         : 'border border-[#E2E8F0] bg-white'
-                      }`}
+                    }`}
                   >
                     <Text
-                      className={`text-sm font-medium ${isActive ? 'text-white' : 'text-[#64748B]'
-                        }`}
+                      className={`text-sm font-medium ${
+                        isActive ? 'text-white' : 'text-[#64748B]'
+                      }`}
                     >
                       {cat.label}
                     </Text>
@@ -195,10 +240,11 @@ export function CreateExpenseSheet({
                     <Pressable
                       key={member.id}
                       onPress={() => setPaidBy(member.id)}
-                      className={`flex-row items-center gap-2 rounded-full px-4 py-2.5 ${isActive
+                      className={`flex-row items-center gap-2 rounded-full px-4 py-2.5 ${
+                        isActive
                           ? 'bg-[#10B981]'
                           : 'border border-[#E2E8F0] bg-white'
-                        }`}
+                      }`}
                     >
                       <FontAwesome6
                         name="user"
@@ -206,8 +252,9 @@ export function CreateExpenseSheet({
                         color={isActive ? 'white' : '#64748B'}
                       />
                       <Text
-                        className={`text-sm font-medium ${isActive ? 'text-white' : 'text-[#0F172A]'
-                          }`}
+                        className={`text-sm font-medium ${
+                          isActive ? 'text-white' : 'text-[#0F172A]'
+                        }`}
                       >
                         {member.name}
                       </Text>
@@ -231,17 +278,19 @@ export function CreateExpenseSheet({
                     <Pressable
                       key={member.id}
                       onPress={() => toggleParticipant(member.id)}
-                      className={`flex-row items-center justify-between rounded-xl border px-4 py-3 ${isSelected
+                      className={`flex-row items-center justify-between rounded-xl border px-4 py-3 ${
+                        isSelected
                           ? 'border-[#10B981] bg-[#F0FDF4]'
                           : 'border-[#E2E8F0] bg-white'
-                        }`}
+                      }`}
                     >
                       <View className="flex-row items-center gap-3">
                         <View
-                          className={`h-6 w-6 items-center justify-center rounded-full border-2 ${isSelected
+                          className={`h-6 w-6 items-center justify-center rounded-full border-2 ${
+                            isSelected
                               ? 'border-[#10B981] bg-[#10B981]'
                               : 'border-[#94A3B8]'
-                            }`}
+                          }`}
                         >
                           {isSelected && (
                             <FontAwesome6
@@ -278,10 +327,11 @@ export function CreateExpenseSheet({
               <View className="flex-row gap-2">
                 <Pressable
                   onPress={() => setSplitType('EQUAL')}
-                  className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl border py-3 ${splitType === 'EQUAL'
+                  className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl border py-3 ${
+                    splitType === 'EQUAL'
                       ? 'border-[#10B981] bg-[#F0FDF4]'
                       : 'border-[#E2E8F0] bg-white'
-                    }`}
+                  }`}
                 >
                   <FontAwesome6
                     name="scale-balanced"
@@ -289,20 +339,22 @@ export function CreateExpenseSheet({
                     color={splitType === 'EQUAL' ? '#10B981' : '#64748B'}
                   />
                   <Text
-                    className={`text-sm font-medium ${splitType === 'EQUAL'
+                    className={`text-sm font-medium ${
+                      splitType === 'EQUAL'
                         ? 'text-[#10B981]'
                         : 'text-[#64748B]'
-                      }`}
+                    }`}
                   >
                     Igual
                   </Text>
                 </Pressable>
                 <Pressable
                   onPress={() => setSplitType('PERCENTAGE')}
-                  className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl border py-3 ${splitType === 'PERCENTAGE'
+                  className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl border py-3 ${
+                    splitType === 'PERCENTAGE'
                       ? 'border-[#10B981] bg-[#F0FDF4]'
                       : 'border-[#E2E8F0] bg-white'
-                    }`}
+                  }`}
                 >
                   <FontAwesome6
                     name="percent"
@@ -310,10 +362,11 @@ export function CreateExpenseSheet({
                     color={splitType === 'PERCENTAGE' ? '#10B981' : '#64748B'}
                   />
                   <Text
-                    className={`text-sm font-medium ${splitType === 'PERCENTAGE'
+                    className={`text-sm font-medium ${
+                      splitType === 'PERCENTAGE'
                         ? 'text-[#10B981]'
                         : 'text-[#64748B]'
-                      }`}
+                    }`}
                   >
                     Porcentaje
                   </Text>
@@ -369,7 +422,7 @@ export function CreateExpenseSheet({
 
         <View className="border-t border-[#E2E8F0] px-5 pb-2 pt-4">
           <Button
-            text="Registrar gasto"
+            text={isEditing ? 'Guardar cambios' : 'Registrar gasto'}
             iconRight="check"
             onPress={() => {
               const splits = members
@@ -384,14 +437,20 @@ export function CreateExpenseSheet({
                         : 100 - yourPercentage,
                 }));
 
-              onCreateExpense?.({
+              const payload = {
                 description,
                 amount: parseFloat(amount),
                 category: category as ExpenseCategory,
                 splitType: splitType as SplitType,
                 groupId: group.id,
                 splits,
-              });
+              };
+
+              if (isEditing) {
+                onUpdateExpense?.(payload);
+              } else {
+                onCreateExpense?.(payload);
+              }
             }}
             disabled={!isFormValid}
             className="rounded-full py-4"

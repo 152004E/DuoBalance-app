@@ -17,10 +17,19 @@ import {
   type ExpenseMenuAction,
 } from '@/components/expenses/expense-menu-sheet';
 import { AlertModal } from '@/components/ui/alert-modal';
-import { getExpense, deleteExpense } from '@/services/api/expenses';
+import { CreateExpenseSheet } from '@/components/movements/create-expense-sheet';
+import {
+  getExpense,
+  deleteExpense,
+  updateExpense,
+} from '@/services/api/expenses';
 import { getGroup } from '@/services/api/groups';
 import { useAuth } from '@/hooks/use-auth';
-import type { ExpenseResponse, GroupResponse } from '@/types/api';
+import type {
+  ExpenseResponse,
+  GroupResponse,
+  UpdateExpensePayload,
+} from '@/types/api';
 
 const CATEGORY_CONFIG: Record<string, { icon: string; color: string }> = {
   ALIMENTACIÓN: { icon: 'basket-shopping', color: '#F97316' },
@@ -43,7 +52,9 @@ export default function ExpenseDetailScreen() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
-  const [showComingSoon, setShowComingSoon] = useState(false);
+  const [editVisible, setEditVisible] = useState(false);
+  const [editSuccess, setEditSuccess] = useState(false);
+  const [editError, setEditError] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -79,9 +90,22 @@ export default function ExpenseDetailScreen() {
   const handleMenuAction = (action: ExpenseMenuAction) => {
     setMenuVisible(false);
     if (action === 'edit') {
-      setShowComingSoon(true);
+      setEditVisible(true);
     } else if (action === 'delete') {
       setDeleteVisible(true);
+    }
+  };
+
+  const handleUpdateExpense = async (payload: UpdateExpensePayload) => {
+    try {
+      await updateExpense(id!, payload);
+      setEditVisible(false);
+      loadData();
+      setEditSuccess(true);
+    } catch (error) {
+      console.error('Error al actualizar gasto:', error);
+      setEditVisible(false);
+      setEditError(true);
     }
   };
 
@@ -187,7 +211,6 @@ export default function ExpenseDetailScreen() {
           onAction={() => setMenuVisible(true)}
           actionIcon="ellipsis-vertical"
           actionColor="#64748B"
-          
         />
 
         <View className="mt-5 gap-4">
@@ -244,6 +267,7 @@ export default function ExpenseDetailScreen() {
           />
 
           <ExpenseActions
+            onEdit={() => setEditVisible(true)}
             onDelete={() => setDeleteVisible(true)}
           />
         </View>
@@ -278,18 +302,45 @@ export default function ExpenseDetailScreen() {
         visible={menuVisible}
         onClose={() => setMenuVisible(false)}
         onAction={handleMenuAction}
-        heightRatio={0.10}
+        heightRatio={0.1}
         headerFinalTranslateY={0.53}
       />
 
-      {/* Próximamente */}
+      {/* Editar gasto */}
+      {group && (
+        <CreateExpenseSheet
+          visible={editVisible}
+          onClose={() => setEditVisible(false)}
+          group={group}
+          members={group.members.map((m) => ({
+            id: m.user.id,
+            name: m.user.firstName,
+          }))}
+          initialExpense={expense}
+          heightRatio={0.63}
+          headerFinalTranslateY={0.19}
+          onUpdateExpense={handleUpdateExpense}
+        />
+      )}
+
+      {/* Éxito al editar */}
       <AlertModal
-        visible={showComingSoon}
-        type="info"
-        title="Próximamente"
-        message="Esta funcionalidad estará disponible en una próxima actualización. ¡Estamos trabajando en ello!"
+        visible={editSuccess}
+        type="success"
+        title="Gasto actualizado"
+        message="El gasto se actualizó correctamente."
         buttonText="Entendido"
-        onClose={() => setShowComingSoon(false)}
+        onClose={() => setEditSuccess(false)}
+      />
+
+      {/* Error al editar */}
+      <AlertModal
+        visible={editError}
+        type="error"
+        title="Error"
+        message="No se pudo actualizar el gasto. Intenta de nuevo."
+        buttonText="Entendido"
+        onClose={() => setEditError(false)}
       />
     </SafeAreaView>
   );
