@@ -12,6 +12,10 @@ import { ExpenseSplit } from '@/components/expenses/expense-split';
 import { ExpenseReceipt } from '@/components/expenses/expense-receipt';
 import { ExpenseTimeline } from '@/components/expenses/expense-timeline';
 import { ExpenseActions } from '@/components/expenses/expense-actions';
+import {
+  ExpenseMenuSheet,
+  type ExpenseMenuAction,
+} from '@/components/expenses/expense-menu-sheet';
 import { AlertModal } from '@/components/ui/alert-modal';
 import { getExpense, deleteExpense } from '@/services/api/expenses';
 import { getGroup } from '@/services/api/groups';
@@ -38,6 +42,8 @@ export default function ExpenseDetailScreen() {
   const [deleteVisible, setDeleteVisible] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [showComingSoon, setShowComingSoon] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -67,6 +73,15 @@ export default function ExpenseDetailScreen() {
       setDeleteLoading(false);
       setDeleteVisible(false);
       setDeleteError(true);
+    }
+  };
+
+  const handleMenuAction = (action: ExpenseMenuAction) => {
+    setMenuVisible(false);
+    if (action === 'edit') {
+      setShowComingSoon(true);
+    } else if (action === 'delete') {
+      setDeleteVisible(true);
     }
   };
 
@@ -169,6 +184,10 @@ export default function ExpenseDetailScreen() {
           title="Detalle del gasto"
           subtitle={expense.description}
           onBack={() => router.back()}
+          onAction={() => setMenuVisible(true)}
+          actionIcon="ellipsis-vertical"
+          actionColor="#64748B"
+          
         />
 
         <View className="mt-5 gap-4">
@@ -252,6 +271,25 @@ export default function ExpenseDetailScreen() {
         message="No se pudo eliminar el gasto. Intenta de nuevo."
         buttonText="Entendido"
         onClose={() => setDeleteError(false)}
+      />
+
+      {/* Menú de opciones */}
+      <ExpenseMenuSheet
+        visible={menuVisible}
+        onClose={() => setMenuVisible(false)}
+        onAction={handleMenuAction}
+        heightRatio={0.10}
+        headerFinalTranslateY={0.53}
+      />
+
+      {/* Próximamente */}
+      <AlertModal
+        visible={showComingSoon}
+        type="info"
+        title="Próximamente"
+        message="Esta funcionalidad estará disponible en una próxima actualización. ¡Estamos trabajando en ello!"
+        buttonText="Entendido"
+        onClose={() => setShowComingSoon(false)}
       />
     </SafeAreaView>
   );
