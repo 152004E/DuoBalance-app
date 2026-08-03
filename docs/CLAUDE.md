@@ -43,7 +43,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **Dashboard** (`(protected)/index.tsx`): Dashboard with HeroSection (greeting), GroupSection (groups from API via useGroups hook), MemberBalance, RecentTransactions, TopCategory, FloatingAddButton ✅
 - **Gastos list** (`(protected)/gastos/index.tsx`): Expense list screen with filters ✅
 - **Add Expense** (`(protected)/gastos/add.tsx`): Standalone expense creation form ✅
-- **Expense Detail** (`(protected)/gastos/detalle/[id].tsx`): Full expense detail with hero card, information, participants, split breakdown, receipt section, timeline, actions ✅
+- **Expense Detail** (`(protected)/gastos/detalle/[id].tsx`): Full expense detail with hero card, information, participants, split breakdown, receipt section, timeline, actions ✅ (ScreenHeader con menú de tres puntos que abre el ExpenseMenuSheet → "Editar gasto" abre el CreateExpenseSheet precargado; "Eliminar gasto" abre el AlertModal de confirmación; guardado con alertas de éxito/error)
 - **Reportes** (`(protected)/reportes.tsx`): Reports screen with period filter (dropdown), donut chart, top categories list, stats cards — mock data ✅
 - **Perfil** (`(protected)/perfil.tsx`): Profile screen with avatar, user info, menu options (Editar Perfil, Notificaciones, Seguridad), and logout ✅
 - **Editar Perfil** (`(protected)/perfil/editar.tsx`): Edit profile screen with name, email fields (uses Input with iconLeft), avatar upload via ImagePicker + ImagePreviewModal, save to API (updateProfile/uploadAvatar) ✅
@@ -255,8 +255,9 @@ npx prisma db push        # Push schema (dev)
 | `src/components/expenses/expense-split.tsx` | Expense split breakdown |
 | `src/components/expenses/expense-receipt.tsx` | Expense receipt section |
 | `src/components/expenses/expense-timeline.tsx` | Expense timeline |
-| `src/components/expenses/expense-actions.tsx` | Expense actions (edit/delete) |
-| `src/components/movements/create-expense-sheet.tsx` | Unified bottom sheet form for creating expenses |
+| `src/components/expenses/expense-actions.tsx` | Expense actions (edit/delete) — botón "Editar gasto" dispara el CreateExpenseSheet en modo edición |
+| `src/components/expenses/expense-menu-sheet.tsx` | Bottom sheet de opciones del gasto (réplica de couple-menu-sheet): expone `ExpenseMenuAction = 'edit' \| 'delete'`, items "Editar gasto"/"Eliminar gasto" con animaciones de entrada |
+| `src/components/movements/create-expense-sheet.tsx` | Unified bottom sheet form for creating AND editing expenses (`initialExpense` + `onUpdateExpense`, prefill de todos los campos, modo edición "Editar gasto"/"Guardar cambios", campo Valor solo acepta enteros) |
 
 ### Dashboard Components
 | File | Purpose |

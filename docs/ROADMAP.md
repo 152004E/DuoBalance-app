@@ -60,11 +60,11 @@ Cada nivel depende estrictamente del anterior. No se puede calcular balance sin 
 - [✅] Expenses API service (`src/services/api/expenses.ts`) — CRUD completo
 
 ### 🔄 En progreso / Pendiente Sprint 1
-- [🔄] **Conectar Expense List a API real** — `gastos/index.tsx` ya importa `getExpenses`, verificar filtro por grupo
-- [🔄] **Conectar Expense Detail a API real** — `gastos/detalle/[id].tsx` ya importa `getExpense`, `deleteExpense`
-- [🔄] **Conectar Group Expenses a API real** — `grupos/[id]/gastos.tsx` ya importa `getExpenses`, `createExpense`
-- [❌] **Edit Expense UI** — pantalla/hoja de edición
-- [❌] **Delete Expense UI** — confirmación en detail/actions
+- [✅] **Conectar Expense List a API real** — `gastos/index.tsx` + `gastos/Movimientos.tsx` usan `getExpenses` (useFocusEffect), filtros por grupo/palabra/periodo/categoría, RecentExpensesCard/lista con datos reales
+- [✅] **Conectar Expense Detail a API real** — `gastos/detalle/[id].tsx` usa `getExpense`, `deleteExpense`, `updateExpense`
+- [✅] **Conectar Group Expenses a API real** — `grupos/[id]/gastos.tsx` redirige a `gastos/Movimientos?groupId=id`, que sí usa `getExpenses`/`createExpense`
+- [✅] **Edit Expense UI** — `CreateExpenseSheet` con `initialExpense`/`onUpdateExpense` (modo edición + prefill), abierto desde `ExpenseMenuSheet` o `ExpenseActions`
+- [✅] **Delete Expense UI** — confirmación en detalle (`AlertModal`) disparada desde `ExpenseMenuSheet` o `ExpenseActions`
 - [❌] **Split Picker Component** — selector visual EQUAL / PERCENTAGE / CUSTOM / PERSONAL (prerrequisito para crear/editar)
 - [❌] **Receipt Capture (básico)** — cámara/galería, preview, upload placeholder
 

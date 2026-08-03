@@ -95,7 +95,7 @@ Cada nivel depende estrictamente del anterior. No se puede calcular balance sin 
 | Dashboard | `(protected)/index.tsx` | 🔄 UI lista, mocks (balance/transactions/categories) |
 | Gastos (lista) | `(protected)/gastos/index.tsx` | ✅ (API connected via getExpenses, filtros) |
 | Add Expense | `(protected)/gastos/add.tsx` | ✅ (standalone form) |
-| Expense Detail | `(protected)/gastos/detalle/[id].tsx` | ✅ (API connected: getExpense, deleteExpense) |
+| Expense Detail | `(protected)/gastos/detalle/[id].tsx` | ✅ (API connected: getExpense, updateExpense, deleteExpense; menú Editar/Eliminar funcional) |
 | Group List | `(protected)/grupos/index.tsx` | ✅ (API connected via useGroups) |
 | Group Detail | `(protected)/grupos/[id].tsx` | 🔄 UI + API group, MOCK_EXPENSES pendiente |
 | Join Group | `(protected)/grupos/join.tsx` | ✅ (JoinGroupSheet, API connected) |
@@ -162,16 +162,16 @@ En esta fase **aún no se muestra quién le debe a quién** (eso es Sprint 3). S
 - [✅] groups.ts API service (full CRUD)
 
 ## 🔄 Expenses CRUD — Estado actual
-- [🔄] **Expense List** (`gastos/index.tsx`) — usa `getExpenses`, falta verificar filtros completos
-- [🔄] **Expense Detail** (`gastos/detalle/[id].tsx`) — usa `getExpense`, `deleteExpense`, falta confirmar UI edit/delete
-- [✅] **Group Expenses** (`grupos/[id]/gastos.tsx`) — usa `getExpenses`, `createExpense`
+- [✅] **Expense List** (`gastos/index.tsx`) — usa `getExpenses`, filtros por grupo/periodo/categoría funcionales
+- [✅] **Expense Detail** (`gastos/detalle/[id].tsx`) — usa `getExpense`, `deleteExpense`, `updateExpense`; UI edit/delete confirmada
+- [✅] **Group Expenses** (`grupos/[id]/gastos.tsx`) — redirige a `gastos/Movimientos`, usa `getExpenses`, `createExpense`
 - [✅] **CreateExpenseSheet** (bottom sheet: amount, description, category, date, paid-by, participants, split type)
 - [✅] **Expense Hero Card** + 6 componentes del detalle (info, participants, split, receipt, timeline, actions)
 - [✅] **expenses.ts API service** (create, list, get, update, delete)
 
 ## ❌ Sprint 1 — Pendiente
-- [❌] **Edit Expense UI** — pantalla/hoja de edición (reutilizar CreateExpenseSheet con `mode="edit"`)
-- [❌] **Delete Expense UI** — confirmación en detail/actions
+- [✅] **Edit Expense UI** — `CreateExpenseSheet` reutilizado con `initialExpense`/`onUpdateExpense` (modo edición + prefill), desde `ExpenseMenuSheet` o `ExpenseActions`
+- [✅] **Delete Expense UI** — confirmación en detail/actions
 - [❌] **Split Picker Component** — selector visual EQUAL / PERCENTAGE / CUSTOM / PERSONAL
 - [❌] **Receipt Capture (básico)** — ImagePicker, preview, upload placeholder
 - [❌] **Categories** — verificar/definir enum (FOOD, TRANSPORT, RENT, SERVICES, ENTERTAINMENT, OTHER)
