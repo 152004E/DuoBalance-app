@@ -16,6 +16,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Loading } from '@/components/ui/loading';
 import { EmptyState } from '@/components/ui/empty-state';
+import { PartnerBalance } from '@/components/dashboard/PartnerBalance';
 import {
   RecentExpensesCard,
   type RecentExpense,
@@ -156,6 +157,18 @@ export default function CoupleDetail() {
       ? (group?.members.find((m) => m.user.id !== user?.id)?.user.firstName ??
         'Pareja')
       : 'Grupo';
+
+  // ── Aportes del mes (Tú vs el resto) — solo para parejas y grupos ───
+  const paidByOthers = expenses
+    .filter((e) => e.paidById !== user?.id)
+    .reduce((acc, e) => acc + Number(e.amount), 0);
+
+  const memberSplit = {
+    userName: 'Tú',
+    partnerName: groupType === 'COUPLE' ? partnerLabel : 'El grupo',
+    userAmount: totalPaidByMe,
+    partnerAmount: paidByOthers,
+  };
 
   const recentExpenses: RecentExpense[] = expenses.map((e) => {
     const payer = group?.members.find((m) => m.user.id === e.paidById)?.user;
@@ -494,10 +507,24 @@ export default function CoupleDetail() {
           </View>
         )}
 
+        {/* Aportes del mes - solo COUPLE y GROUP (oculto en PERSONAL) */}
+        {groupType !== 'PERSONAL' && (
+          <View className="mt-4 px-5">
+            <PartnerBalance
+              userName={memberSplit.userName}
+              partnerName={memberSplit.partnerName}
+              userAmount={memberSplit.userAmount}
+              partnerAmount={memberSplit.partnerAmount}
+              title="Aportes del mes"
+            />
+          </View>
+        )}
+
         {/* Gastos Recientes - List Card */}
         <View className="mt-4 px-5">
           <RecentExpensesCard
             expenses={recentExpenses}
+            maxItems={5}
             onViewAll={() => router.push(`/grupos/${id}/gastos`)}
             onExpensePress={(expense) =>
               router.push(`/gastos/detalle/${expense.id}`)

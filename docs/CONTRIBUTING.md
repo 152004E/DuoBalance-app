@@ -72,13 +72,10 @@ DuoBalance-app/
 │   │   │   ├── register.tsx
 │   │   │   └── forgot-password.tsx
 │   │   └── (protected)/       # Authenticated routes
-│   │       ├── index.tsx      # Dashboard
-│   │       ├── gastos.tsx     # Expenses
+│   │       ├── index.tsx      # Dashboard (datos reales via useDashboardData)
+│   │       ├── gastos/        # Expenses (index, Movimientos, add, detalle)
 │   │       ├── reportes.tsx   # Reports & analytics
-│   │       ├── perfil.tsx     # Profile
-│   │       ├── perfil/        # Profile sub-routes
-│   │       │   ├── editar.tsx      # Edit profile
-│   │       │   └── seguridad.tsx   # Security / change password
+│   │       ├── perfil/        # Profile (index, editar, notificaciones, seguridad, acerca)
 │   │       └── grupos/        # Group stack routes
 │   │           ├── index.tsx         # Group list
 │   │           ├── [id].tsx          # Group detail

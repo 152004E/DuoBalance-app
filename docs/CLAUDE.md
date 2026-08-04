@@ -45,9 +45,10 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **Add Expense** (`(protected)/gastos/add.tsx`): Standalone expense creation form ✅
 - **Expense Detail** (`(protected)/gastos/detalle/[id].tsx`): Full expense detail with hero card, information, participants, split breakdown, receipt section, timeline, actions ✅ (ScreenHeader con menú de tres puntos que abre el ExpenseMenuSheet → "Editar gasto" abre el CreateExpenseSheet precargado; "Eliminar gasto" abre el AlertModal de confirmación; guardado con alertas de éxito/error). Participantes y distribución **solo se muestran si el grupo no es PERSONAL y el splitType no es PERSONAL** (evita redundancia en gastos personales); la sección "Actividad" solo muestra "Última actualización" si el gasto fue realmente editado (`updatedAt > createdAt`)
 - **Reportes** (`(protected)/reportes.tsx`): Reports screen connected to real data via `useReportsData` — bar chart (por categoría, top 5), donut chart (aportes por miembro), stat cards (promedio + transacciones con comparación vs periodo anterior), filtro de período **y categoría** estilo Movimientos (FilterSheet compartido: Este mes / Últimos 3 meses / Este año / Todo + categorías con expandible "Otros"), estados loading/empty ✅
-- **Perfil** (`(protected)/perfil.tsx`): Profile screen with avatar, user info, menu options (Editar Perfil, Notificaciones, Seguridad), and logout ✅
+- **Perfil** (`(protected)/perfil/index.tsx`): Profile screen with avatar, user info, menu options (Editar Perfil, Notificaciones, Seguridad, **Acerca de**), and logout ✅
 - **Editar Perfil** (`(protected)/perfil/editar.tsx`): Edit profile screen with name, email fields (uses Input with iconLeft), avatar upload via ImagePicker + ImagePreviewModal, save to API (updateProfile/uploadAvatar) ✅
 - **Seguridad** (`(protected)/perfil/seguridad.tsx`): Change password screen with 3 inputs (currentPassword, newPassword, confirmPassword) using Input with iconLeft="lock" + secureTextEntry, per-field validation, API call to changePassword, AlertModal for success/error ✅
+- **Acerca de** (`(protected)/perfil/acerca.tsx`): About screen con hero de gradiente, "¿Qué es DuoBalance?", funcionalidades, historia, stack tecnológico y footer; lee la versión real desde `Constants.expoConfig` ✅
 - **Group List** (`(protected)/grupos/index.tsx`): Group list with GroupSection, FloatingAddMenu (FAB → bottom sheet: create/join group), CoupleMenuSheet, InviteMemberSheet, JoinGroupSheet, group filtering by type — connected to API via useGroups ✅
 - **Group Detail** (`(protected)/grupos/[id].tsx`): Group detail **conectado a datos reales** (ya no usa MOCK_EXPENSES): hero con total real (`getExpenses`), barra de distribución según tipo (COUPLE → % real de BD `splitPercentage`; GROUP → equitativo 100/N; PERSONAL → oculta), settlement card calculada desde gastos (Te deben / Debes / Saldado), gastos recientes clickeables al detalle, CoupleMenuSheet + InviteMemberSheet, salir/regenerar código con alertas de éxito/error ✅
 - **Group Settings** (`(protected)/grupos/[id]/configuracion.tsx`): Group settings with name, split %, members, invite code, regenerate code, notifications, danger zone — connected to API ✅
@@ -99,7 +100,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **groups.ts**: Full group CRUD (create, join, list, get, update, delete, archive, regenerate invite code, remove member, update member split) ✅
 - **Expenses API** (`src/services/api/expenses.ts`): CRUD completo (create, list, get, update, delete) ✅
 - **Payments API** (`src/services/api/payments.ts`): ❌ Pending
-- **Dashboard API** (`src/services/api/dashboard.ts`): ❌ Pending (dashboard aún consume mocks en el cliente)
+- **Dashboard API** (`src/services/api/dashboard.ts`): ❌ Pending — obsoleto como prerrequisito: el Dashboard ya está conectado client-side vía `useDashboardData` + `getExpenses` (no consume mocks)
 
 ### Animations
 - **Staggered entrance animations (auth screens)**: Logo, Title, Inputs, Buttons fade in sequentially on auth screens ✅
@@ -189,15 +190,18 @@ npx prisma db push        # Push schema (dev)
 | `src/app/(auth)/register.tsx` | Register screen (full implementation with auto-login) |
 | `src/app/(auth)/forgot-password.tsx` | Forgot password screen (UI complete) |
 | `src/app/(protected)/_layout.tsx` | Protected layout with auth guard + BottomTab |
-| `src/app/(protected)/index.tsx` | Dashboard screen (groups from API via useGroups, mock balance/transactions) |
+| `src/app/(protected)/index.tsx` | Dashboard screen (datos reales via useDashboardData + useGroupSummaries, sin mocks) |
 | `src/app/(protected)/gastos/index.tsx` | Gastos screen (hero + Últimos Movimientos con load-more) |
 | `src/app/(protected)/gastos/Movimientos.tsx` | Movimientos screen (lista filtrada con FilterSheet: período + categoría + buscador + workspace) |
 | `src/app/(protected)/gastos/add.tsx` | Add expense form |
 | `src/app/(protected)/gastos/detalle/[id].tsx` | Expense detail screen (hero, info, participants, split, receipt, timeline, actions) |
 | `src/app/(protected)/reportes.tsx` | Reports screen (datos reales: bar/donut/stats + filtro de período estilo Movimientos) |
-| `src/app/(protected)/perfil.tsx` | Profile screen (avatar, user info, menu options, logout) |
+| `src/app/(protected)/perfil/_layout.tsx` | Perfil stack navigator (index, editar, notificaciones, seguridad, acerca) |
+| `src/app/(protected)/perfil/index.tsx` | Profile screen (avatar, user info, menu options, logout) |
 | `src/app/(protected)/perfil/editar.tsx` | Edit profile (name, email, avatar upload) |
+| `src/app/(protected)/perfil/notificaciones.tsx` | Notification preferences (toggles por tipo) |
 | `src/app/(protected)/perfil/seguridad.tsx` | Change password (validation, API, AlertModal) |
+| `src/app/(protected)/perfil/acerca.tsx` | About screen (hero, funcionalidades, historia, stack, versión real) |
 | `src/app/(protected)/grupos/_layout.tsx` | Grupos stack navigator (index, [id], [id]/configuracion, [id]/gastos) |
 | `src/app/(protected)/grupos/index.tsx` | Group list screen (CoupleCard, FloatingAddMenu, CoupleMenuSheet, InviteMemberSheet, JoinGroupSheet) |
 | `src/app/(protected)/grupos/[id].tsx` | Group detail screen (financial hero, settlement, distribution, recent expenses) |
@@ -220,6 +224,7 @@ npx prisma db push        # Push schema (dev)
 | `src/components/ui/distribution-bar.tsx` | Stacked distribution bar with legends |
 | `src/components/ui/group-selector.tsx` | Dropdown-style group selector for filtering |
 | `src/components/ui/group-section.tsx` | Reusable section for group lists (horizontal/vertical, type-based) |
+| `src/components/ui/app-toast.tsx` | Toast custom arriba a la derecha (success verde / error rojo) — config `appToastConfig` para react-native-toast-message; usado al crear gastos y grupos |
 
 ### Auth Components
 | File | Purpose |
@@ -296,6 +301,14 @@ npx prisma db push        # Push schema (dev)
 | `src/hooks/use-group-summaries.ts` | Resumen real por grupo (count + total del mes) en paralelo |
 | `src/hooks/use-reports-data.ts` | Datos de Reportes agregados por categoría/miembro + comparación por período |
 | `src/hooks/use-dashboard-data.ts` | Datos del Dashboard por workspace (balance, transacciones, top categoría, aportes) |
+
+### Utils
+| File | Purpose |
+|------|---------|
+| `src/utils/date.ts` | `formatRelativeDate` (Hoy/Ayer/Hace N días) |
+| `src/utils/format.ts` | `formatAmountInput` (solo enteros, sin ceros iniciales, separador de miles 2.000 en vivo) + `parseAmount` (texto → número) — usado en el campo Valor del CreateExpenseSheet |
+| `src/utils/event-emitter.ts` | Event emitter |
+| `src/utils/jwt.ts` | JWT helpers |
 
 ### Constants
 | File | Purpose |

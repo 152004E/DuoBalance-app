@@ -102,9 +102,11 @@ Cada nivel depende estrictamente del anterior. No se puede calcular balance sin 
 | Join Group | `(protected)/grupos/join.tsx` | ✅ (JoinGroupSheet, API connected) |
 | Group Expenses | `(protected)/grupos/[id]/gastos.tsx` | ✅ (API connected: getExpenses, createExpense) |
 | Reports | `(protected)/reportes.tsx` | ✅ (datos reales via useReportsData + filtro de período estilo Movimientos) |
-| Perfil | `(protected)/perfil.tsx` | ✅ |
+| Perfil | `(protected)/perfil/index.tsx` | ✅ |
 | Editar Perfil | `(protected)/perfil/editar.tsx` | ✅ (API connected, ImagePicker) |
+| Notificaciones | `(protected)/perfil/notificaciones.tsx` | ✅ (UI toggles por tipo) |
 | Seguridad / Change Password | `(protected)/perfil/seguridad.tsx` | ✅ (validation, API, AlertModal) |
+| Acerca de | `(protected)/perfil/acerca.tsx` | ✅ (hero, funcionalidades, historia, stack, versión real vía expo-constants) |
 | Group Settings | `(protected)/grupos/[id]/configuracion.tsx` | ✅ (API connected) |
 | Pay Screen | `(protected)/pagos/index.tsx` | ❌ |
 | Payment History | `(protected)/pagos/` | ❌ |
@@ -272,7 +274,7 @@ Para cada usuario en un grupo:
 
 ### Frontend API services (crear)
 - [❌] `src/services/api/balances.ts` — getBalances, getGroupBalance
-- [❌] `src/services/api/dashboard.ts` — getDashboard
+- [❌] `src/services/api/dashboard.ts` — getDashboard (obsoleto como prerrequisito: Dashboard ya conectado client-side vía `useDashboardData` + `getExpenses`)
 
 ### Pantallas a conectar con API real
 - [✅] **Dashboard** (`index.tsx`) — conectado via `useDashboardData` (balance neto por workspace, transacciones del mes, top categoría, aportes Tú vs resto) + `useGroupSummaries` en las cards

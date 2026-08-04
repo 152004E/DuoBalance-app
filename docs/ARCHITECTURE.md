@@ -32,10 +32,13 @@ DuoBalance-app/
 │   │       ├── _layout.tsx          Protected layout (auth guard + BottomTab)
 │   │       ├── index.tsx            Dashboard screen (datos reales via useDashboardData, sin mocks)
 │   │       ├── reportes.tsx         Reports screen (datos reales + filtro de período estilo Movimientos)
-│   │       ├── perfil.tsx           Profile screen (avatar, user info, menu options, logout)
+│   │       ├── perfil/_layout.tsx   Perfil stack navigator
+│   │       ├── perfil/index.tsx     Profile screen (avatar, user info, menu options, logout)
 │   │       ├── perfil/              Profile sub-routes
 │   │       │   ├── editar.tsx       Edit profile (name, email, avatar upload)
-│   │       │   └── seguridad.tsx    Security/change password (validation, API, AlertModal)
+│   │       │   ├── notificaciones.tsx  Notification preferences (toggles)
+│   │       │   ├── seguridad.tsx    Security/change password (validation, API, AlertModal)
+│   │       │   └── acerca.tsx       About screen (hero, funcionalidades, historia, versión real)
 │   │       ├── gastos/              Expense routes (directory-based)
 │   │       │   ├── _layout.tsx      Gastos Stack navigator
 │   │       │   ├── index.tsx        Gastos screen (hero + Últimos Movimientos con load-more)
@@ -65,7 +68,8 @@ DuoBalance-app/
 │   │   │   ├── screen-header.tsx    Feature-rich header (back button, action button, animated entry)
 │   │   │   ├── distribution-bar.tsx  Horizontal stacked distribution bar with legends
 │   │   │   ├── group-section.tsx    Reusable section component for group lists (horizontal/vertical)
-│   │   │   └── group-selector.tsx   Dropdown-style group selector for filtering
+│   │   │   ├── group-selector.tsx   Dropdown-style group selector for filtering
+│   │   │   └── app-toast.tsx        Toast custom arriba a la derecha (success/error) vía react-native-toast-message
 │   │   ├── auth/                    Auth-specific reusable components
 │   │   │   ├── auth-header.tsx      Logo + title + optional subtitle
 │   │   │   ├── auth-divider.tsx     "O continúa con" separator
@@ -154,12 +158,12 @@ DuoBalance-app/
 │   │   ├── config.ts                Env vars (API_URL, APP_NAME)
 │   │   ├── theme.ts                 Colors, typography, spacing
 │   │   └── categories.ts            Catálogo central de categorías (label/emoji/icono/color) + getCategoryMeta
-│   │
-│   ├── context/                     Context providers (empty — AuthContext lives in features/auth/)
+││   │   ├── context/                     Context providers (empty — AuthContext lives in features/auth/)
 │   ├── utils/
 │   │   ├── event-emitter.ts         Event emitter
 │   │   ├── jwt.ts                   JWT helpers
-│   │   └── date.ts                  formatRelativeDate (Hoy/Ayer/Hace N días)
+│   │   ├── date.ts                  formatRelativeDate (Hoy/Ayer/Hace N días)
+│   │   └── format.ts                formatAmountInput (enteros, sin ceros iniciales, separador de miles 2.000) + parseAmount
 │   └── global.css                   Tailwind directives
 │
 ├── .opencode/
@@ -242,9 +246,11 @@ App (Expo Router)
     │   └── Reports (datos reales: bar chart por categoría, donut por miembro, stat cards,
     │       filtro de período estilo Movimientos con FilterSheet showCategory=false, estados loading/empty)
     └── /perfil
-        ├── Profile (avatar, user info, menu options, logout)
+        ├── Profile (avatar, user info, menu options: Editar Perfil, Notificaciones, Seguridad, Acerca de, logout)
         ├── /perfil/editar — Edit profile (name, email, avatar upload)
-        └── /perfil/seguridad — Change password (validation, API call, success/error AlertModal)
+        ├── /perfil/notificaciones — Notification preferences (toggles)
+        ├── /perfil/seguridad — Change password (validation, API call, success/error AlertModal)
+        └── /perfil/acerca — About (hero, funcionalidades, historia, stack, versión real vía expo-constants)
 ```
 
 ## Data Flow

@@ -117,7 +117,7 @@ Para cada usuario en un grupo:
 ### Tareas Sprint 3
 - [❌] **Backend**: `GET /balances` y `GET /groups/:id/balance` devuelven agregación correcta
 - [❌] **Frontend API**: `src/services/api/balances.ts` — servicio para balances
-- [❌] **Frontend API**: `src/services/api/dashboard.ts` — servicio para dashboard summary
+- [❌] **Frontend API**: `src/services/api/dashboard.ts` — servicio para dashboard summary (obsoleto como prerrequisito: Dashboard ya conectado client-side vía `useDashboardData` + `getExpenses`)
 - [✅] **Dashboard Screen**: Conectado — balance neto por workspace, transacciones del mes, top categoría y aportes reales (useDashboardData); sin mocks
 - [✅] **Group Detail**: Conectado — total real via `getExpenses`, barra de distribución (COUPLE splitPercentage de BD / GROUP equitativo / PERSONAL oculta), settlement card (Te deben / Debes / Saldado), gastos clickeables
 - [❌] **MemberBalance Component**: Conectar a datos reales (ya existe UI)
