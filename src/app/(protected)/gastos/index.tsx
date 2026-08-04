@@ -244,8 +244,8 @@ export default function GastosScreen() {
           onClose={handleCloseCreateSheet}
           group={creatingExpenseGroup.group}
           members={creatingExpenseGroup.members}
-          heightRatio={0.65}
-          headerFinalTranslateY={0.19}
+          heightRatio={0.66}
+          headerFinalTranslateY={0.14}
           onCreateExpense={async (payload) => {
             try {
               await createExpense(payload);
