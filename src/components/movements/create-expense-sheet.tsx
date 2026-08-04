@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
 import { Button } from '@/components/ui/button';
+import { CATEGORIES } from '@/constants/categories';
 import type {
   ExpenseCategory,
   ExpenseResponse,
@@ -42,15 +43,6 @@ interface CreateExpenseSheetProps {
   heightRatio?: number;
   headerFinalTranslateY?: number;
 }
-
-const CATEGORIES = [
-  { label: '🍔 Comida', value: 'FOOD' },
-  { label: '🚗 Transporte', value: 'TRANSPORT' },
-  { label: '🏠 Vivienda', value: 'RENT' },
-  { label: '💡 Servicios', value: 'SERVICES' },
-  { label: '🎉 Entretención', value: 'ENTERTAINMENT' },
-  { label: '📦 Otros', value: 'OTHER' },
-];
 
 function getTodayDate(): string {
   const d = new Date();
@@ -193,6 +185,7 @@ export function CreateExpenseSheet({
             showsHorizontalScrollIndicator={false}
             className="-mx-5 px-5"
           >
+            {' '}
             <View className="flex-row gap-2">
               {CATEGORIES.map((cat) => {
                 const isActive = category === cat.value;
@@ -211,7 +204,7 @@ export function CreateExpenseSheet({
                         isActive ? 'text-white' : 'text-[#64748B]'
                       }`}
                     >
-                      {cat.label}
+                      {cat.emoji} {cat.label}
                     </Text>
                   </Pressable>
                 );

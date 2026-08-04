@@ -1,23 +1,15 @@
+import { useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
+import { MAIN_CATEGORIES, EXTRA_CATEGORIES } from '@/constants/categories';
 
 const PERIOD_FILTERS = [
   'Este mes',
   'Últimos 3 meses',
   'Este año',
   'Todo',
-] as const;
-
-const CATEGORY_FILTERS = [
-  { label: '📋 Todas', value: 'all' },
-  { label: '🍔 Comida', value: 'FOOD' },
-  { label: '🚗 Transporte', value: 'TRANSPORT' },
-  { label: '🏠 Vivienda', value: 'RENT' },
-  { label: '💡 Servicios', value: 'SERVICES' },
-  { label: '🎉 Entretención', value: 'ENTERTAINMENT' },
-  { label: '📦 Otros', value: 'OTHER' },
 ] as const;
 
 interface FilterSheetProps {
@@ -45,6 +37,13 @@ export function FilterSheet({
   headerFinalTranslateY = 0.28,
   showCategory = true,
 }: FilterSheetProps) {
+  // Expandible "Otros": se abre si el usuario lo toca o si una categoría extra está activa
+  const isExtraActive = EXTRA_CATEGORIES.some(
+    (c) => c.value === selectedCategory,
+  );
+  const [manuallyOpen, setManuallyOpen] = useState(false);
+  const othersExpanded = manuallyOpen || isExtraActive;
+
   const header = (
     <BottomSheetHeader
       visible={visible}
@@ -64,9 +63,10 @@ export function FilterSheet({
     label: string,
     isActive: boolean,
     onPress: () => void,
+    key: string,
   ) => (
     <Pressable
-      key={label}
+      key={key}
       onPress={onPress}
       className={`rounded-full px-[15px] py-2.5 ${
         isActive ? 'bg-[#10B981]' : 'border border-[#E2E8F0] bg-white'
@@ -79,6 +79,28 @@ export function FilterSheet({
       >
         {label}
       </Text>
+    </Pressable>
+  );
+
+  const renderExpandChip = (label: string, isActive: boolean) => (
+    <Pressable
+      onPress={() => setManuallyOpen((v) => !v)}
+      className={`flex-row items-center gap-1.5 rounded-full px-[15px] py-2.5 ${
+        isActive ? 'bg-[#10B981]' : 'border border-[#E2E8F0] bg-white'
+      }`}
+    >
+      <Text
+        className={`text-sm font-medium ${
+          isActive ? 'text-white' : 'text-[#64748B]'
+        }`}
+      >
+        {label}
+      </Text>
+      <FontAwesome6
+        name={othersExpanded ? 'chevron-up' : 'chevron-down'}
+        size={10}
+        color={isActive ? '#FFFFFF' : '#64748B'}
+      />
     </Pressable>
   );
 
@@ -101,8 +123,11 @@ export function FilterSheet({
           </Text>
           <View className="flex-row flex-wrap gap-1">
             {PERIOD_FILTERS.map((filter) =>
-              renderChip(filter, selectedPeriod === filter, () =>
-                onSelectPeriod(filter),
+              renderChip(
+                filter,
+                selectedPeriod === filter,
+                () => onSelectPeriod(filter),
+                filter,
               ),
             )}
           </View>
@@ -114,14 +139,56 @@ export function FilterSheet({
                 Categoría
               </Text>
               <View className="flex-row flex-wrap gap-1">
-                {CATEGORY_FILTERS.map((filter) =>
+                {renderChip(
+                  '📋 Todas',
+                  selectedCategory === 'all',
+                  () => {
+                    setManuallyOpen(false);
+                    onSelectCategory?.('all');
+                  },
+                  'all',
+                )}
+                {MAIN_CATEGORIES.map((cat) =>
                   renderChip(
-                    filter.label,
-                    selectedCategory === filter.value,
-                    () => onSelectCategory?.(filter.value),
+                    `${cat.emoji} ${cat.label}`,
+                    selectedCategory === cat.value,
+                    () => {
+                      setManuallyOpen(false);
+                      onSelectCategory?.(cat.value);
+                    },
+                    cat.value,
                   ),
                 )}
+                {renderExpandChip(
+                  '📦 Otros',
+                  selectedCategory === 'OTHER' || isExtraActive,
+                )}
               </View>
+
+              {/* Subcategorías extra (menos conocidas) */}
+              {othersExpanded && (
+                <View className="mt-2 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-3">
+                  <Text className="mb-2 text-xs font-medium text-[#94A3B8]">
+                    Más categorías
+                  </Text>
+                  <View className="flex-row flex-wrap gap-1">
+                    {EXTRA_CATEGORIES.map((cat) =>
+                      renderChip(
+                        `${cat.emoji} ${cat.label}`,
+                        selectedCategory === cat.value,
+                        () => onSelectCategory?.(cat.value),
+                        cat.value,
+                      ),
+                    )}
+                    {renderChip(
+                      '📦 Otros',
+                      selectedCategory === 'OTHER',
+                      () => onSelectCategory?.('OTHER'),
+                      'other-fallback',
+                    )}
+                  </View>
+                </View>
+              )}
             </>
           )}
         </ScrollView>

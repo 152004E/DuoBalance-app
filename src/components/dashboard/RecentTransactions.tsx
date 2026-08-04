@@ -1,5 +1,6 @@
 import { View, Text } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { CATEGORY_ICONS, CATEGORY_COLORS } from '@/constants/categories';
 
 export interface Transaction {
   id: string;
@@ -15,24 +16,6 @@ interface RecentTransactionsProps {
   transactions: Transaction[];
   onViewAll?: () => void;
 }
-
-const categoryIcons: Record<string, string> = {
-  FOOD: 'utensils',
-  TRANSPORT: 'car',
-  RENT: 'house',
-  SERVICES: 'bolt',
-  ENTERTAINMENT: 'film',
-  OTHER: 'circle',
-};
-
-const categoryColors: Record<string, string> = {
-  FOOD: '#F97316',
-  TRANSPORT: '#8B5CF6',
-  RENT: '#3B82F6',
-  SERVICES: '#EC4899',
-  ENTERTAINMENT: '#06B6D4',
-  OTHER: '#64748B',
-};
 
 export function RecentTransactions({
   transactions,
@@ -54,8 +37,8 @@ export function RecentTransactions({
 
       <View className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white shadow-sm">
         {transactions.map((tx, index) => {
-          const color = categoryColors[tx.category] ?? '#64748B';
-          const icon = categoryIcons[tx.category] ?? 'circle';
+          const color = CATEGORY_COLORS[tx.category] ?? '#64748B';
+          const icon = CATEGORY_ICONS[tx.category] ?? 'circle';
 
           return (
             <View

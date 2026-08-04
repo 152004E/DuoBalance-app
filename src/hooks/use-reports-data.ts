@@ -1,7 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { getExpenses } from '@/services/api/expenses';
-import type { GroupResponse, ExpenseResponse } from '@/types/api';
+import type {
+  ExpenseCategory,
+  GroupResponse,
+  ExpenseResponse,
+} from '@/types/api';
 import type { WorkspaceState } from '@/features/workspace/workspace.types';
+import { CATEGORY_LABELS, CATEGORY_COLORS } from '@/constants/categories';
 
 export type ReportPeriod = 'Este mes' | 'Últimos 3 meses' | 'Este año' | 'Todo';
 
@@ -28,24 +33,6 @@ export interface ReportsData {
   hasData: boolean;
   refetch: () => Promise<void>;
 }
-
-const CATEGORY_LABELS: Record<string, string> = {
-  FOOD: 'Comida',
-  TRANSPORT: 'Transporte',
-  RENT: 'Vivienda',
-  SERVICES: 'Servicios',
-  ENTERTAINMENT: 'Entretención',
-  OTHER: 'Otros',
-};
-
-const CATEGORY_COLORS: Record<string, string> = {
-  FOOD: '#F97316',
-  TRANSPORT: '#8B5CF6',
-  RENT: '#3B82F6',
-  SERVICES: '#F59E0B',
-  ENTERTAINMENT: '#06B6D4',
-  OTHER: '#94A3B8',
-};
 
 const MEMBER_COLORS = [
   '#10B981',
@@ -127,6 +114,7 @@ export function useReportsData(
   workspace: WorkspaceState,
   groups: GroupResponse[],
   period: ReportPeriod,
+  category?: ExpenseCategory | 'all',
 ): ReportsData {
   const [isLoading, setIsLoading] = useState(true);
   const [expenses, setExpenses] = useState<ExpenseResponse[]>([]);
@@ -156,11 +144,13 @@ export function useReportsData(
     try {
       const current = periodWindow(period);
       const previous = previousWindow(period);
+      const categoryFilter = category && category !== 'all' ? { category } : {};
       const currentPromises = targetGroupIds.map((groupId) =>
         getExpenses({
           groupId,
           ...(current.start ? { startDate: current.start.toISOString() } : {}),
           ...(current.end ? { endDate: current.end.toISOString() } : {}),
+          ...categoryFilter,
         }),
       );
       const previousPromises =
@@ -175,6 +165,7 @@ export function useReportsData(
                 ...(previous.end
                   ? { endDate: previous.end.toISOString() }
                   : {}),
+                ...categoryFilter,
               }),
             );
 
@@ -191,7 +182,7 @@ export function useReportsData(
     } finally {
       setIsLoading(false);
     }
-  }, [targetGroupIds, period]);
+  }, [targetGroupIds, period, category]);
 
   useEffect(() => {
     load();

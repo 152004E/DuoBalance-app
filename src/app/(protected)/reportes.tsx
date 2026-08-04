@@ -8,11 +8,13 @@ import { DonutChart } from '@/components/dashboard/DonutChart';
 import { useAuth } from '@/hooks/use-auth';
 import { useGroups } from '@/hooks/use-groups';
 import { useReportsData, type ReportPeriod } from '@/hooks/use-reports-data';
+import type { ExpenseCategory } from '@/types/api';
 import { GroupSelector } from '@/components/ui/group-selector';
 import { useWorkspace } from '@/hooks/use-workspace';
 import { Loading } from '@/components/ui/loading';
 import { FilterSheet } from '@/components/movements/filter-sheet';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { CATEGORY_LABELS } from '@/constants/categories';
 
 const DEFAULT_PERIOD: ReportPeriod = 'Este mes';
 
@@ -35,6 +37,9 @@ export default function ReportesScreen() {
   const { workspace, setWorkspace } = useWorkspace();
   const [selectedPeriod, setSelectedPeriod] =
     useState<ReportPeriod>(DEFAULT_PERIOD);
+  const [selectedCategory, setSelectedCategory] = useState<
+    ExpenseCategory | 'all'
+  >('all');
   const [filtersVisible, setFiltersVisible] = useState(false);
   const {
     barData,
@@ -46,7 +51,7 @@ export default function ReportesScreen() {
     isLoading,
     hasData,
     refetch,
-  } = useReportsData(workspace, groups, selectedPeriod);
+  } = useReportsData(workspace, groups, selectedPeriod, selectedCategory);
   const [focusCount, setFocusCount] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
@@ -60,7 +65,9 @@ export default function ReportesScreen() {
 
   const fmt = (value: number) =>
     `$${Math.round(value).toLocaleString('es-CL')}`;
-  const activeFilterCount = selectedPeriod !== DEFAULT_PERIOD ? 1 : 0;
+  const activeFilterCount =
+    (selectedPeriod !== DEFAULT_PERIOD ? 1 : 0) +
+    (selectedCategory !== 'all' ? 1 : 0);
 
   // Las comparaciones solo aplican cuando hay un período anterior equivalente
   const showComparison = selectedPeriod !== 'Todo';
@@ -105,11 +112,14 @@ export default function ReportesScreen() {
           }
         />
 
-        {/* Filtro de período (estilo Movimientos) */}
+        {/* Filtro de período + categoría (estilo Movimientos) */}
         <View className="flex-row items-center justify-between px-5 pt-5">
           <View className="flex-1 pr-3">
             <Text className="text-sm font-semibold text-[#0F172A]">
-              Período de análisis
+              Análisis de{' '}
+              {selectedCategory === 'all'
+                ? 'todos los gastos'
+                : (CATEGORY_LABELS[selectedCategory] ?? selectedCategory)}
             </Text>
             <Text className="mt-0.5 text-xs text-[#94A3B8]">
               {PERIOD_DESCRIPTIONS[selectedPeriod]}
@@ -120,10 +130,8 @@ export default function ReportesScreen() {
             onPress={() => setFiltersVisible(true)}
             className="flex-row items-center gap-2 rounded-full bg-[#10B981] px-4 py-2.5 active:opacity-80"
           >
-            <FontAwesome6 name="calendar-days" size={14} color="#FFFFFF" />
-            <Text className="text-sm font-semibold text-white">
-              {selectedPeriod}
-            </Text>
+            <FontAwesome6 name="sliders" size={14} color="#FFFFFF" />
+            <Text className="text-sm font-semibold text-white">Filtros</Text>
             <FontAwesome6 name="chevron-down" size={12} color="#FFFFFF" />
             {activeFilterCount > 0 && (
               <View className="h-5 min-w-5 items-center justify-center rounded-full bg-white px-1.5">
@@ -210,11 +218,17 @@ export default function ReportesScreen() {
         visible={filtersVisible}
         onClose={() => setFiltersVisible(false)}
         selectedPeriod={selectedPeriod}
+        selectedCategory={selectedCategory}
         onSelectPeriod={(period) => setSelectedPeriod(period as ReportPeriod)}
-        onClear={() => setSelectedPeriod(DEFAULT_PERIOD)}
-        heightRatio={0.4}
-        headerFinalTranslateY={0.42}
-        showCategory={false}
+        onSelectCategory={(category) =>
+          setSelectedCategory(category as ExpenseCategory | 'all')
+        }
+        onClear={() => {
+          setSelectedPeriod(DEFAULT_PERIOD);
+          setSelectedCategory('all');
+        }}
+        heightRatio={0.55}
+        headerFinalTranslateY={0.35}
       />
     </SafeAreaView>
   );

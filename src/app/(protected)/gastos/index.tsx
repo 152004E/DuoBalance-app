@@ -17,25 +17,11 @@ import { CreateExpenseSheet } from '@/components/movements/create-expense-sheet'
 import { DestinationSelector } from '@/components/movements/destination-selector';
 import { getExpenses, createExpense } from '@/services/api/expenses';
 import { useWorkspace } from '@/hooks/use-workspace';
+import { getCategoryMeta } from '@/constants/categories';
 import type { ExpenseResponse, GroupResponse } from '@/types/api';
 
-const CATEGORY_ICONS: Record<string, { icon: string; bg: string }> = {
-  FOOD: { icon: 'basket-shopping', bg: '#F97316' },
-  TRANSPORT: { icon: 'car', bg: '#8B5CF6' },
-  RENT: { icon: 'house', bg: '#3B82F6' },
-  SERVICES: { icon: 'bolt', bg: '#F59E0B' },
-  ENTERTAINMENT: { icon: 'film', bg: '#06B6D4' },
-  OTHER: { icon: 'tag', bg: '#64748B' },
-  ALIMENTACIÓN: { icon: 'basket-shopping', bg: '#F97316' },
-  TRANSPORTE: { icon: 'car', bg: '#8B5CF6' },
-  VIVIENDA: { icon: 'house', bg: '#3B82F6' },
-  SERVICIOS: { icon: 'bolt', bg: '#F59E0B' },
-  ENTRETENCIÓN: { icon: 'film', bg: '#06B6D4' },
-  OTROS: { icon: 'tag', bg: '#64748B' },
-};
-
 function expenseToRecent(e: ExpenseResponse, userId: string): RecentExpense {
-  const cat = CATEGORY_ICONS[e.category] ?? { icon: 'tag', bg: '#64748B' };
+  const meta = getCategoryMeta(e.category);
   return {
     id: e.id,
     name: e.description,
@@ -46,8 +32,8 @@ function expenseToRecent(e: ExpenseResponse, userId: string): RecentExpense {
       month: 'short',
     }),
     category: e.category,
-    icon: cat.icon,
-    iconBg: cat.bg,
+    icon: meta.icon,
+    iconBg: meta.color,
   };
 }
 
@@ -144,8 +130,7 @@ export default function GastosScreen() {
   const totalTransactionsAll = filteredExpenses.length;
 
   const recentExpenses = useMemo(
-    () =>
-      filteredExpenses.map((e) => expenseToRecent(e, user?.id ?? '')),
+    () => filteredExpenses.map((e) => expenseToRecent(e, user?.id ?? '')),
     [filteredExpenses, user?.id],
   );
 

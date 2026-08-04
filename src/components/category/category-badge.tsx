@@ -1,30 +1,13 @@
 import { View, Text } from 'react-native';
-
-const categoryColors: Record<string, string> = {
-  FOOD: '#F97316',
-  TRANSPORT: '#8B5CF6',
-  RENT: '#3B82F6',
-  SERVICES: '#EC4899',
-  ENTERTAINMENT: '#06B6D4',
-  OTHER: '#64748B',
-};
-
-const categoryLabels: Record<string, string> = {
-  FOOD: 'Alimentación',
-  TRANSPORT: 'Transporte',
-  RENT: 'Hogar',
-  SERVICES: 'Servicios',
-  ENTERTAINMENT: 'Entretenimiento',
-  OTHER: 'Otros',
-};
+import { CATEGORY_COLORS, CATEGORY_LABELS } from '@/constants/categories';
 
 interface CategoryBadgeProps {
   category: string;
 }
 
 export function CategoryBadge({ category }: CategoryBadgeProps) {
-  const color = categoryColors[category] ?? '#64748B';
-  const label = categoryLabels[category] ?? category;
+  const color = CATEGORY_COLORS[category] ?? '#64748B';
+  const label = CATEGORY_LABELS[category] ?? category;
 
   return (
     <View

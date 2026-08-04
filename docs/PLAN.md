@@ -178,7 +178,7 @@ En esta fase **aún no se muestra quién le debe a quién** (eso es Sprint 3). S
 - [✅] **Delete Expense UI** — confirmación en detail/actions
 - [❌] **Split Picker Component** — selector visual EQUAL / PERCENTAGE / CUSTOM / PERSONAL
 - [❌] **Receipt Capture (básico)** — ImagePicker, preview, upload placeholder
-- [❌] **Categories** — verificar/definir enum (FOOD, TRANSPORT, RENT, SERVICES, ENTERTAINMENT, OTHER)
+- [✅] **Categories** — enum ampliado (FOOD, TRANSPORT, RENT, SERVICES, ENTERTAINMENT, HEALTH, EDUCATION, SHOPPING, SUBSCRIPTIONS, PETS, GIFTS, TRAVEL, OTHER) con catálogo central `src/constants/categories.ts`
 - [❌] **Split type guardado** — verificar que `POST /expenses` acepta y guarda `splitType`
 
 ### Criterios de done Sprint 1

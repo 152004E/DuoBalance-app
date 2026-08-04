@@ -49,6 +49,32 @@ const { selectPersonal, selectCouple, selectGroup, resetWorkspace } = useWorkspa
 
 `WorkspaceProvider` envuelve los Tabs en `src/app/(protected)/_layout.tsx`. Todas las pantallas leen el mismo estado: al cambiar el workspace en una, todas se actualizan.
 
+### Catálogo de categorías (`src/constants/categories.ts`)
+
+Fuente única de verdad para metadatos de categorías (label, emoji, icono FontAwesome6, color):
+
+```typescript
+interface CategoryMeta {
+  value: string;
+  label: string;
+  emoji: string;
+  icon: string; // FontAwesome6
+  color: string;
+}
+
+const MAIN_CATEGORIES: CategoryMeta[]; // Comida, Transporte, Vivienda, Servicios, Entretención
+const EXTRA_CATEGORIES: CategoryMeta[]; // Salud, Educación, Compras, Suscripciones, Mascotas, Regalos, Viajes
+
+// Mapas derivados para compatibilidad
+const CATEGORY_LABELS: Record<string, string>;
+const CATEGORY_ICONS: Record<string, string>;
+const CATEGORY_COLORS: Record<string, string>;
+
+function getCategoryMeta(value?: string | null): CategoryMeta; // fallback seguro → Otros
+```
+
+Las categorías extra se muestran en el filtro bajo el expandible "Otros" (no aparecen como chips principales).
+
 ### Períodos de Reportes (`use-reports-data.ts`)
 
 ```typescript
@@ -76,6 +102,13 @@ enum ExpenseCategory {
   RENT = 'RENT',
   SERVICES = 'SERVICES',
   ENTERTAINMENT = 'ENTERTAINMENT',
+  HEALTH = 'HEALTH',
+  EDUCATION = 'EDUCATION',
+  SHOPPING = 'SHOPPING',
+  SUBSCRIPTIONS = 'SUBSCRIPTIONS',
+  PETS = 'PETS',
+  GIFTS = 'GIFTS',
+  TRAVEL = 'TRAVEL',
   OTHER = 'OTHER',
 }
 

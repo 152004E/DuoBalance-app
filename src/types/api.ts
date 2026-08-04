@@ -5,6 +5,13 @@ export enum ExpenseCategory {
   RENT = 'RENT',
   SERVICES = 'SERVICES',
   ENTERTAINMENT = 'ENTERTAINMENT',
+  HEALTH = 'HEALTH',
+  EDUCATION = 'EDUCATION',
+  SHOPPING = 'SHOPPING',
+  SUBSCRIPTIONS = 'SUBSCRIPTIONS',
+  PETS = 'PETS',
+  GIFTS = 'GIFTS',
+  TRAVEL = 'TRAVEL',
   OTHER = 'OTHER',
 }
 export interface UserBrief {

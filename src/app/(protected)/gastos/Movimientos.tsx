@@ -1,11 +1,7 @@
 import { useCallback, useState, useMemo, useEffect } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  router,
-  useLocalSearchParams,
-  useFocusEffect,
-} from 'expo-router';
+import { router, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Loading } from '@/components/ui/loading';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -22,26 +18,12 @@ import { getExpenses, createExpense } from '@/services/api/expenses';
 import { useAuth } from '@/hooks/use-auth';
 import { useWorkspace } from '@/hooks/use-workspace';
 import { useGroups } from '@/hooks/use-groups';
+import { getCategoryMeta } from '@/constants/categories';
 import type { ExpenseResponse, GroupResponse } from '@/types/api';
 import { FontAwesome6 } from '@expo/vector-icons';
 
-const CATEGORY_ICONS: Record<string, { icon: string; bg: string }> = {
-  FOOD: { icon: 'basket-shopping', bg: '#F97316' },
-  TRANSPORT: { icon: 'car', bg: '#8B5CF6' },
-  RENT: { icon: 'house', bg: '#3B82F6' },
-  SERVICES: { icon: 'bolt', bg: '#F59E0B' },
-  ENTERTAINMENT: { icon: 'film', bg: '#06B6D4' },
-  OTHER: { icon: 'tag', bg: '#64748B' },
-  ALIMENTACIÓN: { icon: 'basket-shopping', bg: '#F97316' },
-  TRANSPORTE: { icon: 'car', bg: '#8B5CF6' },
-  VIVIENDA: { icon: 'house', bg: '#3B82F6' },
-  SERVICIOS: { icon: 'bolt', bg: '#F59E0B' },
-  ENTRETENCIÓN: { icon: 'film', bg: '#06B6D4' },
-  OTROS: { icon: 'tag', bg: '#64748B' },
-};
-
 function expenseToRecent(e: ExpenseResponse, userId: string): RecentExpense {
-  const cat = CATEGORY_ICONS[e.category] ?? { icon: 'tag', bg: '#64748B' };
+  const meta = getCategoryMeta(e.category);
   return {
     id: e.id,
     name: e.description,
@@ -53,8 +35,8 @@ function expenseToRecent(e: ExpenseResponse, userId: string): RecentExpense {
       year: 'numeric',
     }),
     category: e.category,
-    icon: cat.icon,
-    iconBg: cat.bg,
+    icon: meta.icon,
+    iconBg: meta.color,
   };
 }
 
@@ -152,8 +134,7 @@ export default function MovimientosScreen() {
   );
 
   const activeFilterCount =
-    (selectedPeriod !== 'Todo' ? 1 : 0) +
-    (selectedCategory !== 'all' ? 1 : 0);
+    (selectedPeriod !== 'Todo' ? 1 : 0) + (selectedCategory !== 'all' ? 1 : 0);
 
   const handleClearFilters = useCallback(() => {
     setSelectedPeriod('Todo');
@@ -200,7 +181,9 @@ export default function MovimientosScreen() {
     setCreatingExpenseGroup(null);
   }, []);
 
-  const title = isGroupMode ? (groupModeGroup?.name ?? 'Movimientos') : 'Movimientos';
+  const title = isGroupMode
+    ? (groupModeGroup?.name ?? 'Movimientos')
+    : 'Movimientos';
   const subtitle = isGroupMode
     ? 'Todos los gastos del grupo'
     : 'Historial de tu actividad financiera';

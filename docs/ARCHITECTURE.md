@@ -87,7 +87,7 @@ DuoBalance-app/
 │   │   │   └── balance-card.tsx     Balance direction card (owed/debt/settled)
 │   │   ├── movements/               Movement-related components
 │   │   │   ├── create-expense-sheet.tsx  Bottom sheet form: amount, description, category, date, paid-by, participants, split (uses Input with icons)
-│   │   │   ├── filter-sheet.tsx          Bottom sheet de filtros (período + categoría, `showCategory` opcional)
+│   │   │   ├── filter-sheet.tsx          Bottom sheet de filtros COMPARTIDO (período + categoría, expandible "Otros" con categorías extra)
 │   │   │   └── destination-selector.tsx  Selector de destino/grupo para el expense sheet
 │   │   ├── category/
 │   │   │   └── category-badge.tsx   Colored category pill
@@ -151,7 +151,8 @@ DuoBalance-app/
 │   │
 │   ├── constants/
 │   │   ├── config.ts                Env vars (API_URL, APP_NAME)
-│   │   └── theme.ts                 Colors, typography, spacing
+│   │   ├── theme.ts                 Colors, typography, spacing
+│   │   └── categories.ts            Catálogo central de categorías (label/emoji/icono/color) + getCategoryMeta
 │   │
 │   ├── context/                     Context providers (empty — AuthContext lives in features/auth/)
 │   ├── utils/                       Utilities (empty, ready)

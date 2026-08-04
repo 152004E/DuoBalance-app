@@ -25,20 +25,12 @@ import {
 } from '@/services/api/expenses';
 import { getGroup } from '@/services/api/groups';
 import { useAuth } from '@/hooks/use-auth';
+import { getCategoryMeta } from '@/constants/categories';
 import type {
   ExpenseResponse,
   GroupResponse,
   UpdateExpensePayload,
 } from '@/types/api';
-
-const CATEGORY_CONFIG: Record<string, { icon: string; color: string }> = {
-  ALIMENTACIÓN: { icon: 'basket-shopping', color: '#F97316' },
-  TRANSPORTE: { icon: 'car', color: '#8B5CF6' },
-  VIVIENDA: { icon: 'house', color: '#3B82F6' },
-  SERVICIOS: { icon: 'bolt', color: '#F59E0B' },
-  ENTRETENCIÓN: { icon: 'film', color: '#06B6D4' },
-  OTROS: { icon: 'tag', color: '#64748B' },
-};
 
 type ScreenState = 'loading' | 'error' | 'empty' | 'data';
 
@@ -141,10 +133,7 @@ export default function ExpenseDetailScreen() {
     );
   }
 
-  const catConfig = CATEGORY_CONFIG[expense.category] ?? {
-    icon: 'tag',
-    color: '#64748B',
-  };
+  const catConfig = getCategoryMeta(expense.category);
 
   const memberMap = new Map(group.members.map((m) => [m.user.id, m.user]));
   const paidByUser = memberMap.get(expense.paidById);

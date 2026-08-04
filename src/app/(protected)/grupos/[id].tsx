@@ -9,6 +9,7 @@ import {
   regenerateInviteCode,
 } from '@/services/api/groups';
 import { getExpenses } from '@/services/api/expenses';
+import { getCategoryMeta } from '@/constants/categories';
 import type { GroupResponse, GroupType, ExpenseResponse } from '@/types/api';
 import { useAuth } from '@/hooks/use-auth';
 import { ScreenHeader } from '@/components/ui/screen-header';
@@ -24,15 +25,6 @@ import {
 } from '@components/couple/couple-menu-sheet';
 import { InviteMemberSheet } from '@/components/couple/invite-member-sheet';
 import { AlertModal } from '@/components/ui/alert-modal';
-
-const CATEGORY_META: Record<string, { icon: string; color: string }> = {
-  FOOD: { icon: 'utensils', color: '#F97316' },
-  TRANSPORT: { icon: 'gas-pump', color: '#8B5CF6' },
-  RENT: { icon: 'house', color: '#3B82F6' },
-  SERVICES: { icon: 'bolt', color: '#F59E0B' },
-  ENTERTAINMENT: { icon: 'film', color: '#06B6D4' },
-  OTHER: { icon: 'box', color: '#64748B' },
-};
 
 const TYPE_CONFIG: Record<
   GroupType,
@@ -176,7 +168,7 @@ export default function CoupleDetail() {
 
   const recentExpenses: RecentExpense[] = expenses.map((e) => {
     const payer = group?.members.find((m) => m.user.id === e.paidById)?.user;
-    const meta = CATEGORY_META[e.category] ?? CATEGORY_META.OTHER;
+    const meta = getCategoryMeta(e.category);
     return {
       id: e.id,
       name: e.description,

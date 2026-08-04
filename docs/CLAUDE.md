@@ -44,7 +44,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **Gastos list** (`(protected)/gastos/index.tsx`): Expense list screen with filters ✅
 - **Add Expense** (`(protected)/gastos/add.tsx`): Standalone expense creation form ✅
 - **Expense Detail** (`(protected)/gastos/detalle/[id].tsx`): Full expense detail with hero card, information, participants, split breakdown, receipt section, timeline, actions ✅ (ScreenHeader con menú de tres puntos que abre el ExpenseMenuSheet → "Editar gasto" abre el CreateExpenseSheet precargado; "Eliminar gasto" abre el AlertModal de confirmación; guardado con alertas de éxito/error). Participantes y distribución **solo se muestran si el grupo no es PERSONAL y el splitType no es PERSONAL** (evita redundancia en gastos personales); la sección "Actividad" solo muestra "Última actualización" si el gasto fue realmente editado (`updatedAt > createdAt`)
-- **Reportes** (`(protected)/reportes.tsx`): Reports screen connected to real data via `useReportsData` — bar chart (por categoría, top 5), donut chart (aportes por miembro), stat cards (promedio + transacciones con comparación vs periodo anterior), filtro de período estilo Movimientos (FilterSheet sin categoría: Este mes / Últimos 3 meses / Este año / Todo), estados loading/empty ✅
+- **Reportes** (`(protected)/reportes.tsx`): Reports screen connected to real data via `useReportsData` — bar chart (por categoría, top 5), donut chart (aportes por miembro), stat cards (promedio + transacciones con comparación vs periodo anterior), filtro de período **y categoría** estilo Movimientos (FilterSheet compartido: Este mes / Últimos 3 meses / Este año / Todo + categorías con expandible "Otros"), estados loading/empty ✅
 - **Perfil** (`(protected)/perfil.tsx`): Profile screen with avatar, user info, menu options (Editar Perfil, Notificaciones, Seguridad), and logout ✅
 - **Editar Perfil** (`(protected)/perfil/editar.tsx`): Edit profile screen with name, email fields (uses Input with iconLeft), avatar upload via ImagePicker + ImagePreviewModal, save to API (updateProfile/uploadAvatar) ✅
 - **Seguridad** (`(protected)/perfil/seguridad.tsx`): Change password screen with 3 inputs (currentPassword, newPassword, confirmPassword) using Input with iconLeft="lock" + secureTextEntry, per-field validation, API call to changePassword, AlertModal for success/error ✅
@@ -263,7 +263,7 @@ npx prisma db push        # Push schema (dev)
 | `src/components/expenses/expense-timeline.tsx` | Expense timeline |
 | `src/components/expenses/expense-actions.tsx` | Expense actions (edit/delete) — botón "Editar gasto" dispara el CreateExpenseSheet en modo edición |
 | `src/components/expenses/expense-menu-sheet.tsx` | Bottom sheet de opciones del gasto (réplica de couple-menu-sheet): expone `ExpenseMenuAction = 'edit' \| 'delete'`, items "Editar gasto"/"Eliminar gasto" con animaciones de entrada |
-| `src/components/movements/filter-sheet.tsx` | Bottom sheet de filtros (período + categoría) con `showCategory` opcional (false en Reportes) |
+| `src/components/movements/filter-sheet.tsx` | Bottom sheet de filtros **compartido** (período + categoría) con expandible "Otros" que muestra categorías extra; usado por Movimientos y Reportes |
 | `src/components/movements/destination-selector.tsx` | Selector de destino/grupo para el CreateExpenseSheet |
 | `src/components/movements/create-expense-sheet.tsx` | Unified bottom sheet form for creating AND editing expenses (`initialExpense` + `onUpdateExpense`, prefill de todos los campos, modo edición "Editar gasto"/"Guardar cambios", campo Valor solo acepta enteros) |
 
@@ -292,6 +292,11 @@ npx prisma db push        # Push schema (dev)
 | `src/hooks/use-workspace.ts` | useWorkspace hook (WorkspaceContext wrapper con guard) |
 | `src/hooks/use-group-summaries.ts` | Resumen real por grupo (count + total del mes) en paralelo |
 | `src/hooks/use-reports-data.ts` | Datos de Reportes agregados por categoría/miembro + comparación por período |
+
+### Constants
+| File | Purpose |
+|------|---------|
+| `src/constants/categories.ts` | Catálogo central de categorías (label/emoji/icono/color) + `MAIN_CATEGORIES`/`EXTRA_CATEGORIES` + `getCategoryMeta` — fuente única reemplaza los mapas duplicados |
 
 ### Core
 | File | Purpose |
