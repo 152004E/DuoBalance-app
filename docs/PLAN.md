@@ -176,7 +176,7 @@ En esta fase **aún no se muestra quién le debe a quién** (eso es Sprint 3). S
 ## ❌ Sprint 1 — Pendiente
 - [✅] **Edit Expense UI** — `CreateExpenseSheet` reutilizado con `initialExpense`/`onUpdateExpense` (modo edición + prefill), desde `ExpenseMenuSheet` o `ExpenseActions`
 - [✅] **Delete Expense UI** — confirmación en detail/actions
-- [❌] **Split Picker Component** — selector visual EQUAL / PERCENTAGE / CUSTOM / PERSONAL
+- [✅] **División en CreateExpenseSheet (decisión de producto)** — PERSONAL sin división; COUPLE siempre ambos (Igual/Porcentaje, default = splitPercentage de la pareja o 50/50); GROUP 3+ solo Igual
 - [❌] **Receipt Capture (básico)** — ImagePicker, preview, upload placeholder
 - [✅] **Categories** — enum ampliado (FOOD, TRANSPORT, RENT, SERVICES, ENTERTAINMENT, HEALTH, EDUCATION, SHOPPING, SUBSCRIPTIONS, PETS, GIFTS, TRAVEL, OTHER) con catálogo central `src/constants/categories.ts`
 - [❌] **Split type guardado** — verificar que `POST /expenses` acepta y guarda `splitType`
@@ -226,15 +226,14 @@ Una vez persistidas las shares, **ya no necesitas recalcular el reparto** en cad
 - [❌] **Endpoint**: `GET /expenses/:id` devuelve shares con datos del usuario (UserBrief)
 
 ### Frontend
-- [❌] **Split Picker UI completo** — tarjetas visuales con preview de cuánto le toca a cada uno
-- [❌] **CreateExpenseSheet** — calcula shares en cliente antes de enviar, preview en vivo
-- [❌] **ExpenseDetail** — `ExpenseSplit` component ya existe, conectar a shares reales
-- [❌] **EditExpenseSheet** — recalcula shares al editar
-- [❌] **Validación** — suma de splits debe ser 100% (PERCENTAGE) o 100% del monto (CUSTOM)
-- [❌] **Adaptar a tipos de grupo**:
+- [✅] **CreateExpenseSheet — división por decisión de producto**: calcula shares en cliente; PERSONAL sin split; COUPLE siempre ambos con EQUAL/PERCENTAGE (default = splitPercentage de la pareja o 50/50); GROUP 3+ solo EQUAL con selector de participantes
+- [✅] **ExpenseDetail** — `ExpenseSplit` component conectado a shares reales
+- [✅] **EditExpenseSheet** — recalcula shares al editar (mismo sheet en modo edición)
+- [✅] **Validación** — suma de splits = 100% en EQUAL/PERCENTAGE
+- [✅] **Adaptado a tipos de grupo**:
   - PERSONAL (1 miembro): sin split, 100% al usuario
   - COUPLE (2): EQUAL o PERCENTAGE
-  - GROUP (N): EQUAL, PERCENTAGE, CUSTOM
+  - GROUP (N): solo EQUAL
 
 ### Criterios de done Sprint 2
 - Al crear gasto, se persisten shares correctos en backend

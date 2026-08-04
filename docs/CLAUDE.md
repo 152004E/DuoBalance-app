@@ -27,7 +27,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 ### UI Components — All built
 - **Enhanced Input**: iconLeft, iconRight, onIconRightPress, secureTextEntry toggle (auto eye/eye-slash), focus border (instant green on focus, instant reset on blur), dynamic padding ✅
 - **AlertModal**: Custom modal with BlurView backdrop, 4 types (success/error/warning/info), spring animations ✅
-- **Toast notifications**: react-native-toast-message configured in root layout ✅
+- **Toast notifications**: react-native-toast-message configurado en root layout con `appToastConfig` (componente `src/components/ui/app-toast.tsx`) — toasts **arriba a la derecha** con variantes success (verde) y error (rojo); usados al crear gastos y grupos ✅
 - **Button**: Reusable styled button with 5 variants (primary/secondary/outline/danger/link), loading spinner, icon support ✅
 - **Card**: Generic card with default/highlight variants ✅
 - **Loading**: Full-screen loading spinner ✅
@@ -108,6 +108,12 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **AlertModal**: Spring animations for show/hide ✅
 - **Bug fix**: Bottom sheet overlay no longer covers header — header is correctly positioned below sheet content ✅
 
+## Decisión de producto — División de gastos (acordada)
+- **PERSONAL**: siempre personal, 100% al que paga. Sin selector de división en el sheet. ✅
+- **COUPLE (pareja)**: participan **siempre ambos** (no hay selector de participantes — si participó solo uno, se registra como gasto personal). División: **Igual (50/50)** o **Porcentaje** ajustable. El **% por defecto es el configurado al crear la pareja** (`splitPercentage` del miembro) o 50/50 si no existe. ✅
+- **GROUP (3+ personas)**: **solo división Igual** ("cada quien paga su parte"). Se mantiene el selector de participantes (no todos participan en cada gasto). El botón Porcentaje **no aparece** en grupos de 3+. ✅
+- Implementado en `CreateExpenseSheet` (`isCouple = group.type === 'COUPLE' || members.length === 2`).
+
 ## Tech Decisions
 - **pnpm** over npm/yarn (exclusively)
 - **Prisma** as ORM (PostgreSQL)
@@ -126,16 +132,13 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 
 ## What to Build Next
 ### P0 — Remaining Backend API Integration
-1. **Split Picker Component** — selector visual EQUAL/PERCENTAGE/CUSTOM/PERSONAL en CreateExpenseSheet (hoy el sheet soporta 2 participantes con reparto binario)
-2. **Create `src/services/api/balances.ts`** — API service for balance data (GET /balances, GET /groups/:id/balance)
-3. **Create `src/services/api/dashboard.ts`** — API service for dashboard summary (GET /dashboard)
-4. **Create `src/services/api/payments.ts`** — API service for payments/settlements
+1. **Create `src/services/api/payments.ts`** — API service for payments/settlements
 
 ### P1 — Remaining features
-6. Response interceptor (401 → redirect to login)
-7. Create Forgot Password endpoint in backend + connect frontend
-8. Receipt capture with camera
-9. Payment/settlement screens
+1. Response interceptor (401 → redirect to login)
+2. Create Forgot Password endpoint in backend + connect frontend
+3. Receipt capture with camera
+4. Payment/settlement screens
 
 ## Coding Style
 - TypeScript strict, no `any`
@@ -265,7 +268,7 @@ npx prisma db push        # Push schema (dev)
 | `src/components/expenses/expense-menu-sheet.tsx` | Bottom sheet de opciones del gasto (réplica de couple-menu-sheet): expone `ExpenseMenuAction = 'edit' \| 'delete'`, items "Editar gasto"/"Eliminar gasto" con animaciones de entrada |
 | `src/components/movements/filter-sheet.tsx` | Bottom sheet de filtros **compartido** (período + categoría) con expandible "Otros" que muestra categorías extra; usado por Movimientos y Reportes |
 | `src/components/movements/destination-selector.tsx` | Selector de destino/grupo para el CreateExpenseSheet |
-| `src/components/movements/create-expense-sheet.tsx` | Unified bottom sheet form for creating AND editing expenses (`initialExpense` + `onUpdateExpense`, prefill de todos los campos, modo edición "Editar gasto"/"Guardar cambios", campo Valor solo acepta enteros) |
+| `src/components/movements/create-expense-sheet.tsx` | Unified bottom sheet form for creating AND editing expenses (`initialExpense` + `onUpdateExpense`, prefill de todos los campos, modo edición "Editar gasto"/"Guardar cambios", campo Valor con formato en vivo vía `formatAmountInput`: solo enteros, sin ceros iniciales y separador de miles 2.000) |
 
 ### Dashboard Components
 | File | Purpose |

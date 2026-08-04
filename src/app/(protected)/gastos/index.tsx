@@ -16,6 +16,7 @@ import { FloatingAddButton } from '@/components/dashboard/FloatingAddButton';
 import { CreateExpenseSheet } from '@/components/movements/create-expense-sheet';
 import { DestinationSelector } from '@/components/movements/destination-selector';
 import { getExpenses, createExpense } from '@/services/api/expenses';
+import Toast from 'react-native-toast-message';
 import { useWorkspace } from '@/hooks/use-workspace';
 import { getCategoryMeta } from '@/constants/categories';
 import type { ExpenseResponse, GroupResponse } from '@/types/api';
@@ -250,8 +251,20 @@ export default function GastosScreen() {
               await createExpense(payload);
               handleCloseCreateSheet();
               getExpenses().then(setAllExpenses);
+              Toast.show({
+                type: 'success',
+                text1: 'Gasto registrado',
+                text2: `${payload.description} · $${payload.amount.toLocaleString(
+                  'es-CL',
+                )}`,
+              });
             } catch (error) {
               console.error('Error al crear gasto:', error);
+              Toast.show({
+                type: 'error',
+                text1: 'No se pudo registrar el gasto',
+                text2: 'Revisa tu conexión e intenta de nuevo.',
+              });
             }
           }}
         />

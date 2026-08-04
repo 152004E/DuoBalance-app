@@ -65,7 +65,7 @@ Cada nivel depende estrictamente del anterior. No se puede calcular balance sin 
 - [✅] **Conectar Group Expenses a API real** — `grupos/[id]/gastos.tsx` redirige a `gastos/Movimientos?groupId=id`, que sí usa `getExpenses`/`createExpense`
 - [✅] **Edit Expense UI** — `CreateExpenseSheet` con `initialExpense`/`onUpdateExpense` (modo edición + prefill), abierto desde `ExpenseMenuSheet` o `ExpenseActions`
 - [✅] **Delete Expense UI** — confirmación en detalle (`AlertModal`) disparada desde `ExpenseMenuSheet` o `ExpenseActions`
-- [❌] **Split Picker Component** — selector visual EQUAL / PERCENTAGE / CUSTOM / PERSONAL (prerrequisito para crear/editar)
+- [✅] **División en CreateExpenseSheet (decisión de producto)** — PERSONAL sin división; COUPLE siempre ambos con Igual/Porcentaje (default = splitPercentage de la pareja o 50/50); GROUP 3+ solo Igual con selector de participantes
 - [❌] **Receipt Capture (básico)** — cámara/galería, preview, upload placeholder
 
 ### Criterios de done Sprint 1
@@ -91,10 +91,9 @@ Al crear un gasto, **se generan automáticamente las shares** (ExpenseShares) se
 
 ### Tareas Sprint 2
 - [✅] **Backend**: Verificado — `POST /expenses` persiste `ExpenseSplit` por miembro (seed real: COUPLE 30/70, GROUP 25%×4, PERSONAL 100%)
-- [🔄] **Frontend**: `CreateExpenseSheet` calcula splits en cliente (hoy limitado a 2 participantes con reparto binario)
+- [✅] **Frontend**: `CreateExpenseSheet` calcula splits en cliente según decisión de producto (PERSONAL sin división, COUPLE Igual/Porcentaje con default = splitPercentage, GROUP 3+ solo Igual)
 - [✅] **Frontend**: `ExpenseDetail` muestra desglose de splits reales (se oculta para grupos PERSONAL / splitType PERSONAL)
-- [❌] **Frontend**: Split Picker UI completo — tarjetas visuales con preview de cuánto le toca a cada uno (prerrequisito para N miembros)
-- [🔄] **Tipos de grupo**: Splits funcionan en backend para PERSONAL/COUPLE/GROUP; el picker de UI aún no escala a N
+- [🔄] **Tipos de grupo**: Splits funcionan en backend para PERSONAL/COUPLE/GROUP; el picker de UI no escala a CUSTOM/N-way por decisión de producto
 
 ### Criterios de done Sprint 2
 - Al crear gasto, se persisten shares correctos en backend

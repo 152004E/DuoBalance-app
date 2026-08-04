@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import Toast from 'react-native-toast-message';
 import { Input } from '@/components/ui/input';
 import { createGroup } from '@/services/api/groups';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
@@ -136,10 +137,20 @@ export function CreateCoupleSheet({
 
       onClose();
       router.push(`/grupos/${group.id}`);
+      Toast.show({
+        type: 'success',
+        text1: 'Grupo creado',
+        text2: `${group.name} ya está listo para compartir gastos.`,
+      });
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : 'Error al crear el grupo';
       setErrorMessage(message);
+      Toast.show({
+        type: 'error',
+        text1: 'No se pudo crear el grupo',
+        text2: message,
+      });
     } finally {
       setIsSubmitting(false);
     }

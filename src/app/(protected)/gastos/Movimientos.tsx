@@ -15,6 +15,7 @@ import { DestinationSelector } from '@/components/movements/destination-selector
 import { CreateExpenseSheet } from '@/components/movements/create-expense-sheet';
 import { FilterSheet } from '@/components/movements/filter-sheet';
 import { getExpenses, createExpense } from '@/services/api/expenses';
+import Toast from 'react-native-toast-message';
 import { useAuth } from '@/hooks/use-auth';
 import { useWorkspace } from '@/hooks/use-workspace';
 import { useGroups } from '@/hooks/use-groups';
@@ -302,8 +303,20 @@ export default function MovimientosScreen() {
               await createExpense(payload);
               handleCloseCreateSheet();
               getExpenses().then(setAllExpenses);
+              Toast.show({
+                type: 'success',
+                text1: 'Gasto registrado',
+                text2: `${payload.description} · $${payload.amount.toLocaleString(
+                  'es-CL',
+                )}`,
+              });
             } catch (error) {
               console.error('Error al crear gasto:', error);
+              Toast.show({
+                type: 'error',
+                text1: 'No se pudo registrar el gasto',
+                text2: 'Revisa tu conexión e intenta de nuevo.',
+              });
             }
           }}
         />
