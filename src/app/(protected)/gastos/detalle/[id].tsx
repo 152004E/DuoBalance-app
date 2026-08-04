@@ -197,6 +197,13 @@ export default function ExpenseDetailScreen() {
     });
   };
 
+  // El gasto se considera editado si la fecha de actualización difiere de la de creación
+  const wasEdited =
+    !!expense.updatedAt &&
+    new Date(expense.updatedAt).getTime() -
+      new Date(expense.createdAt).getTime() >
+      1000;
+
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]" edges={['top']}>
       <ScrollView
@@ -237,15 +244,19 @@ export default function ExpenseDetailScreen() {
             }
           />
 
-          <ExpenseParticipants
-            participants={participants.map((p) => ({
-              name: p.name,
-              initials: p.initials,
-              isPayer: p.isPayer,
-            }))}
-          />
+          {group.type !== 'PERSONAL' && expense.splitType !== 'PERSONAL' && (
+            <ExpenseParticipants
+              participants={participants.map((p) => ({
+                name: p.name,
+                initials: p.initials,
+                isPayer: p.isPayer,
+              }))}
+            />
+          )}
 
-          <ExpenseSplit participants={participants} />
+          {group.type !== 'PERSONAL' && expense.splitType !== 'PERSONAL' && (
+            <ExpenseSplit participants={participants} />
+          )}
 
           <ExpenseReceipt />
 
@@ -255,7 +266,7 @@ export default function ExpenseDetailScreen() {
                 label: `Registrado por ${paidByName}`,
                 value: formatDateTime(expense.createdAt),
               },
-              ...(expense.updatedAt
+              ...(wasEdited
                 ? [
                     {
                       label: 'Última actualización',

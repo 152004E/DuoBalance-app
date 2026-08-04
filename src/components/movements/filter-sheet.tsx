@@ -24,12 +24,13 @@ interface FilterSheetProps {
   visible: boolean;
   onClose: () => void;
   selectedPeriod: string;
-  selectedCategory: string;
+  selectedCategory?: string;
   onSelectPeriod: (period: string) => void;
-  onSelectCategory: (category: string) => void;
+  onSelectCategory?: (category: string) => void;
   onClear: () => void;
   heightRatio?: number;
   headerFinalTranslateY?: number;
+  showCategory?: boolean;
 }
 
 export function FilterSheet({
@@ -42,19 +43,28 @@ export function FilterSheet({
   onClear,
   heightRatio = 0.55,
   headerFinalTranslateY = 0.28,
+  showCategory = true,
 }: FilterSheetProps) {
   const header = (
     <BottomSheetHeader
       visible={visible}
       title="Filtros"
-      subtitle="Filtra los movimientos por período y categoría."
+      subtitle={
+        showCategory
+          ? 'Filtra los movimientos por período y categoría.'
+          : 'Selecciona el período del reporte.'
+      }
       onClose={onClose}
       gradientPaddingBottom={500}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
     />
   );
 
-  const renderChip = (label: string, isActive: boolean, onPress: () => void) => (
+  const renderChip = (
+    label: string,
+    isActive: boolean,
+    onPress: () => void,
+  ) => (
     <Pressable
       key={label}
       onPress={onPress}
@@ -91,27 +101,29 @@ export function FilterSheet({
           </Text>
           <View className="flex-row flex-wrap gap-1">
             {PERIOD_FILTERS.map((filter) =>
-              renderChip(
-                filter,
-                selectedPeriod === filter,
-                () => onSelectPeriod(filter),
+              renderChip(filter, selectedPeriod === filter, () =>
+                onSelectPeriod(filter),
               ),
             )}
           </View>
 
           {/* Categoría */}
-          <Text className="mb-1 mt-4 text-sm font-semibold text-[#64748B]">
-            Categoría
-          </Text>
-          <View className="flex-row flex-wrap gap-1">
-            {CATEGORY_FILTERS.map((filter) =>
-              renderChip(
-                filter.label,
-                selectedCategory === filter.value,
-                () => onSelectCategory(filter.value),
-              ),
-            )}
-          </View>
+          {showCategory && (
+            <>
+              <Text className="mb-1 mt-4 text-sm font-semibold text-[#64748B]">
+                Categoría
+              </Text>
+              <View className="flex-row flex-wrap gap-1">
+                {CATEGORY_FILTERS.map((filter) =>
+                  renderChip(
+                    filter.label,
+                    selectedCategory === filter.value,
+                    () => onSelectCategory?.(filter.value),
+                  ),
+                )}
+              </View>
+            </>
+          )}
         </ScrollView>
 
         {/* Limpiar filtros */}
