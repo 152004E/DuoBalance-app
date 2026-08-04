@@ -13,6 +13,7 @@ import { getCategoryMeta } from '@/constants/categories';
 import { formatRelativeDate } from '@/utils/date';
 import type { GroupResponse, GroupType, ExpenseResponse } from '@/types/api';
 import { useAuth } from '@/hooks/use-auth';
+import { useWorkspace } from '@/hooks/use-workspace';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Loading } from '@/components/ui/loading';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -50,6 +51,7 @@ const TYPE_CONFIG: Record<
 export default function CoupleDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuth();
+  const { setWorkspace } = useWorkspace();
   const [group, setGroup] = useState<GroupResponse | null>(null);
   const [expenses, setExpenses] = useState<ExpenseResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -235,6 +237,18 @@ export default function CoupleDetail() {
       setIsLeaving(false);
     }
   }, [id, isLeaving]);
+
+  // ── Ver Análisis: navega a Reportes con el filtro de este grupo ────
+  const handleViewAnalytics = useCallback(() => {
+    const category =
+      groupType === 'COUPLE'
+        ? ('couple' as const)
+        : groupType === 'GROUP'
+          ? ('group' as const)
+          : ('personal' as const);
+    setWorkspace({ category, groupId: id });
+    router.push('/reportes');
+  }, [groupType, id, setWorkspace]);
 
   const handleRegenerateCode = useCallback(async () => {
     setIsRegenerating(true);
@@ -534,11 +548,14 @@ export default function CoupleDetail() {
 
         {/* Mini Analytics Preview */}
         <View className="mt-4 px-5">
-          <Pressable className="h-40 overflow-hidden rounded-xl">
+          <Pressable
+            onPress={handleViewAnalytics}
+            className="h-40 overflow-hidden rounded-xl active:opacity-90"
+          >
             <View className="absolute inset-0 z-10 flex-col items-center justify-center bg-black/40">
               <FontAwesome6 name="chart-line" size={28} color="#FFFFFF" />
               <Text className="mt-1 text-base font-semibold text-white">
-                Ver Analytics
+                Ver Análisis
               </Text>
             </View>
             {/* Placeholder gradient background */}
