@@ -5,28 +5,20 @@ import type { GroupResponse } from '@/types/api';
 import { Button } from './button';
 import { AlertModal } from './alert-modal';
 
-interface GroupBalanceMock {
-  userAmount: number;
-  partnerAmount: number;
+interface GroupSummary {
+  count: number;
+  total: number;
 }
 
-const MOCK_BALANCE_DETAIL: Record<string, GroupBalanceMock> = {
-  '1': { userAmount: 250000, partnerAmount: 80000 },
-  '2': { userAmount: 80000, partnerAmount: 45000 },
-  '3': { userAmount: 15000, partnerAmount: 10000 },
-  '4': { userAmount: 120000, partnerAmount: 60000 },
-  'gastos-1': { userAmount: 1200000, partnerAmount: 800000 },
-  'gastos-2': { userAmount: 450000, partnerAmount: 350000 },
-  'gastos-3': { userAmount: 280000, partnerAmount: 190000 },
-};
-
-const DEFAULT_BALANCE: GroupBalanceMock = {
-  userAmount: 60000,
-  partnerAmount: 40000,
-};
+interface SplitSegment {
+  label: string;
+  percent: number;
+  color: string;
+}
 
 interface GroupCardProps {
   group: GroupResponse;
+  summary?: GroupSummary;
   showMenu?: boolean;
   onPress?: () => void;
   onMenu?: () => void;
@@ -35,36 +27,82 @@ interface GroupCardProps {
 
 export function GroupCard({
   group,
+  summary,
   showMenu = false,
   onPress,
   onMenu,
   currentUserId,
 }: GroupCardProps) {
   const [showAddAlert, setShowAddAlert] = useState(false);
-  const balances = MOCK_BALANCE_DETAIL[group.id] ?? DEFAULT_BALANCE;
-  const total = balances.userAmount + balances.partnerAmount;
-  const userPercent = total > 0 ? (balances.userAmount / total) * 100 : 0;
-  const partnerPercent = total > 0 ? (balances.partnerAmount / total) * 100 : 0;
 
-  const isCouple = group.type === 'COUPLE';
+  const total = summary?.total ?? 0;
+  const transactionCount = summary?.count ?? 0;
   const membersCount = group.members.length;
-  const transactionCount = membersCount > 0 ? membersCount : 0;
+  const isCouple = group.type === 'COUPLE';
+  const isPersonal = group.type === 'PERSONAL';
 
-  let userLabel: string;
-  let partnerLabel: string;
+  // ── Lógica de reparto según tipo de grupo ─────────────────────────────
+  let segments: SplitSegment[] = [];
+  const plural = transactionCount === 1 ? 'transacción' : 'transacciones';
 
-  if (isCouple && currentUserId) {
-    const currentUser = group.members.find((m) => m.user.id === currentUserId);
-    const partner = group.members.find((m) => m.user.id !== currentUserId);
-    userLabel = currentUser?.user.firstName ?? 'Tú';
-    partnerLabel = partner?.user.firstName ?? 'Pareja';
+  if (isPersonal) {
+    // Sin división: 100% tú
+    segments = [{ label: 'Tú', percent: 100, color: '#10B981' }];
   } else if (isCouple) {
-    userLabel = 'Tú';
-    partnerLabel = 'Pareja';
+    const currentMember = group.members.find(
+      (m) => m.user.id === currentUserId,
+    );
+    const partner = group.members.find((m) => m.user.id !== currentUserId);
+
+    // Porcentaje real desde la BD (si falta, default 50/50)
+    const userPercent =
+      currentMember?.splitPercentage != null
+        ? Number(currentMember.splitPercentage)
+        : partner?.splitPercentage != null
+          ? 100 - Number(partner.splitPercentage)
+          : 50;
+    const partnerPercent = Math.max(0, 100 - userPercent);
+
+    segments = [
+      {
+        label: currentMember?.user.firstName ?? 'Tú',
+        percent: userPercent,
+        color: '#006c49',
+      },
+      {
+        label: partner?.user.firstName ?? 'Pareja',
+        percent: partnerPercent,
+        color: '#8B5CF6',
+      },
+    ];
   } else {
-    userLabel = 'Tú';
-    partnerLabel = 'Grupo';
+    // Grupo: equitativo, todos pagan lo mismo
+    const perMember = membersCount > 0 ? 100 / membersCount : 100;
+    const currentMember = group.members.find(
+      (m) => m.user.id === currentUserId,
+    );
+    const othersCount = Math.max(0, membersCount - 1);
+
+    segments = [
+      {
+        label: currentMember?.user.firstName ?? 'Tú',
+        percent: perMember,
+        color: '#006c49',
+      },
+      ...(othersCount > 0
+        ? [
+            {
+              label: `Grupo (${othersCount})`,
+              percent: perMember * othersCount,
+              color: '#8B5CF6',
+            },
+          ]
+        : []),
+    ];
   }
+
+  const fmt = (value: number) =>
+    `$${Math.round(value).toLocaleString('es-CL')}`;
 
   return (
     <Pressable
@@ -91,7 +129,7 @@ export function GroupCard({
                   : group.name}
               </Text>
               <Text className="text-sm text-[#64748B]">
-                {transactionCount} transacciones este mes
+                {transactionCount} {plural} este mes
               </Text>
             </View>
           </View>
@@ -101,39 +139,58 @@ export function GroupCard({
               className="text-lg font-bold text-[#006c49]"
               style={{ fontFamily: 'JetBrains Mono' }}
             >
-              ${total.toLocaleString('es-CL')}
+              {fmt(total)}
             </Text>
             <Text className="text-xs text-[#64748B]">Total</Text>
           </View>
         </View>
 
-        <View className="mt-4">
-          <View className="h-3 flex-row overflow-hidden rounded-full bg-[#ECEEF0]">
-            <View
-              className="h-full rounded-l-full bg-[#006c49]"
-              style={{ width: `${userPercent}%` }}
-            />
-            <View
-              className="h-full rounded-r-full bg-[#8B5CF6]"
-              style={{ width: `${partnerPercent}%` }}
-            />
+        {!isPersonal && (
+          <View className="mt-4">
+            <View className="h-3 flex-row overflow-hidden rounded-full bg-[#ECEEF0]">
+              {segments.map((seg) => (
+                <View
+                  key={seg.label}
+                  className={
+                    seg.percent >= 100 ? 'h-full rounded-full' : 'h-full'
+                  }
+                  style={{
+                    width: `${seg.percent}%`,
+                    backgroundColor: seg.color,
+                  }}
+                />
+              ))}
+            </View>
+            <View className="mt-2 flex-row flex-wrap justify-between gap-y-1">
+              {segments.map((seg) => (
+                <View key={seg.label} className="flex-row items-center gap-1.5">
+                  <View
+                    className="h-2.5 w-2.5 rounded-full"
+                    style={{ backgroundColor: seg.color }}
+                  />
+                  <Text className="text-xs text-[#64748B]">
+                    {seg.label}: {fmt((total * seg.percent) / 100)} (
+                    {Math.round(seg.percent)}%)
+                  </Text>
+                </View>
+              ))}
+            </View>
           </View>
-          <View className="mt-2 flex-row justify-between">
+        )}
+
+        {isPersonal && (
+          <View className="mt-4 flex-row items-center justify-between rounded-lg bg-[#F8FAFC] px-3 py-2.5">
             <View className="flex-row items-center gap-1.5">
-              <View className="h-2.5 w-2.5 rounded-full bg-[#006c49]" />
+              <View className="h-2.5 w-2.5 rounded-full bg-[#10B981]" />
               <Text className="text-xs text-[#64748B]">
-                {userLabel}: ${balances.userAmount.toLocaleString('es-CL')}
+                Tú · 100% (gastos personales)
               </Text>
             </View>
-            <View className="flex-row items-center gap-1.5">
-              <View className="h-2.5 w-2.5 rounded-full bg-[#8B5CF6]" />
-              <Text className="text-xs text-[#64748B]">
-                {partnerLabel}: $
-                {balances.partnerAmount.toLocaleString('es-CL')}
-              </Text>
-            </View>
+            <Text className="text-xs font-semibold text-[#10B981]">
+              {fmt(total)}
+            </Text>
           </View>
-        </View>
+        )}
       </View>
 
       {showMenu && onMenu && (

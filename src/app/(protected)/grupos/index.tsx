@@ -2,7 +2,11 @@ import { useState, useRef, useCallback } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { joinGroup, leaveGroup, regenerateInviteCode } from '@/services/api/groups';
+import {
+  joinGroup,
+  leaveGroup,
+  regenerateInviteCode,
+} from '@/services/api/groups';
 import { HeroSection } from '@/components/layout/HeroSection';
 import { GroupSelector } from '@/components/ui/group-selector';
 import { FloatingAddMenu } from '@/components/dashboard/FloatingAddMenu';
@@ -16,19 +20,23 @@ import { AlertModal } from '@/components/ui/alert-modal';
 import { GroupSection } from '@/components/ui/group-section';
 import { useAuth } from '@/hooks/use-auth';
 import { useGroups } from '@/hooks/use-groups';
+import { useGroupSummaries } from '@/hooks/use-group-summaries';
 import { useWorkspace } from '@/hooks/use-workspace';
 import type { GroupResponse } from '@/types/api';
 
 export default function ParejaScreen() {
   const { user } = useAuth();
-  const { personalGroups, coupleGroups, sharedGroups, refetch } = useGroups();
+  const { groups, personalGroups, coupleGroups, sharedGroups, refetch } =
+    useGroups();
+  const { summaries } = useGroupSummaries(groups);
   const { workspace, setWorkspace } = useWorkspace();
 
   const showPersonal =
     workspace.category === 'all' || workspace.category === 'personal';
   const showCouple =
     workspace.category === 'all' || workspace.category === 'couple';
-  const showGroup = workspace.category === 'all' || workspace.category === 'group';
+  const showGroup =
+    workspace.category === 'all' || workspace.category === 'group';
   const [menuVisible, setMenuVisible] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<GroupResponse | null>(
     null,
@@ -183,6 +191,7 @@ export default function ParejaScreen() {
             <GroupSection
               title="Personal"
               groups={personalGroups}
+              summaries={summaries}
               showMenu
               onPress={(group) => router.push(`/grupos/${group.id}`)}
               onMenu={(group) => {
@@ -197,6 +206,7 @@ export default function ParejaScreen() {
             <GroupSection
               title="Parejas"
               groups={coupleGroups}
+              summaries={summaries}
               showMenu
               onPress={(group) => router.push(`/grupos/${group.id}`)}
               onMenu={(group) => {
@@ -211,6 +221,7 @@ export default function ParejaScreen() {
             <GroupSection
               title="Grupos"
               groups={sharedGroups}
+              summaries={summaries}
               showMenu
               onPress={(group) => router.push(`/grupos/${group.id}`)}
               onMenu={(group) => {

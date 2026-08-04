@@ -3,8 +3,14 @@ import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome6 } from '@expo/vector-icons';
-import { getGroup, leaveGroup, regenerateInviteCode } from '@/services/api/groups';
-import type { GroupResponse, GroupType } from '@/types/api';
+import {
+  getGroup,
+  leaveGroup,
+  regenerateInviteCode,
+} from '@/services/api/groups';
+import { getExpenses } from '@/services/api/expenses';
+import type { GroupResponse, GroupType, ExpenseResponse } from '@/types/api';
+import { useAuth } from '@/hooks/use-auth';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Loading } from '@/components/ui/loading';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -19,38 +25,14 @@ import {
 import { InviteMemberSheet } from '@/components/couple/invite-member-sheet';
 import { AlertModal } from '@/components/ui/alert-modal';
 
-const MOCK_EXPENSES = [
-  {
-    id: '1',
-    name: 'Pizza Hutttt',
-    amount: 80000,
-    paidBy: 'Ana',
-    date: 'Ayer',
-    category: 'ALIMENTACIÓN',
-    icon: 'utensils' as const,
-    iconBg: '#F97316',
-  },
-  {
-    id: '2',
-    name: 'Gasolina',
-    amount: 120000,
-    paidBy: 'Juan',
-    date: 'Hace 2 días',
-    category: 'TRANSPORTE',
-    icon: 'gas-pump' as const,
-    iconBg: '#8B5CF6',
-  },
-  {
-    id: '3',
-    name: 'Mercado',
-    amount: 350000,
-    paidBy: 'Ana',
-    date: 'Hace 3 días',
-    category: 'HOGAR',
-    icon: 'cart-shopping' as const,
-    iconBg: '#3B82F6',
-  },
-] as const;
+const CATEGORY_META: Record<string, { icon: string; color: string }> = {
+  FOOD: { icon: 'utensils', color: '#F97316' },
+  TRANSPORT: { icon: 'gas-pump', color: '#8B5CF6' },
+  RENT: { icon: 'house', color: '#3B82F6' },
+  SERVICES: { icon: 'bolt', color: '#F59E0B' },
+  ENTERTAINMENT: { icon: 'film', color: '#06B6D4' },
+  OTHER: { icon: 'box', color: '#64748B' },
+};
 
 const TYPE_CONFIG: Record<
   GroupType,
@@ -71,12 +53,23 @@ const TYPE_CONFIG: Record<
   GROUP: { label: 'Grupo', color: '#3B82F6', bg: '#EFF6FF', subtitle: '' },
 };
 
+function formatRelativeDate(iso: string): string {
+  const date = new Date(iso);
+  const now = new Date();
+  const diffDays = Math.floor((now.getTime() - date.getTime()) / 86400000);
+  if (diffDays <= 0) return 'Hoy';
+  if (diffDays === 1) return 'Ayer';
+  if (diffDays < 7) return `Hace ${diffDays} días`;
+  return date.toLocaleDateString('es-CL', { day: 'numeric', month: 'short' });
+}
+
 export default function CoupleDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { user } = useAuth();
   const [group, setGroup] = useState<GroupResponse | null>(null);
+  const [expenses, setExpenses] = useState<ExpenseResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showToast, setShowToast] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [inviteVisible, setInviteVisible] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
@@ -112,17 +105,92 @@ export default function CoupleDetail() {
     };
   }, [id]);
 
+  useEffect(() => {
+    let mounted = true;
+    getExpenses({ groupId: id })
+      .then((data) => {
+        if (mounted) setExpenses(data);
+      })
+      .catch(() => {
+        if (mounted) setExpenses([]);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [id]);
+
   const groupType: GroupType = group?.type ?? 'COUPLE';
   const typeConfig = TYPE_CONFIG[groupType];
   const memberCount = group?.members.length ?? 0;
   const subtitle = `${typeConfig.label} · ${groupType === 'PERSONAL' ? 'Solo tú' : groupType === 'COUPLE' ? '2 miembros' : `${memberCount} miembros`}`;
 
-  const handleCopyCode = () => {
-    setShowToast(true);
-    setTimeout(() => {
-      setShowToast(false);
-    }, 2000);
-  };
+  // ── Datos financieros reales ──────────────────────────────────────────
+  const totalExpenses = expenses.reduce((acc, e) => acc + Number(e.amount), 0);
+
+  const totalPaidByMe = expenses
+    .filter((e) => e.paidById === user?.id)
+    .reduce((acc, e) => acc + Number(e.amount), 0);
+
+  const myShare = expenses.reduce((acc, e) => {
+    if (e.splitType === 'PERSONAL') {
+      return e.paidById === user?.id ? acc + Number(e.amount) : acc;
+    }
+    const mySplit = e.splits.find((s) => s.userId === user?.id);
+    if (mySplit) {
+      return acc + (Number(e.amount) * Number(mySplit.percentage)) / 100;
+    }
+    // EQUAL: divide entre los participantes del gasto
+    return acc + Number(e.amount) / Math.max(1, e.splits.length || memberCount);
+  }, 0);
+
+  const netBalance = totalPaidByMe - myShare;
+
+  // ── Distribución según tipo de grupo ──────────────────────────────────
+  let userPercent: number;
+  let partnerPercent: number;
+
+  if (groupType === 'COUPLE') {
+    const currentMember = group?.members.find((m) => m.user.id === user?.id);
+    const partner = group?.members.find((m) => m.user.id !== user?.id);
+    userPercent =
+      currentMember?.splitPercentage != null
+        ? Number(currentMember.splitPercentage)
+        : partner?.splitPercentage != null
+          ? 100 - Number(partner.splitPercentage)
+          : 50;
+    partnerPercent = Math.max(0, 100 - userPercent);
+  } else {
+    // GROUP: equitativo
+    userPercent = memberCount > 0 ? 100 / memberCount : 100;
+    partnerPercent = Math.max(0, 100 - userPercent);
+  }
+
+  const userAmount = Math.round((totalExpenses * userPercent) / 100);
+  const partnerAmount = Math.round((totalExpenses * partnerPercent) / 100);
+
+  const partnerLabel =
+    groupType === 'COUPLE'
+      ? (group?.members.find((m) => m.user.id !== user?.id)?.user.firstName ??
+        'Pareja')
+      : 'Grupo';
+
+  const recentExpenses: RecentExpense[] = expenses.map((e) => {
+    const payer = group?.members.find((m) => m.user.id === e.paidById)?.user;
+    const meta = CATEGORY_META[e.category] ?? CATEGORY_META.OTHER;
+    return {
+      id: e.id,
+      name: e.description,
+      amount: Number(e.amount),
+      paidBy: payer ? `${payer.firstName} ${payer.lastName}`.trim() : 'Miembro',
+      date: formatRelativeDate(e.createdAt),
+      category: e.category,
+      icon: meta.icon,
+      iconBg: meta.color,
+    };
+  });
+
+  const fmt = (value: number) =>
+    `$${Math.round(value).toLocaleString('es-CL')}`;
 
   const handleMenuAction = (action: CoupleMenuAction) => {
     if (action === 'settings') {
@@ -255,10 +323,12 @@ export default function CoupleDetail() {
             </Text>
 
             <Text className="mt-1 text-[34px] font-bold tracking-tighter text-[#006c49]">
-              $2.450.000
+              {fmt(totalExpenses)}
             </Text>
             <Text className="mt-1 text-sm text-[#64748B]">
-              Gasto consolidado del periodo actual
+              {expenses.length === 0
+                ? 'Sin gastos registrados este periodo'
+                : 'Gasto consolidado del periodo actual'}
             </Text>
 
             <View className="mt-5 flex-row flex-wrap gap-3">
@@ -294,7 +364,12 @@ export default function CoupleDetail() {
               className="rounded-xl border border-[#E2E8F0] bg-white p-4"
               style={{
                 borderLeftWidth: 4,
-                borderLeftColor: '#F59E0B',
+                borderLeftColor:
+                  netBalance > 0
+                    ? '#F59E0B'
+                    : netBalance < 0
+                      ? '#EF4444'
+                      : '#10B981',
                 shadowColor: '#0F172A',
                 shadowOffset: { width: 0, height: 4 },
                 shadowOpacity: 0.05,
@@ -304,19 +379,41 @@ export default function CoupleDetail() {
             >
               <View className="flex-row items-center justify-between">
                 <View className="shrink flex-row items-center gap-3">
-                  <View className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F59E0B]/10">
+                  <View
+                    className={`flex h-12 w-12 items-center justify-center rounded-full ${
+                      netBalance > 0
+                        ? 'bg-[#F59E0B]/10'
+                        : netBalance < 0
+                          ? 'bg-[#EF4444]/10'
+                          : 'bg-[#10B981]/10'
+                    }`}
+                  >
                     <FontAwesome6
                       name="hand-holding-dollar"
                       size={20}
-                      color="#F59E0B"
+                      color={
+                        netBalance > 0
+                          ? '#F59E0B'
+                          : netBalance < 0
+                            ? '#EF4444'
+                            : '#10B981'
+                      }
                     />
                   </View>
                   <View className="shrink">
                     <Text className="text-[17px] font-bold text-[#0F172A]">
-                      Pendiente de liquidar
+                      {netBalance > 0
+                        ? 'Pendiente de liquidar'
+                        : netBalance < 0
+                          ? 'Debes dinero'
+                          : 'Saldado'}
                     </Text>
                     <Text className="text-sm text-[#64748B]">
-                      Balance pendiente de este mes
+                      {netBalance > 0
+                        ? `Te deben ${fmt(netBalance)}`
+                        : netBalance < 0
+                          ? `Debes ${fmt(Math.abs(netBalance))}`
+                          : 'No hay deudas pendientes'}
                     </Text>
                   </View>
                 </View>
@@ -352,15 +449,19 @@ export default function CoupleDetail() {
               <View className="mt-4 h-8 flex-row overflow-hidden rounded-full bg-[#ECEEF0]">
                 <View
                   className="h-full items-center justify-center bg-[#006c49]"
-                  style={{ width: '70%' }}
+                  style={{ width: `${userPercent}%` }}
                 >
-                  <Text className="text-xs font-bold text-white">70%</Text>
+                  <Text className="text-xs font-bold text-white">
+                    {Math.round(userPercent)}%
+                  </Text>
                 </View>
                 <View
                   className="h-full items-center justify-center bg-[#8B5CF6]"
-                  style={{ width: '30%' }}
+                  style={{ width: `${partnerPercent}%` }}
                 >
-                  <Text className="text-xs font-bold text-white">30%</Text>
+                  <Text className="text-xs font-bold text-white">
+                    {Math.round(partnerPercent)}%
+                  </Text>
                 </View>
               </View>
 
@@ -368,31 +469,29 @@ export default function CoupleDetail() {
                 <View className="flex-row items-center justify-between rounded-lg p-3">
                   <View className="flex-row items-center gap-2">
                     <View className="h-3 w-3 rounded-full bg-[#006c49]" />
-                    <Text className="text-[#0F172A]">Tú</Text>
+                    <Text className="text-[#0F172A]">
+                      {group?.members.find((m) => m.user.id === user?.id)?.user
+                        .firstName ?? 'Tú'}
+                    </Text>
                   </View>
                   <Text
                     className="font-bold text-[#006c49]"
                     style={{ fontFamily: 'monospace' }}
                   >
-                    $1.200.000
+                    {fmt(userAmount)}
                   </Text>
                 </View>
 
                 <View className="flex-row items-center justify-between rounded-lg p-3">
                   <View className="flex-row items-center gap-2">
                     <View className="h-3 w-3 rounded-full bg-[#8B5CF6]" />
-                    <Text className="text-[#0F172A]">
-                      {groupType === 'COUPLE' && group.members.length >= 2
-                        ? (group.members.find((m) => m.role !== 'OWNER')?.user
-                            .firstName ?? 'Miembro')
-                        : 'Grupo'}
-                    </Text>
+                    <Text className="text-[#0F172A]">{partnerLabel}</Text>
                   </View>
                   <Text
                     className="font-bold text-[#8B5CF6]"
                     style={{ fontFamily: 'monospace' }}
                   >
-                    $800.000
+                    {fmt(partnerAmount)}
                   </Text>
                 </View>
               </View>
@@ -415,8 +514,11 @@ export default function CoupleDetail() {
         {/* Gastos Recientes - List Card */}
         <View className="mt-4 px-5">
           <RecentExpensesCard
-            expenses={MOCK_EXPENSES as unknown as RecentExpense[]}
+            expenses={recentExpenses}
             onViewAll={() => router.push(`/grupos/${id}/gastos`)}
+            onExpensePress={(expense) =>
+              router.push(`/gastos/detalle/${expense.id}`)
+            }
           />
         </View>
 
@@ -440,27 +542,6 @@ export default function CoupleDetail() {
             </View>
           </Pressable>
         </View>
-
-        {/* Toast feedback */}
-        {showToast && (
-          <View className="pointer-events-none absolute bottom-8 left-0 right-0 z-50 items-center">
-            <View
-              className="flex-row items-center gap-2 rounded-full bg-[#2D3133] px-6 py-3"
-              style={{
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.15,
-                shadowRadius: 12,
-                elevation: 8,
-              }}
-            >
-              <FontAwesome6 name="circle-check" size={16} color="#22C55E" />
-              <Text className="text-sm font-medium text-[#EFF1F3]">
-                Copiado al portapapeles
-              </Text>
-            </View>
-          </View>
-        )}
       </ScrollView>
 
       <CoupleMenuSheet

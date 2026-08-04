@@ -1,12 +1,14 @@
 import { View, Text, ScrollView, Dimensions } from 'react-native';
 import type { GroupResponse } from '@/types/api';
 import { GroupCard } from './group-card';
+import type { GroupSummary } from '@/hooks/use-group-summaries';
 
 const CARD_WIDTH = Dimensions.get('window').width * 0.82;
 
 interface GroupSectionProps {
   title: string;
   groups: GroupResponse[];
+  summaries?: Record<string, GroupSummary>;
   horizontal?: boolean;
   showMenu?: boolean;
   onPress?: (group: GroupResponse) => void;
@@ -17,6 +19,7 @@ interface GroupSectionProps {
 export function GroupSection({
   title,
   groups,
+  summaries,
   horizontal = false,
   showMenu = false,
   onPress,
@@ -43,6 +46,7 @@ export function GroupSection({
               <View key={group.id} style={{ width: CARD_WIDTH }}>
                 <GroupCard
                   group={group}
+                  summary={summaries?.[group.id]}
                   showMenu={showMenu}
                   onPress={() => onPress?.(group)}
                   onMenu={() => onMenu?.(group)}
@@ -57,6 +61,7 @@ export function GroupSection({
               <GroupCard
                 key={group.id}
                 group={group}
+                summary={summaries?.[group.id]}
                 showMenu={showMenu}
                 onPress={() => onPress?.(group)}
                 onMenu={() => onMenu?.(group)}
