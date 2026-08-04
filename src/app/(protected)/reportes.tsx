@@ -113,7 +113,7 @@ export default function ReportesScreen() {
         />
 
         {/* Filtro de período + categoría (estilo Movimientos) */}
-        <View className="flex-row items-center justify-between px-5 pt-5">
+        <View className="flex-row items-center justify-between px-5 pt-7">
           <View className="flex-1 pr-3">
             <Text className="text-sm font-semibold text-[#0F172A]">
               Análisis de{' '}

@@ -7,6 +7,7 @@ export default function PerfilLayout() {
       <Stack.Screen name="editar" />
       <Stack.Screen name="notificaciones" />
       <Stack.Screen name="seguridad" />
+      <Stack.Screen name="acerca" />
     </Stack>
   );
 }

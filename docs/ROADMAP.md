@@ -119,18 +119,18 @@ Para cada usuario en un grupo:
 - [❌] **Backend**: `GET /balances` y `GET /groups/:id/balance` devuelven agregación correcta
 - [❌] **Frontend API**: `src/services/api/balances.ts` — servicio para balances
 - [❌] **Frontend API**: `src/services/api/dashboard.ts` — servicio para dashboard summary
-- [❌] **Dashboard Screen**: Reemplazar `MOCK_BALANCE`, `MOCK_TRANSACTIONS`, `MOCK_TOP_CATEGORY`, `MOCK_PARTNER_BALANCE` con datos reales
+- [✅] **Dashboard Screen**: Conectado — balance neto por workspace, transacciones del mes, top categoría y aportes reales (useDashboardData); sin mocks
 - [✅] **Group Detail**: Conectado — total real via `getExpenses`, barra de distribución (COUPLE splitPercentage de BD / GROUP equitativo / PERSONAL oculta), settlement card (Te deben / Debes / Saldado), gastos clickeables
 - [❌] **MemberBalance Component**: Conectar a datos reales (ya existe UI)
-- [❌] **RecentTransactions**: Conectar a expenses reales del usuario
+- [✅] **RecentExpensesCard** (Dashboard + Gastos): conectado a expenses reales, navegación al detalle, truncamiento de texto
 - [❌] **TopCategory**: Conectar a agregación real por categoría
 - [✅] **Reports Screen**: Conectado via `useReportsData` (bar por categoría, donut por miembro, comparación vs período anterior) + filtro de período estilo Movimientos (FilterSheet showCategory=false)
 
 ### Criterios de done Sprint 3
-- [❌] Dashboard muestra balance real: "Te deben $X" / "Debes $X" / "Saldado" (falta conectar Dashboard)
+- [✅] Dashboard muestra balance real: "Te deben $X" / "Debes $X" / "Saldado"
 - [✅] Group Detail muestra hero financiero con totales reales
 - [✅] Reports muestran datos reales del período seleccionado
-- [🔄] No queda mock data en Dashboard, Group Detail, Reports — solo queda Dashboard
+- [✅] No queda mock data en Dashboard, Group Detail, Reports
 
 ---
 
@@ -217,7 +217,7 @@ Settlements history muestra: "Emerson pagó $70.000 a Andrea el 15/01"
 ```
 Sprint 1  ████████████████████████████  (Expenses CRUD + conectar API real — completo)
 Sprint 2  ██████████░░░░░░░░░░░░░░░░░  (Shares persistidos en BD; falta Split Picker N-way)
-Sprint 3  ████████████░░░░░░░░░░░░░░░  (Group Detail + Reports reales; falta Dashboard)
+Sprint 3  ████████████████████████████  (Balance Engine + Dashboard real — completo)
 Sprint 4  ░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Settlements + Payments)
 v1.0      ░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Polish: receipts, dark mode, i18n, offline, deploy)
 v2.0      ░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Multi-actor: Personal/Pareja/Grupo)

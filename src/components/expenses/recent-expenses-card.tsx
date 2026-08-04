@@ -58,9 +58,9 @@ export function RecentExpensesCard({
           onPress={() => onExpensePress?.(expense)}
           className={`flex-row items-center justify-between px-5 py-4 ${index > 0 ? 'border-t border-[#E2E8F0]' : ''}`}
         >
-          <View className="flex-row items-center gap-4">
+          <View className="min-w-0 flex-1 flex-row items-center gap-4">
             <View
-              className="flex h-10 w-10 items-center justify-center rounded-full"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
               style={{ backgroundColor: `${expense.iconBg}1A` }}
             >
               <FontAwesome6
@@ -69,16 +69,24 @@ export function RecentExpensesCard({
                 color={expense.iconBg}
               />
             </View>
-            <View>
-              <Text className="font-semibold text-[#0F172A]">
+            <View className="min-w-0 flex-1">
+              <Text
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                className="font-semibold text-[#0F172A]"
+              >
                 {expense.name}
               </Text>
-              <Text className="text-xs text-[#64748B]">
+              <Text
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                className="text-xs text-[#64748B]"
+              >
                 {expense.date} • Pagado por {expense.paidBy}
               </Text>
             </View>
           </View>
-          <View className="items-end">
+          <View className="ml-3 shrink-0 items-end">
             <Text
               className="font-bold text-[#0F172A]"
               style={{ fontFamily: 'monospace' }}

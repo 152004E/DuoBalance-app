@@ -10,6 +10,7 @@ import {
 } from '@/services/api/groups';
 import { getExpenses } from '@/services/api/expenses';
 import { getCategoryMeta } from '@/constants/categories';
+import { formatRelativeDate } from '@/utils/date';
 import type { GroupResponse, GroupType, ExpenseResponse } from '@/types/api';
 import { useAuth } from '@/hooks/use-auth';
 import { ScreenHeader } from '@/components/ui/screen-header';
@@ -44,16 +45,6 @@ const TYPE_CONFIG: Record<
   },
   GROUP: { label: 'Grupo', color: '#3B82F6', bg: '#EFF6FF', subtitle: '' },
 };
-
-function formatRelativeDate(iso: string): string {
-  const date = new Date(iso);
-  const now = new Date();
-  const diffDays = Math.floor((now.getTime() - date.getTime()) / 86400000);
-  if (diffDays <= 0) return 'Hoy';
-  if (diffDays === 1) return 'Ayer';
-  if (diffDays < 7) return `Hace ${diffDays} días`;
-  return date.toLocaleDateString('es-CL', { day: 'numeric', month: 'short' });
-}
 
 export default function CoupleDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -173,7 +164,7 @@ export default function CoupleDetail() {
       id: e.id,
       name: e.description,
       amount: Number(e.amount),
-      paidBy: payer ? `${payer.firstName} ${payer.lastName}`.trim() : 'Miembro',
+      paidBy: payer ? payer.firstName : 'Miembro',
       date: formatRelativeDate(e.createdAt),
       category: e.category,
       icon: meta.icon,

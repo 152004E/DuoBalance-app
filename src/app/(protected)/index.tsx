@@ -4,85 +4,58 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useScrollToTop, router } from 'expo-router';
 import { useAuth } from '@/hooks/use-auth';
 import { useGroups } from '@/hooks/use-groups';
+import { useGroupSummaries } from '@/hooks/use-group-summaries';
+import { useDashboardData } from '@/hooks/use-dashboard-data';
 import { HeroSection } from '@/components/layout/HeroSection';
 import { GroupSelector } from '@/components/ui/group-selector';
 import { GroupSection } from '@/components/ui/group-section';
-import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
+import { Loading } from '@/components/ui/loading';
+import {
+  RecentExpensesCard,
+  type RecentExpense,
+} from '@/components/expenses/recent-expenses-card';
 import { TopCategory } from '@/components/dashboard/TopCategory';
 import { PartnerBalance } from '@/components/dashboard/PartnerBalance';
 import { FloatingAddButton } from '@/components/dashboard/FloatingAddButton';
 import { useWorkspace } from '@/hooks/use-workspace';
 
-const MOCK_BALANCE = {
-  amount: 185000,
-  partnerShare: 50000,
-  direction: 'I_OWE' as const,
-};
-
-const MOCK_TRANSACTIONS = [
-  {
-    id: '1',
-    description: 'Netflix',
-    paidBy: 'Andrea',
-    amount: 50000,
-    date: 'Hoy, 14:30',
-    category: 'ENTERTAINMENT',
-    status: 'pending' as const,
-  },
-  {
-    id: '2',
-    description: 'Mercado Libre',
-    paidBy: 'Emerson',
-    amount: 25000,
-    date: 'Ayer, 09:15',
-    category: 'OTHER',
-    status: 'paid' as const,
-  },
-  {
-    id: '3',
-    description: 'Cena',
-    paidBy: 'Andrea',
-    amount: 35000,
-    date: '27 Jun, 20:00',
-    category: 'FOOD',
-    status: 'paid' as const,
-  },
-];
-
-const MOCK_TOP_CATEGORY = {
-  category: 'Comida',
-  amount: 180000,
-  percentage: 35,
-  icon: 'utensils',
-  color: '#F97316',
-};
-
-const MOCK_PARTNER_BALANCE = {
-  userName: 'Emerson',
-  partnerName: 'Andrea',
-  userAmount: 250000,
-  partnerAmount: 300000,
-};
-
 export default function DashboardScreen() {
   const { user } = useAuth();
-  const { personalGroups, coupleGroups, sharedGroups } = useGroups();
+  const { groups, personalGroups, coupleGroups, sharedGroups } = useGroups();
   const { workspace, setWorkspace } = useWorkspace();
+  const { summaries } = useGroupSummaries(groups);
+  const {
+    isLoading,
+    hasData,
+    balance,
+    partnerShare,
+    direction,
+    transactions,
+    topCategory,
+    memberSplit,
+    refetch,
+  } = useDashboardData(workspace, groups, user?.id);
   const [focusCount, setFocusCount] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
-
   const showPersonal =
     workspace.category === 'all' || workspace.category === 'personal';
   const showCouple =
     workspace.category === 'all' || workspace.category === 'couple';
-  const showGroup = workspace.category === 'all' || workspace.category === 'group';
+  const showGroup =
+    workspace.category === 'all' || workspace.category === 'group';
+
+  // "Aportes del mes" solo aplica a parejas y grupos (comparación de quién pagó)
+  const isPersonalMode =
+    workspace.category === 'personal' ||
+    (!!workspace.groupId &&
+      groups.find((g) => g.id === workspace.groupId)?.type === 'PERSONAL');
 
   useFocusEffect(
     useCallback(() => {
       setFocusCount((c) => c + 1);
-      console.log('[Dashboard] Sesión activa, token vigente');
-    }, []),
+      refetch();
+    }, [refetch]),
   );
 
   return (
@@ -97,9 +70,9 @@ export default function DashboardScreen() {
           key={focusCount}
           userName={user?.firstName ?? 'Usuario'}
           variant="dashboard"
-          balance={MOCK_BALANCE.amount}
-          partnerShare={MOCK_BALANCE.partnerShare}
-          direction={MOCK_BALANCE.direction}
+          balance={isLoading ? 0 : balance}
+          partnerShare={partnerShare}
+          direction={direction}
           rightAction={
             <GroupSelector
               value={workspace}
@@ -121,6 +94,7 @@ export default function DashboardScreen() {
             <GroupSection
               title="Personal"
               groups={personalGroups}
+              summaries={summaries}
               horizontal
               onPress={(group) => router.push(`/grupos/${group.id}`)}
               currentUserId={user?.id}
@@ -131,6 +105,7 @@ export default function DashboardScreen() {
             <GroupSection
               title="Parejas"
               groups={coupleGroups}
+              summaries={summaries}
               horizontal
               onPress={(group) => router.push(`/grupos/${group.id}`)}
               currentUserId={user?.id}
@@ -141,6 +116,7 @@ export default function DashboardScreen() {
             <GroupSection
               title="Grupos"
               groups={sharedGroups}
+              summaries={summaries}
               horizontal
               onPress={(group) => router.push(`/grupos/${group.id}`)}
               currentUserId={user?.id}
@@ -149,20 +125,47 @@ export default function DashboardScreen() {
         </View>
 
         <View className="mt-6 space-y-6 px-5">
-          <RecentTransactions transactions={MOCK_TRANSACTIONS} />
-          <TopCategory
-            category={MOCK_TOP_CATEGORY.category}
-            amount={MOCK_TOP_CATEGORY.amount}
-            percentage={MOCK_TOP_CATEGORY.percentage}
-            icon={MOCK_TOP_CATEGORY.icon}
-            color={MOCK_TOP_CATEGORY.color}
-          />
-          <PartnerBalance
-            userName={MOCK_PARTNER_BALANCE.userName}
-            partnerName={MOCK_PARTNER_BALANCE.partnerName}
-            userAmount={MOCK_PARTNER_BALANCE.userAmount}
-            partnerAmount={MOCK_PARTNER_BALANCE.partnerAmount}
-          />
+          {isLoading ? (
+            <Loading message="Cargando tu actividad..." />
+          ) : !hasData ? (
+            <View className="items-center rounded-xl border border-dashed border-[#E2E8F0] bg-white px-6 py-10">
+              <Text className="text-center text-base font-semibold text-[#0F172A]">
+                Sin gastos este mes
+              </Text>
+              <Text className="mt-1 text-center text-sm text-[#64748B]">
+                Registra tu primer gasto para ver tu resumen aquí.
+              </Text>
+            </View>
+          ) : (
+            <>
+              <RecentExpensesCard
+                expenses={transactions}
+                maxItems={5}
+                onViewAll={() => router.push('/gastos/Movimientos')}
+                onExpensePress={(expense: RecentExpense) =>
+                  router.push(`/gastos/detalle/${expense.id}`)
+                }
+              />
+              {topCategory && (
+                <TopCategory
+                  category={topCategory.category}
+                  amount={topCategory.amount}
+                  percentage={topCategory.percentage}
+                  icon={topCategory.icon}
+                  color={topCategory.color}
+                />
+              )}
+              {!isPersonalMode && (
+                <PartnerBalance
+                  userName={memberSplit.userName}
+                  partnerName={memberSplit.partnerName}
+                  userAmount={memberSplit.userAmount}
+                  partnerAmount={memberSplit.partnerAmount}
+                  title="Aportes del mes"
+                />
+              )}
+            </>
+          )}
         </View>
       </ScrollView>
 

@@ -15,7 +15,7 @@
 
 ## Current State
 
-The mobile app has its auth flow fully implemented, a growing set of reusable UI components, group management connected to the API, expense CRUD conectado a datos reales, group detail y reportes con datos reales (workspace global compartido), y custom layout components. El Dashboard (`(protected)/index.tsx`) aún consume MOCK_DATA en balance/transacciones/categorías.
+The mobile app has its auth flow fully implemented, a growing set of reusable UI components, group management connected to the API, expense CRUD conectado a datos reales, y todas las pantallas (Dashboard, Group Detail, Reportes, Gastos) con datos reales (workspace global compartido).
 
 ```
 DuoBalance-app/
@@ -30,7 +30,7 @@ DuoBalance-app/
 │   │   │   └── forgot-password.tsx  Forgot password screen (UI complete)
 │   │   └── (protected)/             Protected group (authenticated routes)
 │   │       ├── _layout.tsx          Protected layout (auth guard + BottomTab)
-│   │       ├── index.tsx            Dashboard screen (groups via useGroups; balance/transactions aún mock)
+│   │       ├── index.tsx            Dashboard screen (datos reales via useDashboardData, sin mocks)
 │   │       ├── reportes.tsx         Reports screen (datos reales + filtro de período estilo Movimientos)
 │   │       ├── perfil.tsx           Profile screen (avatar, user info, menu options, logout)
 │   │       ├── perfil/              Profile sub-routes
@@ -100,7 +100,7 @@ DuoBalance-app/
 │   │   └── dashboard/               Dashboard-specific components
 │   │       ├── BalanceCard.tsx      Balance summary (income/expenses/net)
 │   │       ├── PartnerBalance.tsx   Partner balance card (owed/to whom)
-│   │       ├── RecentTransactions.tsx  Transaction list with pull-to-refresh
+│   │       ├── RecentExpensesCard.tsx (expenses/)  Gastos recientes + navegación al detalle (trunca textos largos)
 │   │       ├── FloatingAddButton.tsx   Simple floating action button with shadow (used in Dashboard)
 │   │       ├── FloatingAddMenu.tsx    FAB + bottom sheet with create/join couple actions and sub-sheets (used in Couple screen)
 │   │       ├── TopCategory.tsx      Top spending category card
@@ -142,7 +142,8 @@ DuoBalance-app/
 │   │   ├── use-groups.ts            Groups loader from API, classifies by type (PERSONAL/COUPLE/GROUP)
 │   │   ├── use-workspace.ts         useWorkspace hook (workspace global compartido)
 │   │   ├── use-group-summaries.ts   Resumen real por grupo (count + total del mes)
-│   │   └── use-reports-data.ts      Datos de Reportes agregados por categoría/miembro + período
+│   │   ├── use-reports-data.ts      Datos de Reportes agregados por categoría/miembro + período
+│   │   └── use-dashboard-data.ts    Datos del Dashboard por workspace (balance, transacciones, top categoría, aportes)
 │   │
 │   ├── types/
 │   │   ├── api.ts                   All backend DTOs and response types
@@ -155,7 +156,10 @@ DuoBalance-app/
 │   │   └── categories.ts            Catálogo central de categorías (label/emoji/icono/color) + getCategoryMeta
 │   │
 │   ├── context/                     Context providers (empty — AuthContext lives in features/auth/)
-│   ├── utils/                       Utilities (empty, ready)
+│   ├── utils/
+│   │   ├── event-emitter.ts         Event emitter
+│   │   ├── jwt.ts                   JWT helpers
+│   │   └── date.ts                  formatRelativeDate (Hoy/Ayer/Hace N días)
 │   └── global.css                   Tailwind directives
 │
 ├── .opencode/
@@ -198,8 +202,8 @@ App (Expo Router)
 └── (protected) — Authenticated (redirects to /login if no user)
     │   Bottom Tab: Inicio | Gastos | Pareja | Reportes | Perfil
     ├── /inicio (index)
-    │       └── Dashboard (HeroSection, GroupSection, MemberBalance,
-    │                          RecentTransactions, TopCategory, FloatingAddButton)
+    │       └── Dashboard (HeroSection, GroupSection,
+    │                          RecentExpensesCard, TopCategory, Aportes del mes, FloatingAddButton)
     ├── /gastos
     │   ├── /gastos (index) — Gastos (hero + Últimos Movimientos con load-more)
     │   ├── /gastos/Movimientos — Lista completa con filtros (FilterSheet: período/categoría + buscador)

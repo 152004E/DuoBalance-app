@@ -6,6 +6,7 @@ interface PartnerBalanceProps {
   partnerName: string;
   userAmount: number;
   partnerAmount: number;
+  title?: string;
 }
 
 export function PartnerBalance({
@@ -13,6 +14,7 @@ export function PartnerBalance({
   partnerName,
   userAmount,
   partnerAmount,
+  title = 'Balance por Pareja',
 }: PartnerBalanceProps) {
   const total = userAmount + partnerAmount;
   const userPercent = total > 0 ? Math.round((userAmount / total) * 100) : 50;
@@ -22,9 +24,7 @@ export function PartnerBalance({
 
   return (
     <View className="rounded-xl border border-[#E2E8F0] bg-white p-4 shadow-sm">
-      <Text className="mb-4 text-base font-bold text-[#0F172A]">
-        Balance por Pareja
-      </Text>
+      <Text className="mb-4 text-base font-bold text-[#0F172A]">{title}</Text>
 
       <View className="mb-1 flex-row items-center gap-2">
         <View className="h-8 w-8 items-center justify-center rounded-full bg-[#10B981]/10">

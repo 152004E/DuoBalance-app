@@ -92,7 +92,7 @@ Cada nivel depende estrictamente del anterior. No se puede calcular balance sin 
 | Login | `(auth)/login.tsx` | ✅ |
 | Register | `(auth)/register.tsx` | ✅ |
 | Forgot Password | `(auth)/forgot-password.tsx` | 🔄 UI lista, backend pendiente |
-| Dashboard | `(protected)/index.tsx` | 🔄 UI lista, mocks (balance/transactions/categories) |
+| Dashboard | `(protected)/index.tsx` | ✅ (datos reales via useDashboardData: balance, transacciones, top categoría, aportes; sin mocks) |
 | Gastos (lista) | `(protected)/gastos/index.tsx` | ✅ (API connected via getExpenses, load-more) |
 | Movimientos | `(protected)/gastos/Movimientos.tsx` | ✅ (lista filtrada: FilterSheet período/categoría + buscador) |
 | Add Expense | `(protected)/gastos/add.tsx` | ✅ (standalone form) |
@@ -276,13 +276,13 @@ Para cada usuario en un grupo:
 - [❌] `src/services/api/dashboard.ts` — getDashboard
 
 ### Pantallas a conectar con API real
-- [❌] **Dashboard** (`index.tsx`) — reemplazar MOCK_BALANCE, MOCK_TRANSACTIONS, MOCK_TOP_CATEGORY, MOCK_PARTNER_BALANCE (sigue pendiente)
+- [✅] **Dashboard** (`index.tsx`) — conectado via `useDashboardData` (balance neto por workspace, transacciones del mes, top categoría, aportes Tú vs resto) + `useGroupSummaries` en las cards
 - [✅] **Group Detail** (`grupos/[id].tsx`) — conectado: total real via `getExpenses`, barra de distribución según tipo (COUPLE splitPercentage / GROUP equitativo / PERSONAL oculto), settlement card (Te deben / Debes / Saldado), gastos recientes clickeables
 - [✅] **Reports** (`reportes.tsx`) — conectado via `useReportsData` (agregación por categoría y por miembro, comparación vs período anterior) + filtro de período (Este mes / Últimos 3 meses / Este año / Todo)
 
 ### Componentes a conectar
 - [❌] **MemberBalance** component — conectar a balance real
-- [❌] **RecentTransactions** — conectar a expenses reales del usuario
+- [✅] **RecentExpensesCard** (Dashboard + Gastos) — conectado a expenses reales, con navegación al detalle y truncamiento de textos largos
 - [❌] **TopCategory** — conectar a agregación real por categoría
 - [❌] **DonutChart / BarChart** — alimentar con datos reales
 
