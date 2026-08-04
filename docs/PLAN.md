@@ -93,14 +93,15 @@ Cada nivel depende estrictamente del anterior. No se puede calcular balance sin 
 | Register | `(auth)/register.tsx` | ✅ |
 | Forgot Password | `(auth)/forgot-password.tsx` | 🔄 UI lista, backend pendiente |
 | Dashboard | `(protected)/index.tsx` | 🔄 UI lista, mocks (balance/transactions/categories) |
-| Gastos (lista) | `(protected)/gastos/index.tsx` | ✅ (API connected via getExpenses, filtros) |
+| Gastos (lista) | `(protected)/gastos/index.tsx` | ✅ (API connected via getExpenses, load-more) |
+| Movimientos | `(protected)/gastos/Movimientos.tsx` | ✅ (lista filtrada: FilterSheet período/categoría + buscador) |
 | Add Expense | `(protected)/gastos/add.tsx` | ✅ (standalone form) |
 | Expense Detail | `(protected)/gastos/detalle/[id].tsx` | ✅ (API connected: getExpense, updateExpense, deleteExpense; menú Editar/Eliminar funcional) |
 | Group List | `(protected)/grupos/index.tsx` | ✅ (API connected via useGroups) |
-| Group Detail | `(protected)/grupos/[id].tsx` | 🔄 UI + API group, MOCK_EXPENSES pendiente |
+| Group Detail | `(protected)/grupos/[id].tsx` | ✅ (datos reales: total, distribución, settlement, gastos clickeables; salir/regenerar con alertas) |
 | Join Group | `(protected)/grupos/join.tsx` | ✅ (JoinGroupSheet, API connected) |
 | Group Expenses | `(protected)/grupos/[id]/gastos.tsx` | ✅ (API connected: getExpenses, createExpense) |
-| Reports | `(protected)/reportes.tsx` | 🔄 UI lista, mock data (BAR_DATA, DONUT_DATA) |
+| Reports | `(protected)/reportes.tsx` | ✅ (datos reales via useReportsData + filtro de período estilo Movimientos) |
 | Perfil | `(protected)/perfil.tsx` | ✅ |
 | Editar Perfil | `(protected)/perfil/editar.tsx` | ✅ (API connected, ImagePicker) |
 | Seguridad / Change Password | `(protected)/perfil/seguridad.tsx` | ✅ (validation, API, AlertModal) |
@@ -153,13 +154,16 @@ En esta fase **aún no se muestra quién le debe a quién** (eso es Sprint 3). S
 ## ✅ Groups (API connected)
 - [✅] Group list screen (GroupCard, FloatingAddMenu, JoinGroupSheet, InviteMemberSheet)
 - [✅] Create group (`CreateCoupleSheet` con type selector, API connected)
-- [✅] Group detail screen (financial hero, settlement status, distribution, expenses)
+- [✅] Group detail screen (financial hero, settlement status, distribution, expenses — todo con datos reales)
 - [✅] Group settings screen (name, split %, members, invite code, regenerate, danger zone)
 - [✅] JoinGroupSheet (invite code entry + QR placeholder)
-- [✅] Per-group expense list (`grupos/[id]/gastos.tsx`)
+- [✅] Per-group expense list (`grupos/[id]/gastos.tsx` → redirige a Movimientos)
 - [✅] useGroups() hook (loads from API, classifies by type, refetch)
+- [✅] useGroupSummaries() hook (count + total del mes por grupo, en paralelo)
+- [✅] Workspace global (`useWorkspace` + `WorkspaceProvider`) — contexto compartido por todas las pantallas
 - [✅] GroupCard component
 - [✅] groups.ts API service (full CRUD)
+- [✅] Salir de grupo con alertas de éxito/error (AlertModal)
 
 ## 🔄 Expenses CRUD — Estado actual
 - [✅] **Expense List** (`gastos/index.tsx`) — usa `getExpenses`, filtros por grupo/periodo/categoría funcionales
@@ -272,9 +276,9 @@ Para cada usuario en un grupo:
 - [❌] `src/services/api/dashboard.ts` — getDashboard
 
 ### Pantallas a conectar con API real
-- [❌] **Dashboard** (`index.tsx`) — reemplazar MOCK_BALANCE, MOCK_TRANSACTIONS, MOCK_TOP_CATEGORY, MOCK_PARTNER_BALANCE
-- [❌] **Group Detail** (`grupos/[id].tsx`) — reemplazar MOCK_EXPENSES con expenses reales + balance real del grupo
-- [❌] **Reports** (`reportes.tsx`) — reemplazar BAR_DATA y DONUT_DATA con agregaciones reales
+- [❌] **Dashboard** (`index.tsx`) — reemplazar MOCK_BALANCE, MOCK_TRANSACTIONS, MOCK_TOP_CATEGORY, MOCK_PARTNER_BALANCE (sigue pendiente)
+- [✅] **Group Detail** (`grupos/[id].tsx`) — conectado: total real via `getExpenses`, barra de distribución según tipo (COUPLE splitPercentage / GROUP equitativo / PERSONAL oculto), settlement card (Te deben / Debes / Saldado), gastos recientes clickeables
+- [✅] **Reports** (`reportes.tsx`) — conectado via `useReportsData` (agregación por categoría y por miembro, comparación vs período anterior) + filtro de período (Este mes / Últimos 3 meses / Este año / Todo)
 
 ### Componentes a conectar
 - [❌] **MemberBalance** component — conectar a balance real

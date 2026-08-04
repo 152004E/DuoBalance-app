@@ -15,7 +15,7 @@
 
 ## Current State
 
-The mobile app has its auth flow fully implemented, a growing set of reusable UI components, dashboard/couple/reports screens, group management connected to the API, expense detail components, and custom layout components.
+The mobile app has its auth flow fully implemented, a growing set of reusable UI components, group management connected to the API, expense CRUD conectado a datos reales, group detail y reportes con datos reales (workspace global compartido), y custom layout components. El Dashboard (`(protected)/index.tsx`) aún consume MOCK_DATA en balance/transacciones/categorías.
 
 ```
 DuoBalance-app/
@@ -30,15 +30,16 @@ DuoBalance-app/
 │   │   │   └── forgot-password.tsx  Forgot password screen (UI complete)
 │   │   └── (protected)/             Protected group (authenticated routes)
 │   │       ├── _layout.tsx          Protected layout (auth guard + BottomTab)
-│   │       ├── index.tsx            Dashboard screen (groups from API via useGroups, mock balance/transactions)
-│   │       ├── reportes.tsx         Reports screen (mock data: bar chart, donut chart, stats cards)
+│   │       ├── index.tsx            Dashboard screen (groups via useGroups; balance/transactions aún mock)
+│   │       ├── reportes.tsx         Reports screen (datos reales + filtro de período estilo Movimientos)
 │   │       ├── perfil.tsx           Profile screen (avatar, user info, menu options, logout)
 │   │       ├── perfil/              Profile sub-routes
 │   │       │   ├── editar.tsx       Edit profile (name, email, avatar upload)
 │   │       │   └── seguridad.tsx    Security/change password (validation, API, AlertModal)
 │   │       ├── gastos/              Expense routes (directory-based)
 │   │       │   ├── _layout.tsx      Gastos Stack navigator
-│   │       │   ├── index.tsx        Expense list with filters
+│   │       │   ├── index.tsx        Gastos screen (hero + Últimos Movimientos con load-more)
+│   │       │   ├── Movimientos.tsx  Movimientos list (FilterSheet: período + categoría + buscador + workspace)
 │   │       │   ├── add.tsx          Add expense form
 │   │       │   └── detalle/
 │   │       │       └── [id].tsx     Expense detail (hero, info, participants, split, receipt, timeline, actions)
@@ -85,7 +86,9 @@ DuoBalance-app/
 │   │   │   ├── amount.tsx           Formatted money amount
 │   │   │   └── balance-card.tsx     Balance direction card (owed/debt/settled)
 │   │   ├── movements/               Movement-related components
-│   │   │   └── create-expense-sheet.tsx  Bottom sheet form: amount, description, category, date, paid-by, participants, split (uses Input with icons)
+│   │   │   ├── create-expense-sheet.tsx  Bottom sheet form: amount, description, category, date, paid-by, participants, split (uses Input with icons)
+│   │   │   ├── filter-sheet.tsx          Bottom sheet de filtros (período + categoría, `showCategory` opcional)
+│   │   │   └── destination-selector.tsx  Selector de destino/grupo para el expense sheet
 │   │   ├── category/
 │   │   │   └── category-badge.tsx   Colored category pill
 │   │   ├── couple/                  Couple-related components
@@ -111,7 +114,11 @@ DuoBalance-app/
 │   │   ├── couple/                  (empty — pending API service creation)
 │   │   ├── dashboard/               (empty — pending API service creation)
 │   │   ├── expenses/                (empty — pending API service creation)
-│   │   └── payments/                (empty — pending API service creation)
+│   │   ├── payments/                (empty — pending API service creation)
+│   │   └── workspace/
+│   │       ├── workspace.context.tsx  WorkspaceProvider (envuelve los Tabs en (protected)/_layout.tsx)
+│   │       ├── workspace.types.ts     WorkspaceState = FilterState (categoría + groupId)
+│   │       └── workspace.constants.ts
 │   │
 │   ├── services/
 │   │   └── api/
@@ -119,7 +126,7 @@ DuoBalance-app/
 │   │       ├── interceptor.ts       Bearer token request interceptor
 │   │       ├── auth.ts              authService (login, register, getProfile, updateProfile, changePassword, uploadAvatar)
 │   │       ├── groups.ts            Groups API service (create, join, list, get, update, delete, archive, regenerate invite, remove member, update split)
-│   │       ├── expenses.ts          ❌ (pending) — expense CRUD
+│   │       ├── expenses.ts          ✅ Expense CRUD (create, list, get, update, delete)
 │   │       ├── balances.ts          ❌ (pending) — balance summary
 │   │       ├── payments.ts          ❌ (pending) — payments + settlements
 │   │       └── dashboard.ts         ❌ (pending) — dashboard summary
@@ -132,10 +139,14 @@ DuoBalance-app/
 │   │   ├── use-bottom-sheet.ts      BottomSheet lifecycle (TransitionState, startClose/finishClose, callbacks)
 │   │   ├── use-staggered-entrance.ts  Reusable staggered entrance animations for lists
 │   │   ├── use-dashboard-hero-animation.ts  Dashboard hero staggered animation
-│   │   └── use-groups.ts            Groups loader from API, classifies by type (PERSONAL/COUPLE/GROUP)
+│   │   ├── use-groups.ts            Groups loader from API, classifies by type (PERSONAL/COUPLE/GROUP)
+│   │   ├── use-workspace.ts         useWorkspace hook (workspace global compartido)
+│   │   ├── use-group-summaries.ts   Resumen real por grupo (count + total del mes)
+│   │   └── use-reports-data.ts      Datos de Reportes agregados por categoría/miembro + período
 │   │
 │   ├── types/
 │   │   ├── api.ts                   All backend DTOs and response types
+│   │   ├── filter.ts                FilterState / FilterCategory (base del workspace)
 │   │   └── global.d.ts              CSS module + NativeWind type declarations
 │   │
 │   ├── constants/
@@ -189,9 +200,11 @@ App (Expo Router)
     │       └── Dashboard (HeroSection, GroupSection, MemberBalance,
     │                          RecentTransactions, TopCategory, FloatingAddButton)
     ├── /gastos
-    │   ├── /gastos (index) — Expense list with filters
+    │   ├── /gastos (index) — Gastos (hero + Últimos Movimientos con load-more)
+    │   ├── /gastos/Movimientos — Lista completa con filtros (FilterSheet: período/categoría + buscador)
     │   ├── /gastos/add — Add expense form
     │   └── /gastos/detalle/[id] — Expense detail (hero, info, participants, split, receipt, timeline, actions)
+    │       (participants/split se ocultan para grupos PERSONAL o splitType PERSONAL)
     ├── /grupos
     │   ├── /grupos (index) — Group list (API connected via useGroups)
     │   │   ├── Group filter (dropdown: All / Personal / Couple / Group)
@@ -221,7 +234,8 @@ App (Expo Router)
     │           ├── RecentExpensesCard with expenses
     │           └── FloatingAddButton → CreateExpenseSheet
     ├── /reportes
-    │   └── Reports (bar chart, donut chart, stats cards)
+    │   └── Reports (datos reales: bar chart por categoría, donut por miembro, stat cards,
+    │       filtro de período estilo Movimientos con FilterSheet showCategory=false, estados loading/empty)
     └── /perfil
         ├── Profile (avatar, user info, menu options, logout)
         ├── /perfil/editar — Edit profile (name, email, avatar upload)

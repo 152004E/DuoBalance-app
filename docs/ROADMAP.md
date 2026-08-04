@@ -90,11 +90,11 @@ Al crear un gasto, **se generan automáticamente las shares** (ExpenseShares) se
 | **PERSONAL** | 100% al usuario que paga (grupo tipo PERSONAL) |
 
 ### Tareas Sprint 2
-- [❌] **Backend**: Verificar que `POST /expenses` crea `ExpenseShares` en BD (tabla `expense_shares` o `splits`)
-- [❌] **Frontend**: `CreateExpenseSheet` calcula shares en cliente antes de enviar (preview visual)
-- [❌] **Frontend**: `ExpenseDetail` muestra desglose de shares por miembro (ya existe `ExpenseSplit` component)
-- [❌] **Frontend**: Split Picker UI completo — tarjetas visuales con preview de cuánto le toca a cada uno
-- [❌] **Tipos de grupo**: Adaptar splits a PERSONAL (1 miembro), COUPLE (2), GROUP (N)
+- [✅] **Backend**: Verificado — `POST /expenses` persiste `ExpenseSplit` por miembro (seed real: COUPLE 30/70, GROUP 25%×4, PERSONAL 100%)
+- [🔄] **Frontend**: `CreateExpenseSheet` calcula splits en cliente (hoy limitado a 2 participantes con reparto binario)
+- [✅] **Frontend**: `ExpenseDetail` muestra desglose de splits reales (se oculta para grupos PERSONAL / splitType PERSONAL)
+- [❌] **Frontend**: Split Picker UI completo — tarjetas visuales con preview de cuánto le toca a cada uno (prerrequisito para N miembros)
+- [🔄] **Tipos de grupo**: Splits funcionan en backend para PERSONAL/COUPLE/GROUP; el picker de UI aún no escala a N
 
 ### Criterios de done Sprint 2
 - Al crear gasto, se persisten shares correctos en backend
@@ -120,17 +120,17 @@ Para cada usuario en un grupo:
 - [❌] **Frontend API**: `src/services/api/balances.ts` — servicio para balances
 - [❌] **Frontend API**: `src/services/api/dashboard.ts` — servicio para dashboard summary
 - [❌] **Dashboard Screen**: Reemplazar `MOCK_BALANCE`, `MOCK_TRANSACTIONS`, `MOCK_TOP_CATEGORY`, `MOCK_PARTNER_BALANCE` con datos reales
-- [❌] **Group Detail**: Reemplazar `MOCK_EXPENSES` con expenses reales + balance real del grupo
+- [✅] **Group Detail**: Conectado — total real via `getExpenses`, barra de distribución (COUPLE splitPercentage de BD / GROUP equitativo / PERSONAL oculta), settlement card (Te deben / Debes / Saldado), gastos clickeables
 - [❌] **MemberBalance Component**: Conectar a datos reales (ya existe UI)
 - [❌] **RecentTransactions**: Conectar a expenses reales del usuario
 - [❌] **TopCategory**: Conectar a agregación real por categoría
-- [❌] **Reports Screen**: Conectar `BAR_DATA`, `DONUT_DATA` a API real
+- [✅] **Reports Screen**: Conectado via `useReportsData` (bar por categoría, donut por miembro, comparación vs período anterior) + filtro de período estilo Movimientos (FilterSheet showCategory=false)
 
 ### Criterios de done Sprint 3
-- Dashboard muestra balance real: "Te deben $X" / "Debes $X" / "Saldado"
-- Group Detail muestra hero financiero con totales reales
-- Reports muestran datos reales del período seleccionado
-- No queda mock data en Dashboard, Group Detail, Reports
+- [❌] Dashboard muestra balance real: "Te deben $X" / "Debes $X" / "Saldado" (falta conectar Dashboard)
+- [✅] Group Detail muestra hero financiero con totales reales
+- [✅] Reports muestran datos reales del período seleccionado
+- [🔄] No queda mock data en Dashboard, Group Detail, Reports — solo queda Dashboard
 
 ---
 
@@ -215,9 +215,9 @@ Settlements history muestra: "Emerson pagó $70.000 a Andrea el 15/01"
 ## Timeline Visual
 
 ```
-Sprint 1  ████████░░░░░░░░░░░░░░░░░░░  (Expenses CRUD + conectar API real)
-Sprint 2  ░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Shares + Splits Engine)
-Sprint 3  ░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Balance Engine + Dashboard real)
+Sprint 1  ████████████████████████████  (Expenses CRUD + conectar API real — completo)
+Sprint 2  ██████████░░░░░░░░░░░░░░░░░  (Shares persistidos en BD; falta Split Picker N-way)
+Sprint 3  ████████████░░░░░░░░░░░░░░░  (Group Detail + Reports reales; falta Dashboard)
 Sprint 4  ░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Settlements + Payments)
 v1.0      ░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Polish: receipts, dark mode, i18n, offline, deploy)
 v2.0      ░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Multi-actor: Personal/Pareja/Grupo)

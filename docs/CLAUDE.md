@@ -40,16 +40,16 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **GroupSelector**: Dropdown-style group selector for filtering groups on dashboard and list screens ✅
 
 ### Screens — Implemented
-- **Dashboard** (`(protected)/index.tsx`): Dashboard with HeroSection (greeting), GroupSection (groups from API via useGroups hook), MemberBalance, RecentTransactions, TopCategory, FloatingAddButton ✅
+- **Dashboard** (`(protected)/index.tsx`): Dashboard with HeroSection (greeting), GroupSection (groups from API via useGroups hook), MemberBalance, RecentTransactions, TopCategory, FloatingAddButton — **balance/transactions/top-category aún con MOCK_DATA** 🔄
 - **Gastos list** (`(protected)/gastos/index.tsx`): Expense list screen with filters ✅
 - **Add Expense** (`(protected)/gastos/add.tsx`): Standalone expense creation form ✅
-- **Expense Detail** (`(protected)/gastos/detalle/[id].tsx`): Full expense detail with hero card, information, participants, split breakdown, receipt section, timeline, actions ✅ (ScreenHeader con menú de tres puntos que abre el ExpenseMenuSheet → "Editar gasto" abre el CreateExpenseSheet precargado; "Eliminar gasto" abre el AlertModal de confirmación; guardado con alertas de éxito/error)
-- **Reportes** (`(protected)/reportes.tsx`): Reports screen with period filter (dropdown), donut chart, top categories list, stats cards — mock data ✅
+- **Expense Detail** (`(protected)/gastos/detalle/[id].tsx`): Full expense detail with hero card, information, participants, split breakdown, receipt section, timeline, actions ✅ (ScreenHeader con menú de tres puntos que abre el ExpenseMenuSheet → "Editar gasto" abre el CreateExpenseSheet precargado; "Eliminar gasto" abre el AlertModal de confirmación; guardado con alertas de éxito/error). Participantes y distribución **solo se muestran si el grupo no es PERSONAL y el splitType no es PERSONAL** (evita redundancia en gastos personales); la sección "Actividad" solo muestra "Última actualización" si el gasto fue realmente editado (`updatedAt > createdAt`)
+- **Reportes** (`(protected)/reportes.tsx`): Reports screen connected to real data via `useReportsData` — bar chart (por categoría, top 5), donut chart (aportes por miembro), stat cards (promedio + transacciones con comparación vs periodo anterior), filtro de período estilo Movimientos (FilterSheet sin categoría: Este mes / Últimos 3 meses / Este año / Todo), estados loading/empty ✅
 - **Perfil** (`(protected)/perfil.tsx`): Profile screen with avatar, user info, menu options (Editar Perfil, Notificaciones, Seguridad), and logout ✅
 - **Editar Perfil** (`(protected)/perfil/editar.tsx`): Edit profile screen with name, email fields (uses Input with iconLeft), avatar upload via ImagePicker + ImagePreviewModal, save to API (updateProfile/uploadAvatar) ✅
 - **Seguridad** (`(protected)/perfil/seguridad.tsx`): Change password screen with 3 inputs (currentPassword, newPassword, confirmPassword) using Input with iconLeft="lock" + secureTextEntry, per-field validation, API call to changePassword, AlertModal for success/error ✅
 - **Group List** (`(protected)/grupos/index.tsx`): Group list with GroupSection, FloatingAddMenu (FAB → bottom sheet: create/join group), CoupleMenuSheet, InviteMemberSheet, JoinGroupSheet, group filtering by type — connected to API via useGroups ✅
-- **Group Detail** (`(protected)/grupos/[id].tsx`): Group detail with financial hero card, settlement status, distribution bar, recent expenses, CoupleMenuSheet, InviteMemberSheet ✅
+- **Group Detail** (`(protected)/grupos/[id].tsx`): Group detail **conectado a datos reales** (ya no usa MOCK_EXPENSES): hero con total real (`getExpenses`), barra de distribución según tipo (COUPLE → % real de BD `splitPercentage`; GROUP → equitativo 100/N; PERSONAL → oculta), settlement card calculada desde gastos (Te deben / Debes / Saldado), gastos recientes clickeables al detalle, CoupleMenuSheet + InviteMemberSheet, salir/regenerar código con alertas de éxito/error ✅
 - **Group Settings** (`(protected)/grupos/[id]/configuracion.tsx`): Group settings with name, split %, members, invite code, regenerate code, notifications, danger zone — connected to API ✅
 - **Group Expenses** (`(protected)/grupos/[id]/gastos.tsx`): Per-group expense list with date/category filters + CreateExpenseSheet ✅
 
@@ -86,13 +86,19 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **useStaggeredEntrance**: Reusable staggered entrance animation for list items — configurable delay, duration, offset, trigger ✅
 - **useDashboardHeroAnimation**: Dashboard hero staggered entrance (greeting, balance, badge, selector) with Animated API ✅
 - **useGroups**: Loads groups from API (GET /groups), classifies by type (PERSONAL/COUPLE/GROUP), exposes refetch ✅
+- **useWorkspace**: Context hook para el workspace global (categoría all/personal/couple/group + groupId) — expone `workspace`, `setWorkspace` y atajos (`selectPersonal`, `selectCouple`, `selectGroup`, `resetWorkspace`) ✅
+- **useGroupSummaries**: Carga el resumen real de cada grupo en paralelo (nº de gastos + total del mes) vía `getExpenses({ groupId, startDate, endDate })` — usado por la lista de grupos ✅
+- **useReportsData**: Agrega gastos reales por categoría (bar, top 5) y por miembro (donut) respetando el workspace; soporta períodos (Este mes / Últimos 3 meses / Este año / Todo) con ventanas de comparación contra el período anterior; expone `refetch` ✅
+
+### Feature: Workspace
+- **`src/features/workspace/`**: Contexto global de "espacio de trabajo" (`WorkspaceProvider` envuelve los Tabs en `(protected)/_layout.tsx`). Define `WorkspaceState = FilterState` (categoría + groupId). Todas las pantallas (Inicio, Gastos, Grupos, Reportes) leen el mismo estado y se sincronizan. Types en `workspace.types.ts` (alias de `src/types/filter.ts`). ✅
 
 ### API Services — Built
 - **auth.ts**: Auth service (login, register, getProfile, updateProfile, changePassword, uploadAvatar) ✅
 - **groups.ts**: Full group CRUD (create, join, list, get, update, delete, archive, regenerate invite code, remove member, update member split) ✅
-- **Expenses API** (`src/services/api/expenses.ts`): ❌ Pending
+- **Expenses API** (`src/services/api/expenses.ts`): CRUD completo (create, list, get, update, delete) ✅
 - **Payments API** (`src/services/api/payments.ts`): ❌ Pending
-- **Dashboard API** (`src/services/api/dashboard.ts`): ❌ Pending
+- **Dashboard API** (`src/services/api/dashboard.ts`): ❌ Pending (dashboard aún consume mocks en el cliente)
 
 ### Animations
 - **Staggered entrance animations (auth screens)**: Logo, Title, Inputs, Buttons fade in sequentially on auth screens ✅
@@ -119,18 +125,17 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 
 ## What to Build Next
 ### P0 — Remaining Backend API Integration
-1. **Create `src/services/api/expenses.ts`** — API service for expense CRUD (POST /expenses, GET /expenses, GET /expenses/:id, PATCH /expenses/:id, DELETE /expenses/:id)
-2. **Connect expense screens** — replace mock data with API
-3. **Create `src/services/api/balances.ts`** — API service for balance data (GET /balances, GET /groups/:id/balance)
-4. **Create `src/services/api/dashboard.ts`** — API service for dashboard summary (GET /dashboard)
-5. **Connect Dashboard** — replace remaining mock data with API
-6. **Create `src/services/api/payments.ts`** — API service for payments/settlements
+1. **Connect Dashboard** (`(protected)/index.tsx`) — replace remaining MOCK_BALANCE / MOCK_TRANSACTIONS / MOCK_TOP_CATEGORY / MOCK_PARTNER_BALANCE with real data (candidate: `useGroupSummaries` + `getExpenses` patrón ya usado en Reportes/Grupos)
+2. **Create `src/services/api/balances.ts`** — API service for balance data (GET /balances, GET /groups/:id/balance)
+3. **Create `src/services/api/dashboard.ts`** — API service for dashboard summary (GET /dashboard)
+4. **Split Picker Component** — selector visual EQUAL/PERCENTAGE/CUSTOM/PERSONAL en CreateExpenseSheet (hoy el sheet soporta 2 participantes con reparto binario)
+5. **Create `src/services/api/payments.ts`** — API service for payments/settlements
 
 ### P1 — Remaining features
-7. Response interceptor (401 → redirect to login)
-8. Create Forgot Password endpoint in backend + connect frontend
-9. Receipt capture with camera
-10. Payment/settlement screens
+6. Response interceptor (401 → redirect to login)
+7. Create Forgot Password endpoint in backend + connect frontend
+8. Receipt capture with camera
+9. Payment/settlement screens
 
 ## Coding Style
 - TypeScript strict, no `any`
@@ -182,10 +187,11 @@ npx prisma db push        # Push schema (dev)
 | `src/app/(auth)/forgot-password.tsx` | Forgot password screen (UI complete) |
 | `src/app/(protected)/_layout.tsx` | Protected layout with auth guard + BottomTab |
 | `src/app/(protected)/index.tsx` | Dashboard screen (groups from API via useGroups, mock balance/transactions) |
-| `src/app/(protected)/gastos/index.tsx` | Expenses list screen |
+| `src/app/(protected)/gastos/index.tsx` | Gastos screen (hero + Últimos Movimientos con load-more) |
+| `src/app/(protected)/gastos/Movimientos.tsx` | Movimientos screen (lista filtrada con FilterSheet: período + categoría + buscador + workspace) |
 | `src/app/(protected)/gastos/add.tsx` | Add expense form |
 | `src/app/(protected)/gastos/detalle/[id].tsx` | Expense detail screen (hero, info, participants, split, receipt, timeline, actions) |
-| `src/app/(protected)/reportes.tsx` | Reports screen (mock data: bar chart, donut chart, stats cards) |
+| `src/app/(protected)/reportes.tsx` | Reports screen (datos reales: bar/donut/stats + filtro de período estilo Movimientos) |
 | `src/app/(protected)/perfil.tsx` | Profile screen (avatar, user info, menu options, logout) |
 | `src/app/(protected)/perfil/editar.tsx` | Edit profile (name, email, avatar upload) |
 | `src/app/(protected)/perfil/seguridad.tsx` | Change password (validation, API, AlertModal) |
@@ -257,6 +263,8 @@ npx prisma db push        # Push schema (dev)
 | `src/components/expenses/expense-timeline.tsx` | Expense timeline |
 | `src/components/expenses/expense-actions.tsx` | Expense actions (edit/delete) — botón "Editar gasto" dispara el CreateExpenseSheet en modo edición |
 | `src/components/expenses/expense-menu-sheet.tsx` | Bottom sheet de opciones del gasto (réplica de couple-menu-sheet): expone `ExpenseMenuAction = 'edit' \| 'delete'`, items "Editar gasto"/"Eliminar gasto" con animaciones de entrada |
+| `src/components/movements/filter-sheet.tsx` | Bottom sheet de filtros (período + categoría) con `showCategory` opcional (false en Reportes) |
+| `src/components/movements/destination-selector.tsx` | Selector de destino/grupo para el CreateExpenseSheet |
 | `src/components/movements/create-expense-sheet.tsx` | Unified bottom sheet form for creating AND editing expenses (`initialExpense` + `onUpdateExpense`, prefill de todos los campos, modo edición "Editar gasto"/"Guardar cambios", campo Valor solo acepta enteros) |
 
 ### Dashboard Components
@@ -281,6 +289,9 @@ npx prisma db push        # Push schema (dev)
 | `src/hooks/use-staggered-entrance.ts` | Reusable staggered entrance animation for list items — configurable delay, duration, offset, and trigger for re-animation |
 | `src/hooks/use-dashboard-hero-animation.ts` | Dashboard hero staggered entrance (greeting, balance, badge, selector) with Animated API |
 | `src/hooks/use-groups.ts` | Groups loader from API (GET /groups), classifies by type (PERSONAL/COUPLE/GROUP), refetch |
+| `src/hooks/use-workspace.ts` | useWorkspace hook (WorkspaceContext wrapper con guard) |
+| `src/hooks/use-group-summaries.ts` | Resumen real por grupo (count + total del mes) en paralelo |
+| `src/hooks/use-reports-data.ts` | Datos de Reportes agregados por categoría/miembro + comparación por período |
 
 ### Core
 | File | Purpose |

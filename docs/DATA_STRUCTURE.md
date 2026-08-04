@@ -6,15 +6,20 @@ All types are defined in `src/types/api.ts`. This file mirrors the backend DTOs 
 
 El **workspace** es el espacio de trabajo actual de la aplicación: sobre qué categoría de grupos (o grupo específico) el usuario está operando en un momento dado. No es un filtro visual — es el contexto global que comparten Inicio, Gastos, Grupos y Reportes.
 
-Definido en `src/features/workspace/workspace.types.ts`:
+Definido en `src/features/workspace/workspace.types.ts` como **alias de `FilterState`** (`src/types/filter.ts`):
 
 ```typescript
-type WorkspaceCategory = 'all' | 'personal' | 'couple' | 'group';
+// src/types/filter.ts
+type FilterCategory = 'all' | 'personal' | 'couple' | 'group';
 
-interface WorkspaceState {
-  category: WorkspaceCategory;
+interface FilterState {
+  category: FilterCategory;
   groupId: string | null; // null = todos los grupos de la categoría
 }
+
+// src/features/workspace/workspace.types.ts
+type WorkspaceCategory = FilterCategory; // alias
+interface WorkspaceState = FilterState;   // alias — mismo dato, nombre de dominio
 ```
 
 Estados válidos:
@@ -43,6 +48,24 @@ const { selectPersonal, selectCouple, selectGroup, resetWorkspace } = useWorkspa
 ```
 
 `WorkspaceProvider` envuelve los Tabs en `src/app/(protected)/_layout.tsx`. Todas las pantallas leen el mismo estado: al cambiar el workspace en una, todas se actualizan.
+
+### Períodos de Reportes (`use-reports-data.ts`)
+
+```typescript
+type ReportPeriod = 'Este mes' | 'Últimos 3 meses' | 'Este año' | 'Todo';
+
+interface ReportsData {
+  barData: { label: string; value: number; color: string }[]; // top 5 categorías
+  donutData: { label: string; value: number; color: string }[]; // por miembro
+  count: number;
+  average: number;
+  countComparison: number | null;   // % vs período anterior (null si 'Todo' o sin datos)
+  averageComparison: number | null;
+  isLoading: boolean;
+  hasData: boolean;
+  refetch: () => Promise<void>;
+}
+```
 
 ## Enums
 
