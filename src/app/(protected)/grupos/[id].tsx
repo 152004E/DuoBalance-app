@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome6 } from '@expo/vector-icons';
-import { getGroup, regenerateInviteCode } from '@/services/api/groups';
+import { getGroup, leaveGroup, regenerateInviteCode } from '@/services/api/groups';
 import type { GroupResponse, GroupType } from '@/types/api';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Loading } from '@/components/ui/loading';
@@ -80,6 +80,9 @@ export default function CoupleDetail() {
   const [menuVisible, setMenuVisible] = useState(false);
   const [inviteVisible, setInviteVisible] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
+  const [leaveSuccess, setLeaveSuccess] = useState(false);
+  const [leaveError, setLeaveError] = useState<string | null>(null);
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [regenerateError, setRegenerateError] = useState<string | null>(null);
@@ -150,6 +153,24 @@ export default function CoupleDetail() {
         break;
     }
   }, [id]);
+
+  const handleLeaveGroup = useCallback(async () => {
+    if (isLeaving) return;
+    setIsLeaving(true);
+    setLeaveError(null);
+    try {
+      await leaveGroup(id);
+      setShowLeaveConfirm(false);
+      setLeaveSuccess(true);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : 'Error al salir del grupo';
+      setShowLeaveConfirm(false);
+      setLeaveError(message);
+    } finally {
+      setIsLeaving(false);
+    }
+  }, [id, isLeaving]);
 
   const handleRegenerateCode = useCallback(async () => {
     setIsRegenerating(true);
@@ -475,8 +496,35 @@ export default function CoupleDetail() {
         type="warning"
         title="Salir del grupo"
         message="¿Estás seguro de que quieres salir del grupo? Perderás acceso a todos los gastos y estadísticas compartidas."
-        buttonText="Sí, salir"
-        onClose={() => setShowLeaveConfirm(false)}
+        buttonText={isLeaving ? 'Saliendo...' : 'Sí, salir'}
+        cancelText="Cancelar"
+        onCancel={() => {
+          if (!isLeaving) setShowLeaveConfirm(false);
+        }}
+        onClose={() => {
+          if (!isLeaving) handleLeaveGroup();
+        }}
+      />
+
+      <AlertModal
+        visible={leaveSuccess}
+        type="success"
+        title="Has salido del grupo"
+        message="Ya no tienes acceso a este grupo."
+        buttonText="Entendido"
+        onClose={() => {
+          setLeaveSuccess(false);
+          router.replace('/(protected)/grupos');
+        }}
+      />
+
+      <AlertModal
+        visible={leaveError !== null}
+        type="error"
+        title="Error al salir del grupo"
+        message={leaveError ?? ''}
+        buttonText="Cerrar"
+        onClose={() => setLeaveError(null)}
       />
 
       <AlertModal

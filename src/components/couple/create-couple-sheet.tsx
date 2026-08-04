@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { AlertModal } from '@/components/ui/alert-modal';
 
 type GroupType = 'personal' | 'pareja' | 'grupo';
-type SplitOption = '50_50' | 'equal' | 'percentage';
+type SplitOption = '50_50' | 'percentage';
 
 interface CreateCoupleSheetProps {
   visible: boolean;
@@ -101,20 +101,15 @@ export function CreateCoupleSheet({
     setYourPercentage(50);
     if (type === 'pareja') {
       setSplitOption('50_50');
-    } else if (type === 'grupo') {
-      setSplitOption('equal');
     }
   };
 
-  const getSplitLabels = (): [string, string] => {
-    if (groupType === 'pareja') return ['50/50', 'Porcentaje'];
-    return ['Equitativa', 'Porcentaje'];
-  };
+  const getSplitLabels = (): [string, string] => ['50/50', 'Porcentaje'];
 
-  const getSplitValues = (): [SplitOption, SplitOption] => {
-    if (groupType === 'pareja') return ['50_50', 'percentage'];
-    return ['equal', 'percentage'];
-  };
+  const getSplitValues = (): [SplitOption, SplitOption] => [
+    '50_50',
+    'percentage',
+  ];
 
   const handleCreate = async () => {
     if (isSubmitting) return;
@@ -131,6 +126,12 @@ export function CreateCoupleSheet({
       const group = await createGroup({
         name: coupleName,
         type: TYPE_MAP[groupType] as 'PERSONAL' | 'COUPLE' | 'GROUP',
+        splitPercentage:
+          groupType === 'pareja'
+            ? splitOption === '50_50'
+              ? 50
+              : yourPercentage
+            : undefined,
       });
 
       onClose();
@@ -344,26 +345,12 @@ export function CreateCoupleSheet({
               <Text className="mb-2 mt-6 text-sm font-semibold text-[#0F172A]">
                 Distribución de gastos
               </Text>
-              <SplitToggle
-                labels={getSplitLabels()}
-                values={getSplitValues()}
-                selected={splitOption}
-                onChange={setSplitOption}
-              />
-
-              {splitOption === 'equal' ? (
-                <View className="mt-4 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
-                  <Text className="text-sm text-[#64748B]">
-                    Todos pagan lo mismo
-                  </Text>
-                </View>
-              ) : (
-                <View className="mt-4 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
-                  <Text className="text-sm text-[#64748B]">
-                    Podrás configurar los porcentajes después de crear el grupo.
-                  </Text>
-                </View>
-              )}
+              <View className="mt-4 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
+                <Text className="text-sm text-[#64748B]">
+                  Los gastos se reparten de forma equitativa: todos pagan lo
+                  mismo.
+                </Text>
+              </View>
             </>
           )}
         </ScrollView>

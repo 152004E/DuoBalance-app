@@ -46,6 +46,8 @@ export default function ConfiguracionGrupoScreen() {
   const [archiveLoading, setArchiveLoading] = useState(false);
   const [deleteVisible, setDeleteVisible] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -74,6 +76,10 @@ export default function ConfiguracionGrupoScreen() {
         if (mounted) {
           setGroup(data);
           setEditNameValue(data.name);
+          const mySplit = data.members[0]?.splitPercentage;
+          if (mySplit != null) {
+            setAdjustYourPercentage(Number(mySplit));
+          }
         }
       })
       .catch(() => {
@@ -170,13 +176,16 @@ export default function ConfiguracionGrupoScreen() {
 
   const handleDelete = async () => {
     setDeleteLoading(true);
+    setDeleteError(null);
     try {
       await deleteGroup(id);
       setDeleteVisible(false);
-      router.replace('/(protected)/grupos');
-    } catch {
-      setSuccessMessage('Error al eliminar el grupo');
-      setTimeout(() => setSuccessMessage(null), 2500);
+      setDeleteSuccess(true);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : 'Error al eliminar el grupo';
+      setDeleteVisible(false);
+      setDeleteError(message);
     } finally {
       setDeleteLoading(false);
     }
@@ -670,10 +679,35 @@ export default function ConfiguracionGrupoScreen() {
         buttonText={
           deleteLoading ? 'Eliminando...' : 'Eliminar definitivamente'
         }
+        cancelText="Cancelar"
+        onCancel={() => {
+          if (!deleteLoading) setDeleteVisible(false);
+        }}
         onClose={() => {
           setDeleteVisible(false);
           if (!deleteLoading) handleDelete();
         }}
+      />
+
+      <AlertModal
+        visible={deleteSuccess}
+        type="success"
+        title="Grupo eliminado"
+        message="El grupo y todo su historial fueron eliminados correctamente."
+        buttonText="Entendido"
+        onClose={() => {
+          setDeleteSuccess(false);
+          router.replace('/(protected)/grupos');
+        }}
+      />
+
+      <AlertModal
+        visible={deleteError !== null}
+        type="error"
+        title="Error al eliminar el grupo"
+        message={deleteError ?? ''}
+        buttonText="Cerrar"
+        onClose={() => setDeleteError(null)}
       />
 
       {/* Bottom Sheet: Editar nombre */}

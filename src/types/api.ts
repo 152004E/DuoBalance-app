@@ -85,6 +85,7 @@ export type GroupType = 'PERSONAL' | 'COUPLE' | 'GROUP';
 export interface GroupMember {
   id: string;
   role: 'OWNER' | 'ADMIN' | 'MEMBER';
+  splitPercentage: number | null;
   joinedAt: string;
   user: UserBrief;
 }
@@ -101,6 +102,7 @@ export interface GroupResponse {
 export interface CreateGroupPayload {
   name: string;
   type?: GroupType;
+  splitPercentage?: number;
 }
 
 export interface JoinGroupPayload {

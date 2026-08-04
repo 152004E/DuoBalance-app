@@ -2,7 +2,7 @@ import { useState, useRef, useCallback } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { joinGroup, regenerateInviteCode } from '@/services/api/groups';
+import { joinGroup, leaveGroup, regenerateInviteCode } from '@/services/api/groups';
 import { HeroSection } from '@/components/layout/HeroSection';
 import { GroupSelector } from '@/components/ui/group-selector';
 import { FloatingAddMenu } from '@/components/dashboard/FloatingAddMenu';
@@ -37,6 +37,9 @@ export default function ParejaScreen() {
   const [showJoinSheet, setShowJoinSheet] = useState(false);
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
+  const [leaveSuccess, setLeaveSuccess] = useState(false);
+  const [leaveError, setLeaveError] = useState<string | null>(null);
   const [isJoining, setIsJoining] = useState(false);
   const [joinSuccess, setJoinSuccess] = useState(false);
   const [joinError, setJoinError] = useState<string | null>(null);
@@ -86,6 +89,26 @@ export default function ParejaScreen() {
         break;
     }
   }, [selectedGroup]);
+
+  const handleLeaveGroup = useCallback(async () => {
+    if (!selectedGroup || isLeaving) return;
+    setIsLeaving(true);
+    setLeaveError(null);
+    try {
+      await leaveGroup(selectedGroup.id);
+      setShowLeaveConfirm(false);
+      setSelectedGroup(null);
+      setLeaveSuccess(true);
+      refetch();
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : 'Error al salir del grupo';
+      setShowLeaveConfirm(false);
+      setLeaveError(message);
+    } finally {
+      setIsLeaving(false);
+    }
+  }, [selectedGroup, isLeaving, refetch]);
 
   const handleJoinGroup = useCallback(
     async (code: string) => {
@@ -252,8 +275,32 @@ export default function ParejaScreen() {
         type="warning"
         title="Salir del grupo"
         message="¿Estás seguro de que quieres salir del grupo? Perderás acceso a todos los gastos y estadísticas compartidas."
-        buttonText="Sí, salir"
-        onClose={() => setShowLeaveConfirm(false)}
+        buttonText={isLeaving ? 'Saliendo...' : 'Sí, salir'}
+        cancelText="Cancelar"
+        onCancel={() => {
+          if (!isLeaving) setShowLeaveConfirm(false);
+        }}
+        onClose={() => {
+          if (!isLeaving) handleLeaveGroup();
+        }}
+      />
+
+      <AlertModal
+        visible={leaveSuccess}
+        type="success"
+        title="Has salido del grupo"
+        message="Ya no tienes acceso a este grupo."
+        buttonText="Entendido"
+        onClose={() => setLeaveSuccess(false)}
+      />
+
+      <AlertModal
+        visible={leaveError !== null}
+        type="error"
+        title="Error al salir del grupo"
+        message={leaveError ?? ''}
+        buttonText="Cerrar"
+        onClose={() => setLeaveError(null)}
       />
 
       <AlertModal
