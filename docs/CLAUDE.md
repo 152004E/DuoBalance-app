@@ -99,7 +99,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **auth.ts**: Auth service (login, register, getProfile, updateProfile, changePassword, uploadAvatar) ✅
 - **groups.ts**: Full group CRUD (create, join, list, get, update, delete, archive, regenerate invite code, remove member, update member split) ✅
 - **Expenses API** (`src/services/api/expenses.ts`): CRUD completo (create, list, get, update, delete) ✅
-- **Payments API** (`src/services/api/payments.ts`): ❌ Pending
+- **Payments API** (`src/services/api/payments.ts`): createPayment, getPayments, getSettlement, getSettlementSuggestions — conectado al backend (con `?groupId=` para el workspace) ✅
 - **Dashboard API** (`src/services/api/dashboard.ts`): ❌ Pending — obsoleto como prerrequisito: el Dashboard ya está conectado client-side vía `useDashboardData` + `getExpenses` (no consume mocks)
 
 ### Animations

@@ -80,13 +80,6 @@ export interface UpdateProfilePayload {
 }
 
 // ─── Groups ────────────────────────────────────────
-export interface UserBrief {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-}
-
 export type GroupType = 'PERSONAL' | 'COUPLE' | 'GROUP';
 
 export interface GroupMember {
@@ -208,6 +201,7 @@ export interface BalanceResponse {
 export interface CreatePaymentPayload {
   amount: number;
   toUserId: string;
+  groupId?: string;
 }
 
 export interface PaymentUser {
@@ -240,6 +234,25 @@ export interface SettlementResponse {
   paymentsReceived: number;
   netSettlement: number;
   settlementDirection: BalanceDirection;
+}
+
+export interface SettlementMember {
+  user: UserBrief;
+  paid: number;
+  share: number;
+  balance: number;
+}
+
+export interface SettlementSuggestion {
+  from: UserBrief;
+  to: UserBrief;
+  amount: number;
+}
+
+export interface SettlementSuggestionsResponse {
+  group: { id: string; name: string };
+  members: SettlementMember[];
+  suggestions: SettlementSuggestion[];
 }
 
 // ─── Dashboard ───────────────────────────────────────

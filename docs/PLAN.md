@@ -328,8 +328,8 @@ Settlements history muestra:
 - [❌] `GET /settlements/suggestions` — algoritmo "quién le debe a quién"
 
 ### Frontend API services
-- [❌] `src/services/api/payments.ts` — createPayment, getPayments
-- [❌] `src/services/api/settlements.ts` — getSettlements, getSettlementSuggestions
+- [✅] `src/services/api/payments.ts` — createPayment, getPayments, getSettlement, getSettlementSuggestions (backend ya soporta `?groupId=` para todos los endpoints)
+- [❌] `src/services/api/settlements.ts` — (consolidado en `payments.ts`)
 
 ### Pantallas
 - [❌] **Pay Screen** (`pagos/index.tsx`) — seleccionar monto, confirmar pago, registrar en API

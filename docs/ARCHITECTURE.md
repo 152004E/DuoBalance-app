@@ -132,7 +132,7 @@ DuoBalance-app/
 │   │       ├── groups.ts            Groups API service (create, join, list, get, update, delete, archive, regenerate invite, remove member, update split)
 │   │       ├── expenses.ts          ✅ Expense CRUD (create, list, get, update, delete)
 │   │       ├── balances.ts          ❌ (pending) — balance summary
-│   │       ├── payments.ts          ❌ (pending) — payments + settlements
+│   │       ├── payments.ts          ✅ Payments + Settlements (createPayment, getPayments, getSettlement, getSettlementSuggestions — con ?groupId=)
 │   │       └── dashboard.ts         ❌ (pending) — dashboard summary
 │   │
 │   ├── storage/
