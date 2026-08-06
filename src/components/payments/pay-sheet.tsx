@@ -49,19 +49,24 @@ export function PaySheet({
   // automático. En grupos de 3+ se deja que el usuario elija a quién paga.
   const isCouple = group.type === 'COUPLE' || group.members.length === 2;
 
-  const otherMembers: GroupMember[] = group.members.filter(
-    (m) => m.user.id !== currentUserId,
+  const otherMembers: GroupMember[] = useMemo(
+    () => group.members.filter((m) => m.user.id !== currentUserId),
+    [group.members, currentUserId],
   );
 
-  const allowed = isCouple
-    ? otherMembers.filter((m) => m.user.id === creditorId)
-    : otherMembers;
+  const allowed = useMemo(
+    () =>
+      isCouple
+        ? otherMembers.filter((m) => m.user.id === creditorId)
+        : otherMembers,
+    [isCouple, otherMembers, creditorId],
+  );
 
   useEffect(() => {
     if (visible) {
       // IMPORTANTE: usar user.id (no member.id) — el backend valida contra la tabla User
       setToUserId(allowed[0]?.user.id ?? creditorId);
-      setAmount(amountDue > 0 ? formatAmountInput(String(amountDue)) : '');
+      setAmount('');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resetKey, creditorId, amountDue, allowed]);

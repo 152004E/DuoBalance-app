@@ -40,7 +40,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **GroupSelector**: Dropdown-style group selector for filtering groups on dashboard and list screens ✅
 
 ### Screens — Implemented
-- **Dashboard** (`(protected)/index.tsx`): Dashboard **conectado a datos reales** (sin mocks) — hero con gasto total del mes + badge de deuda (Te deben / Debes / Saldado) calculado desde `getExpenses` por workspace, `RecentExpensesCard` con las últimas 5 del mes y navegación al detalle, `TopCategory` real (mayor categoría del mes con %), "Aportes del mes" (Tú vs resto, **oculto en modo personal**), `GroupSection` con `useGroupSummaries` reales, estados loading/empty, refetch al foco y responde al selector de grupos (workspace) ✅
+- **Dashboard** (`(protected)/index.tsx`): Dashboard **conectado a datos reales** (sin mocks) — hero con gasto total del mes + badge de deuda (Te deben / Debes / Saldado) calculado desde `getExpenses` + `getPayments` por workspace, `RecentExpensesCard` con las últimas 5 del mes y navegación al detalle, `TopCategory` real (mayor categoría del mes con %), "Aportes del mes" (Tú vs resto, **oculto en modo personal**), `GroupSection` con `useGroupSummaries` reales, estados loading/empty, refetch al foco y responde al selector de grupos (workspace) ✅
 - **Gastos list** (`(protected)/gastos/index.tsx`): Expense list screen with filters ✅
 - **Add Expense** (`(protected)/gastos/add.tsx`): Standalone expense creation form ✅
 - **Expense Detail** (`(protected)/gastos/detalle/[id].tsx`): Full expense detail with hero card, information, participants, split breakdown, receipt section, timeline, actions ✅ (ScreenHeader con menú de tres puntos que abre el ExpenseMenuSheet → "Editar gasto" abre el CreateExpenseSheet precargado; "Eliminar gasto" abre el AlertModal de confirmación; guardado con alertas de éxito/error). Participantes y distribución **solo se muestran si el grupo no es PERSONAL y el splitType no es PERSONAL** (evita redundancia en gastos personales); la sección "Actividad" solo muestra "Última actualización" si el gasto fue realmente editado (`updatedAt > createdAt`)
@@ -90,7 +90,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **useWorkspace**: Context hook para el workspace global (categoría all/personal/couple/group + groupId) — expone `workspace`, `setWorkspace` y atajos (`selectPersonal`, `selectCouple`, `selectGroup`, `resetWorkspace`) ✅
 - **useGroupSummaries**: Carga el resumen real de cada grupo en paralelo (nº de gastos + total del mes) vía `getExpenses({ groupId, startDate, endDate })` — usado por la lista de grupos ✅
 - **useReportsData**: Agrega gastos reales por categoría (bar, top 5) y por miembro (donut) respetando el workspace; soporta períodos (Este mes / Últimos 3 meses / Este año / Todo) con ventanas de comparación contra el período anterior; expone `refetch` ✅
-- **useDashboardData**: Datos reales del Dashboard por workspace — balance neto del usuario (pagado − share, con PERSONAL/splits/EQUAL), transacciones del mes (top 5), top categoría y aportes (Tú vs resto); `refetch` ✅
+- **useDashboardData**: Datos reales del Dashboard por workspace — balance neto del usuario (`pagado − share − recibido + enviado`, donde `recibido`/`enviado` son los pagos `CONFIRMED` de `getPayments`, replicando `netSettlementSigned` del backend; solo gastos para el resto de métricas), transacciones del mes (top 5), top categoría y aportes (Tú vs resto); `refetch` ✅
 
 ### Feature: Workspace
 - **`src/features/workspace/`**: Contexto global de "espacio de trabajo" (`WorkspaceProvider` envuelve los Tabs en `(protected)/_layout.tsx`). Define `WorkspaceState = FilterState` (categoría + groupId). Todas las pantallas (Inicio, Gastos, Grupos, Reportes) leen el mismo estado y se sincronizan. Types en `workspace.types.ts` (alias de `src/types/filter.ts`). ✅
@@ -100,7 +100,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **groups.ts**: Full group CRUD (create, join, list, get, update, delete, archive, regenerate invite code, remove member, update member split) ✅
 - **Expenses API** (`src/services/api/expenses.ts`): CRUD completo (create, list, get, update, delete) ✅
 - **Payments API** (`src/services/api/payments.ts`): createPayment, getPayments, getSettlement, getSettlementSuggestions — conectado al backend (con `?groupId=` para el workspace) ✅
-- **Dashboard API** (`src/services/api/dashboard.ts`): ❌ Pending — obsoleto como prerrequisito: el Dashboard ya está conectado client-side vía `useDashboardData` + `getExpenses` (no consume mocks)
+- **Dashboard API** (`src/services/api/dashboard.ts`): ❌ Pending — obsoleto como prerrequisito: el Dashboard ya está conectado client-side vía `useDashboardData` + `getExpenses` + `getPayments` (no consume mocks)
 
 ### Animations
 - **Staggered entrance animations (auth screens)**: Logo, Title, Inputs, Buttons fade in sequentially on auth screens ✅
@@ -300,7 +300,7 @@ npx prisma db push        # Push schema (dev)
 | `src/hooks/use-workspace.ts` | useWorkspace hook (WorkspaceContext wrapper con guard) |
 | `src/hooks/use-group-summaries.ts` | Resumen real por grupo (count + total del mes) en paralelo |
 | `src/hooks/use-reports-data.ts` | Datos de Reportes agregados por categoría/miembro + comparación por período |
-| `src/hooks/use-dashboard-data.ts` | Datos del Dashboard por workspace (balance, transacciones, top categoría, aportes) |
+| `src/hooks/use-dashboard-data.ts` | Datos del Dashboard por workspace (balance neto incluyendo pagos, transacciones, top categoría, aportes) |
 
 ### Utils
 | File | Purpose |

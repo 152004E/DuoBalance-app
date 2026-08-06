@@ -1,6 +1,11 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { getExpenses } from '@/services/api/expenses';
-import type { GroupResponse, ExpenseResponse } from '@/types/api';
+import { getPayments } from '@/services/api/payments';
+import type {
+  GroupResponse,
+  ExpenseResponse,
+  PaymentResponse,
+} from '@/types/api';
 import type { WorkspaceState } from '@/features/workspace/workspace.types';
 import {
   getCategoryMeta,
@@ -53,6 +58,7 @@ export function useDashboardData(
 ): DashboardData {
   const [isLoading, setIsLoading] = useState(true);
   const [expenses, setExpenses] = useState<ExpenseResponse[]>([]);
+  const [payments, setPayments] = useState<PaymentResponse[]>([]);
 
   const targetGroupIds = useMemo(() => {
     if (workspace.groupId) return [workspace.groupId];
@@ -79,8 +85,15 @@ export function useDashboardData(
       );
       const results = await Promise.all(promises);
       setExpenses(results.flat());
+
+      const paymentPromises = targetGroupIds.map((groupId) =>
+        getPayments(groupId),
+      );
+      const paymentResults = await Promise.all(paymentPromises);
+      setPayments(paymentResults.flat());
     } catch {
       setExpenses([]);
+      setPayments([]);
     } finally {
       setIsLoading(false);
     }
@@ -107,7 +120,20 @@ export function useDashboardData(
     return acc + Number(e.amount) / Math.max(1, e.splits.length || 1);
   }, 0);
 
-  const netBalance = totalPaidByMe - myShare;
+  const confirmedPayments = payments.filter(
+    (p) => p.status === 'CONFIRMED',
+  );
+
+  const paymentsMade = confirmedPayments
+    .filter((p) => p.fromUserId === userId)
+    .reduce((acc, p) => acc + Number(p.amount), 0);
+
+  const paymentsReceived = confirmedPayments
+    .filter((p) => p.toUserId === userId)
+    .reduce((acc, p) => acc + Number(p.amount), 0);
+
+  const netBalance =
+    totalPaidByMe - myShare - paymentsReceived + paymentsMade;
   const direction: BalanceDirection =
     netBalance > 0 ? 'OWED_TO_ME' : netBalance < 0 ? 'I_OWE' : 'SETTLED';
 

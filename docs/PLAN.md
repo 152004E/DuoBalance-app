@@ -274,10 +274,10 @@ Para cada usuario en un grupo:
 
 ### Frontend API services (crear)
 - [❌] `src/services/api/balances.ts` — getBalances, getGroupBalance
-- [❌] `src/services/api/dashboard.ts` — getDashboard (obsoleto como prerrequisito: Dashboard ya conectado client-side vía `useDashboardData` + `getExpenses`)
+- [❌] `src/services/api/dashboard.ts` — getDashboard (obsoleto como prerrequisito: Dashboard ya conectado client-side vía `useDashboardData` + `getExpenses` + `getPayments`)
 
 ### Pantallas a conectar con API real
-- [✅] **Dashboard** (`index.tsx`) — conectado via `useDashboardData` (balance neto por workspace, transacciones del mes, top categoría, aportes Tú vs resto) + `useGroupSummaries` en las cards
+- [✅] **Dashboard** (`index.tsx`) — conectado via `useDashboardData` (balance neto por workspace incluyendo pagos CONFIRMED: `paid − share − recibido + enviado`, transacciones del mes, top categoría, aportes Tú vs resto) + `useGroupSummaries` en las cards
 - [✅] **Group Detail** (`grupos/[id].tsx`) — conectado: total real via `getExpenses`, barra de distribución según tipo (COUPLE splitPercentage / GROUP equitativo / PERSONAL oculto), settlement card (Te deben / Debes / Saldado), gastos recientes clickeables
 - [✅] **Reports** (`reportes.tsx`) — conectado via `useReportsData` (agregación por categoría y por miembro, comparación vs período anterior) + filtro de período (Este mes / Últimos 3 meses / Este año / Todo)
 

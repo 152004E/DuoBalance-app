@@ -296,15 +296,18 @@ interface BalanceResponse {
 // Payments
 interface PaymentUser {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
 }
 
 interface PaymentResponse {
   id: string;
   amount: number;
+  status: PaymentStatus;        // 'PENDING' | 'CONFIRMED' | 'REJECTED' — el dashboard solo suma CONFIRMED
+  confirmedAt: string | null;
   fromUserId: string;
   toUserId: string;
-  coupleId: string;
+  groupId: string;
   createdAt: string;
   fromUser?: PaymentUser;
   toUser?: PaymentUser;

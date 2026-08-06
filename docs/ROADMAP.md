@@ -112,13 +112,19 @@ Para cada usuario en un grupo:
   paid   = SUM(expenses WHERE paidBy = user)
   share  = SUM(expense_shares WHERE userId = user)
   balance = paid - share
+
+Balance neto del Dashboard (client-side, useDashboardData):
+  netBalance = paid - share - paymentsReceived + paymentsMade
+  // paymentsReceived = SUM(payments CONFIRMED WHERE toUser = user)
+  // paymentsMade     = SUM(payments CONFIRMED WHERE fromUser = user)
+  // replica netSettlementSigned del backend (settlements.service.ts)
 ```
 
 ### Tareas Sprint 3
 - [❌] **Backend**: `GET /balances` y `GET /groups/:id/balance` devuelven agregación correcta
 - [❌] **Frontend API**: `src/services/api/balances.ts` — servicio para balances
-- [❌] **Frontend API**: `src/services/api/dashboard.ts` — servicio para dashboard summary (obsoleto como prerrequisito: Dashboard ya conectado client-side vía `useDashboardData` + `getExpenses`)
-- [✅] **Dashboard Screen**: Conectado — balance neto por workspace, transacciones del mes, top categoría y aportes reales (useDashboardData); sin mocks
+- [❌] **Frontend API**: `src/services/api/dashboard.ts` — servicio para dashboard summary (obsoleto como prerrequisito: Dashboard ya conectado client-side vía `useDashboardData` + `getExpenses` + `getPayments`)
+- [✅] **Dashboard Screen**: Conectado — balance neto por workspace (incluye pagos CONFIRMED: `paid − share − recibido + enviado`), transacciones del mes, top categoría y aportes reales (useDashboardData); sin mocks
 - [✅] **Group Detail**: Conectado — total real via `getExpenses`, barra de distribución (COUPLE splitPercentage de BD / GROUP equitativo / PERSONAL oculta), settlement card (Te deben / Debes / Saldado), gastos clickeables
 - [❌] **MemberBalance Component**: Conectar a datos reales (ya existe UI)
 - [✅] **RecentExpensesCard** (Dashboard + Gastos): conectado a expenses reales, navegación al detalle, truncamiento de texto

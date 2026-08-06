@@ -147,7 +147,7 @@ DuoBalance-app/
 │   │   ├── use-workspace.ts         useWorkspace hook (workspace global compartido)
 │   │   ├── use-group-summaries.ts   Resumen real por grupo (count + total del mes)
 │   │   ├── use-reports-data.ts      Datos de Reportes agregados por categoría/miembro + período
-│   │   └── use-dashboard-data.ts    Datos del Dashboard por workspace (balance, transacciones, top categoría, aportes)
+│   │   └── use-dashboard-data.ts    Datos del Dashboard por workspace (balance neto incluyendo pagos confirmados, transacciones, top categoría, aportes)
 │   │
 │   ├── types/
 │   │   ├── api.ts                   All backend DTOs and response types
