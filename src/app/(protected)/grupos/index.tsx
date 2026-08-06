@@ -1,7 +1,7 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import {
   joinGroup,
   leaveGroup,
@@ -55,6 +55,15 @@ export default function ParejaScreen() {
   const [regenerateSuccess, setRegenerateSuccess] = useState(false);
   const [regenerateError, setRegenerateError] = useState<string | null>(null);
   const lastActionRef = useRef<CoupleMenuAction | null>(null);
+  const { create } = useLocalSearchParams<{ create?: string }>();
+  const [createRequest, setCreateRequest] = useState(0);
+
+  useEffect(() => {
+    if (create === '1') {
+      setCreateRequest((n) => n + 1);
+      router.setParams({ create: undefined });
+    }
+  }, [create]);
 
   const handleMenuAction = (action: CoupleMenuAction) => {
     switch (action) {
@@ -240,6 +249,7 @@ export default function ParejaScreen() {
         createCoupleHeightRatio={0.65}
         createCoupleHeaderFinalTranslateY={0.17}
         onJoinCouple={() => setShowJoinSheet(true)}
+        openCreateSignal={createRequest}
       />
 
       <CoupleMenuSheet

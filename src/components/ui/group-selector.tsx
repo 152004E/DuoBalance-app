@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { View, Text, Pressable, Modal, FlatList } from 'react-native';
+import { router } from 'expo-router';
 import { FontAwesome6 } from '@expo/vector-icons';
 import type { GroupResponse } from '@/types/api';
 import type { FilterState, FilterCategory } from '@/types/filter';
@@ -374,7 +375,10 @@ export function GroupSelector({
             {currentView === 'groups' && renderGroupsView()}
             <View className="h-px bg-[#E2E8F0]" />
             <Pressable
-              onPress={() => setOpen(false)}
+              onPress={() => {
+                setOpen(false);
+                router.push('/grupos?create=1');
+              }}
               className="flex-row items-center gap-3 px-4 py-3.5 active:bg-[#F8FAFC]"
             >
               <FontAwesome6 name="plus" size={16} color="#10B981" solid />

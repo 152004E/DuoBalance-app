@@ -18,6 +18,7 @@ interface FloatingAddMenuProps {
   createCoupleHeightRatio?: number;
   createCoupleHeaderFinalTranslateY?: number;
   onJoinCouple?: () => void;
+  openCreateSignal?: number;
 }
 
 interface MenuItem {
@@ -94,9 +95,17 @@ export function FloatingAddMenu({
   createCoupleHeightRatio = 0.65,
   createCoupleHeaderFinalTranslateY = 0.17,
   onJoinCouple,
+  openCreateSignal = 0,
 }: FloatingAddMenuProps) {
   const [menuVisible, setMenuVisible] = useState(false);
   const [showCreateSheet, setShowCreateSheet] = useState(false);
+
+  useEffect(() => {
+    if (openCreateSignal > 0) {
+      setMenuVisible(false);
+      setShowCreateSheet(true);
+    }
+  }, [openCreateSignal]);
 
   const pendingActionRef = useRef<'create-couple' | 'join-couple' | null>(null);
   const rotation = useSharedValue(0);

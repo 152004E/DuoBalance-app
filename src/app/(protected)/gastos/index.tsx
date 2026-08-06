@@ -5,6 +5,7 @@ import { router, useFocusEffect, useScrollToTop } from 'expo-router';
 import { HeroSection } from '@/components/layout/HeroSection';
 import { useAuth } from '@/hooks/use-auth';
 import { useGroups } from '@/hooks/use-groups';
+import { useGroupSummaries } from '@/hooks/use-group-summaries';
 import { GroupSelector } from '@/components/ui/group-selector';
 import { GroupSection } from '@/components/ui/group-section';
 import { LoadMoreButton } from '@/components/ui/load-more-button';
@@ -41,6 +42,7 @@ function expenseToRecent(e: ExpenseResponse, userId: string): RecentExpense {
 export default function GastosScreen() {
   const { user } = useAuth();
   const { groups, personalGroups, coupleGroups, sharedGroups } = useGroups();
+  const { summaries } = useGroupSummaries(groups);
   const [focusCount, setFocusCount] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
@@ -195,6 +197,7 @@ export default function GastosScreen() {
           <GroupSection
             title=""
             groups={filteredGroups}
+            summaries={summaries}
             onPress={(group) => router.push(`/grupos/${group.id}`)}
             currentUserId={user?.id}
           />

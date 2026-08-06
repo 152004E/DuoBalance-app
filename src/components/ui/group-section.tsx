@@ -76,6 +76,7 @@ export function GroupSection({
             <GroupCard
               key={group.id}
               group={group}
+              summary={summaries?.[group.id]}
               showMenu={showMenu}
               onPress={() => onPress?.(group)}
               onMenu={() => onMenu?.(group)}
