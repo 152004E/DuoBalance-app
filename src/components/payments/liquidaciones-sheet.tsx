@@ -229,7 +229,10 @@ export function LiquidacionesSheet({
         <View className="px-5 pb-1">
           <View className="mb-1 flex-row items-center justify-end">
             <Pressable
-              onPress={() => router.push(`/grupos/${groupId}/liquidaciones`)}
+              onPress={() => {
+                router.push(`/grupos/${groupId}/liquidaciones`);
+                onClose();
+              }}
               className="flex-row items-center gap-1.5 py-1 active:opacity-70"
             >
               <Text className="text-xs font-semibold text-[#006c49]">

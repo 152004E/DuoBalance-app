@@ -23,7 +23,6 @@ import Reanimated, {
   withSequence,
   Easing as ReEasing,
 } from 'react-native-reanimated';
-import { CoupleSelector } from '@/components/dashboard/CoupleSelector';
 import { useDashboardHeroAnimation } from '@/hooks/use-dashboard-hero-animation';
 
 const AnimatedCircle = Reanimated.createAnimatedComponent(Circle);
@@ -36,8 +35,6 @@ interface DashboardVariantProps {
   balance: number;
   partnerShare: number;
   direction: BalanceDirection;
-  coupleName?: string;
-  onCouplePress?: () => void;
   rightAction?: React.ReactNode;
 }
 
@@ -391,12 +388,7 @@ export function HeroSection(props: HeroSectionProps) {
                   transform: [{ translateY: dashAnim.selectorTranslateY }],
                 }}
               >
-                {props.rightAction ?? (
-                  <CoupleSelector
-                    coupleName={props.coupleName ?? ''}
-                    onPress={props.onCouplePress}
-                  />
-                )}
+                {props.rightAction}
               </Animated.View>
             </View>
           </>
