@@ -91,7 +91,7 @@ Cada nivel depende estrictamente del anterior. No se puede calcular balance sin 
 | WelcomeScreen | `(auth)/` → `index.tsx` | ✅ |
 | Login | `(auth)/login.tsx` | ✅ |
 | Register | `(auth)/register.tsx` | ✅ |
-| Forgot Password | `(auth)/forgot-password.tsx` | 🔄 UI lista, backend pendiente |
+| Forgot Password | `(auth)/forgot-password.tsx` | 🔄 UI lista — backend en Sprint 5 (MailModule Resend) |
 | Dashboard | `(protected)/index.tsx` | ✅ (datos reales via useDashboardData: balance, transacciones, top categoría, aportes; sin mocks) |
 | Gastos (lista) | `(protected)/gastos/index.tsx` | ✅ (API connected via getExpenses, load-more) |
 | Movimientos | `(protected)/gastos/Movimientos.tsx` | ✅ (lista filtrada: FilterSheet período/categoría + buscador) |
@@ -373,6 +373,30 @@ Settlements history muestra:
 
 ---
 
+## Sprint 5: Mail / Email Module (Resend) — MVP
+
+> **Backend** (ver `duobalance-api/docs/PLAN.md` → Phase 8): MailModule independiente con Resend. Ningún módulo envía correos directamente — todo pasa por `MailService`. Cuenta: `doubalanceinfo@gmail.com`.
+
+**Correos del MVP (solo estos 4):**
+1. Verificación de correo al registrarse
+2. Bienvenida
+3. Liquidación mensual (cada mes — resumen de balances/liquidaciones pendientes)
+4. Forgot password
+
+### Tareas frontend
+- [ ] **Forgot Password** — conectar `(auth)/forgot-password.tsx` (UI ya lista) a `POST /auth/forgot-password`: enviar email, estados loading/success/error
+- [ ] **Reset Password** — nueva pantalla `(auth)/reset-password.tsx` que lee `?token=` del link del email y hace `POST /auth/reset-password`
+- [ ] **Verificación de correo** — banner/pantalla "verifica tu email" tras registrarse, botón reenviar, estado verificado
+- [ ] **Deep link** — soportar `duobalance://reset-password?token=...` vía expo-linking (opcional en MVP)
+- [ ] **Bienvenida / Liquidación mensual** — sin UI extra; se envían desde backend
+
+### Criterios de done Sprint 5
+- [ ] Recibir correo de verificación al registrarse y poder verificar la cuenta
+- [ ] Recuperar contraseña completo: pedir reset → recibir email → nueva contraseña → login
+- [ ] Recibir resumen mensual de liquidaciones por correo
+
+---
+
 # Post-MVP: Polish + Production (v1.0)
 
 | Área | Tareas |
@@ -383,7 +407,7 @@ Settlements history muestra:
 | **i18n** | Español/Inglés, react-i18next |
 | **Offline Support** | React Query / TanStack Query, optimistic updates |
 | **Response Interceptor 401** | ✅ Hecho — redirect a login vía `session:expired` + `SessionExpiredAlert` (ver Sprint 4 / Auth) |
-| **Forgot Password** | Backend endpoint + frontend connect (UI ya lista) |
+| **Forgot Password** | ✅ Sprint 5 (MailModule Resend): backend + frontend connect |
 | **App Store Deploy** | EAS Build, TestFlight/Play Console, icons, splash |
 
 - [❌] Push notifications (expo-notifications)

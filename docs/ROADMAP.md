@@ -180,6 +180,16 @@ Settlements history muestra: "Emerson pagó $70.000 a Andrea el 15/01"
 
 ---
 
+## Sprint 5: Emails (Resend) — MVP
+
+> Backend: MailModule con Resend (ver `duobalance-api/docs/ROADMAP.md` → Phase 6). Correos MVP: verificación · bienvenida · liquidación mensual · forgot password.
+
+- [ ] Conectar `forgot-password.tsx` (UI lista) a `POST /auth/forgot-password`
+- [ ] Pantalla `reset-password.tsx` (`?token=` → `POST /auth/reset-password`)
+- [ ] Banner/pantalla de verificación de correo al registrarse
+
+---
+
 ## Post-MVP: Polish + Production (v1.0)
 
 | Área | Tareas |
@@ -190,7 +200,7 @@ Settlements history muestra: "Emerson pagó $70.000 a Andrea el 15/01"
 | **i18n** | Español/Inglés, react-i18next |
 | **Offline Support** | React Query / TanStack Query, optimistic updates |
 | **Response Interceptor 401** | ✅ Hecho — redirect a login vía `session:expired` + `SessionExpiredAlert` |
-| **Forgot Password** | Backend endpoint + frontend connect (UI ya lista) |
+| **Forgot Password** | ✅ Sprint 5 (MailModule Resend): backend + frontend connect |
 | **App Store Deploy** | EAS Build, TestFlight/Play Console, icons, splash |
 
 ---
@@ -230,6 +240,7 @@ Sprint 3  ███████████████████████�
 Sprint 4  ██████████░░░░░░░░░░░░░░░░░  (Payments/settlements backend + PaySheet/LiquidacionesSheet hecho; falta Payment History, suggestions UI)
 v1.0      ░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Polish: receipts, dark mode, i18n, offline, deploy)
 v2.0      ██████░░░░░░░░░░░░░░░░░░░░  (Backend multi-actor hecho; falta frontend v2.0)
+Sprint 5  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Emails: Resend + forgot password + verificación + liquidación mensual)
 ```
 
 **Estimación**: 8-12 semanas a v1.0 (4 sprints × 2-3 sem), 6-8 sem más a v2.0
