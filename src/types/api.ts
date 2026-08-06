@@ -198,6 +198,8 @@ export interface BalanceResponse {
 }
 
 // ─── Payments ────────────────────────────────────────
+export type PaymentStatus = 'PENDING' | 'CONFIRMED' | 'REJECTED';
+
 export interface CreatePaymentPayload {
   amount: number;
   toUserId: string;
@@ -213,6 +215,8 @@ export interface PaymentUser {
 export interface PaymentResponse {
   id: string;
   amount: number;
+  status: PaymentStatus;
+  confirmedAt: string | null;
   fromUserId: string;
   toUserId: string;
   groupId: string;

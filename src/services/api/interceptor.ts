@@ -8,7 +8,12 @@ interface RefreshResponse {
   refresh_token: string;
 }
 
-const AUTH_ENDPOINTS = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout'];
+const AUTH_ENDPOINTS = [
+  '/auth/login',
+  '/auth/register',
+  '/auth/refresh',
+  '/auth/logout',
+];
 
 export function setupInterceptors(api: AxiosInstance) {
   let isRefreshing = false;

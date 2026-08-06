@@ -9,15 +9,28 @@ import {
   regenerateInviteCode,
 } from '@/services/api/groups';
 import { getExpenses } from '@/services/api/expenses';
+import {
+  createPayment,
+  confirmPayment,
+  rejectPayment,
+} from '@/services/api/payments';
 import { getCategoryMeta } from '@/constants/categories';
 import { formatRelativeDate } from '@/utils/date';
-import type { GroupResponse, GroupType, ExpenseResponse } from '@/types/api';
+import type {
+  GroupResponse,
+  GroupType,
+  ExpenseResponse,
+  PaymentResponse,
+} from '@/types/api';
 import { useAuth } from '@/hooks/use-auth';
 import { useWorkspace } from '@/hooks/use-workspace';
+import { useGroupPayments } from '@/hooks/use-group-payments';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Loading } from '@/components/ui/loading';
 import { EmptyState } from '@/components/ui/empty-state';
 import { PartnerBalance } from '@/components/dashboard/PartnerBalance';
+import { PaySheet } from '@/components/payments/pay-sheet';
+import { LiquidacionesSheet } from '@/components/payments/liquidaciones-sheet';
 import {
   RecentExpensesCard,
   type RecentExpense,
@@ -28,6 +41,12 @@ import {
 } from '@components/couple/couple-menu-sheet';
 import { InviteMemberSheet } from '@/components/couple/invite-member-sheet';
 import { AlertModal } from '@/components/ui/alert-modal';
+
+const MEMBER_LIMITS: Record<GroupType, number> = {
+  PERSONAL: 1,
+  COUPLE: 2,
+  GROUP: 5,
+};
 
 const TYPE_CONFIG: Record<
   GroupType,
@@ -66,7 +85,22 @@ export default function CoupleDetail() {
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [regenerateError, setRegenerateError] = useState<string | null>(null);
   const [regenerateSuccess, setRegenerateSuccess] = useState(false);
+  const [paySheetVisible, setPaySheetVisible] = useState(false);
+  const [liquidacionesVisible, setLiquidacionesVisible] = useState(false);
+  const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
+  const [paymentFeedback, setPaymentFeedback] = useState<{
+    title: string;
+    message: string;
+    type: 'success' | 'error';
+  } | null>(null);
   const lastActionRef = useRef<CoupleMenuAction | null>(null);
+
+  const {
+    pendingToConfirm,
+    history,
+    settlement,
+    refetch: refetchPayments,
+  } = useGroupPayments({ groupId: id, userId: user?.id });
 
   useEffect(() => {
     let mounted = true;
@@ -267,6 +301,90 @@ export default function CoupleDetail() {
     }
   }, [id]);
 
+  // ── Payment handlers ───────────────────────────────────────────────────
+  const handleCreatePayment = useCallback(
+    async (payload: { amount: number; toUserId: string }) => {
+      console.log('[liquidar] handleCreatePayment() payload:', payload);
+      console.log('[liquidar]   groupId:', id);
+      setIsSubmittingPayment(true);
+      try {
+        console.log('[liquidar]   llamando createPayment()...');
+        await createPayment({
+          amount: payload.amount,
+          toUserId: payload.toUserId,
+          groupId: id,
+        });
+        console.log('[liquidar]   createPayment() OK, refetching payments...');
+        await refetchPayments();
+        console.log('[liquidar]   refetch OK, cerrando sheet y mostrando feedback');
+        setPaySheetVisible(false);
+        setPaymentFeedback({
+          title: 'Pago registrado',
+          message:
+            'El pago se ha enviado para confirmación. Queda pendiente hasta que la otra persona lo acepte.',
+          type: 'success',
+        });
+      } catch (err: unknown) {
+        console.log('[liquidar]   createPayment() FALLÓ:');
+        console.log('[liquidar]   ', err);
+        const message =
+          err instanceof Error ? err.message : 'Error al registrar el pago';
+        setPaymentFeedback({ title: 'Error', message, type: 'error' });
+      } finally {
+        setIsSubmittingPayment(false);
+      }
+    },
+    [id, refetchPayments],
+  );
+
+  const handleConfirmPayment = useCallback(
+    async (payment: PaymentResponse) => {
+      console.log('[liquidar] handleConfirmPayment() payment:', payment.id);
+      try {
+        console.log('[liquidar]   confirmando pago...');
+        await confirmPayment(payment.id);
+        console.log('[liquidar]   confirmPayment OK, refetching...');
+        await refetchPayments();
+        console.log('[liquidar]   refetch OK');
+        setPaymentFeedback({
+          title: 'Pago aceptado',
+          message: `Has confirmado el pago de ${fmt(payment.amount)}. El saldo se ha actualizado.`,
+          type: 'success',
+        });
+      } catch (err: unknown) {
+        console.log('[liquidar]   confirmPayment FALLÓ:', err);
+        const message =
+          err instanceof Error ? err.message : 'Error al confirmar';
+        setPaymentFeedback({ title: 'Error', message, type: 'error' });
+      }
+    },
+    [refetchPayments],
+  );
+
+  const handleRejectPayment = useCallback(
+    async (payment: PaymentResponse) => {
+      console.log('[liquidar] handleRejectPayment() payment:', payment.id);
+      try {
+        console.log('[liquidar]   rechazando pago...');
+        await rejectPayment(payment.id);
+        console.log('[liquidar]   rejectPayment OK, refetching...');
+        await refetchPayments();
+        console.log('[liquidar]   refetch OK');
+        setPaymentFeedback({
+          title: 'Pago rechazado',
+          message: 'El pago ha sido rechazado. No se descuenta nada del saldo.',
+          type: 'success',
+        });
+      } catch (err: unknown) {
+        console.log('[liquidar]   rejectPayment FALLÓ:', err);
+        const message =
+          err instanceof Error ? err.message : 'Error al rechazar';
+        setPaymentFeedback({ title: 'Error', message, type: 'error' });
+      }
+    },
+    [refetchPayments],
+  );
+
   if (isLoading) {
     return (
       <SafeAreaView className="flex-1 bg-[#F8FAFC]">
@@ -343,7 +461,9 @@ export default function CoupleDetail() {
 
             <View className="mt-5 flex-row flex-wrap gap-3">
               <Pressable
-                onPress={() => router.push(`/gastos/add?groupId=${id}`)}
+                onPress={() =>
+                  router.push(`/gastos/Movimientos?groupId=${id}&create=1`)
+                }
                 className="flex-row items-center gap-2 rounded-lg bg-[#006c49] px-4 py-3 active:opacity-80"
               >
                 <FontAwesome6 name="plus" size={14} color="#FFFFFF" />
@@ -352,7 +472,8 @@ export default function CoupleDetail() {
                 </Text>
               </Pressable>
 
-              {groupType !== 'PERSONAL' && (
+{groupType !== 'PERSONAL' &&
+                memberCount < MEMBER_LIMITS[groupType] && (
                 <Pressable
                   onPress={() => setInviteVisible(true)}
                   className="flex-row items-center gap-2 rounded-lg border border-[#E2E8F0] bg-white px-4 py-3 active:bg-[#F2F4F6]"
@@ -367,17 +488,17 @@ export default function CoupleDetail() {
           </View>
         </View>
 
-        {/* Settlement Status - Alert Card (solo COUPLE y GROUP) */}
-        {groupType !== 'PERSONAL' && (
+        {/* Liquidaciones - Tarjeta con settlement real del backend */}
+        {groupType !== 'PERSONAL' && settlement && (
           <View className="mt-4 px-5">
             <View
               className="rounded-xl border border-[#E2E8F0] bg-white p-4"
               style={{
                 borderLeftWidth: 4,
                 borderLeftColor:
-                  netBalance > 0
+                  settlement.settlementDirection === 'OWED_TO_ME'
                     ? '#F59E0B'
-                    : netBalance < 0
+                    : settlement.settlementDirection === 'I_OWE'
                       ? '#EF4444'
                       : '#10B981',
                 shadowColor: '#0F172A',
@@ -387,13 +508,21 @@ export default function CoupleDetail() {
                 elevation: 2,
               }}
             >
-              <View className="flex-row items-center justify-between">
-                <View className="shrink flex-row items-center gap-3">
+              <View className="flex-col gap-4">
+                <Text className="text-[17px] font-bold text-[#0F172A]">
+                  {settlement.settlementDirection === 'OWED_TO_ME'
+                    ? 'Pendiente de liquidar'
+                    : settlement.settlementDirection === 'I_OWE'
+                      ? 'Debes dinero'
+                      : 'Saldado'}
+                </Text>
+
+                <View className="flex-row items-center gap-3">
                   <View
                     className={`flex h-12 w-12 items-center justify-center rounded-full ${
-                      netBalance > 0
+                      settlement.settlementDirection === 'OWED_TO_ME'
                         ? 'bg-[#F59E0B]/10'
-                        : netBalance < 0
+                        : settlement.settlementDirection === 'I_OWE'
                           ? 'bg-[#EF4444]/10'
                           : 'bg-[#10B981]/10'
                     }`}
@@ -402,37 +531,63 @@ export default function CoupleDetail() {
                       name="hand-holding-dollar"
                       size={20}
                       color={
-                        netBalance > 0
+                        settlement.settlementDirection === 'OWED_TO_ME'
                           ? '#F59E0B'
-                          : netBalance < 0
+                          : settlement.settlementDirection === 'I_OWE'
                             ? '#EF4444'
                             : '#10B981'
                       }
                     />
                   </View>
                   <View className="shrink">
-                    <Text className="text-[17px] font-bold text-[#0F172A]">
-                      {netBalance > 0
-                        ? 'Pendiente de liquidar'
-                        : netBalance < 0
-                          ? 'Debes dinero'
-                          : 'Saldado'}
-                    </Text>
                     <Text className="text-sm text-[#64748B]">
-                      {netBalance > 0
-                        ? `Te deben ${fmt(netBalance)}`
-                        : netBalance < 0
-                          ? `Debes ${fmt(Math.abs(netBalance))}`
+                      {settlement.settlementDirection === 'OWED_TO_ME'
+                        ? `Te deben ${fmt(settlement.netSettlement)}`
+                        : settlement.settlementDirection === 'I_OWE'
+                          ? `Debes ${fmt(settlement.netSettlement)}`
                           : 'No hay deudas pendientes'}
                     </Text>
                   </View>
                 </View>
 
-                <Pressable className="rounded-lg bg-[#006c49] px-3 py-2 active:opacity-80">
-                  <Text className="text-xs font-semibold text-white">
-                    Liquidar
-                  </Text>
-                </Pressable>
+                <View className="flex-col gap-2">
+                  {settlement.settlementDirection === 'I_OWE' && (
+                    <Pressable
+                      onPress={() => setPaySheetVisible(true)}
+                      className="w-full flex-row items-center justify-center gap-2 rounded-lg bg-[#006c49] px-3 py-3 active:opacity-80"
+                    >
+                      <FontAwesome6
+                        name="money-bill-transfer"
+                        size={14}
+                        color="#FFFFFF"
+                      />
+                      <Text className="text-sm font-semibold text-white">
+                        Liquidar
+                      </Text>
+                    </Pressable>
+                  )}
+
+                  <Pressable
+                    onPress={() => setLiquidacionesVisible(true)}
+                    className="w-full flex-row items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-white px-3 py-3 active:bg-[#F2F4F6]"
+                  >
+                    <FontAwesome6
+                      name="clock-rotate-left"
+                      size={14}
+                      color="#0F172A"
+                    />
+                    <Text className="text-sm font-semibold text-[#0F172A]">
+                      Historial de liquidaciones
+                    </Text>
+                    {pendingToConfirm.length > 0 && (
+                      <View className="ml-1 rounded-full bg-[#EF4444] px-2 py-0.5">
+                        <Text className="text-xs font-bold text-white">
+                          {pendingToConfirm.length}
+                        </Text>
+                      </View>
+                    )}
+                  </Pressable>
+                </View>
               </View>
             </View>
           </View>
@@ -651,6 +806,43 @@ export default function CoupleDetail() {
         message={regenerateError ?? ''}
         buttonText="Cerrar"
         onClose={() => setRegenerateError(null)}
+      />
+
+      <PaySheet
+        visible={paySheetVisible}
+        onClose={() => setPaySheetVisible(false)}
+        group={group!}
+        currentUserId={user!.id}
+        amountDue={settlement?.netSettlement ?? 0}
+        creditorId={
+          group.members.find((m) => m.user.id !== user?.id)?.user.id ?? ''
+        }
+        isSubmitting={isSubmittingPayment}
+        onSubmit={handleCreatePayment}
+        heightRatio={0.55}
+        headerFinalTranslateY={0.27}
+      />
+
+      <LiquidacionesSheet
+        visible={liquidacionesVisible}
+        onClose={() => setLiquidacionesVisible(false)}
+        currentUserId={user!.id}
+        pendingToConfirm={pendingToConfirm}
+        history={history}
+        onConfirm={handleConfirmPayment}
+        onReject={handleRejectPayment}
+        isMutating={isSubmittingPayment}
+        heightRatio={0.8}
+        headerFinalTranslateY={0.1}
+      />
+
+      <AlertModal
+        visible={paymentFeedback !== null}
+        type={paymentFeedback?.type === 'success' ? 'success' : 'error'}
+        title={paymentFeedback?.title ?? ''}
+        message={paymentFeedback?.message ?? ''}
+        buttonText="Entendido"
+        onClose={() => setPaymentFeedback(null)}
       />
     </SafeAreaView>
   );

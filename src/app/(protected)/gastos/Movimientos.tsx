@@ -45,7 +45,10 @@ export default function MovimientosScreen() {
   const { user } = useAuth();
   const { workspace } = useWorkspace();
   const { groups, personalGroups, coupleGroups, sharedGroups } = useGroups();
-  const { groupId } = useLocalSearchParams<{ groupId?: string }>();
+  const { groupId, create } = useLocalSearchParams<{
+    groupId?: string;
+    create?: string;
+  }>();
 
   const isGroupMode = !!groupId;
   const groupModeGroup = isGroupMode
@@ -181,6 +184,21 @@ export default function MovimientosScreen() {
   const handleCloseCreateSheet = useCallback(() => {
     setCreatingExpenseGroup(null);
   }, []);
+
+  // Autoabrir el modal de crear gasto cuando se navega con ?create=1
+  useEffect(() => {
+    if (create !== '1') return;
+    const targetGroupId = groupId ?? workspace.groupId;
+    if (!targetGroupId) return;
+    const group = groups.find((g) => g.id === targetGroupId);
+    if (!group) return;
+    const members = group.members.map((m) => ({
+      id: m.user.id,
+      name: m.user.id === user?.id ? 'Tú' : m.user.firstName,
+    }));
+    setCreatingExpenseGroup({ group, members });
+    router.setParams({ create: undefined });
+  }, [create, groupId, workspace.groupId, groups, user?.id]);
 
   const title = isGroupMode
     ? (groupModeGroup?.name ?? 'Movimientos')

@@ -18,7 +18,9 @@ interface WorkspaceContextType {
   resetWorkspace: () => void;
 }
 
-export const WorkspaceContext = createContext<WorkspaceContextType | null>(null);
+export const WorkspaceContext = createContext<WorkspaceContextType | null>(
+  null,
+);
 
 interface Props {
   children: ReactNode;
@@ -52,10 +54,19 @@ export function WorkspaceProvider({ children }: Props) {
       selectGroup,
       resetWorkspace,
     }),
-    [workspace, setWorkspace, selectPersonal, selectCouple, selectGroup, resetWorkspace],
+    [
+      workspace,
+      setWorkspace,
+      selectPersonal,
+      selectCouple,
+      selectGroup,
+      resetWorkspace,
+    ],
   );
 
   return (
-    <WorkspaceContext.Provider value={value}>{children}</WorkspaceContext.Provider>
+    <WorkspaceContext.Provider value={value}>
+      {children}
+    </WorkspaceContext.Provider>
   );
 }

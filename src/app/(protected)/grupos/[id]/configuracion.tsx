@@ -412,8 +412,9 @@ export default function ConfiguracionGrupoScreen() {
               {group.members.map((member, index) => (
                 <View
                   key={member.id}
-                  className={`flex-row items-center justify-between px-5 py-4 ${index > 0 ? 'border-t border-[#E2E8F0]' : ''
-                    }`}
+                  className={`flex-row items-center justify-between px-5 py-4 ${
+                    index > 0 ? 'border-t border-[#E2E8F0]' : ''
+                  }`}
                 >
                   <View className="flex-row items-center gap-4">
                     <View className="h-10 w-10 items-center justify-center rounded-full bg-[#E2E8F0]">

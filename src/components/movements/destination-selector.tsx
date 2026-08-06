@@ -106,9 +106,7 @@ export function DestinationSelector({
       subtitle={config.subtitle}
       onClose={onClose}
       gradientPaddingBottom={500}
-      
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
-      
     />
   );
 

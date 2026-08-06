@@ -9,7 +9,10 @@ const AUTO_REDIRECT_TIMEOUT = 15000;
 const AUTH_PATHS = ['/login', '/register', '/forgot-password'];
 
 function isAuthScreen(pathname: string) {
-  return pathname === '/' || AUTH_PATHS.some((p) => pathname === p || pathname.startsWith(p));
+  return (
+    pathname === '/' ||
+    AUTH_PATHS.some((p) => pathname === p || pathname.startsWith(p))
+  );
 }
 
 export function SessionExpiredAlert() {

@@ -1,6 +1,10 @@
 import { createContext, useEffect, useState, ReactNode } from 'react';
 
-import { tokenStorage, refreshTokenStorage, userStorage } from '@/storage/token';
+import {
+  tokenStorage,
+  refreshTokenStorage,
+  userStorage,
+} from '@/storage/token';
 import { eventEmitter } from '@/utils/event-emitter';
 import { getJwtExp } from '@/utils/jwt';
 import { getProfile } from '@/services/api/auth';
@@ -14,7 +18,11 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
 
-  signIn: (user: User, accessToken: string, refreshToken: string) => Promise<void>;
+  signIn: (
+    user: User,
+    accessToken: string,
+    refreshToken: string,
+  ) => Promise<void>;
   signOut: () => Promise<void>;
   updateUser: (user: User) => Promise<void>;
 }
@@ -30,7 +38,11 @@ export function AuthProvider({ children }: Props) {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  async function signIn(userData: User, accessToken: string, refreshToken: string) {
+  async function signIn(
+    userData: User,
+    accessToken: string,
+    refreshToken: string,
+  ) {
     await tokenStorage.set(accessToken);
     await refreshTokenStorage.set(refreshToken);
     await userStorage.set(userData);

@@ -28,4 +28,32 @@ Convertir un grupo de un tipo a otro (e.g., `COUPLE` → `GROUP`, `GROUP` → `C
 
 ## Other Future Ideas
 
-*(Placeholder — agregar aquí cuando surjan)*
+### In-App Notifications
+
+Feed global dentro de la app para solicitudes de pago pendientes, badges de confirmaciones, y eventualmente reemplazar por push notifications reales.
+
+- Centro de notificaciones (icono de campana en header) que agrupa:
+  - Solicitudes de pago recibidas (PENDING donde soy receptor)
+  - Confirmaciones/rechazos de pagos que envié
+  - Alertas de liquidaciones completadas
+- Badge con contador de no leídas
+- Al tocar una notificación → navega al grupo correspondiente y abre Liquidaciones sheet en tab "Por confirmar"
+- Cuando haya push notifications reales → este feed sirve de fallback/historial
+
+### Super Admin
+
+Panel de analítica global para administradores de la plataforma (no dueños de grupo).
+
+- Vista de métricas agregadas:
+  - Total de usuarios registrados
+  - Total de grupos/parejas activos
+  - Total de gastos registrados
+  - Volumen total de pagos/liquidaciones
+  - Grupos más activos / usuarios más activos
+- Filtros por rango de fechas
+- No permite modificar datos — solo lectura/analítica
+- Acceso restringido a cuentas con rol `SUPER_ADMIN` (nuevo campo en User o tabla aparte)
+
+---
+
+## Group Type Conversion
