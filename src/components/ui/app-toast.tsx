@@ -6,15 +6,20 @@ interface AppToastProps {
   text1?: string;
   text2?: string;
   onPress: () => void;
-  type: 'success' | 'error';
+  type: 'success' | 'error' | 'warning';
 }
 
-/** Toast custom: arriba a la derecha, con variantes success (verde) y error (rojo). */
+/** Toast custom: arriba a la derecha, con variantes success (verde), error (rojo) y warning (ámbar). */
 function AppToast({ text1, text2, onPress, type }: AppToastProps) {
-  const isSuccess = type === 'success';
-  const bg = isSuccess ? '#065238' : '#7F1D1D';
-  const icon = isSuccess ? 'circle-check' : 'circle-xmark';
-  const iconColor = isSuccess ? '#22C55E' : '#F87171';
+  const bg = type === 'success' ? '#065238' : type === 'error' ? '#7F1D1D' : '#7C2D12';
+  const icon =
+    type === 'success'
+      ? 'circle-check'
+      : type === 'error'
+        ? 'circle-xmark'
+        : 'circle-exclamation';
+  const iconColor =
+    type === 'success' ? '#22C55E' : type === 'error' ? '#F87171' : '#FBBF24';
 
   return (
     <View className="w-full items-end px-4 pt-2">
@@ -48,12 +53,15 @@ function AppToast({ text1, text2, onPress, type }: AppToastProps) {
   );
 }
 
-/** Config para react-native-toast-message: tipos success y error con el mismo layout. */
+/** Config para react-native-toast-message: tipos success, error y warning con el mismo layout. */
 export const appToastConfig: ToastConfig = {
   success: ({ text1, text2, onPress }) => (
     <AppToast text1={text1} text2={text2} onPress={onPress} type="success" />
   ),
   error: ({ text1, text2, onPress }) => (
     <AppToast text1={text1} text2={text2} onPress={onPress} type="error" />
+  ),
+  warning: ({ text1, text2, onPress }) => (
+    <AppToast text1={text1} text2={text2} onPress={onPress} type="warning" />
   ),
 };

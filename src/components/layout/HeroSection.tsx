@@ -362,10 +362,18 @@ export function HeroSection(props: HeroSectionProps) {
                 }}
               >
                 <View
-                  className={`mt-1 rounded-full px-5 py-1.5 ${props.direction === 'SETTLED' ? 'bg-green-200' : 'bg-red-100'}`}
+                  className={`mt-1 rounded-full px-5 py-1.5 ${
+                    props.direction === 'I_OWE'
+                      ? 'bg-red-100'
+                      : 'bg-green-200'
+                  }`}
                 >
                   <Text
-                    className={`text-sm font-medium ${props.direction === 'SETTLED' ? 'text-green-800' : 'text-red-700'}`}
+                    className={`text-sm font-medium ${
+                      props.direction === 'I_OWE'
+                        ? 'text-red-700'
+                        : 'text-green-800'
+                    }`}
                   >
                     {props.direction === 'SETTLED'
                       ? 'Cuentas equilibradas'

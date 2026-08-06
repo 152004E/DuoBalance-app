@@ -1,4 +1,4 @@
-import { useCallback, useState, useRef } from 'react';
+import { useCallback, useState, useRef, useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useScrollToTop, router } from 'expo-router';
@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useGroups } from '@/hooks/use-groups';
 import { useGroupSummaries } from '@/hooks/use-group-summaries';
 import { useDashboardData } from '@/hooks/use-dashboard-data';
+import { useSettlementSuggestions } from '@/hooks/use-settlement-suggestions';
 import { HeroSection } from '@/components/layout/HeroSection';
 import { GroupSelector } from '@/components/ui/group-selector';
 import { GroupSection } from '@/components/ui/group-section';
@@ -18,6 +19,10 @@ import { TopCategory } from '@/components/dashboard/TopCategory';
 import { PartnerBalance } from '@/components/dashboard/PartnerBalance';
 import { FloatingAddButton } from '@/components/dashboard/FloatingAddButton';
 import { useWorkspace } from '@/hooks/use-workspace';
+import Toast from 'react-native-toast-message';
+
+const fmt = (value: number) =>
+  `$${Math.round(value).toLocaleString('es-CL')}`;
 
 export default function DashboardScreen() {
   const { user } = useAuth();
@@ -35,6 +40,15 @@ export default function DashboardScreen() {
     memberSplit,
     refetch,
   } = useDashboardData(workspace, groups, user?.id);
+  const {
+    dues,
+    totalDue,
+    refetch: refetchSuggestions,
+  } = useSettlementSuggestions({
+    workspace,
+    groups,
+    userId: user?.id,
+  });
   const [focusCount, setFocusCount] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
@@ -55,8 +69,24 @@ export default function DashboardScreen() {
     useCallback(() => {
       setFocusCount((c) => c + 1);
       refetch();
-    }, [refetch]),
+      refetchSuggestions();
+    }, [refetch, refetchSuggestions]),
   );
+
+  useEffect(() => {
+    if (dues.length === 0) return;
+    const primary = dues[0];
+    Toast.show({
+      type: 'warning',
+      text1:
+        dues.length === 1
+          ? `Le debes a ${primary.toFirstName} ${fmt(totalDue)}`
+          : `Tienes deudas por ${fmt(totalDue)}`,
+      text2: 'Toca para liquidar y saldar',
+      visibilityTime: 6000,
+      onPress: () => router.push(`/grupos/${primary.groupId}?liquidar=1`),
+    });
+  }, [dues, totalDue]);
 
   return (
     <SafeAreaView className="relative flex-1 bg-[#F8FAFC]" edges={['top']}>

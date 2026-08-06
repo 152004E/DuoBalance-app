@@ -199,9 +199,12 @@ interface ExpenseQueryParams {
 }
 
 // Payments
+type PaymentStatus = 'PENDING' | 'CONFIRMED' | 'REJECTED';
+
 interface CreatePaymentPayload {
   amount: number;
   toUserId: string;
+  groupId?: string;
 }
 ```
 
@@ -304,9 +307,9 @@ interface PaymentResponse {
   id: string;
   amount: number;
   status: PaymentStatus;        // 'PENDING' | 'CONFIRMED' | 'REJECTED' — el dashboard solo suma CONFIRMED
-  confirmedAt: string | null;
-  fromUserId: string;
-  toUserId: string;
+  confirmedAt: string | null;   // fecha de confirmación (null si PENDING)
+  fromUserId: string;           // quién pagó
+  toUserId: string;             // quién recibe
   groupId: string;
   createdAt: string;
   fromUser?: PaymentUser;
@@ -331,6 +334,26 @@ interface SettlementResponse {
   paymentsReceived: number;
   netSettlement: number;
   settlementDirection: BalanceDirection;
+}
+
+// Settlement Suggestions (GET /settlements/suggestions)
+interface SettlementMember {
+  user: UserBrief;
+  paid: number;
+  share: number;
+  balance: number;
+}
+
+interface SettlementSuggestion {
+  from: UserBrief;   // quien debe
+  to: UserBrief;     // a quién le debe
+  amount: number;
+}
+
+interface SettlementSuggestionsResponse {
+  group: { id: string; name: string };
+  members: SettlementMember[];
+  suggestions: SettlementSuggestion[]; // "Pedro → Ana: $150"
 }
 
 // Dashboard
@@ -415,6 +438,9 @@ interface ApiError {
 | DELETE | /expenses/:id | Yes | Soft-delete expense |
 | GET | /balances | Yes | Get balance summary |
 | POST | /payments | Yes | Record payment |
-| GET | /payments | Yes | Payment history |
-| GET | /settlements | Yes | Net settlement calculation |
+| GET | /payments | Yes | Payment history (con ?groupId=) |
+| POST | /payments/:id/confirm | Yes | Confirm a pending payment |
+| POST | /payments/:id/reject | Yes | Reject a pending payment |
+| GET | /settlements | Yes | Net settlement calculation (con ?groupId=) |
+| GET | /settlements/suggestions | Yes | Settlement suggestions ("quién le debe a quién") |
 | GET | /dashboard | Yes | Dashboard summary |

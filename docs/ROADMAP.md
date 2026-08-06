@@ -142,6 +142,8 @@ Balance neto del Dashboard (client-side, useDashboardData):
 ## Sprint 4: Settlements + Payments
 **Goal**: Registrar pagos entre usuarios para saldar balances
 
+> **Estado:** El registro de pagos ya está implementado en frontend (vía `PaySheet`/`LiquidacionesSheet` del Group Detail) y el backend de settlements/payments ya está (getSettlement, getSettlementSuggestions). Queda la UI por fuera: pantalla dedicada de Payment History y cards de suggestions.
+
 ### Flujo
 ```
 Balance: Emerson debe $70.000 a Andrea
@@ -160,19 +162,21 @@ Settlements history muestra: "Emerson pagó $70.000 a Andrea el 15/01"
 ```
 
 ### Tareas Sprint 4
-- [❌] **Backend**: Verificar `POST /payments`, `GET /payments`, `GET /settlements`, `GET /settlements/suggestions`
-- [❌] **Frontend API**: `src/services/api/payments.ts` — payments + settlements
-- [❌] **Pay Screen**: Seleccionar monto, confirmar pago, registrar en API
-- [❌] **Payment History**: Lista de pagos realizados/recibidos
-- [❌] **Settlement Suggestions**: Cards "Transfiere $X a Y para saldar"
-- [❌] **Dashboard**: Mostrar suggestions si hay balances pendientes
-- [❌] **Group Detail**: Settlement status card con botón "Saldar"
+- [✅] **Backend**: Verificado — `POST /payments`, `GET /payments`, `POST /payments/:id/confirm`, `POST /payments/:id/reject`, `GET /settlements`, `GET /settlements/suggestions`
+- [✅] **Frontend API**: `src/services/api/payments.ts` — payments + settlements (+ confirmPayment/rejectPayment)
+- [✅] **Registrar pago / abono parcial** — `PaySheet` en Group Detail (monto editable)
+- [✅] **Confirmar/rechazar solicitudes** — `LiquidacionesSheet` (tabs "Por confirmar"/"Historial")
+- [✅] **Settlement status card en Group Detail** — con botón "Liquidar" y "Historial de liquidaciones"; sincronizado con el balance (pagos CONFIRMED)
+- [❌] **Pay Screen** (standalone)
+- [❌] **Payment History** (standalone)
+- [❌] **Settlement Suggestions** — Cards "Transfiere $X a Y para saldar"
+- [❌] **Dashboard** — Mostrar suggestions si hay balances pendientes
 
 ### Criterios de done Sprint 4
-- Usuario puede registrar pago y ver historial
-- Sugerencias automáticas: "Para saldar, transfiere $70.000 a Andrea"
-- Balance cambia a SETTLED tras payment
-- Settlements endpoint devuelve neto histórico
+- [✅] Usuario puede registrar pago y ver historial
+- [❌] Sugerencias automáticas: "Para saldar, transfiere $70.000 a Andrea"
+- [✅] Balance cambia a SETTLED tras payment confirmado
+- [✅] Settlements endpoint devuelve neto histórico
 
 ---
 
@@ -185,8 +189,8 @@ Settlements history muestra: "Emerson pagó $70.000 a Andrea el 15/01"
 | **Dark Mode** | Theme context, toggle, persist |
 | **i18n** | Español/Inglés, react-i18next |
 | **Offline Support** | React Query / TanStack Query, optimistic updates |
-| **Response Interceptor 401** | Redirect a login en axios interceptor |
-| **Forgot Password** | Backend endpoint + frontend connect |
+| **Response Interceptor 401** | ✅ Hecho — redirect a login vía `session:expired` + `SessionExpiredAlert` |
+| **Forgot Password** | Backend endpoint + frontend connect (UI ya lista) |
 | **App Store Deploy** | EAS Build, TestFlight/Play Console, icons, splash |
 
 ---
@@ -195,18 +199,18 @@ Settlements history muestra: "Emerson pagó $70.000 a Andrea el 15/01"
 
 > Frontend ya migrado a terminología "Grupos" y selector de tipo en CreateGroupSheet.
 
-### Backend pendiente
-- [❌] DB: `couples` → `groups` con columna `type` (PERSONAL|COUPLE|GROUP)
-- [❌] DB: `group_members` N:N con `splitPercentage`
-- [❌] API: endpoints `couples` → `groups`, splits N-way
-- [❌] Splits generalizados para N miembros
+### Backend — ✅ ya realizado
+- [✅] DB: `couples` → `groups` con columna `type` (PERSONAL|COUPLE|GROUP) — `Group.type` en Prisma
+- [✅] DB: `group_members` N:N con `splitPercentage` y `MemberRole`
+- [✅] API: endpoints `couples` → `groups`, splits N-way
+- [✅] Splits generalizados para N miembros
 
 ### Frontend pendiente
 - [❌] `grupos/crear.tsx` con selector tipo (Personal/Pareja/Grupo)
 - [❌] `grupos/[id]/miembros.tsx` gestión miembros (solo GROUP)
 - [❌] Dashboard: selector global de grupo con badge de tipo
-- [❌] Generalizar: `CoupleCard`→`GroupCard`, `PartnerBalance`→`MemberBalance`
-- [❌] Split Picker adaptativo: 1 pers (sin split), 2 pers (50/50/%), N pers (equal/%/custom)
+- [🔄] Generalizar: `CoupleCard`→`GroupCard`, `PartnerBalance`→`MemberBalance` (GroupCard ya existe en `ui/`, quedan legacy `dashboard/CoupleCard` y `couple/couple-card` por depurar)
+- [🔄] Split Picker adaptativo: mayormente hecho en CreateExpenseSheet (PERSONAL sin split, COUPLE Igual/Porcentaje, GROUP equitativo)
 
 ### Fases v2.0
 | Fase | Actor | Prioridad |
@@ -223,9 +227,9 @@ Settlements history muestra: "Emerson pagó $70.000 a Andrea el 15/01"
 Sprint 1  ████████████████████████████  (Expenses CRUD + conectar API real — completo)
 Sprint 2  ██████████░░░░░░░░░░░░░░░░░  (Shares persistidos en BD; falta Split Picker N-way)
 Sprint 3  ████████████████████████████  (Balance Engine + Dashboard real — completo)
-Sprint 4  ░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Settlements + Payments)
+Sprint 4  ██████████░░░░░░░░░░░░░░░░░  (Payments/settlements backend + PaySheet/LiquidacionesSheet hecho; falta Payment History, suggestions UI)
 v1.0      ░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Polish: receipts, dark mode, i18n, offline, deploy)
-v2.0      ░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Multi-actor: Personal/Pareja/Grupo)
+v2.0      ██████░░░░░░░░░░░░░░░░░░░░  (Backend multi-actor hecho; falta frontend v2.0)
 ```
 
 **Estimación**: 8-12 semanas a v1.0 (4 sprints × 2-3 sem), 6-8 sem más a v2.0

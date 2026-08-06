@@ -68,7 +68,10 @@ const TYPE_CONFIG: Record<
 };
 
 export default function CoupleDetail() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, liquidar } = useLocalSearchParams<{
+    id: string;
+    liquidar?: string;
+  }>();
   const { user } = useAuth();
   const { setWorkspace } = useWorkspace();
   const [group, setGroup] = useState<GroupResponse | null>(null);
@@ -101,6 +104,14 @@ export default function CoupleDetail() {
     settlement,
     refetch: refetchPayments,
   } = useGroupPayments({ groupId: id, userId: user?.id });
+
+  useEffect(() => {
+    if (liquidar === '1' && group && settlement) {
+      if (settlement.settlementDirection === 'I_OWE') {
+        setPaySheetVisible(true);
+      }
+    }
+  }, [liquidar, group, settlement]);
 
   useEffect(() => {
     let mounted = true;

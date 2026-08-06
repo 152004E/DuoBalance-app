@@ -91,7 +91,7 @@ DuoBalance-app/
 │   │   ├── category/          # Category badge component
 │   │   ├── couple/            # Couple-related components
 │   │   └── dashboard/         # Dashboard components
-│   ├── features/              # Feature modules (auth/ has AuthContext; couple/, dashboard/, expenses/, payments/ are empty — pending API service creation)
+│   ├── features/              # Feature modules (auth/ has AuthContext; workspace/ has the global workspace context)
 │   ├── services/              # API client and external services
 │   ├── storage/               # Secure storage wrappers
 │   ├── hooks/                 # Custom React hooks

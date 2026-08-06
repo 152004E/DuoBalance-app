@@ -42,14 +42,14 @@ DuoBalance-app/
 │   │       ├── gastos/              Expense routes (directory-based)
 │   │       │   ├── _layout.tsx      Gastos Stack navigator
 │   │       │   ├── index.tsx        Gastos screen (hero + Últimos Movimientos con load-more)
-│   │       │   ├── Movimientos.tsx  Movimientos list (FilterSheet: período + categoría + buscador + workspace)
-│   │       │   ├── add.tsx          Add expense form
+│   │       │   ├── Movimientos.tsx  Movimientos list (FilterSheet: período + categoría + buscador + workspace; `?create=1` autoabre CreateExpenseSheet)
+│   │       │   ├── [id].tsx         Shim de compatibilidad (Redirect → /gastos/detalle/[id]) — NO existe add.tsx
 │   │       │   └── detalle/
 │   │       │       └── [id].tsx     Expense detail (hero, info, participants, split, receipt, timeline, actions)
 │   │   └── grupos/               Group stack routes
 │   │           ├── _layout.tsx      Grupos Stack navigator
 │   │           ├── index.tsx        Group list (GroupSection, group filter, create/join sheets — API connected)
-│   │           ├── [id].tsx         Group detail (financial hero, settlement, distribution, expenses)
+│   │           ├── [id].tsx         Group detail (financial hero, settlement card real, LiquidacionesSheet + PaySheet, distribution, expenses)
 │   │           └── [id]/            Group sub-routes
 │   │               ├── configuracion.tsx  Group settings (name, split %, members, invite code, regenerate code, notifications, danger zone — API connected)
 │   │               └── gastos.tsx        Per-group expense list with date/category filters + CreateExpenseSheet
@@ -69,18 +69,21 @@ DuoBalance-app/
 │   │   │   ├── distribution-bar.tsx  Horizontal stacked distribution bar with legends
 │   │   │   ├── group-section.tsx    Reusable section component for group lists (horizontal/vertical)
 │   │   │   ├── group-selector.tsx   Dropdown-style group selector for filtering
+│   │   │   ├── group-card.tsx       GroupCard (total del mes + barra de distribución por tipo + "Agregar gasto")
+│   │   │   ├── load-more-button.tsx LoadMoreButton ("Cargar más movimientos"; visibleCount/totalCount/step)
 │   │   │   └── app-toast.tsx        Toast custom arriba a la derecha (success/error) vía react-native-toast-message
 │   │   ├── auth/                    Auth-specific reusable components
 │   │   │   ├── auth-header.tsx      Logo + title + optional subtitle
 │   │   │   ├── auth-divider.tsx     "O continúa con" separator
 │   │   │   ├── social-login-button.tsx  Google/Apple login buttons (UI only)
-│   │   │   └── auth-footer.tsx      Navigation text + link (e.g. "¿No tienes cuenta? Crear cuenta")
+│   │   │   ├── auth-footer.tsx      Navigation text + link (e.g. "¿No tienes cuenta? Crear cuenta")
+│   │   │   └── session-expired-alert.tsx  Escucha `session:expired` (401) → AlertModal + redirect a /login
 │   │   ├── welcome/                 Welcome screen components
 │   │   │   ├── welcome-screen.tsx   Full welcome landing page
 │   │   │   ├── hero-section.tsx     SVG gradient hero with diagonal
 │   │   │   └── benefit-card.tsx     Icon + text benefit row
 │   │   ├── layout/                  Layout components
-│   │   │   ├── bottom-tab.tsx       Custom bottom tab bar (5 tabs: Inicio, Gastos, Pareja, Reportes, Perfil)
+│   │   │   ├── bottom-tab.tsx       Custom bottom tab bar (5 tabs: Inicio, Gastos, Grupos, Reportes, Perfil)
 │   │   │   ├── screen-header.tsx    Title + subtitle + optional back button
 │   │   │   ├── splash-screen.tsx    Animated splash with gradient + logo
 │   │   │   └── HeroSection.tsx      Unified hero (dashboard/page variants)
@@ -100,9 +103,20 @@ DuoBalance-app/
 │   │   │   ├── invite-code-card.tsx  Invite code display with copy + refresh
 │   │   │   ├── create-couple-sheet.tsx  Bottom sheet form: name + percentage split + generate code
 │   │   │   ├── couple-menu-sheet.tsx  Bottom sheet to manage couple settings/options
-│   │   │   └── invite-member-sheet.tsx  Bottom sheet displaying invite code with copy/QR
+│   │   │   ├── invite-member-sheet.tsx  Bottom sheet displaying invite code with copy/QR
+│   │   │   └── join-group-sheet.tsx  Join group via invite code (entry + QR placeholder)
+│   │   ├── payments/                 Payment/settlement components
+│   │   │   ├── liquidaciones-sheet.tsx  LiquidacionesSheet — tabs "Por confirmar"/"Historial", confirmar/rechazar
+│   │   │   └── pay-sheet.tsx         PaySheet — abono parcial editable; destino auto en COUPLE, select en GROUP
+│   │   ├── perfil/                   Profile components
+│   │   │   ├── profile-card.tsx      ProfileCard (avatar, nombre, email)
+│   │   │   └── image-preview-modal.tsx  ImagePreviewModal (preview avatar del ImagePicker)
+│   │   ├── expenses/
+│   │   │   └── couple-expense-card.tsx  CoupleExpenseCard (reparto Tú vs pareja — ⚠️ no se importa en pantallas activas)
 │   │   └── dashboard/               Dashboard-specific components
 │   │       ├── BalanceCard.tsx      Balance summary (income/expenses/net)
+│   │       ├── CoupleSelector.tsx   Couple dropdown (usado en HeroSection del Dashboard)
+│   │       ├── CoupleCard.tsx       Card de pareja con balance/status — ⚠️ sin importar; se solapa con couple/couple-card y ui/group-card
 │   │       ├── PartnerBalance.tsx   Partner balance card (owed/to whom)
 │   │       ├── RecentExpensesCard.tsx (expenses/)  Gastos recientes + navegación al detalle (trunca textos largos)
 │   │       ├── FloatingAddButton.tsx   Simple floating action button with shadow (used in Dashboard)
@@ -115,10 +129,6 @@ DuoBalance-app/
 │   ├── features/                    Feature modules (domain-driven)
 │   │   ├── auth/
 │   │   │   └── auth.context.tsx     AuthContext + AuthProvider
-│   │   ├── couple/                  (empty — pending API service creation)
-│   │   ├── dashboard/               (empty — pending API service creation)
-│   │   ├── expenses/                (empty — pending API service creation)
-│   │   ├── payments/                (empty — pending API service creation)
 │   │   └── workspace/
 │   │       ├── workspace.context.tsx  WorkspaceProvider (envuelve los Tabs en (protected)/_layout.tsx)
 │   │       ├── workspace.types.ts     WorkspaceState = FilterState (categoría + groupId)
@@ -127,13 +137,13 @@ DuoBalance-app/
 │   ├── services/
 │   │   └── api/
 │   │       ├── client.ts            Axios instance (baseURL, timeout)
-│   │       ├── interceptor.ts       Bearer token request interceptor
+│   │       ├── interceptor.ts       Axios interceptors (Bearer token + response 401 → refresh / emite `session:expired`)
 │   │       ├── auth.ts              authService (login, register, getProfile, updateProfile, changePassword, uploadAvatar)
 │   │       ├── groups.ts            Groups API service (create, join, list, get, update, delete, archive, regenerate invite, remove member, update split)
 │   │       ├── expenses.ts          ✅ Expense CRUD (create, list, get, update, delete)
-│   │       ├── balances.ts          ❌ (pending) — balance summary
-│   │       ├── payments.ts          ✅ Payments + Settlements (createPayment, getPayments, getSettlement, getSettlementSuggestions — con ?groupId=)
-│   │       └── dashboard.ts         ❌ (pending) — dashboard summary
+│   │       ├── payments.ts          ✅ Payments + Settlements (createPayment, getPayments, getSettlement, getSettlementSuggestions, confirmPayment, rejectPayment — con ?groupId=)
+│   │       ├── balances.ts          ❌ (no se crea — obsoleto client-side)
+│   │       └── dashboard.ts         ❌ (no se crea — obsoleto client-side)
 │   │
 │   ├── storage/
 │   │   └── token.ts                 SecureStore wrapper (token + user)
@@ -146,6 +156,7 @@ DuoBalance-app/
 │   │   ├── use-groups.ts            Groups loader from API, classifies by type (PERSONAL/COUPLE/GROUP)
 │   │   ├── use-workspace.ts         useWorkspace hook (workspace global compartido)
 │   │   ├── use-group-summaries.ts   Resumen real por grupo (count + total del mes)
+│   │   ├── use-group-payments.ts    Pagos + settlement del grupo (pendingToConfirm y history)
 │   │   ├── use-reports-data.ts      Datos de Reportes agregados por categoría/miembro + período
 │   │   └── use-dashboard-data.ts    Datos del Dashboard por workspace (balance neto incluyendo pagos confirmados, transacciones, top categoría, aportes)
 │   │
@@ -204,16 +215,16 @@ App (Expo Router)
 │       └── "Volver a Iniciar sesión" → /login
 │
 └── (protected) — Authenticated (redirects to /login if no user)
-    │   Bottom Tab: Inicio | Gastos | Pareja | Reportes | Perfil
+    │   Bottom Tab: Inicio | Gastos | Grupos | Reportes | Perfil
     ├── /inicio (index)
     │       └── Dashboard (HeroSection, GroupSection,
     │                          RecentExpensesCard, TopCategory, Aportes del mes, FloatingAddButton)
     ├── /gastos
     │   ├── /gastos (index) — Gastos (hero + Últimos Movimientos con load-more)
-    │   ├── /gastos/Movimientos — Lista completa con filtros (FilterSheet: período/categoría + buscador)
-    │   ├── /gastos/add — Add expense form
+    │   ├── /gastos/Movimientos — Lista completa con filtros (FilterSheet: período/categoría + buscador; `?create=1` autoabre CreateExpenseSheet)
     │   └── /gastos/detalle/[id] — Expense detail (hero, info, participants, split, receipt, timeline, actions)
     │       (participants/split se ocultan para grupos PERSONAL o splitType PERSONAL)
+    │       ([id] legacy → Redirect a detalle/[id]; no existe add.tsx — creación vía CreateExpenseSheet)
     ├── /grupos
     │   ├── /grupos (index) — Group list (API connected via useGroups)
     │   │   ├── Group filter (dropdown: All / Personal / Couple / Group)
@@ -225,7 +236,9 @@ App (Expo Router)
     │   │   └── InviteMemberSheet (invite code display + copy)
     │   └── /grupos/[id] — Group detail
     │       ├── Financial hero card (total consolidated spending)
-    │       ├── Settlement status card
+    │       ├── Settlement status card (real del backend via useGroupPayments)
+    │       ├── LiquidacionesSheet — tabs "Por confirmar"/"Historial" (confirmar/rechazar pagos)
+    │       ├── PaySheet — "Liquidar" (solo cuando yo debo): abono parcial editable
     │       ├── DistributionBar
     │       ├── Recent expenses (RecentExpensesCard)
     │       ├── "Registrar gasto" → CreateExpenseSheet (bottom sheet)

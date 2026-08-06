@@ -95,10 +95,10 @@ Cada nivel depende estrictamente del anterior. No se puede calcular balance sin 
 | Dashboard | `(protected)/index.tsx` | ✅ (datos reales via useDashboardData: balance, transacciones, top categoría, aportes; sin mocks) |
 | Gastos (lista) | `(protected)/gastos/index.tsx` | ✅ (API connected via getExpenses, load-more) |
 | Movimientos | `(protected)/gastos/Movimientos.tsx` | ✅ (lista filtrada: FilterSheet período/categoría + buscador) |
-| Add Expense | `(protected)/gastos/add.tsx` | ✅ (standalone form) |
+| Add Expense | — | ✅ (NO existe `gastos/add.tsx`; se crea vía `Movimientos.tsx?create=1` / `gastos/index.tsx` → CreateExpenseSheet) |
 | Expense Detail | `(protected)/gastos/detalle/[id].tsx` | ✅ (API connected: getExpense, updateExpense, deleteExpense; menú Editar/Eliminar funcional) |
 | Group List | `(protected)/grupos/index.tsx` | ✅ (API connected via useGroups) |
-| Group Detail | `(protected)/grupos/[id].tsx` | ✅ (datos reales: total, distribución, settlement, gastos clickeables; salir/regenerar con alertas) |
+| Group Detail | `(protected)/grupos/[id].tsx` | ✅ (datos reales: total, distribución, settlement real del backend, gastos clickeables; salir/regenerar con alertas) — **incluye flujo de liquidaciones**: LiquidacionesSheet (confirmar/rechazar) + PaySheet (abono parcial) |
 | Join Group | `(protected)/grupos/join.tsx` | ✅ (JoinGroupSheet, API connected) |
 | Group Expenses | `(protected)/grupos/[id]/gastos.tsx` | ✅ (API connected: getExpenses, createExpense) |
 | Reports | `(protected)/reportes.tsx` | ✅ (datos reales via useReportsData + filtro de período estilo Movimientos) |
@@ -108,8 +108,8 @@ Cada nivel depende estrictamente del anterior. No se puede calcular balance sin 
 | Seguridad / Change Password | `(protected)/perfil/seguridad.tsx` | ✅ (validation, API, AlertModal) |
 | Acerca de | `(protected)/perfil/acerca.tsx` | ✅ (hero, funcionalidades, historia, stack, versión real vía expo-constants) |
 | Group Settings | `(protected)/grupos/[id]/configuracion.tsx` | ✅ (API connected) |
-| Pay Screen | `(protected)/pagos/index.tsx` | ❌ |
-| Payment History | `(protected)/pagos/` | ❌ |
+| Pay Screen | `(protected)/pagos/index.tsx` | ❌ (pantalla standalone no existe; **parcialmente cubierto** por el `PaySheet` del Group Detail — registrar pago/abono parcial ya funciona) |
+| Payment History | `(protected)/pagos/` | ❌ (pantalla standalone no existe; **parcialmente cubierto** por el `LiquidacionesSheet` del Group Detail) |
 | Receipt Capture | `(protected)/gastos/receipt.tsx` | ❌ |
 
 ---
@@ -151,7 +151,7 @@ En esta fase **aún no se muestra quién le debe a quién** (eso es Sprint 3). S
 - [✅] Protected route wrapper (redirect a login si no token)
 - [✅] Token persistence
 - [🔄] Forgot password — UI completa, backend endpoint pendiente
-- [❌] Response interceptor (401 → redirect a login)
+- [✅] Response interceptor (401 → redirect a login) — implementado vía `session:expired` (interceptor.ts) + `SessionExpiredAlert` (redirige a `/login`, auto 15s)
 
 ## ✅ Groups (API connected)
 - [✅] Group list screen (GroupCard, FloatingAddMenu, JoinGroupSheet, InviteMemberSheet)
@@ -319,30 +319,57 @@ Settlements history muestra:
     "Emerson pagó $70.000 a Andrea el 15/01/2026"
 ```
 
-## ❌ Sprint 4 — Pendiente
+## ✅🔄 Sprint 4 — Settlements + Payments (parcial en frontend)
 
-### Backend (verificar)
-- [❌] `POST /payments` — registrar pago entre usuarios
-- [❌] `GET /payments` — historial de pagos (con filtros)
-- [❌] `GET /settlements` — neto histórico por grupo
-- [❌] `GET /settlements/suggestions` — algoritmo "quién le debe a quién"
+**Objetivo**: Registrar pagos entre usuarios para saldar balances.
+
+## Flujo completo
+
+```
+Balance: Emerson debe $70.000 a Andrea
+    │
+    ▼
+Emerson transfiere $70.000 (fuera de la app o integración bancaria futura)
+    │
+    ▼
+Registrar Payment en app:
+    POST /payments { amount: 70000, toUserId: andrea_id, groupId }
+    │
+    ▼
+Balance se actualiza → $0 (SETTLED)
+    │
+    ▼
+Settlements history muestra:
+    "Emerson pagó $70.000 a Andrea el 15/01/2026"
+```
+
+### Backend
+- [✅] `POST /payments` — registrar pago entre usuarios
+- [✅] `GET /payments` — historial de pagos + `POST /payments/:id/confirm` y `POST /payments/:id/reject`
+- [✅] `GET /settlements` — neto histórico por grupo
+- [✅] `GET /settlements/suggestions` — algoritmo "quién le debe a quién"
 
 ### Frontend API services
-- [✅] `src/services/api/payments.ts` — createPayment, getPayments, getSettlement, getSettlementSuggestions (backend ya soporta `?groupId=` para todos los endpoints)
-- [❌] `src/services/api/settlements.ts` — (consolidado en `payments.ts`)
+- [✅] `src/services/api/payments.ts` — createPayment, getPayments, getSettlement, getSettlementSuggestions, confirmPayment, rejectPayment (backend ya soporta `?groupId=` para todos los endpoints)
+- [✅] `use-group-payments.ts` — hook que carga pagos + settlement del grupo (deriva pending/history)
+- [❌] `src/services/api/settlements.ts` — (consolidado en `payments.ts`, no se crea)
 
-### Pantallas
-- [❌] **Pay Screen** (`pagos/index.tsx`) — seleccionar monto, confirmar pago, registrar en API
-- [❌] **Payment History** — lista de pagos realizados/recibidos
-- [❌] **Settlement Suggestions** — cards "Transfiere $X a Y para saldar"
+### Pantallas — hechas en frontend ✅ (parcial)
+- [✅] **Registrar pago (abono parcial)** — `PaySheet` en `grupos/[id].tsx`: monto editable (valida `<= amountDue`), destino auto en COUPLE / selector en GROUP
+- [✅] **Confirmar/rechazar solicitudes** — `LiquidacionesSheet` (tabs "Por confirmar"/"Historial")
+- [✅] **Settlement status card en Group Detail** — con botón "Liquidar" (solo cuando yo debo) y "Historial de liquidaciones"; sincronizado con el balance del Dashboard (pagos CONFIRMED via `useDashboardData` + `useGroupPayments`)
+
+### Pantallas pendientes ❌
+- [❌] **Pay Screen** (`pagos/index.tsx`) — pantalla standalone de pago
+- [❌] **Payment History** — pantalla standalone de historial de pagos
+- [❌] **Settlement Suggestions** — cards "Transfiere $X a Y para saldar" (API ya existe: `getSettlementSuggestions`)
 - [❌] **Dashboard** — sección de suggestions si hay balances pendientes
-- [❌] **Group Detail** — settlement status card con botón "Saldar"
 
 ### Criterios de done Sprint 4
-- Usuario puede registrar pago y ver historial
-- Sugerencias automáticas: "Para saldar, transfiere $70.000 a Andrea"
-- Balance cambia a SETTLED tras payment
-- Settlements endpoint devuelve neto histórico
+- [✅] Usuario puede registrar pago y ver historial
+- [❌] Sugerencias automáticas: "Para saldar, transfiere $70.000 a Andrea"
+- [✅] Balance cambia a SETTLED tras payment confirmado (verificado: `useDashboardData` solo suma pagos CONFIRMED)
+- [✅] Settlements endpoint devuelve neto histórico
 
 ---
 
@@ -355,8 +382,8 @@ Settlements history muestra:
 | **Dark Mode** | Theme context, toggle, persist |
 | **i18n** | Español/Inglés, react-i18next |
 | **Offline Support** | React Query / TanStack Query, optimistic updates |
-| **Response Interceptor 401** | Redirect a login en axios interceptor |
-| **Forgot Password** | Backend endpoint + frontend connect |
+| **Response Interceptor 401** | ✅ Hecho — redirect a login vía `session:expired` + `SessionExpiredAlert` (ver Sprint 4 / Auth) |
+| **Forgot Password** | Backend endpoint + frontend connect (UI ya lista) |
 | **App Store Deploy** | EAS Build, TestFlight/Play Console, icons, splash |
 
 - [❌] Push notifications (expo-notifications)
@@ -405,33 +432,37 @@ Una vez completado el MVP (Sprints 1-4 completos), se generaliza la plataforma p
 
 ## ❌ Pendiente para v2.0 (backend + frontend)
 
-### Backend
-1. **Base de datos**
-   - Tabla `groups` (reemplaza `couples`): agregar columna `type: PERSONAL | COUPLE | GROUP`
-   - Tabla `group_members`: relación N:N con roles opcionales
-   - `splits`: soportar N miembros en vez de solo 2
+### Backend — ✅ ya implementado
+> La migración `couples → groups` ya se completó en el backend (Prisma `Group.type`, `GroupMember`, `MemberRole`, `PaymentStatus` y endpoints `groups`).
 
-2. **API**
-   - Endpoints de `couples` → `groups`
-   - `POST /groups` con `type` selector
-   - `GET /groups` devuelve todos los grupos del usuario
-   - Lógica de splits generalizada para N personas
+1. **Base de datos** ✅
+   - [✅] Tabla `groups` con columna `type: PERSONAL | COUPLE | GROUP` (Prisma `Group.type`, `@default(COUPLE)`)
+   - [✅] Tabla `group_members` N:N con roles (`MemberRole`) y `splitPercentage`
+   - [✅] `splits` (ExpenseSplit) soportando N miembros
 
-3. **Modelo de datos**
+2. **API** ✅
+- [✅] Endpoints de `couples` → `groups`
+- [✅] `POST /groups` con `type` selector
+- [✅] `GET /groups` devuelve todos los grupos del usuario
+- [✅] Lógica de splits generalizada para N personas
+
+3. **Modelo de datos** (ya reflejado en `prisma/schema.prisma`)
 
 ```
-Groups
+Groups (model Group)
 ├── id
 ├── name
 ├── type (PERSONAL | COUPLE | GROUP)
 ├── inviteCode
+├── archivedAt
 ├── createdAt
 
-GroupMembers
+GroupMembers (model GroupMember)
 ├── id
-├── groupId
-├── userId
-├── splitPercentage (nullable)
+├── role (MemberRole: OWNER/ADMIN/MEMBER)
+├── splitPercentage (Decimal? nullable)
+├── joinedAt
+├── userId / groupId
 
 Expenses
 ├── id
@@ -439,33 +470,40 @@ Expenses
 ├── paidById
 ├── amount
 ├── category
-├── splitType (EQUAL | PERCENTAGE | CUSTOM | PERSONAL)
+├── splitType (EQUAL | PERSONAL | PERCENTAGE | CUSTOM)
 
-ExpenseShares (Sprint 2 — capa crítica)
+ExpenseSplit (expense_shares — capa de shares)
 ├── id
 ├── expenseId
 ├── userId
-├── shareAmount (lo que le toca)
 ├── percentage (% aplicado)
-└── createdAt
+├── createdAt
+
+Payment (pagos/liquidaciones)
+├── id
+├── amount
+├── status (PaymentStatus: PENDING/CONFIRMED/REJECTED)
+├── confirmedAt
+├── fromUserId / toUserId
+├── groupId
 ```
 
 ### Frontend (pendiente)
 1. **Nuevas pantallas**
-   - `grupos/crear.tsx` con selector de tipo (Personal/Pareja/Grupo)
-   - `grupos/[id]/miembros.tsx` listado y gestión de miembros (solo GROUP)
-   - Dashboard: selector de grupo global con indicador de tipo
+   - [❌] `grupos/crear.tsx` con selector de tipo (Personal/Pareja/Grupo)
+   - [❌] `grupos/[id]/miembros.tsx` listado y gestión de miembros (solo GROUP)
+   - [❌] Dashboard: selector de grupo global con indicador de tipo (hoy se usa `GroupSelector` sin badge)
 
 2. **Componentes a generalizar**
-   - `CoupleSelector` → `GroupSelector`
-   - `CoupleCard` → `GroupCard` (con badge de tipo)
-   - `PartnerBalance` → `MemberBalance` (soporta N miembros)
-   - `CreateCoupleSheet` → `CreateGroupSheet`
+   - [✅] `CoupleSelector` → `GroupSelector` (ya existe `ui/group-selector.tsx`)
+   - [🔄] `CoupleCoupon` → `GroupCard` — `ui/group-card.tsx` ya existe y se usa; quedan versiones legacy (`dashboard/CoupleCard.tsx`, `couple/couple-card.tsx`) sin depurar
+   - [❌] `PartnerBalance` → `MemberCoupon` (soporta N miembros)
+   - [❌] `CreateCoupleSheet` → `CreateGroupSheet`
 
 3. **Split picker adaptativo** (relacionado con Sprint 2)
-   - PERSONAL: sin split (100% usuario)
-   - COUPLE: 50/50, %, o personal
-   - GROUP: equal, %, o custom por producto
+   - [✅] PERSONAL: sin split (100% usuario) — hecho en `CreateExpenseSheet`
+   - [✅] COUPLE: 50/50, %, o personal — hecho en `CreateExpenseSheet`
+   - [🔄] GROUP: equal, %, o custom por producto — hoy solo Equal por decisión de producto que quedó en igual
 
 ### Fases de implementación
 
@@ -482,69 +520,78 @@ ExpenseShares (Sprint 2 — capa crítica)
 ### Problema
 El tab Gastos no debe competir con Grupos. Ambos necesitan acceso a la creación de gastos, pero con comportamientos distintos.
 
-### Solución adoptada
-**Una sola pantalla `add.tsx` reutilizada desde múltiples flujos**, en lugar de duplicar formularios o anidar gastos dentro de grupos.
+### Solución adoptada (actual — reemplaza a un `add.tsx` standalone)
+**No existe una pantalla `gastos/add.tsx`.** La creación de gastos se resuelve con el **`CreateExpenseSheet`** (bottom sheet), autoabierto desde:
+- `gastos/Movimientos.tsx?create=1` (navegación de Grupos → "Registrar gasto")
+- `gastos/index.tsx` (FAB → sheet)
+- `grupos/[id].tsx` ("Registrar gasto") y `ui/group-card.tsx` ("Agregar gasto")
+
+Además existe `gastos/[id].tsx` como shim `Redirect → /gastos/detalle/[id]` para compatibilidad de rutas legacy.
 
 ### Estructura de rutas
 ```
 (protected)/gastos/
   ├── _layout.tsx     ← Stack
   ├── index.tsx       ← Lista de gastos con filtros
-  ├── add.tsx         ← Formulario único de creación
-  └── [id].tsx        ← Detalle del gasto
+  ├── Movimientos.tsx ← Lista filtrada (FilterSheet + CreateExpenseSheet via ?create=1)
+  ├── [id].tsx        ← Shim Redirect → detalle/[id]
+  └── detalle/[id].tsx← Detalle del gasto
 ```
 
 ### Flujo 1: Desde Grupos (contextual)
 ```
-❤️ Grupos → Andrea → [Registrar gasto]
-  → router.push('/gastos/add?groupId=123')
-  → add.tsx detecta groupId → bloquea selector de grupo
-  → Usuario ve: Grupo ✓ Andrea (solo lectura)
-  → Guardar → POST /expenses → router.back() → vuelve al detalle de Andrea
+❤️ Grupos → Grupo → [Registrar gasto]
+  → router.push('/gastos/Movimientos?groupId=123&create=1')
+  → Movimientos autoabre CreateExpenseSheet con el grupo fijo
+  → Guardar → POST /expenses → router.back() → vuelve al detalle del grupo
 ```
 
 ### Flujo 2: Desde Gastos (genérico)
 ```
 💸 Gastos → FAB +
-  → router.push('/gastos/add')
-  → add.tsx sin groupId → muestra dropdown para elegir grupo
-  → Usuario ve: Grupo ▼ Selecciona un grupo
-  → Guardar → POST /expenses → router.back() → vuelve a la lista de Gastos
+  → abre CreateExpenseSheet (selector de destino/grupo)
+  → Guardar → POST /expenses → se actualiza la lista
 ```
 
 ### Comportamiento post-guardado
 - El gasto aparece inmediatamente en ambos lugares:
-  - **Grupo/Andrea**: en "Gastos Recientes"
+  - **Grupo**: en "Gastos Recientes" y en el total consolidado
   - **Gastos**: en la lista general con filtros
 - El resumen financiero del grupo se actualiza al regresar
-- No hay duplicación de lógica: un solo componente de formulario,
-  un solo endpoint, un solo `router.back()`
+- No hay duplicación de lógica: un solo `CreateExpenseSheet`, un solo endpoint, lecturas refrescadas con `useFocusEffect`
 
 ---
 
 # Prioridad de implementación (resumen)
 
-## 🔴 P0 — Inmediato (Sprint 1)
-- Edit/Delete Expense UI
-- Split Picker Component
-- Verificar expense screens conectados a API real
+## ✅ Ya completado
+- ✅ Edit/Delete Expense UI (CreateExpenseSheet modo edición + ExpenseMenuSheet)
+- ✅ Split Picker adaptativo según tipo de grupo (PERSONAL/COUPLE/GROUP)
+- ✅ Expense screens conectados a API real
+- ✅ Payments API service + registrar pago/abono parcial (PaySheet) + confirmar/rechazar (LiquidacionesSheet)
+- ✅ Response interceptor 401 (session:expired → /login)
+- ✅ Backend v2.0: grupos con `type`, members N:N, endpoints groups, PaymentStatus
 
-## 🟡 P1 — Sprints 2-3
-- Expense Shares persistidas en backend
-- Balance Engine (API + cálculo)
-- Dashboard con datos reales
-- Reports con datos reales
+## 🟡 P1 — Sprints 2-3 (completado en su mayoría)
+- ✅ Expense Shares persistidas en backend
+- ✅ Balance Engine (client-side en Dashboard/Group Detail)
+- ✅ Dashboard con datos reales
+- ✅ Reports con datos reales
 
-## 🟢 P2 — Sprint 4
-- Payments API service
-- Pay Screen
-- Payment History
-- Settlement Suggestions
+## 🟢 P2 — Sprint 4 (pendiente)
+- ✅ Payments API service (hecho)
+- ✅ PaySheet / LiquidacionesSheet (hecho en Group Detail)
+- ❌ Pay Screen standalone
+- ❌ Payment History standalone
+- ❌ Settlement Suggestions UI
+- ❌ Dashboard suggestions
 
 ## 🔵 P3 — Post-MVP
-- Receipt Capture (OCR completo)
-- Polish: dark mode, i18n, offline, push, 401 interceptor
-- Deployment (EAS Build + stores)
+- ❌ Receipt Capture (OCR completo)
+- ✅ 401 interceptor (hecho)
+- ❌ Polish: dark mode, i18n, offline, push
+- ❌ Deployment (EAS Build + stores)
 
 ## 🟣 P4 — v2.0
-- Multi-actor (Personal/Pareja/Grupo) — backend DB + N-way splits
+- ✅ Backend: DB (groups con type) + N-way splits + endpoints groups
+- ❌ Frontend: `grupos/crear.tsx`, `grupos/[id]/miembros.tsx`, selector global con badge, `MemberBalance`
