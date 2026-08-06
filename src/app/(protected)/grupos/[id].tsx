@@ -838,6 +838,7 @@ export default function CoupleDetail() {
         visible={liquidacionesVisible}
         onClose={() => setLiquidacionesVisible(false)}
         currentUserId={user!.id}
+        groupId={id}
         pendingToConfirm={pendingToConfirm}
         history={history}
         onConfirm={handleConfirmPayment}

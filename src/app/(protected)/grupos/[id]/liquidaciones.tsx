@@ -1,27 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
-import { router } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome6 } from '@expo/vector-icons';
-import { BottomSheet } from '@/components/ui/bottom-sheet';
-import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
+import { getGroup } from '@/services/api/groups';
+import { confirmPayment, rejectPayment } from '@/services/api/payments';
 import { formatRelativeDate } from '@/utils/date';
-import type { PaymentResponse } from '@/types/api';
-
-interface LiquidacionesSheetProps {
-  visible: boolean;
-  onClose: () => void;
-  currentUserId: string;
-  groupId: string;
-  pendingToConfirm: PaymentResponse[];
-  history: PaymentResponse[];
-  onConfirm?: (payment: PaymentResponse) => void;
-  onReject?: (payment: PaymentResponse) => void;
-  isMutating?: boolean;
-  heightRatio?: number;
-  headerFinalTranslateY?: number;
-}
+import type { GroupResponse, PaymentResponse } from '@/types/api';
+import { useAuth } from '@/hooks/use-auth';
+import { useGroupPayments } from '@/hooks/use-group-payments';
+import { ScreenHeader } from '@/components/ui/screen-header';
+import { Loading } from '@/components/ui/loading';
+import { EmptyState } from '@/components/ui/empty-state';
+import { AlertModal } from '@/components/ui/alert-modal';
 
 type Tab = 'pending' | 'history';
+
+const fmt = (value: number) => `$${Math.round(value).toLocaleString('es-CL')}`;
 
 function UserName({
   user,
@@ -37,50 +32,98 @@ function UserName({
   );
 }
 
-export function LiquidacionesSheet({
-  visible,
-  onClose,
-  currentUserId,
-  groupId,
-  pendingToConfirm,
-  history,
-  onConfirm,
-  onReject,
-  isMutating = false,
-  heightRatio = 0.8,
-  headerFinalTranslateY = 0.1,
-}: LiquidacionesSheetProps) {
+export default function LiquidacionesScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { user } = useAuth();
+  const [group, setGroup] = useState<GroupResponse | null>(null);
+  const [groupLoading, setGroupLoading] = useState(true);
   const [tab, setTab] = useState<Tab>('pending');
+  const [isMutating, setIsMutating] = useState(false);
+  const [feedback, setFeedback] = useState<{
+    title: string;
+    message: string;
+    type: 'success' | 'error';
+  } | null>(null);
 
-  const fmt = (value: number) =>
-    `$${Math.round(value).toLocaleString('es-CL')}`;
+  const { pendingToConfirm, history, isLoading, refetch } = useGroupPayments({
+    groupId: id,
+    userId: user?.id,
+  });
 
-  const pendingCount = pendingToConfirm.length;
+  useEffect(() => {
+    let mounted = true;
+    getGroup(id)
+      .then((data) => {
+        if (mounted) setGroup(data);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (mounted) setGroupLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [id]);
+
+  const handleConfirm = useCallback(
+    async (payment: PaymentResponse) => {
+      setIsMutating(true);
+      try {
+        await confirmPayment(payment.id);
+        await refetch();
+        setFeedback({
+          title: 'Pago aceptado',
+          message: `Has confirmado el pago de ${fmt(payment.amount)}. El saldo se ha actualizado.`,
+          type: 'success',
+        });
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : 'Error al confirmar';
+        setFeedback({ title: 'Error', message, type: 'error' });
+      } finally {
+        setIsMutating(false);
+      }
+    },
+    [refetch],
+  );
+
+  const handleReject = useCallback(
+    async (payment: PaymentResponse) => {
+      setIsMutating(true);
+      try {
+        await rejectPayment(payment.id);
+        await refetch();
+        setFeedback({
+          title: 'Pago rechazado',
+          message: 'El pago ha sido rechazado. No se descuenta nada del saldo.',
+          type: 'success',
+        });
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : 'Error al rechazar';
+        setFeedback({ title: 'Error', message, type: 'error' });
+      } finally {
+        setIsMutating(false);
+      }
+    },
+    [refetch],
+  );
 
   const renderPending = () => {
-    if (pendingCount === 0) {
+    if (pendingToConfirm.length === 0) {
       return (
-        <View className="items-center justify-center px-6 py-14">
-          <View className="flex h-14 w-14 items-center justify-center rounded-full bg-[#10B981]/10">
-            <FontAwesome6 name="check-double" size={22} color="#10B981" />
-          </View>
-          <Text className="mt-3 text-center text-base font-semibold text-[#0F172A]">
-            Sin pagos por confirmar
-          </Text>
-          <Text className="mt-1 text-center text-sm text-[#64748B]">
-            Cuando te registren un pago pendiente, aparecerá aquí para que lo
-            confirmes o rechaces.
-          </Text>
-        </View>
+        <EmptyState
+          title="Sin pagos por confirmar"
+          description="Cuando te registren un pago pendiente, aparecerá aquí para que lo confirmes o rechaces."
+        />
       );
     }
-
     return (
       <View className="gap-3">
         {pendingToConfirm.map((payment) => {
-          const isFromMe = payment.fromUserId === currentUserId;
+          const isFromMe = payment.fromUserId === user?.id;
           const fromUser = isFromMe
-            ? { id: currentUserId, firstName: 'Tú', lastName: '' }
+            ? { id: user!.id, firstName: 'Tú', lastName: '' }
             : payment.fromUser;
           return (
             <View
@@ -113,7 +156,7 @@ export function LiquidacionesSheet({
 
               <View className="mt-4 flex-row gap-2">
                 <Pressable
-                  onPress={() => onConfirm?.(payment)}
+                  onPress={() => handleConfirm(payment)}
                   disabled={isMutating}
                   className="flex-1 flex-row items-center justify-center gap-2 rounded-lg bg-[#10B981] py-2.5 active:opacity-80 disabled:opacity-50"
                 >
@@ -123,7 +166,7 @@ export function LiquidacionesSheet({
                   </Text>
                 </Pressable>
                 <Pressable
-                  onPress={() => onReject?.(payment)}
+                  onPress={() => handleReject(payment)}
                   disabled={isMutating}
                   className="flex-1 flex-row items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-white py-2.5 active:bg-[#F2F4F6] disabled:opacity-50"
                 >
@@ -143,26 +186,16 @@ export function LiquidacionesSheet({
   const renderHistory = () => {
     if (history.length === 0) {
       return (
-        <View className="items-center justify-center px-6 py-14">
-          <View className="flex h-14 w-14 items-center justify-center rounded-full bg-[#F1F5F9]">
-            <FontAwesome6 name="clock-rotate-left" size={22} color="#64748B" />
-          </View>
-          <Text className="mt-3 text-center text-base font-semibold text-[#0F172A]">
-            Sin liquidaciones aún
-          </Text>
-          <Text className="mt-1 text-center text-sm text-[#64748B]">
-            Los pagos confirmados o rechazados aparecerán aquí.
-          </Text>
-        </View>
+        <EmptyState
+          title="Sin liquidaciones aún"
+          description="Los pagos confirmados o rechazados aparecerán aquí."
+        />
       );
     }
-
     return (
       <View className="gap-2">
         {history.map((payment) => {
           const isConfirmed = payment.status === 'CONFIRMED';
-          const fromUser = payment.fromUser;
-          const toUser = payment.toUser;
           return (
             <View
               key={payment.id}
@@ -181,9 +214,9 @@ export function LiquidacionesSheet({
               </View>
               <View className="flex-1 shrink">
                 <View className="flex-row flex-wrap items-center gap-1">
-                  <UserName user={fromUser} fallback="Miembro" />
+                  <UserName user={payment.fromUser} fallback="Miembro" />
                   <FontAwesome6 name="arrow-right" size={10} color="#94A3B8" />
-                  <UserName user={toUser} fallback="Miembro" />
+                  <UserName user={payment.toUser} fallback="Miembro" />
                 </View>
                 <Text className="mt-0.5 text-xs text-[#64748B]">
                   {formatRelativeDate(payment.confirmedAt ?? payment.createdAt)}
@@ -205,44 +238,21 @@ export function LiquidacionesSheet({
     );
   };
 
-  const header = (
-    <BottomSheetHeader
-      visible={visible}
-      title="Liquidaciones"
-      subtitle="Confirma pagos pendientes y revisa el historial"
-      onClose={onClose}
-      gradientPaddingBottom={600}
-      logo={require('@/assets/images/logo-white-green-bg-without.png')}
-    />
-  );
-
   return (
-    <BottomSheet
-      visible={visible}
-      onClose={onClose}
-      header={header}
-      heightRatio={heightRatio}
-      headerFinalTranslateY={headerFinalTranslateY}
-    >
-      <View className="flex-1">
-        {/* Tabs */}
-        <View className="px-5 pb-1">
-          <View className="mb-1 flex-row items-center justify-end">
-            <Pressable
-              onPress={() => router.push(`/grupos/${groupId}/liquidaciones`)}
-              className="flex-row items-center gap-1.5 py-1 active:opacity-70"
-            >
-              <Text className="text-xs font-semibold text-[#006c49]">
-                Ver todos
-              </Text>
-              <FontAwesome6
-                name="arrow-up-right-from-square"
-                size={11}
-                color="#006c49"
-              />
-            </Pressable>
-          </View>
-          <View className="flex-row gap-2">
+    <SafeAreaView className="flex-1 bg-[#F8FAFC]" edges={['top']}>
+      <View className="pt-1">
+        <ScreenHeader
+          title={group?.name ?? 'Liquidaciones'}
+          subtitle="Historial de pagos del grupo"
+          onBack={() => router.push(`/grupos/${id}`)}
+        />
+      </View>
+
+      {isLoading || groupLoading ? (
+        <Loading message="Cargando liquidaciones..." />
+      ) : (
+        <View className="flex-1 px-5 pt-5">
+          <View className="flex-row gap-2 pb-4">
             <Pressable
               onPress={() => setTab('pending')}
               className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl border py-3 ${
@@ -263,10 +273,10 @@ export function LiquidacionesSheet({
               >
                 Por confirmar
               </Text>
-              {pendingCount > 0 && (
+              {pendingToConfirm.length > 0 && (
                 <View className="rounded-full bg-[#EF4444] px-2 py-0.5">
                   <Text className="text-xs font-bold text-white">
-                    {pendingCount}
+                    {pendingToConfirm.length}
                   </Text>
                 </View>
               )}
@@ -294,16 +304,25 @@ export function LiquidacionesSheet({
               </Text>
             </Pressable>
           </View>
-        </View>
 
-        <ScrollView
-          className="flex-1 px-5"
-          showsVerticalScrollIndicator={false}
-          contentContainerClassName="pb-4"
-        >
-          {tab === 'pending' ? renderPending() : renderHistory()}
-        </ScrollView>
-      </View>
-    </BottomSheet>
+          <ScrollView
+            className="flex-1"
+            showsVerticalScrollIndicator={false}
+            contentContainerClassName="pb-8"
+          >
+            {tab === 'pending' ? renderPending() : renderHistory()}
+          </ScrollView>
+        </View>
+      )}
+
+      <AlertModal
+        visible={feedback !== null}
+        type={feedback?.type === 'success' ? 'success' : 'error'}
+        title={feedback?.title ?? ''}
+        message={feedback?.message ?? ''}
+        buttonText="Entendido"
+        onClose={() => setFeedback(null)}
+      />
+    </SafeAreaView>
   );
 }

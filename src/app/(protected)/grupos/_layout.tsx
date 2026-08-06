@@ -7,6 +7,7 @@ export default function ParejaLayout() {
       <Stack.Screen name="[id]" />
       <Stack.Screen name="[id]/configuracion" />
       <Stack.Screen name="[id]/gastos" />
+      <Stack.Screen name="[id]/liquidaciones" />
     </Stack>
   );
 }
