@@ -314,6 +314,7 @@ export default function MovimientosScreen() {
           onClose={handleCloseCreateSheet}
           group={creatingExpenseGroup.group}
           members={creatingExpenseGroup.members}
+          currentUserId={user?.id}
           heightRatio={0.65}
           headerFinalTranslateY={0.19}
           onCreateExpense={async (payload) => {

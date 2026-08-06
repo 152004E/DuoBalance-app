@@ -75,22 +75,22 @@ export default function GastosScreen() {
       }
       const members = group.members.map((m) => ({
         id: m.user.id,
-        name: m.user.firstName,
+        name: m.user.id === user?.id ? 'Tú' : m.user.firstName,
       }));
       setCreatingExpenseGroup({ group, members });
     } else {
       setDestSelectorVisible(true);
     }
-  }, [workspace, groups]);
+  }, [workspace, groups, user?.id]);
 
   const handleDestSelect = useCallback((group: GroupResponse) => {
     setDestSelectorVisible(false);
     const members = group.members.map((m) => ({
       id: m.user.id,
-      name: m.user.firstName,
+      name: m.user.id === user?.id ? 'Tú' : m.user.firstName,
     }));
     setCreatingExpenseGroup({ group, members });
-  }, []);
+  }, [user?.id]);
 
   const handleCloseCreateSheet = useCallback(() => {
     setCreatingExpenseGroup(null);
@@ -244,6 +244,7 @@ export default function GastosScreen() {
           onClose={handleCloseCreateSheet}
           group={creatingExpenseGroup.group}
           members={creatingExpenseGroup.members}
+          currentUserId={user?.id}
           heightRatio={0.66}
           headerFinalTranslateY={0.14}
           onCreateExpense={async (payload) => {

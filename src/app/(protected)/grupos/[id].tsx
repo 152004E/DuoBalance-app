@@ -832,8 +832,8 @@ export default function CoupleDetail() {
         onConfirm={handleConfirmPayment}
         onReject={handleRejectPayment}
         isMutating={isSubmittingPayment}
-        heightRatio={0.8}
-        headerFinalTranslateY={0.1}
+        heightRatio={0.5}
+        headerFinalTranslateY={0.3}
       />
 
       <AlertModal

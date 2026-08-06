@@ -24,6 +24,7 @@ interface CreateExpenseSheetProps {
   onClose: () => void;
   group: GroupResponse;
   members: Member[];
+  currentUserId?: string;
   onCreateExpense?: (payload: {
     description: string;
     amount: number;
@@ -58,6 +59,7 @@ export function CreateExpenseSheet({
   onClose,
   group,
   members,
+  currentUserId,
   onCreateExpense,
   initialExpense,
   onUpdateExpense,
@@ -67,6 +69,10 @@ export function CreateExpenseSheet({
   const isPersonal = group.type === 'PERSONAL' || members.length === 1;
   const isCouple = group.type === 'COUPLE' || members.length === 2;
   const isEditing = !!initialExpense;
+
+  // El "tú" de la división es el usuario logueado, no necesariamente members[0]
+  const youMember = members.find((m) => m.id === currentUserId) ?? members[0];
+  const youMemberId = youMember?.id;
 
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
@@ -87,11 +93,11 @@ export function CreateExpenseSheet({
   useEffect(() => {
     if (visible && members.length > 0) {
       const payer = isPersonal
-        ? members[0].id
+        ? youMemberId
         : initialExpense?.paidById &&
             members.some((m) => m.id === initialExpense.paidById)
           ? initialExpense.paidById
-          : members[0].id;
+          : youMemberId;
 
       const participantIds =
         initialExpense && initialExpense.splits?.length
@@ -103,8 +109,9 @@ export function CreateExpenseSheet({
       const initialYourPercentage =
         initialExpense && initialExpense.splits?.length
           ? Number(
-              initialExpense.splits.find((s) => s.userId === members[0]?.id)
-                ?.percentage ?? 50,
+              initialExpense.splits.find(
+                (s) => s.userId === youMemberId,
+              )?.percentage ?? 50,
             )
           : 50;
 
@@ -112,9 +119,9 @@ export function CreateExpenseSheet({
       // (splitPercentage del miembro actual, o el inverso del de la pareja si
       // el actual no lo tiene), o 50/50 si no existe.
       const myMember =
-        group.members.find((m) => m.user.id === members[0]?.id) ?? null;
+        group.members.find((m) => m.user.id === youMemberId) ?? null;
       const partnerMember =
-        group.members.find((m) => m.user.id !== members[0]?.id) ?? null;
+        group.members.find((m) => m.user.id !== youMemberId) ?? null;
       // splitPercentage llega como string desde la API (Prisma Decimal):
       // convertir siempre a número antes de usarlo en el payload.
       const groupDefaultPercentage =
@@ -340,7 +347,7 @@ export function CreateExpenseSheet({
                         <Text className="text-xs text-[#64748B]">
                           {splitType === 'EQUAL'
                             ? `${Math.round(100 / selectedParticipants.length)}%`
-                            : `${member.id === members[0]?.id ? yourPercentage : 100 - yourPercentage}%`}
+                            : `${member.id === youMemberId ? yourPercentage : 100 - yourPercentage}%`}
                         </Text>
                       )}
                     </Pressable>
@@ -464,7 +471,7 @@ export function CreateExpenseSheet({
                   percentage: Number(
                     splitType === 'EQUAL'
                       ? Math.round(100 / selectedParticipants.length)
-                      : m.id === members[0]?.id
+                      : m.id === youMemberId
                         ? yourPercentage
                         : 100 - yourPercentage,
                   ),

@@ -1,9 +1,8 @@
-import { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
+import { router } from 'expo-router';
 import { FontAwesome6 } from '@expo/vector-icons';
 import type { GroupResponse } from '@/types/api';
 import { Button } from './button';
-import { AlertModal } from './alert-modal';
 
 interface GroupSummary {
   count: number;
@@ -33,8 +32,6 @@ export function GroupCard({
   onMenu,
   currentUserId,
 }: GroupCardProps) {
-  const [showAddAlert, setShowAddAlert] = useState(false);
-
   const total = summary?.total ?? 0;
   const transactionCount = summary?.count ?? 0;
   const membersCount = group.members.length;
@@ -200,7 +197,9 @@ export function GroupCard({
               text="Agregar gasto"
               iconLeft="money-bill"
               style={{ paddingVertical: 8, paddingHorizontal: 28 }}
-              onPress={() => setShowAddAlert(true)}
+              onPress={() =>
+                router.push(`/gastos/Movimientos?groupId=${group.id}&create=1`)
+              }
             />
           </Pressable>
 
@@ -213,14 +212,6 @@ export function GroupCard({
           </Pressable>
         </View>
       )}
-
-      <AlertModal
-        visible={showAddAlert}
-        type="info"
-        title="Función no disponible"
-        message="Próximamente podrás agregar gastos desde aquí."
-        onClose={() => setShowAddAlert(false)}
-      />
     </Pressable>
   );
 }

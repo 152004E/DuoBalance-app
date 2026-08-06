@@ -314,8 +314,9 @@ export default function ExpenseDetailScreen() {
           group={group}
           members={group.members.map((m) => ({
             id: m.user.id,
-            name: m.user.firstName,
+            name: m.user.id === user.id ? 'Tú' : m.user.firstName,
           }))}
+          currentUserId={user.id}
           initialExpense={expense}
           heightRatio={0.63}
           headerFinalTranslateY={0.19}
