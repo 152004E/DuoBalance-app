@@ -16,7 +16,7 @@ import { AlertModal } from '@/components/ui/alert-modal';
 import * as authService from '@/services/api/auth';
 import { tokenStorage, refreshTokenStorage } from '@/storage/token';
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_REGEX = /^[^\s@]{2,}@[^\s@]{2,}\.[A-Za-z]{2,}$/;
 
 interface FormErrors {
   firstName?: string;

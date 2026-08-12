@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { AuthHeader } from '@/components/auth/auth-header';
 import { AuthFooter } from '@/components/auth/auth-footer';
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_REGEX = /^[^\s@]{2,}@[^\s@]{2,}\.[A-Za-z]{2,}$/;
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState('');

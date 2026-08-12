@@ -96,3 +96,8 @@ src/
 | `@storage/*`      | `./src/storage/*`     |
 | `@utils/*`        | `./src/utils/*`       |
 | `@types/*`        | `./src/types/*`       |
+
+
+
+EXPO_PUBLIC_API_URL=http://localhost:3000
+EXPO_PUBLIC_APP_NAME=DuoBalance
