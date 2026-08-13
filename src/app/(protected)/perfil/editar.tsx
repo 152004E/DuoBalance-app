@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, Alert } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -11,13 +11,17 @@ import { ScreenHeader } from '@/components/ui/screen-header';
 import { ProfileCard } from '@/components/perfil/profile-card';
 import { ImagePreviewModal } from '@/components/perfil/image-preview-modal';
 import { AlertModal } from '@/components/ui/alert-modal';
+import { extractErrorMessage } from '@/utils/errors';
 import * as authService from '@/services/api/auth';
+
+const EMAIL_REGEX = /^[^\s@]{2,}@[^\s@]{2,}\.[A-Za-z]{2,}$/;
 
 export default function EditarPerfilScreen() {
   const { user, updateUser } = useAuth();
   const [firstName, setFirstName] = useState(user?.firstName ?? '');
   const [lastName, setLastName] = useState(user?.lastName ?? '');
   const [email, setEmail] = useState(user?.email ?? '');
+  const [emailError, setEmailError] = useState<string>();
   const [localPhotoUri, setLocalPhotoUri] = useState<string | null>(null);
   const [localPhotoSource, setLocalPhotoSource] = useState<any>(null);
   const [pendingPhotoUri, setPendingPhotoUri] = useState<string | null>(null);
@@ -25,6 +29,7 @@ export default function EditarPerfilScreen() {
   const [showPreview, setShowPreview] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState<string>();
 
   const displayAvatar = localPhotoUri ?? user?.avatarUrl ?? null;
 
@@ -63,6 +68,15 @@ export default function EditarPerfilScreen() {
   };
 
   const handleSave = async () => {
+    if (!email.trim()) {
+      setEmailError('El correo es requerido');
+      return;
+    }
+    if (!EMAIL_REGEX.test(email.trim())) {
+      setEmailError('Ingresa un correo válido');
+      return;
+    }
+
     setSaving(true);
     try {
       let currentUser = user;
@@ -83,8 +97,13 @@ export default function EditarPerfilScreen() {
       };
       await updateUser(merged);
       setShowSuccess(true);
-    } catch {
-      Alert.alert('Error', 'No se pudo guardar el perfil. Intenta de nuevo.');
+    } catch (error) {
+      setShowError(
+        extractErrorMessage(
+          error,
+          'No se pudo guardar el perfil. Intenta de nuevo.',
+        ),
+      );
     } finally {
       setSaving(false);
     }
@@ -143,10 +162,14 @@ export default function EditarPerfilScreen() {
               label="Correo electrónico"
               iconLeft="envelope"
               value={email}
-              onChangeText={setEmail}
+              onChangeText={(text) => {
+                setEmail(text);
+                if (emailError) setEmailError(undefined);
+              }}
               placeholder="tu@email.com"
               keyboardType="email-address"
               autoCapitalize="none"
+              error={emailError}
             />
           </View>
 
@@ -175,6 +198,15 @@ export default function EditarPerfilScreen() {
           message="Tus datos se han guardado correctamente."
           buttonText="Continuar"
           onClose={handleSuccessClose}
+        />
+
+        <AlertModal
+          visible={!!showError}
+          type="error"
+          title="No se pudo guardar"
+          message={showError ?? ''}
+          buttonText="Entendido"
+          onClose={() => setShowError(undefined)}
         />
 
         <ImagePreviewModal

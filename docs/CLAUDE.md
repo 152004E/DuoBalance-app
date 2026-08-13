@@ -5,6 +5,8 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **duobalance-api**: NestJS backend (TypeScript, Prisma, PostgreSQL) — auth, couples, expenses CRUD, balances, payments, settlements, dashboard
 - **DuoBalance-app**: React Native + Expo SDK 56 mobile client (auth flow complete, couple/dashboard/reports screens implemented)
 
+> **Decisión de plataforma (web-first):** DuoBalance inicia como aplicación **web** (Expo Web, `pnpm web`). El soporte móvil (Android/iOS vía Expo Go → EAS build) se agregará **solo cuando el producto avance**. Toda UI/UX y todo componente debe funcionar primero en navegador. No preguntar por esta decisión: está tomada. Implicación práctica: **no usar `Alert.alert` de React Native (es un no-op en web)** — usar siempre el `AlertModal` custom de la app y el helper `extractErrorMessage` de `src/utils/errors.ts` para mostrar errores de la API.
+
 ## Current State
 ### Auth — Fully implemented
 - **WelcomeScreen**: Landing page with HeroSection (SVG gradient), BenefitCards, and CTA buttons ✅

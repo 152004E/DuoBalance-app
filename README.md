@@ -21,6 +21,12 @@ Mobile client for DuoBalance. Built with React Native and Expo SDK 56.
 - Node.js >= 22.13
 - pnpm >= 9
 
+## Plataforma
+
+DuoBalance inicia como aplicación **web** (Expo Web, `pnpm web`). El soporte móvil (Android/iOS vía Expo Go → EAS build) se agregará cuando el producto avance. Toda UI/UX debe funcionar primero en navegador.
+
+> Nota técnica: no usar `Alert.alert` de React Native (es un no-op en web). Usar siempre el `AlertModal` custom de la app y el helper `extractErrorMessage` de `src/utils/errors.ts` para mostrar errores de la API.
+
 ## Instalación
 
 ```bash

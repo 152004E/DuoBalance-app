@@ -1,5 +1,7 @@
 # Plan — What's Left to Implement (Frontend)
 
+> **Decisión de plataforma (web-first):** DuoBalance inicia como aplicación **web** (Expo Web, `pnpm web`). El soporte móvil se agregará solo cuando el producto avance. No preguntar por esto. Implicación práctica: **no usar `Alert.alert` (no-op en web)** — usar `AlertModal` + `extractErrorMessage` (`src/utils/errors.ts`).
+
 > **Nota:** El despliegue en tiendas de aplicaciones ocurre ÚNICAMENTE cuando el proyecto alcance estado beta. Hasta entonces todo corre en localhost con Expo Go.
 
 ---

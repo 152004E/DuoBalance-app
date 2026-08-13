@@ -5,7 +5,9 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { router, useScrollToTop } from 'expo-router';
 import { ScreenHeader } from '@/components/ui/screen-header';
-import { useRef } from 'react';
+import { useRef, type ReactNode } from 'react';
+import Animated from 'react-native-reanimated';
+import { useStaggeredEntrance } from '@/hooks/use-staggered-entrance';
 
 const FEATURES = [
   {
@@ -79,6 +81,24 @@ const STACK = [
   'Tailwind CSS',
 ];
 
+const HERO_INDEX = 0;
+const ABOUT_INDEX = 1;
+const FEATURES_TITLE_INDEX = 2;
+const HISTORY_TITLE_INDEX = FEATURES_TITLE_INDEX + 1 + FEATURES.length;
+const STACK_TITLE_INDEX = HISTORY_TITLE_INDEX + 1 + HISTORY.length;
+const FOOTER_INDEX = STACK_TITLE_INDEX + 1 + STACK.length;
+
+function AnimatedSection({
+  index,
+  children,
+}: {
+  index: number;
+  children: ReactNode;
+}) {
+  const animatedStyle = useStaggeredEntrance(index);
+  return <Animated.View style={animatedStyle}>{children}</Animated.View>;
+}
+
 export default function AcercaScreen() {
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
@@ -106,141 +126,156 @@ export default function AcercaScreen() {
           contentContainerClassName="pb-10"
           showsVerticalScrollIndicator={false}
         >
-          {/* Hero */}
           <View className="px-5 pt-4">
-            <LinearGradient
-              colors={['#065238ff', '#04c88aff']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              className="items-center overflow-hidden rounded-2xl px-6 py-8"
-            >
-              <View className="h-16 w-16 items-center justify-center rounded-full bg-white/15">
-                <FontAwesome6 name="scale-balanced" size={26} color="#FFFFFF" />
-              </View>
-              <Text className="mt-3 text-2xl font-bold text-white">
-                DuoBalance
-              </Text>
-              <Text className="mt-1 text-sm text-white/80">
-                Finanzas compartidas, sin complicaciones
-              </Text>
-              <View className="mt-4 rounded-full bg-white/15 px-4 py-1.5">
-                <Text className="text-xs font-semibold text-white">
-                  Versión {appVersion}
+            <AnimatedSection index={HERO_INDEX}>
+              <LinearGradient
+                colors={['#065238ff', '#04c88aff']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                className="items-center overflow-hidden rounded-2xl px-6 py-8"
+              >
+                <View className="h-16 w-16 items-center justify-center rounded-full bg-white/15">
+                  <FontAwesome6 name="scale-balanced" size={26} color="#FFFFFF" />
+                </View>
+                <Text className="mt-3 text-2xl font-bold text-white">
+                  DuoBalance
+                </Text>
+                <Text className="mt-1 text-sm text-white/80">
+                  Finanzas compartidas, sin complicaciones
+                </Text>
+                <View className="mt-5 flex-row items-center overflow-hidden rounded-full border border-white/25 bg-white/15 p-1 pr-4">
+                  <View className="h-6 w-6 items-center justify-center rounded-full bg-white/25">
+                    <FontAwesome6 name="code-branch" size={11} color="#FFFFFF" />
+                  </View>
+                  <Text className="ml-2 text-xs font-bold uppercase tracking-wider text-white">
+                    Versión {appVersion}
+                  </Text>
+                </View>
+              </LinearGradient>
+            </AnimatedSection>
+          </View>
+
+          <View className="px-5 pt-6">
+            <AnimatedSection index={ABOUT_INDEX}>
+              <View className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm">
+                <Text className="text-base font-bold text-[#0F172A]">
+                  ¿Qué es DuoBalance?
+                </Text>
+                <Text className="mt-2 text-sm leading-6 text-[#64748B]">
+                  DuoBalance es una aplicación de gestión de gastos compartidos
+                  que ayuda a personas, parejas y grupos a registrar, repartir y
+                  entender sus finanzas en conjunto. Todo se ve claro: cuánto se
+                  gastó, quién pagó y cómo se divide.
                 </Text>
               </View>
-            </LinearGradient>
+            </AnimatedSection>
           </View>
 
-          {/* Qué es */}
           <View className="px-5 pt-6">
-            <View className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm">
-              <Text className="text-base font-bold text-[#0F172A]">
-                ¿Qué es DuoBalance?
+            <AnimatedSection index={FEATURES_TITLE_INDEX}>
+              <Text className="mb-3 text-lg font-bold text-[#0F172A]">
+                Funcionalidades
               </Text>
-              <Text className="mt-2 text-sm leading-6 text-[#64748B]">
-                DuoBalance es una aplicación de gestión de gastos compartidos
-                que ayuda a personas, parejas y grupos a registrar, repartir y
-                entender sus finanzas en conjunto. Todo se ve claro: cuánto se
-                gastó, quién pagó y cómo se divide.
-              </Text>
-            </View>
-          </View>
-
-          {/* Funcionalidades */}
-          <View className="px-5 pt-6">
-            <Text className="mb-3 text-lg font-bold text-[#0F172A]">
-              Funcionalidades
-            </Text>
+            </AnimatedSection>
             <View className="gap-3">
-              {FEATURES.map((feature) => (
-                <View
+              {FEATURES.map((feature, index) => (
+                <AnimatedSection
                   key={feature.title}
-                  className="flex-row items-start gap-4 rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-sm"
+                  index={FEATURES_TITLE_INDEX + 1 + index}
                 >
-                  <View className="h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#10B981]/10">
-                    <FontAwesome6
-                      name={feature.icon as any}
-                      size={16}
-                      color="#10B981"
-                    />
-                  </View>
-                  <View className="min-w-0 flex-1">
-                    <Text className="text-sm font-semibold text-[#0F172A]">
-                      {feature.title}
-                    </Text>
-                    <Text className="mt-0.5 text-[13px] leading-5 text-[#64748B]">
-                      {feature.description}
-                    </Text>
-                  </View>
-                </View>
-              ))}
-            </View>
-          </View>
-
-          {/* Historia */}
-          <View className="px-5 pt-6">
-            <Text className="mb-3 text-lg font-bold text-[#0F172A]">
-              Nuestra historia
-            </Text>
-            <View className="gap-3">
-              {HISTORY.map((item) => (
-                <View
-                  key={item.period}
-                  className="rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-sm"
-                >
-                  <View className="flex-row items-center gap-3">
-                    <View className="h-9 w-9 items-center justify-center rounded-full bg-[#065238]/10">
+                  <View className="flex-row items-start gap-4 rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-sm">
+                    <View className="h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#10B981]/10">
                       <FontAwesome6
-                        name={item.icon as any}
-                        size={14}
-                        color="#065238"
+                        name={feature.icon as any}
+                        size={16}
+                        color="#10B981"
                       />
                     </View>
-                    <View>
-                      <Text className="text-[11px] font-semibold uppercase tracking-wider text-[#94A3B8]">
-                        {item.period}
-                      </Text>
+                    <View className="min-w-0 flex-1">
                       <Text className="text-sm font-semibold text-[#0F172A]">
-                        {item.title}
+                        {feature.title}
+                      </Text>
+                      <Text className="mt-0.5 text-[13px] leading-5 text-[#64748B]">
+                        {feature.description}
                       </Text>
                     </View>
                   </View>
-                  <Text className="mt-2 text-[13px] leading-5 text-[#64748B]">
-                    {item.description}
-                  </Text>
-                </View>
+                </AnimatedSection>
               ))}
             </View>
           </View>
 
-          {/* Stack */}
           <View className="px-5 pt-6">
-            <Text className="mb-3 text-lg font-bold text-[#0F172A]">
-              Tecnología
-            </Text>
-            <View className="flex-row flex-wrap gap-2">
-              {STACK.map((tech) => (
-                <View
-                  key={tech}
-                  className="rounded-full border border-[#E2E8F0] bg-white px-4 py-2"
+            <AnimatedSection index={HISTORY_TITLE_INDEX}>
+              <Text className="mb-3 text-lg font-bold text-[#0F172A]">
+                Nuestra historia
+              </Text>
+            </AnimatedSection>
+            <View className="gap-3">
+              {HISTORY.map((item, index) => (
+                <AnimatedSection
+                  key={item.period}
+                  index={HISTORY_TITLE_INDEX + 1 + index}
                 >
-                  <Text className="text-sm font-medium text-[#0F172A]">
-                    {tech}
-                  </Text>
-                </View>
+                  <View className="rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-sm">
+                    <View className="flex-row items-center gap-3">
+                      <View className="h-9 w-9 items-center justify-center rounded-full bg-[#065238]/10">
+                        <FontAwesome6
+                          name={item.icon as any}
+                          size={14}
+                          color="#065238"
+                        />
+                      </View>
+                      <View>
+                        <Text className="text-[11px] font-semibold uppercase tracking-wider text-[#94A3B8]">
+                          {item.period}
+                        </Text>
+                        <Text className="text-sm font-semibold text-[#0F172A]">
+                          {item.title}
+                        </Text>
+                      </View>
+                    </View>
+                    <Text className="mt-2 text-[13px] leading-5 text-[#64748B]">
+                      {item.description}
+                    </Text>
+                  </View>
+                </AnimatedSection>
               ))}
             </View>
           </View>
 
-          {/* Footer */}
-          <View className="items-center px-5 pt-8">
-            <Text className="text-center text-xs text-[#94A3B8]">
-              DuoBalance · Hecho con dedicación y atención al detalle
-            </Text>
-            <Text className="mt-1 text-center text-xs text-[#CBD5E1]">
-              © 2026 DuoBalance
-            </Text>
+          <View className="px-5 pt-6">
+            <AnimatedSection index={STACK_TITLE_INDEX}>
+              <Text className="mb-3 text-lg font-bold text-[#0F172A]">
+                Tecnología
+              </Text>
+            </AnimatedSection>
+            <View className="flex-row flex-wrap gap-2">
+              {STACK.map((tech, index) => (
+                <AnimatedSection
+                  key={tech}
+                  index={STACK_TITLE_INDEX + 1 + index}
+                >
+                  <View className="rounded-full border border-[#E2E8F0] bg-white px-4 py-2">
+                    <Text className="text-sm font-medium text-[#0F172A]">
+                      {tech}
+                    </Text>
+                  </View>
+                </AnimatedSection>
+              ))}
+            </View>
           </View>
+
+          <AnimatedSection index={FOOTER_INDEX}>
+            <View className="items-center px-5 pt-8">
+              <Text className="text-center text-xs text-[#94A3B8]">
+                DuoBalance · Hecho con dedicación y atención al detalle
+              </Text>
+              <Text className="mt-1 text-center text-xs text-[#CBD5E1]">
+                © 2026 DuoBalance
+              </Text>
+            </View>
+          </AnimatedSection>
         </ScrollView>
       </SafeAreaView>
     </View>

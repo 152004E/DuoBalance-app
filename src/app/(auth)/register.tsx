@@ -6,13 +6,13 @@ import { AuthHeader } from '@/components/auth/auth-header';
 import { AuthDivider } from '@/components/auth/auth-divider';
 import { SocialLoginButton } from '@/components/auth/social-login-button';
 import { AuthFooter } from '@/components/auth/auth-footer';
-import { View, ScrollView, Text, Alert } from 'react-native';
+import { View, ScrollView, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import Toast from 'react-native-toast-message';
 
 import { useAuth } from '@/hooks/use-auth';
 import { AlertModal } from '@/components/ui/alert-modal';
+import { extractErrorMessage } from '@/utils/errors';
 import * as authService from '@/services/api/auth';
 import { tokenStorage, refreshTokenStorage } from '@/storage/token';
 
@@ -117,10 +117,6 @@ export default function RegisterScreen() {
         },
       });
     } catch (err: any) {
-      const rawMessage = err?.response?.data?.message;
-      const message =
-        typeof rawMessage === 'string' ? rawMessage : rawMessage?.message;
-
       if (err?.response?.status === 409) {
         setModal({
           type: 'error',
@@ -132,8 +128,10 @@ export default function RegisterScreen() {
         setModal({
           type: 'error',
           title: 'Error',
-          message:
-            message || 'No fue posible crear la cuenta. Intenta de nuevo.',
+          message: extractErrorMessage(
+            err,
+            'No fue posible crear la cuenta. Intenta de nuevo.',
+          ),
           onClose: () => setModal(null),
         });
       }
@@ -260,10 +258,12 @@ export default function RegisterScreen() {
         <SocialLoginButton
           provider="google"
           onPress={() =>
-            Alert.alert(
-              'Próximamente',
-              'Inicio de sesión con Google estará disponible pronto.',
-            )
+            setModal({
+              type: 'info',
+              title: 'Próximamente',
+              message: 'Inicio de sesión con Google estará disponible pronto.',
+              onClose: () => setModal(null),
+            })
           }
         />
 
