@@ -64,7 +64,7 @@ export function ProfileCard({
       >
         {capitalize(firstName ?? '')} {capitalize(lastName ?? '')}
       </Text>
-      <Text className="mt-1 text-sm text-[#64748B]">{email}</Text>
+      <Text className=" text-sm text-[#64748B]">{email}</Text>
     </View>
   );
 }

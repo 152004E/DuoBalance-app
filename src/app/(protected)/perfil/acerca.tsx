@@ -126,16 +126,21 @@ export default function AcercaScreen() {
           contentContainerClassName="pb-10"
           showsVerticalScrollIndicator={false}
         >
-          <View className="px-5 pt-4">
+          <View  className="px-5 pt-4">
             <AnimatedSection index={HERO_INDEX}>
               <LinearGradient
+              style={{ padding: 20, borderRadius: 16  }}
                 colors={['#065238ff', '#04c88aff']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 className="items-center overflow-hidden rounded-2xl px-6 py-8"
               >
                 <View className="h-16 w-16 items-center justify-center rounded-full bg-white/15">
-                  <FontAwesome6 name="scale-balanced" size={26} color="#FFFFFF" />
+                  <FontAwesome6
+                    name="scale-balanced"
+                    size={26}
+                    color="#FFFFFF"
+                  />
                 </View>
                 <Text className="mt-3 text-2xl font-bold text-white">
                   DuoBalance
@@ -145,7 +150,11 @@ export default function AcercaScreen() {
                 </Text>
                 <View className="mt-5 flex-row items-center overflow-hidden rounded-full border border-white/25 bg-white/15 p-1 pr-4">
                   <View className="h-6 w-6 items-center justify-center rounded-full bg-white/25">
-                    <FontAwesome6 name="code-branch" size={11} color="#FFFFFF" />
+                    <FontAwesome6
+                      name="code-branch"
+                      size={11}
+                      color="#FFFFFF"
+                    />
                   </View>
                   <Text className="ml-2 text-xs font-bold uppercase tracking-wider text-white">
                     Versión {appVersion}
