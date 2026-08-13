@@ -386,14 +386,14 @@ Settlements history muestra:
 4. Forgot password
 
 ### Tareas frontend
+- [x] **Verificación de correo** — **DONE (verificación estricta)**: registro ya **no** inicia sesión automáticamente; tras registrarse redirige a `verificar-correo.tsx` (mensaje + reenviar con cooldown 60s); `verify-email.tsx` procesa `?token=` del link del correo (estados verifying/success/error/no-token); login muestra mensaje claro si el correo no está verificado (403); Perfil muestra badge verificado / "Por verificar" con reenviar (`verifyEmail`, `resendVerification` en `services/api/auth.ts`)
 - [ ] **Forgot Password** — conectar `(auth)/forgot-password.tsx` (UI ya lista) a `POST /auth/forgot-password`: enviar email, estados loading/success/error
 - [ ] **Reset Password** — nueva pantalla `(auth)/reset-password.tsx` que lee `?token=` del link del email y hace `POST /auth/reset-password`
-- [ ] **Verificación de correo** — banner/pantalla "verifica tu email" tras registrarse, botón reenviar, estado verificado
 - [ ] **Deep link** — soportar `duobalance://reset-password?token=...` vía expo-linking (opcional en MVP)
 - [ ] **Bienvenida / Liquidación mensual** — sin UI extra; se envían desde backend
 
 ### Criterios de done Sprint 5
-- [ ] Recibir correo de verificación al registrarse y poder verificar la cuenta
+- [x] Recibir correo de verificación al registrarse y poder verificar la cuenta
 - [ ] Recuperar contraseña completo: pedir reset → recibir email → nueva contraseña → login
 - [ ] Recibir resumen mensual de liquidaciones por correo
 

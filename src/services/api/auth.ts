@@ -17,6 +17,16 @@ export const register = async (payload: RegisterPayload) => {
   return data;
 };
 
+export const verifyEmail = async (token: string) => {
+  const { data } = await api.post('/auth/verify-email', { token });
+  return data as UserResponse;
+};
+
+export const resendVerification = async (email: string) => {
+  const { data } = await api.post('/auth/resend-verification', { email });
+  return data;
+};
+
 export const refreshToken = async (refreshToken: string) => {
   const { data } = await api.post('/auth/refresh', {
     refreshToken,

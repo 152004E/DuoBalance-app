@@ -10,11 +10,9 @@ import { View, ScrollView, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 
-import { useAuth } from '@/hooks/use-auth';
 import { AlertModal } from '@/components/ui/alert-modal';
 import { extractErrorMessage } from '@/utils/errors';
 import * as authService from '@/services/api/auth';
-import { tokenStorage, refreshTokenStorage } from '@/storage/token';
 
 const EMAIL_REGEX = /^[^\s@]{2,}@[^\s@]{2,}\.[A-Za-z]{2,}$/;
 
@@ -28,8 +26,6 @@ interface FormErrors {
 }
 
 export default function RegisterScreen() {
-  const { signIn } = useAuth();
-
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -88,34 +84,18 @@ export default function RegisterScreen() {
     }));
 
     try {
+      const normalizedEmail = email.trim().toLowerCase();
+
       await authService.register({
         firstName: firstName.trim(),
         lastName: lastName.trim(),
-        email: email.trim().toLowerCase(),
+        email: normalizedEmail,
         password,
       });
 
-      const authResponse = await authService.login({
-        email: email.trim().toLowerCase(),
-        password,
-      });
-
-      await tokenStorage.set(authResponse.access_token);
-      await refreshTokenStorage.set(authResponse.refresh_token);
-
-      const user = await authService.getProfile();
-
-      await signIn(user, authResponse.access_token, authResponse.refresh_token);
-
-      setModal({
-        type: 'success',
-        title: 'Registro exitoso',
-        message: 'Tu cuenta ha sido creada correctamente.',
-        onClose: () => {
-          setModal(null);
-          router.replace('/(protected)');
-        },
-      });
+      router.replace(
+        `/(auth)/verificar-correo?email=${encodeURIComponent(normalizedEmail)}`,
+      );
     } catch (err: any) {
       if (err?.response?.status === 409) {
         setModal({

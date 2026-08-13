@@ -6,7 +6,10 @@ import { router, useScrollToTop } from 'expo-router';
 import { useAuth } from '@/hooks/use-auth';
 import { Loading } from '@/components/ui/loading';
 import { ProfileCard } from '@/components/perfil/profile-card';
-import { useRef } from 'react';
+import { AlertModal } from '@/components/ui/alert-modal';
+import { extractErrorMessage } from '@/utils/errors';
+import * as authService from '@/services/api/auth';
+import { useState, useRef } from 'react';
 
 const menuItems = [
   { icon: 'pen-to-square', label: 'Editar Perfil', route: '/perfil/editar' },
@@ -17,9 +20,44 @@ const menuItems = [
 
 export default function PerfilScreen() {
   const { user, signOut, isLoading } = useAuth();
+  const [sending, setSending] = useState(false);
+  const [modal, setModal] = useState<{
+    type: 'success' | 'error';
+    title: string;
+    message: string;
+  } | null>(null);
+  const scrollRef = useRef<ScrollView>(null);
+  useScrollToTop(scrollRef);
+
+  const isVerified = !!user?.emailVerifiedAt;
 
   const handleLogout = async () => {
     await signOut();
+  };
+
+  const handleResend = async () => {
+    if (!user?.email) return;
+
+    setSending(true);
+    try {
+      await authService.resendVerification(user.email);
+      setModal({
+        type: 'success',
+        title: 'Correo reenviado',
+        message: `Te enviamos un nuevo enlace de verificación a ${user.email}.`,
+      });
+    } catch (error) {
+      setModal({
+        type: 'error',
+        title: 'No se pudo reenviar',
+        message: extractErrorMessage(
+          error,
+          'No se pudo enviar el correo. Intenta de nuevo.',
+        ),
+      });
+    } finally {
+      setSending(false);
+    }
   };
 
   if (isLoading) {
@@ -29,9 +67,6 @@ export default function PerfilScreen() {
       </SafeAreaView>
     );
   }
-
-  const scrollRef = useRef<ScrollView>(null);
-  useScrollToTop(scrollRef);
 
   return (
     <View className="flex-1">
@@ -57,6 +92,29 @@ export default function PerfilScreen() {
             email={user?.email ?? ''}
             avatarUrl={user?.avatarUrl}
           />
+
+          {isVerified ? (
+            <View className="mx-5 mt-3 flex-row items-center justify-center gap-2">
+              <FontAwesome6 name="circle-check" size={14} color="#10B981" />
+              <Text className="text-xs font-medium text-[#10B981]">
+                Correo verificado
+              </Text>
+            </View>
+          ) : (
+            <View className="mx-5 mt-3 flex-row items-center justify-between rounded-xl border border-[#FBBF24]/40 bg-[#FEF3C7] px-4 py-2.5">
+              <View className="flex-row items-center gap-2">
+                <FontAwesome6 name="clock" size={14} color="#B45309" />
+                <Text className="text-xs font-medium text-[#B45309]">
+                  Por verificar tu correo
+                </Text>
+              </View>
+              <Pressable onPress={handleResend} disabled={sending}>
+                <Text className="text-xs font-semibold text-[#B45309] underline">
+                  {sending ? 'Enviando...' : 'Reenviar'}
+                </Text>
+              </Pressable>
+            </View>
+          )}
 
           <View className="mx-5 mt-10 rounded-2xl bg-white shadow-sm">
             {menuItems.map((item, index) => (
@@ -97,6 +155,16 @@ export default function PerfilScreen() {
             </Pressable>
           </View>
         </ScrollView>
+
+        {modal && (
+          <AlertModal
+            visible
+            type={modal.type}
+            title={modal.title}
+            message={modal.message}
+            onClose={() => setModal(null)}
+          />
+        )}
       </SafeAreaView>
     </View>
   );

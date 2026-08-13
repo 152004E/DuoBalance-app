@@ -65,6 +65,7 @@ export interface UserResponse {
   lastName: string;
   email: string;
   avatarUrl?: string | null;
+  emailVerifiedAt?: string | null;
   createdAt: string;
 }
 

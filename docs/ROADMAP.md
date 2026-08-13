@@ -186,7 +186,7 @@ Settlements history muestra: "Emerson pagó $70.000 a Andrea el 15/01"
 
 - [ ] Conectar `forgot-password.tsx` (UI lista) a `POST /auth/forgot-password`
 - [ ] Pantalla `reset-password.tsx` (`?token=` → `POST /auth/reset-password`)
-- [ ] Banner/pantalla de verificación de correo al registrarse
+- [x] **Verificación de correo al registrarse (DONE, verificación estricta)** — registro sin auto-login → pantalla `verificar-correo.tsx` con reenviar (cooldown 60s); `verify-email.tsx` procesa `?token=`; login bloquea hasta verificar; Perfil muestra badge con reenviar
 
 ---
 

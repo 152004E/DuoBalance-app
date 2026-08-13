@@ -13,6 +13,7 @@ import { AuthFooter } from '@/components/auth/auth-footer';
 import { useAuth } from '@/hooks/use-auth';
 import * as authService from '@/services/api/auth';
 import { tokenStorage, refreshTokenStorage } from '@/storage/token';
+import { extractErrorMessage } from '@/utils/errors';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -70,16 +71,20 @@ export default function LoginScreen() {
 
       router.replace('/(protected)');
     } catch (err: any) {
-      const message =
-        err?.response?.data?.message ||
-        err?.message ||
-        'Error al iniciar sesión. Intenta de nuevo.';
-
-      if (typeof message === 'string') {
-        setErrors({ general: message });
-      } else {
-        setErrors({ general: 'Error al iniciar sesión. Intenta de nuevo.' });
+      if (err?.response?.status === 403) {
+        setErrors({
+          general:
+            'Debes verificar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada.',
+        });
+        return;
       }
+
+      setErrors({
+        general: extractErrorMessage(
+          err,
+          'Error al iniciar sesión. Intenta de nuevo.',
+        ),
+      });
     } finally {
       setIsLoading(false);
     }

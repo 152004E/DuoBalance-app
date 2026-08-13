@@ -19,8 +19,9 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **Route Scaffolding**: (auth)/ and (protected)/ route groups created ✅
 - **Protected Route Guard**: Redirects to /login if no user ✅
 - **Conditional Routing**: index.tsx shows WelcomeScreen or redirects to Dashboard ✅
-- **Login Screen**: Full implementation with form validation, API integration (login → getProfile → signIn) ✅
-- **Register Screen**: Full implementation with auto-login (register → login → getProfile → signIn → AlertModal → dashboard) ✅
+- **Login Screen**: Full implementation with form validation, API integration (login → getProfile → signIn); bloquea con mensaje claro si el correo no está verificado (403) ✅
+- **Register Screen**: Full implementation **sin auto-login** — tras registrar redirige a `(auth)/verificar-correo`; el usuario debe verificar su correo antes de iniciar sesión (verificación estricta) ✅
+- **Verificación de correo**: `verificar-correo.tsx` (confirmación post-registro con reenvío + cooldown 60s) y `verify-email.tsx` (procesa `?token=` del link del correo, estados verifying/success/error/no-token) ✅
 - **Forgot Password Screen**: UI complete, pending backend endpoint 🔄
 - **Auth Components**: AuthHeader, AuthDivider, SocialLoginButton, AuthFooter — all reusable ✅
 - **Token persistence**: Fixed — use-auth now reads stored token on mount and calls onAuthStateChanged ✅
@@ -47,7 +48,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **Expense Detail** (`(protected)/gastos/detalle/[id].tsx`): Full expense detail with hero card, information, participants, split breakdown, receipt section, timeline, actions ✅ (ScreenHeader con menú de tres puntos que abre el ExpenseMenuSheet → "Editar gasto" abre el CreateExpenseSheet precargado; "Eliminar gasto" abre el AlertModal de confirmación; guardado con alertas de éxito/error). Participantes y distribución **solo se muestran si el grupo no es PERSONAL y el splitType no es PERSONAL** (evita redundancia en gastos personales); la sección "Actividad" solo muestra "Última actualización" si el gasto fue realmente editado (`updatedAt > createdAt`)
 - **Expense Detail (legacy)** (`(protected)/gastos/[id].tsx`): shim de compatibilidad — `Redirect` a `/gastos/detalle/[id]` (rutas viejas tipo `/gastos/abc` siguen funcionando) ✅
 - **Reportes** (`(protected)/reportes.tsx`): Reports screen connected to real data via `useReportsData` — bar chart (por categoría, top 5), donut chart (aportes por miembro), stat cards (promedio + transacciones con comparación vs periodo anterior), filtro de período **y categoría** estilo Movimientos (FilterSheet compartido: Este mes / Últimos 3 meses / Este año / Todo + categorías con expandible "Otros"), estados loading/empty ✅
-- **Perfil** (`(protected)/perfil/index.tsx`): Profile screen with avatar, user info, menu options (Editar Perfil, Notificaciones, Seguridad, **Acerca de**), and logout ✅
+- **Perfil** (`(protected)/perfil/index.tsx`): Profile screen with avatar, user info, menu options (Editar Perfil, Notificaciones, Seguridad, **Acerca de**), badge de verificación de correo (verificado ✓ / "Por verificar" con reenviar), and logout ✅
 - **Editar Perfil** (`(protected)/perfil/editar.tsx`): Edit profile screen with name, email fields (uses Input with iconLeft), avatar upload via ImagePicker + ImagePreviewModal, save to API (updateProfile/uploadAvatar) ✅
 - **Seguridad** (`(protected)/perfil/seguridad.tsx`): Change password screen with 3 inputs (currentPassword, newPassword, confirmPassword) using Input with iconLeft="lock" + secureTextEntry, per-field validation, API call to changePassword, AlertModal for success/error ✅
 - **Acerca de** (`(protected)/perfil/acerca.tsx`): About screen con hero de gradiente, "¿Qué es DuoBalance?", funcionalidades, historia, stack tecnológico y footer; lee la versión real desde `Constants.expoConfig` ✅
@@ -101,7 +102,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **`src/features/workspace/`**: Contexto global de "espacio de trabajo" (`WorkspaceProvider` envuelve los Tabs en `(protected)/_layout.tsx`). Define `WorkspaceState = FilterState` (categoría + groupId). Todas las pantallas (Inicio, Gastos, Grupos, Reportes) leen el mismo estado y se sincronizan. Types en `workspace.types.ts` (alias de `src/types/filter.ts`). ✅
 
 ### API Services — Built
-- **auth.ts**: Auth service (login, register, getProfile, updateProfile, changePassword, uploadAvatar) ✅
+- **auth.ts**: Auth service (login, register, getProfile, updateProfile, changePassword, uploadAvatar, **verifyEmail, resendVerification**) ✅
 - **groups.ts**: Full group CRUD (create, join, list, get, update, delete, archive, regenerate invite code, remove member, update member split) ✅
 - **Expenses API** (`src/services/api/expenses.ts`): CRUD completo (create, list, get, update, delete) ✅
 - **Payments API** (`src/services/api/payments.ts`): createPayment, getPayments, getSettlement, getSettlementSuggestions, **confirmPayment, rejectPayment** — conectado al backend (con `?groupId=` para el workspace) ✅
@@ -195,7 +196,9 @@ npx prisma db push        # Push schema (dev)
 | `src/app/index.tsx` | Conditional entry (WelcomeScreen or Dashboard redirect) |
 | `src/app/(auth)/_layout.tsx` | Auth layout |
 | `src/app/(auth)/login.tsx` | Login screen (full implementation) |
-| `src/app/(auth)/register.tsx` | Register screen (full implementation with auto-login) |
+| `src/app/(auth)/register.tsx` | Register screen (full implementation, sin auto-login → verificar-correo) |
+| `src/app/(auth)/verificar-correo.tsx` | Post-registro: "te enviamos un correo" + reenviar (cooldown 60s) |
+| `src/app/(auth)/verify-email.tsx` | Procesa `?token=` del correo de verificación (estados verifying/success/error) |
 | `src/app/(auth)/forgot-password.tsx` | Forgot password screen (UI complete) |
 | `src/app/(protected)/_layout.tsx` | Protected layout with auth guard + BottomTab |
 | `src/app/(protected)/index.tsx` | Dashboard screen (datos reales via useDashboardData + useGroupSummaries, sin mocks) |
@@ -348,7 +351,7 @@ npx prisma db push        # Push schema (dev)
 | `src/storage/token.ts` | SecureStore wrapper (with localStorage fallback for web) |
 | `src/services/api/client.ts` | Axios instance |
 | `src/services/api/interceptor.ts` | Axios interceptors (Bearer token + respuesta 401 → refresh de token, o emite `session:expired` si falla) |
-| `src/services/api/auth.ts` | Auth service (login, register, getProfile, updateProfile, changePassword, uploadAvatar) |
+| `src/services/api/auth.ts` | Auth service (login, register, getProfile, updateProfile, changePassword, uploadAvatar, verifyEmail, resendVerification) |
 | `src/services/api/groups.ts` | Groups API service (create, join, list, get, update, delete, archive, regenerate invite, remove member, update split) |
 | `src/types/api.ts` | Backend DTOs and response types |
 | `src/constants/config.ts` | Environment variables |
