@@ -2,6 +2,7 @@ import {
   ChangePasswordPayload,
   LoginPayload,
   RegisterPayload,
+  ResetPasswordPayload,
   UpdateProfilePayload,
   UserResponse,
 } from '@/types/api';
@@ -24,6 +25,16 @@ export const verifyEmail = async (token: string) => {
 
 export const resendVerification = async (email: string) => {
   const { data } = await api.post('/auth/resend-verification', { email });
+  return data;
+};
+
+export const forgotPassword = async (email: string) => {
+  const { data } = await api.post('/auth/forgot-password', { email });
+  return data;
+};
+
+export const resetPassword = async (payload: ResetPasswordPayload) => {
+  const { data } = await api.post('/auth/reset-password', payload);
   return data;
 };
 

@@ -74,6 +74,11 @@ export interface ChangePasswordPayload {
   newPassword: string;
 }
 
+export interface ResetPasswordPayload {
+  token: string;
+  newPassword: string;
+}
+
 export interface UpdateProfilePayload {
   firstName?: string;
   lastName?: string;
