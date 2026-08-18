@@ -10,6 +10,7 @@ import { useSettlementSuggestions } from '@/hooks/use-settlement-suggestions';
 import { HeroSection } from '@/components/layout/HeroSection';
 import { GroupSelector } from '@/components/ui/group-selector';
 import { GroupSection } from '@/components/ui/group-section';
+import { EmptyStateCard } from '@/components/ui/empty-state-card';
 import { Loading } from '@/components/ui/loading';
 import {
   RecentExpensesCard,
@@ -158,14 +159,10 @@ export default function DashboardScreen() {
           {isLoading ? (
             <Loading message="Cargando tu actividad..." />
           ) : !hasData ? (
-            <View className="items-center rounded-xl border border-dashed border-[#E2E8F0] bg-white px-6 py-10">
-              <Text className="text-center text-base font-semibold text-[#0F172A]">
-                Sin gastos este mes
-              </Text>
-              <Text className="mt-1 text-center text-sm text-[#64748B]">
-                Registra tu primer gasto para ver tu resumen aquí.
-              </Text>
-            </View>
+            <EmptyStateCard
+              title="Sin gastos este mes"
+              description="Registra tu primer gasto para ver tu resumen aquí."
+            />
           ) : (
             <>
               <RecentExpensesCard

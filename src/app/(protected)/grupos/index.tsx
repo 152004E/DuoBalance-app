@@ -18,6 +18,7 @@ import { InviteMemberSheet } from '@/components/couple/invite-member-sheet';
 import { JoinGroupSheet } from '@/components/couple/join-group-sheet';
 import { AlertModal } from '@/components/ui/alert-modal';
 import { GroupSection } from '@/components/ui/group-section';
+import { EmptyStateCard } from '@/components/ui/empty-state-card';
 import { useAuth } from '@/hooks/use-auth';
 import { useGroups } from '@/hooks/use-groups';
 import { useGroupSummaries } from '@/hooks/use-group-summaries';
@@ -37,6 +38,10 @@ export default function ParejaScreen() {
     workspace.category === 'all' || workspace.category === 'couple';
   const showGroup =
     workspace.category === 'all' || workspace.category === 'group';
+  const hasVisibleGroups =
+    (showPersonal && personalGroups.length > 0) ||
+    (showCouple && coupleGroups.length > 0) ||
+    (showGroup && sharedGroups.length > 0);
   const [menuVisible, setMenuVisible] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<GroupResponse | null>(
     null,
@@ -195,6 +200,13 @@ export default function ParejaScreen() {
           <Text className="mb-4 text-2xl font-bold text-[#0F172A]">
             Tus Grupos
           </Text>
+
+          {!hasVisibleGroups && (
+            <EmptyStateCard
+              title="Sin grupos aún"
+              description="Crea tu primer grupo o únete a uno con un código de invitación."
+            />
+          )}
 
           {showPersonal && (
             <GroupSection

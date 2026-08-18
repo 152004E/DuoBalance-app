@@ -12,6 +12,7 @@ import type { ExpenseCategory } from '@/types/api';
 import { GroupSelector } from '@/components/ui/group-selector';
 import { useWorkspace } from '@/hooks/use-workspace';
 import { Loading } from '@/components/ui/loading';
+import { EmptyStateCard } from '@/components/ui/empty-state-card';
 import { FilterSheet } from '@/components/movements/filter-sheet';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { CATEGORY_LABELS } from '@/constants/categories';
@@ -149,20 +150,16 @@ export default function ReportesScreen() {
           </View>
         ) : !hasData ? (
           <View className="px-5 pt-8">
-            <View className="items-center rounded-xl border border-dashed border-[#E2E8F0] bg-white px-6 py-10">
-              <Text className="text-center text-base font-semibold text-[#0F172A]">
-                Sin datos para este periodo
-              </Text>
-              <Text className="mt-1 text-center text-sm text-[#64748B]">
-                No hay gastos registrados en el período «{selectedPeriod}» para{' '}
-                {workspace.groupId
+            <EmptyStateCard
+              title="Sin datos para este periodo"
+              description={`No hay gastos registrados en el período «${selectedPeriod}» para ${
+                workspace.groupId
                   ? 'este grupo'
                   : workspace.category === 'all'
                     ? 'tus grupos'
-                    : 'esta categoría'}
-                .
-              </Text>
-            </View>
+                    : 'esta categoría'
+              }.`}
+            />
           </View>
         ) : (
           <View className="gap-6 px-5 pt-8">

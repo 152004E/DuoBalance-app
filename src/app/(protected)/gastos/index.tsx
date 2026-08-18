@@ -8,6 +8,7 @@ import { useGroups } from '@/hooks/use-groups';
 import { useGroupSummaries } from '@/hooks/use-group-summaries';
 import { GroupSelector } from '@/components/ui/group-selector';
 import { GroupSection } from '@/components/ui/group-section';
+import { EmptyStateCard } from '@/components/ui/empty-state-card';
 import { LoadMoreButton } from '@/components/ui/load-more-button';
 import {
   RecentExpensesCard,
@@ -190,40 +191,58 @@ export default function GastosScreen() {
             </View>
           </View>
 
-          <Text className="mb-4 text-base font-bold text-[#0F172A]">
-            Gastos por Pareja
-          </Text>
+          {filteredGroups.length === 0 ? (
+            <View className="mt-6">
+              <EmptyStateCard
+                title="Sin gastos registrados"
+                description="Crea tu primer grupo o únete a uno con un código de invitación para empezar a registrar gastos."
+              />
+            </View>
+          ) : (
+            <>
+              <Text className="mb-4 text-base font-bold text-[#0F172A]">
+                Gastos por Pareja
+              </Text>
 
-          <GroupSection
-            title=""
-            groups={filteredGroups}
-            summaries={summaries}
-            onPress={(group) => router.push(`/grupos/${group.id}`)}
-            currentUserId={user?.id}
-          />
+              <GroupSection
+                title=""
+                groups={filteredGroups}
+                summaries={summaries}
+                onPress={(group) => router.push(`/grupos/${group.id}`)}
+                currentUserId={user?.id}
+              />
 
-          <View className="mt-6">
-            <Text className="mb-3 text-base font-bold text-[#0F172A]">
-              Últimos Movimientos
-            </Text>
-            <RecentExpensesCard
-              expenses={recentExpenses}
-              maxItems={visibleCount}
-              onViewAll={() => router.push('/gastos/Movimientos')}
-              onExpensePress={(expense) =>
-                router.push(`/gastos/detalle/${expense.id}`)
-              }
-            />
-          </View>
+              <View className="mt-6">
+                <Text className="mb-3 text-base font-bold text-[#0F172A]">
+                  Últimos Movimientos
+                </Text>
+                {filteredExpenses.length === 0 ? (
+                  <EmptyStateCard
+                    title="Sin gastos registrados"
+                    description="Registra tu primer gasto para ver tus movimientos aquí."
+                  />
+                ) : (
+                  <RecentExpensesCard
+                    expenses={recentExpenses}
+                    maxItems={visibleCount}
+                    onViewAll={() => router.push('/gastos/Movimientos')}
+                    onExpensePress={(expense) =>
+                      router.push(`/gastos/detalle/${expense.id}`)
+                    }
+                  />
+                )}
+              </View>
 
-          <View className="mt-5">
-            <LoadMoreButton
-              visibleCount={visibleCount}
-              totalCount={filteredExpenses.length}
-              step={5}
-              onLoadMore={setVisibleCount}
-            />
-          </View>
+              <View className="mt-5">
+                <LoadMoreButton
+                  visibleCount={visibleCount}
+                  totalCount={filteredExpenses.length}
+                  step={5}
+                  onLoadMore={setVisibleCount}
+                />
+              </View>
+            </>
+          )}
         </View>
       </ScrollView>
 
