@@ -22,7 +22,8 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **Login Screen**: Full implementation with form validation, API integration (login → getProfile → signIn); bloquea con mensaje claro si el correo no está verificado (403) ✅
 - **Register Screen**: Full implementation **sin auto-login** — tras registrar redirige a `(auth)/verificar-correo`; el usuario debe verificar su correo antes de iniciar sesión (verificación estricta) ✅
 - **Verificación de correo**: `verificar-correo.tsx` (confirmación post-registro con reenvío + cooldown 60s) y `verify-email.tsx` (procesa `?token=` del link del correo, estados verifying/success/error/no-token) ✅
-- **Forgot Password Screen**: UI complete, pending backend endpoint 🔄
+- **Forgot Password Screen**: conectada a `POST /auth/forgot-password` — validación email, estados form/sending/sent, pantalla de éxito "Revisa tu correo" (enlace válido 60 min) ✅
+- **Reset Password Screen** (`restablecer-contrasena.tsx`): procesa `?token=` del link del correo → `POST /auth/reset-password` (estados form/submitting/success/error; success → /login) ✅
 - **Auth Components**: AuthHeader, AuthDivider, SocialLoginButton, AuthFooter — all reusable ✅
 - **Token persistence**: Fixed — use-auth now reads stored token on mount and calls onAuthStateChanged ✅
 - **Response interceptor (401)**: ✅ **implementado** — `src/services/api/interceptor.ts` intenta refresh con el token de refresco (cola las peticiones pendientes); si no hay refresh token o el refresh falla, emite el evento `session:expired` vía `eventEmitter`. `SessionExpiredAlert` (`src/components/auth/session-expired-alert.tsx`, montado en `src/app/_layout.tsx`) escucha el evento y muestra un AlertModal "Sesión expirada" que redirige a `/login` (auto-redirect tras 15s, o al pulsar "Iniciar sesión")
@@ -102,7 +103,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **`src/features/workspace/`**: Contexto global de "espacio de trabajo" (`WorkspaceProvider` envuelve los Tabs en `(protected)/_layout.tsx`). Define `WorkspaceState = FilterState` (categoría + groupId). Todas las pantallas (Inicio, Gastos, Grupos, Reportes) leen el mismo estado y se sincronizan. Types en `workspace.types.ts` (alias de `src/types/filter.ts`). ✅
 
 ### API Services — Built
-- **auth.ts**: Auth service (login, register, getProfile, updateProfile, changePassword, uploadAvatar, **verifyEmail, resendVerification**) ✅
+- **auth.ts**: Auth service (login, register, getProfile, updateProfile, changePassword, uploadAvatar, **verifyEmail, resendVerification, forgotPassword, resetPassword**) ✅
 - **groups.ts**: Full group CRUD (create, join, list, get, update, delete, archive, regenerate invite code, remove member, update member split) ✅
 - **Expenses API** (`src/services/api/expenses.ts`): CRUD completo (create, list, get, update, delete) ✅
 - **Payments API** (`src/services/api/payments.ts`): createPayment, getPayments, getSettlement, getSettlementSuggestions, **confirmPayment, rejectPayment** — conectado al backend (con `?groupId=` para el workspace) ✅
@@ -143,7 +144,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 2. ~~Response interceptor (401 → redirect to login)~~ ✅ **ya implementado** vía `session:expired` + `SessionExpiredAlert` (ver sección Auth)
 
 ### P1 — Remaining features
-1. **Forgot Password** — endpoint en backend + conectar frontend (UI ya lista en `forgot-password.tsx`)
+1. ~~**Forgot Password**~~ ✅ **completado** — `forgot-password.tsx` conectado a `POST /auth/forgot-password` + nueva pantalla `restablecer-contrasena.tsx` (`?token=` → `POST /auth/reset-password`)
 2. **Receipt Capture** — captura de comprobantes con cámara/galería (hoy el detalle muestra la sección receipt pero sin captura real)
 3. **Settlement Suggestions cards** — UI de las sugerencias "Transfiere $X a Y para saldar" (el API `getSettlementSuggestions` ya existe)
 4. **Payment History screen** — pantalla dedicada de historial de pagos (hoy el historial vive dentro del `LiquidacionesSheet` del Group Detail)
@@ -199,7 +200,8 @@ npx prisma db push        # Push schema (dev)
 | `src/app/(auth)/register.tsx` | Register screen (full implementation, sin auto-login → verificar-correo) |
 | `src/app/(auth)/verificar-correo.tsx` | Post-registro: "te enviamos un correo" + reenviar (cooldown 60s) |
 | `src/app/(auth)/verify-email.tsx` | Procesa `?token=` del correo de verificación (estados verifying/success/error) |
-| `src/app/(auth)/forgot-password.tsx` | Forgot password screen (UI complete) |
+| `src/app/(auth)/forgot-password.tsx` | Forgot password — solicita reset (POST /auth/forgot-password; form/sending/sent, "Revisa tu correo", enlace válido 60 min) |
+| `src/app/(auth)/restablecer-contrasena.tsx` | Reset password — procesa `?token=` → POST /auth/reset-password (form/submitting/success/error, success → /login) |
 | `src/app/(protected)/_layout.tsx` | Protected layout with auth guard + BottomTab |
 | `src/app/(protected)/index.tsx` | Dashboard screen (datos reales via useDashboardData + useGroupSummaries, sin mocks) |
 | `src/app/(protected)/gastos/index.tsx` | Gastos screen (hero + Últimos Movimientos con load-more) |
@@ -351,7 +353,7 @@ npx prisma db push        # Push schema (dev)
 | `src/storage/token.ts` | SecureStore wrapper (with localStorage fallback for web) |
 | `src/services/api/client.ts` | Axios instance |
 | `src/services/api/interceptor.ts` | Axios interceptors (Bearer token + respuesta 401 → refresh de token, o emite `session:expired` si falla) |
-| `src/services/api/auth.ts` | Auth service (login, register, getProfile, updateProfile, changePassword, uploadAvatar, verifyEmail, resendVerification) |
+| `src/services/api/auth.ts` | Auth service (login, register, getProfile, updateProfile, changePassword, uploadAvatar, verifyEmail, resendVerification, forgotPassword, resetPassword) |
 | `src/services/api/groups.ts` | Groups API service (create, join, list, get, update, delete, archive, regenerate invite, remove member, update split) |
 | `src/types/api.ts` | Backend DTOs and response types |
 | `src/constants/config.ts` | Environment variables |

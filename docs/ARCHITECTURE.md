@@ -24,12 +24,13 @@ DuoBalance-app/
 │   │   ├── _layout.tsx              Root layout (AuthProvider + Stack + Toast)
 │   │   ├── index.tsx                Entry — shows WelcomeScreen or redirects to Dashboard
 │   │   ├── (auth)/                  Auth group (unauthenticated routes)
-│   │   │   ├── _layout.tsx          Auth layout (login, register, verificar-correo, verify-email, forgot-password)
+│   │   │   ├── _layout.tsx          Auth layout (login, register, forgot-password, restablecer-contrasena, verificar-correo, verify-email)
 │   │   │   ├── login.tsx            Login screen (full implementation; bloquea si el correo no está verificado)
 │   │   │   ├── register.tsx         Register screen (full implementation, sin auto-login → verificar-correo)
 │   │   │   ├── verificar-correo.tsx Post-registro: "te enviamos un correo" + reenviar (cooldown 60s)
 │   │   │   ├── verify-email.tsx     Procesa `?token=` del link del correo (verifying/success/error)
-│   │   │   └── forgot-password.tsx  Forgot password screen (UI complete)
+│   │   │   ├── forgot-password.tsx   Forgot password — conectado a POST /auth/forgot-password (estados form/sending/sent, éxito "Revisa tu correo", enlace válido 60 min)
+│   │   │   └── restablecer-contrasena.tsx  Reset password — procesa `?token=` → POST /auth/reset-password (estados form/submitting/success/error; success → /login)
 │   │   └── (protected)/             Protected group (authenticated routes)
 │   │       ├── _layout.tsx          Protected layout (auth guard + BottomTab)
 │   │       ├── index.tsx            Dashboard screen (datos reales via useDashboardData, sin mocks)
@@ -140,7 +141,7 @@ DuoBalance-app/
 │   │   └── api/
 │   │       ├── client.ts            Axios instance (baseURL, timeout)
 │   │       ├── interceptor.ts       Axios interceptors (Bearer token + response 401 → refresh / emite `session:expired`)
-│   │       ├── auth.ts              authService (login, register, getProfile, updateProfile, changePassword, uploadAvatar)
+│   │       ├── auth.ts              authService (login, register, getProfile, updateProfile, changePassword, uploadAvatar, verifyEmail, resendVerification, forgotPassword, resetPassword)
 │   │       ├── groups.ts            Groups API service (create, join, list, get, update, delete, archive, regenerate invite, remove member, update split)
 │   │       ├── expenses.ts          ✅ Expense CRUD (create, list, get, update, delete)
 │   │       ├── payments.ts          ✅ Payments + Settlements (createPayment, getPayments, getSettlement, getSettlementSuggestions, confirmPayment, rejectPayment — con ?groupId=)
@@ -213,8 +214,13 @@ App (Expo Router)
 │   │   └── "¿No tienes cuenta? Crear cuenta" → /register
 │   ├── /register
 │   │   └── "¿Ya tienes cuenta? Iniciar sesión" → /login
-│   └── /forgot-password
-│       └── "Volver a Iniciar sesión" → /login
+│   ├── /forgot-password — solicitar reset (POST /auth/forgot-password)
+│   │   ├── success: "Revisa tu correo" (enlace válido 60 min)
+│   │   └── "Volver a Iniciar sesión" → /login
+│   └── /restablecer-contrasena?token=... — desde el link del correo
+│       ├── form → POST /auth/reset-password (submitting → success/error)
+│       ├── success: "¡Contraseña restablecida!" → "Iniciar sesión" → /login
+│       └── error: mensaje + "Solicitar nuevo enlace" → /forgot-password
 │
 └── (protected) — Authenticated (redirects to /login if no user)
     │   Bottom Tab: Inicio | Gastos | Grupos | Reportes | Perfil

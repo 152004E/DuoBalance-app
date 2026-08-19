@@ -93,7 +93,8 @@ Cada nivel depende estrictamente del anterior. No se puede calcular balance sin 
 | WelcomeScreen | `(auth)/` → `index.tsx` | ✅ |
 | Login | `(auth)/login.tsx` | ✅ |
 | Register | `(auth)/register.tsx` | ✅ |
-| Forgot Password | `(auth)/forgot-password.tsx` | 🔄 UI lista — backend en Sprint 5 (MailModule Resend) |
+| Forgot Password | `(auth)/forgot-password.tsx` | ✅ (conectada a `POST /auth/forgot-password` — validación email, estados form/sending/sent, éxito "Revisa tu correo", enlace válido 60 min) |
+| Reset Password | `(auth)/restablecer-contrasena.tsx` | ✅ (procesa `?token=` del link del correo → `POST /auth/reset-password` — estados form/submitting/success/error) |
 | Dashboard | `(protected)/index.tsx` | ✅ (datos reales via useDashboardData: balance, transacciones, top categoría, aportes; sin mocks) |
 | Gastos (lista) | `(protected)/gastos/index.tsx` | ✅ (API connected via getExpenses, load-more) |
 | Movimientos | `(protected)/gastos/Movimientos.tsx` | ✅ (lista filtrada: FilterSheet período/categoría + buscador) |
@@ -152,7 +153,7 @@ En esta fase **aún no se muestra quién le debe a quién** (eso es Sprint 3). S
 - [✅] Edit profile screen (name, email, avatar upload)
 - [✅] Protected route wrapper (redirect a login si no token)
 - [✅] Token persistence
-- [🔄] Forgot password — UI completa, backend endpoint pendiente
+- [✅] Forgot password — conectado a `POST /auth/forgot-password` (estados form/sending/sent, pantalla de éxito "Revisa tu correo", enlace válido 60 min)
 - [✅] Response interceptor (401 → redirect a login) — implementado vía `session:expired` (interceptor.ts) + `SessionExpiredAlert` (redirige a `/login`, auto 15s)
 
 ## ✅ Groups (API connected)
@@ -387,14 +388,14 @@ Settlements history muestra:
 
 ### Tareas frontend
 - [x] **Verificación de correo** — **DONE (verificación estricta)**: registro ya **no** inicia sesión automáticamente; tras registrarse redirige a `verificar-correo.tsx` (mensaje + reenviar con cooldown 60s); `verify-email.tsx` procesa `?token=` del link del correo (estados verifying/success/error/no-token); login muestra mensaje claro si el correo no está verificado (403); Perfil muestra badge verificado / "Por verificar" con reenviar (`verifyEmail`, `resendVerification` en `services/api/auth.ts`)
-- [ ] **Forgot Password** — conectar `(auth)/forgot-password.tsx` (UI ya lista) a `POST /auth/forgot-password`: enviar email, estados loading/success/error
-- [ ] **Reset Password** — nueva pantalla `(auth)/reset-password.tsx` que lee `?token=` del link del email y hace `POST /auth/reset-password`
+- [x] **Forgot Password** — **DONE**: `(auth)/forgot-password.tsx` conectado a `POST /auth/forgot-password` (validación email, estados form/sending/sent, pantalla de éxito "Revisa tu correo", enlace válido 60 min)
+- [x] **Reset Password** — **DONE**: nueva pantalla `(auth)/restablecer-contrasena.tsx` que lee `?token=` del link del email y hace `POST /auth/reset-password` (estados form/submitting/success/error; success → `/login`, error → "Solicitar nuevo enlace" → `/forgot-password`)
 - [ ] **Deep link** — soportar `duobalance://reset-password?token=...` vía expo-linking (opcional en MVP)
 - [ ] **Bienvenida / Liquidación mensual** — sin UI extra; se envían desde backend
 
 ### Criterios de done Sprint 5
 - [x] Recibir correo de verificación al registrarse y poder verificar la cuenta
-- [ ] Recuperar contraseña completo: pedir reset → recibir email → nueva contraseña → login
+- [x] Recuperar contraseña completo: pedir reset → recibir email → nueva contraseña → login
 - [ ] Recibir resumen mensual de liquidaciones por correo
 
 ---

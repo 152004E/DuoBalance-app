@@ -184,8 +184,8 @@ Settlements history muestra: "Emerson pagó $70.000 a Andrea el 15/01"
 
 > Backend: MailModule con Resend (ver `duobalance-api/docs/ROADMAP.md` → Phase 6). Correos MVP: verificación · bienvenida · liquidación mensual · forgot password.
 
-- [ ] Conectar `forgot-password.tsx` (UI lista) a `POST /auth/forgot-password`
-- [ ] Pantalla `reset-password.tsx` (`?token=` → `POST /auth/reset-password`)
+- [x] Conectar `forgot-password.tsx` a `POST /auth/forgot-password` (validación email, estados form/sending/sent, "Revisa tu correo", enlace válido 60 min)
+- [x] Pantalla `restablecer-contrasena.tsx` (`?token=` → `POST /auth/reset-password`; estados form/submitting/success/error, success → /login)
 - [x] **Verificación de correo al registrarse (DONE, verificación estricta)** — registro sin auto-login → pantalla `verificar-correo.tsx` con reenviar (cooldown 60s); `verify-email.tsx` procesa `?token=`; login bloquea hasta verificar; Perfil muestra badge con reenviar
 
 ---
@@ -240,7 +240,7 @@ Sprint 3  ███████████████████████�
 Sprint 4  ██████████░░░░░░░░░░░░░░░░░  (Payments/settlements backend + PaySheet/LiquidacionesSheet hecho; falta Payment History, suggestions UI)
 v1.0      ░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Polish: receipts, dark mode, i18n, offline, deploy)
 v2.0      ██████░░░░░░░░░░░░░░░░░░░░  (Backend multi-actor hecho; falta frontend v2.0)
-Sprint 5  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░  (Emails: Resend + forgot password + verificación + liquidación mensual)
+Sprint 5  ████████████░░░░░░░░░░░░░░░░  (Emails: verificación + forgot/reset password — hecho; falta liquidación mensual)
 ```
 
 **Estimación**: 8-12 semanas a v1.0 (4 sprints × 2-3 sem), 6-8 sem más a v2.0
