@@ -5,6 +5,7 @@ import {
   ExpenseResponse,
 } from '@/types/api';
 import { api } from './client';
+import { appendSourceToFormData } from './upload';
 
 export const createExpense = async (
   payload: CreateExpensePayload & { groupId?: string },
@@ -50,14 +51,12 @@ export const uploadExpenseReceipt = async (
   if (isFile) {
     formData.append('file', source as File, (source as File).name);
   } else {
-    const s = source as { uri: string; name?: string; type?: string };
-    const filename = s.name ?? s.uri.split('/').pop() ?? 'receipt.jpg';
-    const ext = filename.split('.').pop() ?? 'jpg';
-    formData.append('file', {
-      uri: s.uri,
-      name: filename,
-      type: s.type ?? `image/${ext}`,
-    } as any);
+    await appendSourceToFormData(
+      formData,
+      'file',
+      source as { uri: string; name?: string; type?: string },
+      'receipt.jpg',
+    );
   }
 
   const { data } = await api.post<ExpenseResponse>(

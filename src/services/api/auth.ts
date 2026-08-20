@@ -7,6 +7,7 @@ import {
   UserResponse,
 } from '@/types/api';
 import { api } from './client';
+import { appendSourceToFormData } from './upload';
 
 export const login = async (payload: LoginPayload) => {
   const { data } = await api.post('/auth/login', payload);
@@ -79,14 +80,12 @@ export const uploadAvatar = async (
   if (isFile) {
     formData.append('file', source as File, (source as File).name);
   } else {
-    const s = source as { uri: string; name?: string; type?: string };
-    const filename = s.name ?? s.uri.split('/').pop() ?? 'avatar.jpg';
-    const ext = filename.split('.').pop() ?? 'jpg';
-    formData.append('file', {
-      uri: s.uri,
-      name: filename,
-      type: s.type ?? `image/${ext}`,
-    } as any);
+    await appendSourceToFormData(
+      formData,
+      'file',
+      source as { uri: string; name?: string; type?: string },
+      'avatar.jpg',
+    );
   }
 
   const { data } = await api.post('/auth/profile/avatar', formData);
