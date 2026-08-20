@@ -1,6 +1,7 @@
 import { View, Text, Pressable } from 'react-native';
 import { Image } from 'expo-image';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { resolveImageUrl } from '@/utils/image-url';
 
 interface ProfileCardProps {
   firstName?: string;
@@ -9,14 +10,6 @@ interface ProfileCardProps {
   avatarUrl?: string | null;
   showChangePhoto?: boolean;
   onChangePhoto?: () => void;
-}
-
-function resolveAvatar(url: string | null | undefined): string | null {
-  if (!url) return null;
-  if (url.startsWith('http')) return url;
-  if (url.startsWith('file:') || url.startsWith('blob:')) return url;
-  const base = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
-  return `${base}${url}`;
 }
 
 function capitalize(str: string): string {
@@ -35,7 +28,7 @@ export function ProfileCard({
   showChangePhoto = false,
   onChangePhoto,
 }: ProfileCardProps) {
-  const imageUri = resolveAvatar(avatarUrl);
+  const imageUri = resolveImageUrl(avatarUrl);
 
   return (
     <View className="mx-5 mt-8 items-center rounded-2xl bg-white px-6 py-8 shadow-sm">
@@ -64,7 +57,7 @@ export function ProfileCard({
       >
         {capitalize(firstName ?? '')} {capitalize(lastName ?? '')}
       </Text>
-      <Text className=" text-sm text-[#64748B]">{email}</Text>
+      <Text className="text-sm text-[#64748B]">{email}</Text>
     </View>
   );
 }

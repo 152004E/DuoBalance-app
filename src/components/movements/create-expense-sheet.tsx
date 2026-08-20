@@ -9,6 +9,7 @@ import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
 import { Button } from '@/components/ui/button';
 import { CATEGORIES } from '@/constants/categories';
 import { formatAmountInput, parseAmount } from '@/utils/format';
+import { resolveImageUrl } from '@/utils/image-url';
 import type {
   ExpenseCategory,
   ExpenseResponse,
@@ -118,9 +119,8 @@ export function CreateExpenseSheet({
       const initialYourPercentage =
         initialExpense && initialExpense.splits?.length
           ? Number(
-              initialExpense.splits.find(
-                (s) => s.userId === youMemberId,
-              )?.percentage ?? 50,
+              initialExpense.splits.find((s) => s.userId === youMemberId)
+                ?.percentage ?? 50,
             )
           : 50;
 
@@ -508,7 +508,9 @@ export function CreateExpenseSheet({
           ) : initialExpense?.receiptUrl && !removeExistingReceipt ? (
             <View className="gap-2">
               <Image
-                source={{ uri: initialExpense.receiptUrl }}
+                source={{
+                  uri: resolveImageUrl(initialExpense.receiptUrl) ?? '',
+                }}
                 className="h-40 w-full rounded-xl border border-[#E2E8F0] bg-[#f2f4f6]"
                 contentFit="cover"
               />

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, Pressable, Modal, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { resolveImageUrl } from '@/utils/image-url';
 
 interface ExpenseReceiptProps {
   receipt?: string | null;
@@ -17,6 +18,7 @@ export function ExpenseReceipt({
   onRemove,
 }: ExpenseReceiptProps) {
   const [previewVisible, setPreviewVisible] = useState(false);
+  const imageUri = resolveImageUrl(receipt);
 
   function handlePress() {
     if (onPress) {
@@ -48,7 +50,7 @@ export function ExpenseReceipt({
             className="relative h-[200px] items-center justify-center overflow-hidden rounded-xl border border-[#E2E8F0] bg-[#f2f4f6] active:opacity-80"
           >
             <Image
-              source={{ uri: receipt }}
+              source={{ uri: imageUri ?? '' }}
               style={StyleSheet.absoluteFill}
               contentFit="cover"
             />
@@ -103,9 +105,9 @@ export function ExpenseReceipt({
           >
             <FontAwesome6 name="xmark" size={20} color="#fff" />
           </Pressable>
-          {receipt && (
+          {imageUri && (
             <Image
-              source={{ uri: receipt }}
+              source={{ uri: imageUri }}
               style={{ width: '100%', height: '100%' }}
               contentFit="contain"
             />
