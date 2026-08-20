@@ -315,19 +315,14 @@ export default function CoupleDetail() {
   // ── Payment handlers ───────────────────────────────────────────────────
   const handleCreatePayment = useCallback(
     async (payload: { amount: number; toUserId: string }) => {
-      console.log('[liquidar] handleCreatePayment() payload:', payload);
-      console.log('[liquidar]   groupId:', id);
       setIsSubmittingPayment(true);
       try {
-        console.log('[liquidar]   llamando createPayment()...');
         await createPayment({
           amount: payload.amount,
           toUserId: payload.toUserId,
           groupId: id,
         });
-        console.log('[liquidar]   createPayment() OK, refetching payments...');
         await refetchPayments();
-        console.log('[liquidar]   refetch OK, cerrando sheet y mostrando feedback');
         setPaySheetVisible(false);
         setPaymentFeedback({
           title: 'Pago registrado',
@@ -336,8 +331,6 @@ export default function CoupleDetail() {
           type: 'success',
         });
       } catch (err: unknown) {
-        console.log('[liquidar]   createPayment() FALLÓ:');
-        console.log('[liquidar]   ', err);
         const message =
           err instanceof Error ? err.message : 'Error al registrar el pago';
         setPaymentFeedback({ title: 'Error', message, type: 'error' });
@@ -350,20 +343,15 @@ export default function CoupleDetail() {
 
   const handleConfirmPayment = useCallback(
     async (payment: PaymentResponse) => {
-      console.log('[liquidar] handleConfirmPayment() payment:', payment.id);
       try {
-        console.log('[liquidar]   confirmando pago...');
         await confirmPayment(payment.id);
-        console.log('[liquidar]   confirmPayment OK, refetching...');
         await refetchPayments();
-        console.log('[liquidar]   refetch OK');
         setPaymentFeedback({
           title: 'Pago aceptado',
           message: `Has confirmado el pago de ${fmt(payment.amount)}. El saldo se ha actualizado.`,
           type: 'success',
         });
       } catch (err: unknown) {
-        console.log('[liquidar]   confirmPayment FALLÓ:', err);
         const message =
           err instanceof Error ? err.message : 'Error al confirmar';
         setPaymentFeedback({ title: 'Error', message, type: 'error' });
@@ -374,20 +362,15 @@ export default function CoupleDetail() {
 
   const handleRejectPayment = useCallback(
     async (payment: PaymentResponse) => {
-      console.log('[liquidar] handleRejectPayment() payment:', payment.id);
       try {
-        console.log('[liquidar]   rechazando pago...');
         await rejectPayment(payment.id);
-        console.log('[liquidar]   rejectPayment OK, refetching...');
         await refetchPayments();
-        console.log('[liquidar]   refetch OK');
         setPaymentFeedback({
           title: 'Pago rechazado',
           message: 'El pago ha sido rechazado. No se descuenta nada del saldo.',
           type: 'success',
         });
       } catch (err: unknown) {
-        console.log('[liquidar]   rejectPayment FALLÓ:', err);
         const message =
           err instanceof Error ? err.message : 'Error al rechazar';
         setPaymentFeedback({ title: 'Error', message, type: 'error' });

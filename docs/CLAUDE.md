@@ -67,10 +67,8 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 - **HeroSection**: Unified hero component with `variant` prop (`"dashboard"` / `"page"`) — replaces former AppHero + dashboard HeroSection ✅
 
 ### Couple/Group Components — Built
-- **CoupleCard**: Group/partner info card with avatar, name, balance, status indicator ✅
 - **InviteCodeCard**: Invite code display with copy-to-clipboard and refresh ✅
 - **CreateCoupleSheet**: Bottom sheet form with group type selector (personal/pareja/grupo), name input, split configuration (50/50, equal, percentage) — connected to API (POST /groups) with loading/error states ✅
-- **AddCoupleCard**: Quick-add card for creating a new group ✅
 - **CoupleMenuSheet**: Bottom sheet to manage group settings/options (invite, leave, edit split) with interactive transitions ✅
 - **Couple Detail Screen** (`grupos/[id].tsx`): Uses `ScreenHeader` from `@/components/ui/screen-header` (with back, action menu) ✅
 - **Configuración Screen** (`grupos/[id]/configuracion.tsx`): Group settings with name, split %, members, invite code, regenerate code, notifications, danger zone — connected to API ✅
@@ -145,7 +143,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 
 ### P1 — Remaining features
 1. ~~**Forgot Password**~~ ✅ **completado** — `forgot-password.tsx` conectado a `POST /auth/forgot-password` + nueva pantalla `restablecer-contrasena.tsx` (`?token=` → `POST /auth/reset-password`)
-2. **~~Receipt Capture~~** ✅ **completado** — captura de comprobantes con galería (ImagePicker) en `CreateExpenseSheet` (agregar/reemplazar/eliminar); CRUD real contra `POST/DELETE /expenses/:id/receipt`; preview modal a pantalla completa en `expense-receipt.tsx`
+2. **~~Receipt Capture~~** ✅ **completado** — captura de comprobantes con galería (ImagePicker) en `CreateExpenseSheet` (agregar/reemplazar/eliminar); CRUD real contra `POST/DELETE /expenses/:id/receipt`; preview modal a pantalla completa en `expense-receipt.tsx`. **Funcional en web** (fixes: `src/services/api/upload.ts` y `src/utils/image-url.ts`)
 3. **Settlement Suggestions cards** — UI de las sugerencias "Transfiere $X a Y para saldar" (el API `getSettlementSuggestions` ya existe)
 4. **Payment History screen** — pantalla dedicada de historial de pagos (hoy el historial vive dentro del `LiquidacionesSheet` del Group Detail)
 5. **Dashboard suggestions** — sección en el Dashboard con sugerencias de liquidación si hay balances pendientes
@@ -216,10 +214,11 @@ npx prisma db push        # Push schema (dev)
 | `src/app/(protected)/perfil/seguridad.tsx` | Change password (validation, API, AlertModal) |
 | `src/app/(protected)/perfil/acerca.tsx` | About screen (hero, funcionalidades, historia, stack, versión real) |
 | `src/app/(protected)/grupos/_layout.tsx` | Grupos stack navigator (index, [id], [id]/configuracion, [id]/gastos) |
-| `src/app/(protected)/grupos/index.tsx` | Group list screen (CoupleCard, FloatingAddMenu, CoupleMenuSheet, InviteMemberSheet, JoinGroupSheet) |
-| `src/app/(protected)/grupos/[id].tsx` | Group detail screen (financial hero, settlement, distribution, recent expenses + LiquidacionesSheet/PaySheet) |
+| `src/app/(protected)/grupos/index.tsx` | Group list screen (FloatingAddMenu, CoupleMenuSheet, InviteMemberSheet, JoinGroupSheet) |
+| `src/app/(protected)/grupos/[id].tsx` | Group detail screen (financial hero, settlement, distribution, recent expenses + LiquidacionesSheet/PaySheet — PaySheet autoabre con `?liquidar=1`) |
 | `src/app/(protected)/grupos/[id]/configuracion.tsx` | Group settings screen (name, split %, members, invite code, regenerate code, notifications, danger zone — connected to API) |
 | `src/app/(protected)/grupos/[id]/gastos.tsx` | Per-group expense list with date/category filters |
+| `src/app/(protected)/grupos/[id]/liquidaciones.tsx` | Liquidaciones standalone (tabs "Por confirmar"/"Historial" con confirmar/rechazar pagos) |
 
 ### UI Components
 | File | Purpose |
@@ -268,7 +267,6 @@ npx prisma db push        # Push schema (dev)
 ### Couple/Group Components
 | File | Purpose |
 |------|---------|
-| `src/components/couple/couple-card.tsx` | Group/partner info card with balance & status |
 | `src/components/couple/invite-code-card.tsx` | Invite code display + copy |
 | `src/components/couple/create-couple-sheet.tsx` | Create group bottom sheet (type selector: personal/pareja/grupo, split config) |
 | `src/components/couple/couple-menu-sheet.tsx` | Bottom sheet to manage group settings/options |
@@ -290,7 +288,6 @@ npx prisma db push        # Push schema (dev)
 | `src/components/movements/filter-sheet.tsx` | Bottom sheet de filtros **compartido** (período + categoría) con expandible "Otros" que muestra categorías extra; usado por Movimientos y Reportes |
 | `src/components/movements/destination-selector.tsx` | Selector de destino/grupo para el CreateExpenseSheet |
 | `src/components/movements/create-expense-sheet.tsx` | Unified bottom sheet form for creating AND editing expenses (`initialExpense` + `onUpdateExpense`, prefill de todos los campos, modo edición "Editar gasto"/"Guardar cambios", campo Valor con formato en vivo vía `formatAmountInput`: solo enteros, sin ceros iniciales y separador de miles 2.000) + **comprobante opcional** (ImagePicker galería, agregar/reemplazar/eliminar, enviado vía `ExpensePayload.receipt`/`removeReceipt`) |
-| `src/components/expenses/couple-expense-card.tsx` | CoupleExpenseCard — card con reparto Tú vs pareja (sin importar en pantallas activas; ver deuda de componentes huérfanos) |
 
 ### Payment Components
 | File | Purpose |
@@ -308,14 +305,11 @@ npx prisma db push        # Push schema (dev)
 | File | Purpose |
 |------|---------|
 | `src/components/dashboard/BalanceCard.tsx` | Balance summary |
-| `src/components/dashboard/CoupleSelector.tsx` | Couple dropdown (usado en HeroSection del Dashboard) |
-| `src/components/dashboard/CoupleCard.tsx` | Card de pareja con balance/status — **⚠️ no se importa en ninguna pantalla activa** y se solapa con `couple/couple-card.tsx` y `ui/group-card.tsx` (candidato a eliminar/deprecar) |
 | `src/components/dashboard/PartnerBalance.tsx` | Partner balance card |
 | `src/components/expenses/recent-expenses-card.tsx` | Gastos recientes con navegación al detalle + truncamiento de texto (usado por Dashboard, Gastos y Movimientos) |
 | `src/components/dashboard/FloatingAddButton.tsx` | Simple FAB with shadow (used in Dashboard) |
 | `src/components/dashboard/FloatingAddMenu.tsx` | FAB + bottom sheet with create/join couple actions and sub-sheets (used in Couple screen) |
 | `src/components/dashboard/TopCategory.tsx` | Top category card |
-| `src/components/dashboard/AddCoupleCard.tsx` | Quick-add couple card |
 | `src/components/dashboard/BarChart.tsx` | Bar chart |
 | `src/components/dashboard/DonutChart.tsx` | Donut chart |
 
@@ -332,12 +326,14 @@ npx prisma db push        # Push schema (dev)
 | `src/hooks/use-reports-data.ts` | Datos de Reportes agregados por categoría/miembro + comparación por período |
 | `src/hooks/use-group-payments.ts` | Pagos + settlement real del grupo (`getPayments` + `getSettlement`); deriva `pendingToConfirm` y `history`; refetch con useFocusEffect |
 | `src/hooks/use-dashboard-data.ts` | Datos del Dashboard por workspace (balance neto incluyendo pagos, transacciones, top categoría, aportes) |
+| `src/hooks/use-settlement-suggestions.ts` | Sugerencias de liquidación del backend (`getSettlementSuggestions`) por grupo; extrae deudas del usuario (`dues`) y expone `totalDue`/`refetch` — usado por el Dashboard (toast + deep-link `?liquidar=1`) |
 
 ### Utils
 | File | Purpose |
 |------|---------|
 | `src/utils/date.ts` | `formatRelativeDate` (Hoy/Ayer/Hace N días) |
 | `src/utils/format.ts` | `formatAmountInput` (solo enteros, sin ceros iniciales, separador de miles 2.000 en vivo) + `parseAmount` (texto → número) — usado en el campo Valor del CreateExpenseSheet |
+| `src/utils/image-url.ts` | `resolveImageUrl` — antepone `API_URL` a URLs relativas (`/uploads/...`); deja pasar `http`/`file:`/`blob:`. Usado por comprobantes (`expense-receipt`, `create-expense-sheet`) y avatares (`profile-card`) |
 | `src/utils/event-emitter.ts` | Event emitter |
 | `src/utils/jwt.ts` | JWT helpers |
 
@@ -355,6 +351,7 @@ npx prisma db push        # Push schema (dev)
 | `src/services/api/interceptor.ts` | Axios interceptors (Bearer token + respuesta 401 → refresh de token, o emite `session:expired` si falla) |
 | `src/services/api/auth.ts` | Auth service (login, register, getProfile, updateProfile, changePassword, uploadAvatar, verifyEmail, resendVerification, forgotPassword, resetPassword) |
 | `src/services/api/groups.ts` | Groups API service (create, join, list, get, update, delete, archive, regenerate invite, remove member, update split) |
+| `src/services/api/upload.ts` | `appendSourceToFormData` — helper cross-platform para adjuntar `{uri, name, type}` a FormData: en **web** convierte `fetch(uri) → blob → File` (fix del 400 de comprobante/avatar); en nativo usa el objeto RN. Usado por `uploadExpenseReceipt` y `uploadAvatar` |
 | `src/types/api.ts` | Backend DTOs and response types |
 | `src/constants/config.ts` | Environment variables |
 | `docs/ARCHITECTURE.md` | Full architecture docs |

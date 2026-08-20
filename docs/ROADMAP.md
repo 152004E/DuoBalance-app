@@ -66,7 +66,7 @@ Cada nivel depende estrictamente del anterior. No se puede calcular balance sin 
 - [✅] **Edit Expense UI** — `CreateExpenseSheet` con `initialExpense`/`onUpdateExpense` (modo edición + prefill), abierto desde `ExpenseMenuSheet` o `ExpenseActions`
 - [✅] **Delete Expense UI** — confirmación en detalle (`AlertModal`) disparada desde `ExpenseMenuSheet` o `ExpenseActions`
 - [✅] **División en CreateExpenseSheet (decisión de producto)** — PERSONAL sin división; COUPLE siempre ambos con Igual/Porcentaje (default = splitPercentage de la pareja o 50/50); GROUP 3+ solo Igual con selector de participantes
-- [✅] **Receipt Capture (básico)** — galería (ImagePicker), preview, upload/reemplazo/eliminación vía `POST/DELETE /expenses/:id/receipt`
+- [✅] **Receipt Capture (básico)** — galería (ImagePicker), preview, upload/reemplazo/eliminación vía `POST/DELETE /expenses/:id/receipt` — **funcional en web** (fix `upload.ts` + `image-url.ts`)
 
 ### Criterios de done Sprint 1
 - Usuario puede crear, ver, editar, eliminar gastos
@@ -219,7 +219,8 @@ Settlements history muestra: "Emerson pagó $70.000 a Andrea el 15/01"
 - [❌] `grupos/crear.tsx` con selector tipo (Personal/Pareja/Grupo)
 - [❌] `grupos/[id]/miembros.tsx` gestión miembros (solo GROUP)
 - [❌] Dashboard: selector global de grupo con badge de tipo
-- [🔄] Generalizar: `CoupleCard`→`GroupCard`, `PartnerBalance`→`MemberBalance` (GroupCard ya existe en `ui/`, quedan legacy `dashboard/CoupleCard` y `couple/couple-card` por depurar)
+- [✅] `CoupleCard` → `GroupCard` (ya existe `ui/group-card.tsx` y se usa; los legacy `dashboard/CoupleCard`, `couple/couple-card`, `AddCoupleCard`, `CoupleSelector` fueron eliminados)
+- [❌] `PartnerBalance` → `MemberBalance` (generalizar a N miembros)
 - [🔄] Split Picker adaptativo: mayormente hecho en CreateExpenseSheet (PERSONAL sin split, COUPLE Igual/Porcentaje, GROUP equitativo)
 
 ### Fases v2.0

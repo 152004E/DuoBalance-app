@@ -101,8 +101,7 @@ DuoBalance-app/
 │   │   │   └── destination-selector.tsx  Selector de destino/grupo para el expense sheet
 │   │   ├── category/
 │   │   │   └── category-badge.tsx   Colored category pill
-│   │   ├── couple/                  Couple-related components
-│   │   │   ├── couple-card.tsx      Partner info card (avatar, name, email)
+│   │   ├── couple/                  Couple/group-related components
 │   │   │   ├── invite-code-card.tsx  Invite code display with copy + refresh
 │   │   │   ├── create-couple-sheet.tsx  Bottom sheet form: name + percentage split + generate code
 │   │   │   ├── couple-menu-sheet.tsx  Bottom sheet to manage couple settings/options
@@ -114,18 +113,12 @@ DuoBalance-app/
 │   │   ├── perfil/                   Profile components
 │   │   │   ├── profile-card.tsx      ProfileCard (avatar, nombre, email)
 │   │   │   └── image-preview-modal.tsx  ImagePreviewModal (preview avatar del ImagePicker)
-│   │   ├── expenses/
-│   │   │   └── couple-expense-card.tsx  CoupleExpenseCard (reparto Tú vs pareja — ⚠️ no se importa en pantallas activas)
 │   │   └── dashboard/               Dashboard-specific components
 │   │       ├── BalanceCard.tsx      Balance summary (income/expenses/net)
-│   │       ├── CoupleSelector.tsx   Couple dropdown (usado en HeroSection del Dashboard)
-│   │       ├── CoupleCard.tsx       Card de pareja con balance/status — ⚠️ sin importar; se solapa con couple/couple-card y ui/group-card
 │   │       ├── PartnerBalance.tsx   Partner balance card (owed/to whom)
-│   │       ├── RecentExpensesCard.tsx (expenses/)  Gastos recientes + navegación al detalle (trunca textos largos)
 │   │       ├── FloatingAddButton.tsx   Simple floating action button with shadow (used in Dashboard)
 │   │       ├── FloatingAddMenu.tsx    FAB + bottom sheet with create/join couple actions and sub-sheets (used in Couple screen)
 │   │       ├── TopCategory.tsx      Top spending category card
-│   │       ├── AddCoupleCard.tsx    Quick-add couple card
 │   │       ├── BarChart.tsx         Bar chart visualization
 │   │       └── DonutChart.tsx       Donut chart for category breakdown
 │   │

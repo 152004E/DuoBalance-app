@@ -34,21 +34,16 @@ export function useGroupPayments({
   const [isLoading, setIsLoading] = useState(true);
 
   const load = useCallback(async (): Promise<boolean> => {
-    console.log('[useGroupPayments] load() groupId:', groupId);
     setIsLoading(true);
     try {
       const [paymentsData, settlementData] = await Promise.all([
         getPayments(groupId),
         getSettlement(groupId),
       ]);
-      console.log('[useGroupPayments] load() OK');
-      console.log('[useGroupPayments]   payments:', paymentsData);
-      console.log('[useGroupPayments]   settlement:', settlementData);
       setPayments(paymentsData);
       setSettlement(settlementData);
       return true;
-    } catch (err) {
-      console.log('[useGroupPayments] load() ERROR:', err);
+    } catch {
       setPayments([]);
       setSettlement(null);
       return false;

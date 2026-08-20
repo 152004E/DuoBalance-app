@@ -125,7 +125,7 @@ export function JoinGroupSheet({
 
           <Pressable
             onPress={() => {
-              console.log('QR scanner not implemented yet');
+              // TODO: implementar escáner QR (placeholder por ahora)
             }}
             className="mt-4 h-14 w-full items-center justify-center rounded-2xl bg-[#10B981]"
             style={{

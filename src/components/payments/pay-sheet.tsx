@@ -181,11 +181,6 @@ export function PaySheet({
             isLoading={isSubmitting}
             loadingText="Registrando..."
             onPress={() => {
-              console.log('[pay-sheet] Botón Confirmar pago presionado');
-              console.log('[pay-sheet]   amount(display):', amount);
-              console.log('[pay-sheet]   amount(parse):', parseAmount(amount));
-              console.log('[pay-sheet]   toUserId:', toUserId);
-              console.log('[pay-sheet]   isFormValid:', isFormValid);
               if (onSubmit) {
                 onSubmit({ amount: parseAmount(amount), toUserId });
               }

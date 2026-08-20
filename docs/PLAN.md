@@ -111,9 +111,9 @@ Cada nivel depende estrictamente del anterior. No se puede calcular balance sin 
 | Seguridad / Change Password | `(protected)/perfil/seguridad.tsx` | ✅ (validation, API, AlertModal) |
 | Acerca de | `(protected)/perfil/acerca.tsx` | ✅ (hero, funcionalidades, historia, stack, versión real vía expo-constants) |
 | Group Settings | `(protected)/grupos/[id]/configuracion.tsx` | ✅ (API connected) |
-| Pay Screen | `(protected)/pagos/index.tsx` | ❌ (pantalla standalone no existe; **parcialmente cubierto** por el `PaySheet` del Group Detail — registrar pago/abono parcial ya funciona) |
-| Payment History | `(protected)/pagos/` | ❌ (pantalla standalone no existe; **parcialmente cubierto** por el `LiquidacionesSheet` del Group Detail) |
-| Receipt Capture | `(protected)/gastos/receipt.tsx` | ❌ |
+| Pay Screen | `(protected)/pagos/index.tsx` | ✅ (sin pantalla standalone; cubierto por el `PaySheet` del Group Detail, que autoabre con `?liquidar=1`) |
+| Payment History | `(protected)/pagos/` | ✅ (cubierto por `grupos/[id]/liquidaciones.tsx` — pantalla standalone con tabs "Por confirmar"/"Historial") |
+| Receipt Capture | `(protected)/gastos/receipt.tsx` | ✅ (sin ruta standalone; captura integrada en el `CreateExpenseSheet` + preview en el detalle) |
 
 ---
 
@@ -182,9 +182,9 @@ En esta fase **aún no se muestra quién le debe a quién** (eso es Sprint 3). S
 - [✅] **Edit Expense UI** — `CreateExpenseSheet` reutilizado con `initialExpense`/`onUpdateExpense` (modo edición + prefill), desde `ExpenseMenuSheet` o `ExpenseActions`
 - [✅] **Delete Expense UI** — confirmación en detail/actions
 - [✅] **División en CreateExpenseSheet (decisión de producto)** — PERSONAL sin división; COUPLE siempre ambos (Igual/Porcentaje, default = splitPercentage de la pareja o 50/50); GROUP 3+ solo Igual
-- [✅] **Receipt Capture (básico)** — ImagePicker + preview en `CreateExpenseSheet` (agregar/reemplazar/eliminar comprobante); CRUD completo vía `POST/DELETE /expenses/:id/receipt` (`uploadExpenseReceipt`/`removeExpenseReceipt`), imagen opcional con preview modal en el detalle (`expense-receipt.tsx`)
+- [✅] **Receipt Capture (básico)** — ImagePicker + preview en `CreateExpenseSheet` (agregar/reemplazar/eliminar comprobante); CRUD completo vía `POST/DELETE /expenses/:id/receipt` (`uploadExpenseReceipt`/`removeExpenseReceipt`), imagen opcional con preview modal en el detalle (`expense-receipt.tsx`). **Funcional en web** (fix: `src/services/api/upload.ts` convierte `blob:` → `File` real; `src/utils/image-url.ts` resuelve URLs relativas `/uploads/...` contra la API)
 - [✅] **Categories** — enum ampliado (FOOD, TRANSPORT, RENT, SERVICES, ENTERTAINMENT, HEALTH, EDUCATION, SHOPPING, SUBSCRIPTIONS, PETS, GIFTS, TRAVEL, OTHER) con catálogo central `src/constants/categories.ts`
-- [❌] **Split type guardado** — verificar que `POST /expenses` acepta y guarda `splitType`
+- [❌] **Split type guardado** — verificar que `POST /expenses` acepta y guarda `splitType` (chequeo rápido backend)
 
 ### Criterios de done Sprint 1
 - Usuario puede crear, ver, editar, eliminar gastos
@@ -276,7 +276,7 @@ Para cada usuario en un grupo:
 - [❌] `GET /reports` (o equivalente) — agregaciones para Reports
 
 ### Frontend API services (crear)
-- [❌] `src/services/api/balances.ts` — getBalances, getGroupBalance
+- [❌] `src/services/api/balances.ts` — getBalances, getGroupBalance (obsoleto: balance se calcula client-side en `useDashboardData`/`useGroupPayments`; no se crea)
 - [❌] `src/services/api/dashboard.ts` — getDashboard (obsoleto como prerrequisito: Dashboard ya conectado client-side vía `useDashboardData` + `getExpenses` + `getPayments`)
 
 ### Pantallas a conectar con API real
@@ -285,10 +285,10 @@ Para cada usuario en un grupo:
 - [✅] **Reports** (`reportes.tsx`) — conectado via `useReportsData` (agregación por categoría y por miembro, comparación vs período anterior) + filtro de período (Este mes / Últimos 3 meses / Este año / Todo)
 
 ### Componentes a conectar
-- [❌] **MemberBalance** component — conectar a balance real
+- [❌] **MemberBalance** component — pendiente de generalizar a N miembros (`PartnerBalance` cubre el caso pareja en Dashboard/Group Detail)
 - [✅] **RecentExpensesCard** (Dashboard + Gastos) — conectado a expenses reales, con navegación al detalle y truncamiento de textos largos
-- [❌] **TopCategory** — conectar a agregación real por categoría
-- [❌] **DonutChart / BarChart** — alimentar con datos reales
+- [✅] **TopCategory** — conectado a agregación real por categoría (`useDashboardData`)
+- [✅] **DonutChart / BarChart** — alimentados con datos reales en Reportes (`useReportsData`)
 
 ### Criterios de done Sprint 3
 - Dashboard muestra balance real: "Te deben $X" / "Debes $X" / "Saldado"
@@ -322,7 +322,7 @@ Settlements history muestra:
     "Emerson pagó $70.000 a Andrea el 15/01/2026"
 ```
 
-## ✅🔄 Sprint 4 — Settlements + Payments (parcial en frontend)
+## ✅ Sprint 4 — Settlements + Payments (completo en frontend)
 
 **Objetivo**: Registrar pagos entre usuarios para saldar balances.
 
@@ -357,20 +357,19 @@ Settlements history muestra:
 - [✅] `use-group-payments.ts` — hook que carga pagos + settlement del grupo (deriva pending/history)
 - [❌] `src/services/api/settlements.ts` — (consolidado en `payments.ts`, no se crea)
 
-### Pantallas — hechas en frontend ✅ (parcial)
-- [✅] **Registrar pago (abono parcial)** — `PaySheet` en `grupos/[id].tsx`: monto editable (valida `<= amountDue`), destino auto en COUPLE / selector en GROUP
-- [✅] **Confirmar/rechazar solicitudes** — `LiquidacionesSheet` (tabs "Por confirmar"/"Historial")
+### Pantallas — hechas en frontend ✅
+- [✅] **Registrar pago (abono parcial)** — `PaySheet` en `grupos/[id].tsx`: monto editable (valida `<= amountDue`), destino auto en COUPLE / selector en GROUP; autoabre con `?liquidar=1` (deep-link desde el toast del Dashboard)
+- [✅] **Confirmar/rechazar solicitudes** — `LiquidacionesSheet` + pantalla standalone `grupos/[id]/liquidaciones.tsx` (tabs "Por confirmar"/"Historial")
 - [✅] **Settlement status card en Group Detail** — con botón "Liquidar" (solo cuando yo debo) y "Historial de liquidaciones"; sincronizado con el balance del Dashboard (pagos CONFIRMED via `useDashboardData` + `useGroupPayments`)
+- [✅] **Settlement Suggestions en Dashboard** — hook `useSettlementSuggestions` (consume `getSettlementSuggestions` por grupo) + Toast "Le debes a X / Tienes deudas por $Y" con deep-link `?liquidar=1`
 
-### Pantallas pendientes ❌
-- [❌] **Pay Screen** (`pagos/index.tsx`) — pantalla standalone de pago
-- [❌] **Payment History** — pantalla standalone de historial de pagos
-- [❌] **Settlement Suggestions** — cards "Transfiere $X a Y para saldar" (API ya existe: `getSettlementSuggestions`)
-- [❌] **Dashboard** — sección de suggestions si hay balances pendientes
+### Pantallas pendientes (bajas / opcionales)
+- [❌] **Settlement Suggestions cards** — UI explícita de cards "Transfiere $X a Y para saldar" (el comportamiento ya está cubierto por el toast del Dashboard; opcional hacer una sección visual)
+- [❌] **Pay Screen / Payment History standalone** — cubiertos por `PaySheet` y `grupos/[id]/liquidaciones.tsx`; no se planifica pantalla global
 
 ### Criterios de done Sprint 4
 - [✅] Usuario puede registrar pago y ver historial
-- [❌] Sugerencias automáticas: "Para saldar, transfiere $70.000 a Andrea"
+- [✅] Sugerencias automáticas: "Para saldar, transfiere $X a Y" (toast en Dashboard con deep-link a liquidar; cards explícitas opcionales)
 - [✅] Balance cambia a SETTLED tras payment confirmado (verificado: `useDashboardData` solo suma pagos CONFIRMED)
 - [✅] Settlements endpoint devuelve neto histórico
 
@@ -522,10 +521,10 @@ Payment (pagos/liquidaciones)
    - [❌] Dashboard: selector de grupo global con indicador de tipo (hoy se usa `GroupSelector` sin badge)
 
 2. **Componentes a generalizar**
-   - [✅] `CoupleSelector` → `GroupSelector` (ya existe `ui/group-selector.tsx`)
-   - [🔄] `CoupleCoupon` → `GroupCard` — `ui/group-card.tsx` ya existe y se usa; quedan versiones legacy (`dashboard/CoupleCard.tsx`, `couple/couple-card.tsx`) sin depurar
-   - [❌] `PartnerBalance` → `MemberCoupon` (soporta N miembros)
-   - [❌] `CreateCoupleSheet` → `CreateGroupSheet`
+   - [✅] `CoupleSelector` → `GroupSelector` (ya existe `ui/group-selector.tsx`, usado en Dashboard/Gastos/Grupos/Reportes)
+   - [✅] `CoupleCoupon` → `GroupCard` — `ui/group-card.tsx` ya existe y se usa
+   - [❌] `PartnerBalance` → `MemberCoupon` (soporta N miembros; hoy `PartnerBalance` cubre parejas en Dashboard/Group Detail)
+   - [❌] `CreateCoupleSheet` → `CreateGroupSheet` (rename pendiente; el sheet ya incluye selector de tipo)
 
 3. **Split picker adaptativo** (relacionado con Sprint 2)
    - [✅] PERSONAL: sin split (100% usuario) — hecho en `CreateExpenseSheet`
@@ -605,13 +604,11 @@ Además existe `gastos/[id].tsx` como shim `Redirect → /gastos/detalle/[id]` p
 - ✅ Dashboard con datos reales
 - ✅ Reports con datos reales
 
-## 🟢 P2 — Sprint 4 (pendiente)
+## 🟢 P2 — Sprint 4 (completado)
 - ✅ Payments API service (hecho)
-- ✅ PaySheet / LiquidacionesSheet (hecho en Group Detail)
-- ❌ Pay Screen standalone
-- ❌ Payment History standalone
-- ❌ Settlement Suggestions UI
-- ❌ Dashboard suggestions
+- ✅ PaySheet / LiquidacionesSheet + pantalla `grupos/[id]/liquidaciones.tsx`
+- ✅ Settlement Suggestions en Dashboard (toast + deep-link `?liquidar=1`)
+- ❌ (opcional) Cards visuales de sugerencias "Transfiere $X a Y"
 
 ## 🔵 P3 — Post-MVP
 - ❌ Receipt Capture (OCR completo)
