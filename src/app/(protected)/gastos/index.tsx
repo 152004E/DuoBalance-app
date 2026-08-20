@@ -17,7 +17,11 @@ import {
 import { FloatingAddButton } from '@/components/dashboard/FloatingAddButton';
 import { CreateExpenseSheet } from '@/components/movements/create-expense-sheet';
 import { DestinationSelector } from '@/components/movements/destination-selector';
-import { getExpenses, createExpense } from '@/services/api/expenses';
+import {
+  getExpenses,
+  createExpense,
+  uploadExpenseReceipt,
+} from '@/services/api/expenses';
 import Toast from 'react-native-toast-message';
 import { useWorkspace } from '@/hooks/use-workspace';
 import { getCategoryMeta } from '@/constants/categories';
@@ -271,7 +275,24 @@ export default function GastosScreen() {
           headerFinalTranslateY={0.14}
           onCreateExpense={async (payload) => {
             try {
-              await createExpense(payload);
+              const { receipt, ...expenseData } = payload;
+              const created = await createExpense(expenseData);
+              if (receipt) {
+                try {
+                  await uploadExpenseReceipt(created.id, receipt);
+                } catch (receiptError) {
+                  console.error('Error al subir el comprobante:', receiptError);
+                  Toast.show({
+                    type: 'warning',
+                    text1: 'Gasto registrado',
+                    text2:
+                      'El gasto se guardó, pero no se pudo subir el comprobante.',
+                  });
+                  handleCloseCreateSheet();
+                  getExpenses().then(setAllExpenses);
+                  return;
+                }
+              }
               handleCloseCreateSheet();
               getExpenses().then(setAllExpenses);
               Toast.show({

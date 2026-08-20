@@ -66,7 +66,7 @@ Cada nivel depende estrictamente del anterior. No se puede calcular balance sin 
 - [✅] **Edit Expense UI** — `CreateExpenseSheet` con `initialExpense`/`onUpdateExpense` (modo edición + prefill), abierto desde `ExpenseMenuSheet` o `ExpenseActions`
 - [✅] **Delete Expense UI** — confirmación en detalle (`AlertModal`) disparada desde `ExpenseMenuSheet` o `ExpenseActions`
 - [✅] **División en CreateExpenseSheet (decisión de producto)** — PERSONAL sin división; COUPLE siempre ambos con Igual/Porcentaje (default = splitPercentage de la pareja o 50/50); GROUP 3+ solo Igual con selector de participantes
-- [❌] **Receipt Capture (básico)** — cámara/galería, preview, upload placeholder
+- [✅] **Receipt Capture (básico)** — galería (ImagePicker), preview, upload/reemplazo/eliminación vía `POST/DELETE /expenses/:id/receipt`
 
 ### Criterios de done Sprint 1
 - Usuario puede crear, ver, editar, eliminar gastos

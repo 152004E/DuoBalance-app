@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { Image } from 'expo-image';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { Input } from '@/components/ui/input';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
@@ -19,29 +21,32 @@ interface Member {
   name: string;
 }
 
+export type ReceiptSource = {
+  uri: string;
+  name?: string;
+  type?: string;
+};
+
+export interface ExpensePayload {
+  description: string;
+  amount: number;
+  category: ExpenseCategory;
+  splitType: SplitType;
+  groupId: string;
+  splits?: { userId: string; percentage: number }[];
+  receipt?: ReceiptSource;
+  removeReceipt?: boolean;
+}
+
 interface CreateExpenseSheetProps {
   visible: boolean;
   onClose: () => void;
   group: GroupResponse;
   members: Member[];
   currentUserId?: string;
-  onCreateExpense?: (payload: {
-    description: string;
-    amount: number;
-    category: ExpenseCategory;
-    splitType: SplitType;
-    groupId: string;
-    splits?: { userId: string; percentage: number }[];
-  }) => void;
+  onCreateExpense?: (payload: ExpensePayload) => void;
   initialExpense?: ExpenseResponse | null;
-  onUpdateExpense?: (payload: {
-    description: string;
-    amount: number;
-    category: ExpenseCategory;
-    splitType: SplitType;
-    groupId: string;
-    splits?: { userId: string; percentage: number }[];
-  }) => void;
+  onUpdateExpense?: (payload: ExpensePayload) => void;
   heightRatio?: number;
   headerFinalTranslateY?: number;
 }
@@ -84,6 +89,10 @@ export function CreateExpenseSheet({
   );
   const [splitType, setSplitType] = useState<'EQUAL' | 'PERCENTAGE'>('EQUAL');
   const [yourPercentage, setYourPercentage] = useState(50);
+  const [pickedReceipt, setPickedReceipt] = useState<ReceiptSource | null>(
+    null,
+  );
+  const [removeExistingReceipt, setRemoveExistingReceipt] = useState(false);
 
   const resetKey = useMemo(() => (visible ? Date.now() : 0), [visible]);
 
@@ -159,6 +168,8 @@ export function CreateExpenseSheet({
       setYourPercentage(
         isEditing ? initialYourPercentage : defaultYourPercentage,
       );
+      setPickedReceipt(null);
+      setRemoveExistingReceipt(false);
     }
   }, [resetKey, members]);
 
@@ -166,6 +177,24 @@ export function CreateExpenseSheet({
     setSelectedParticipants((prev) =>
       prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
     );
+  };
+
+  const handlePickReceipt = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 0.7,
+      exif: false,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      const asset = result.assets[0];
+      setPickedReceipt({
+        uri: asset.uri,
+        name: asset.fileName ?? asset.uri.split('/').pop() ?? 'receipt.jpg',
+        type: asset.mimeType ?? 'image/jpeg',
+      });
+      setRemoveExistingReceipt(false);
+    }
   };
 
   const isFormValid =
@@ -449,14 +478,68 @@ export function CreateExpenseSheet({
             </View>
           )}
 
-          {/* Receipt (placeholder) */}
+          {/* Receipt */}
           <Text className="mb-2 mt-5 text-sm font-semibold text-[#0F172A]">
             🖼️ Comprobante (opcional)
           </Text>
-          <Pressable className="flex-row items-center justify-center gap-2 rounded-xl border border-dashed border-[#94A3B8] bg-white py-8 active:opacity-80">
-            <FontAwesome6 name="camera" size={20} color="#94A3B8" />
-            <Text className="text-sm text-[#64748B]">Agregar foto</Text>
-          </Pressable>
+
+          {pickedReceipt ? (
+            <View className="gap-2">
+              <Image
+                source={{ uri: pickedReceipt.uri }}
+                className="h-40 w-full rounded-xl border border-[#E2E8F0] bg-[#f2f4f6]"
+                contentFit="cover"
+              />
+              <Pressable
+                onPress={() => {
+                  setPickedReceipt(null);
+                  if (initialExpense?.receiptUrl) {
+                    setRemoveExistingReceipt(false);
+                  }
+                }}
+                className="flex-row items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-white py-2.5 active:bg-[#F2F4F6]"
+              >
+                <FontAwesome6 name="xmark" size={13} color="#EF4444" />
+                <Text className="text-sm font-semibold text-[#EF4444]">
+                  Quitar foto
+                </Text>
+              </Pressable>
+            </View>
+          ) : initialExpense?.receiptUrl && !removeExistingReceipt ? (
+            <View className="gap-2">
+              <Image
+                source={{ uri: initialExpense.receiptUrl }}
+                className="h-40 w-full rounded-xl border border-[#E2E8F0] bg-[#f2f4f6]"
+                contentFit="cover"
+              />
+              <Pressable
+                onPress={handlePickReceipt}
+                className="flex-row items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-white py-2.5 active:bg-[#F2F4F6]"
+              >
+                <FontAwesome6 name="pen" size={13} color="#0F766E" />
+                <Text className="text-sm font-semibold text-[#0F766E]">
+                  Reemplazar
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setRemoveExistingReceipt(true)}
+                className="flex-row items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-white py-2.5 active:bg-[#F2F4F6]"
+              >
+                <FontAwesome6 name="trash-can" size={13} color="#EF4444" />
+                <Text className="text-sm font-semibold text-[#EF4444]">
+                  Eliminar comprobante
+                </Text>
+              </Pressable>
+            </View>
+          ) : (
+            <Pressable
+              onPress={handlePickReceipt}
+              className="flex-row items-center justify-center gap-2 rounded-xl border border-dashed border-[#94A3B8] bg-white py-8 active:opacity-80"
+            >
+              <FontAwesome6 name="camera" size={20} color="#006c49" />
+              <Text className="text-sm text-[#006c49]">Agregar foto</Text>
+            </Pressable>
+          )}
         </ScrollView>
 
         <View className="border-t border-[#E2E8F0] px-5 pb-2 pt-4">
@@ -477,13 +560,15 @@ export function CreateExpenseSheet({
                   ),
                 }));
 
-              const payload = {
+              const payload: ExpensePayload = {
                 description,
                 amount: parseAmount(amount),
                 category: category as ExpenseCategory,
                 splitType: splitType as SplitType,
                 groupId: group.id,
                 splits,
+                ...(pickedReceipt && { receipt: pickedReceipt }),
+                ...(removeExistingReceipt && { removeReceipt: true }),
               };
 
               if (isEditing) {

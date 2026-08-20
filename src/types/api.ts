@@ -184,6 +184,7 @@ export interface ExpenseResponse {
   splitType: SplitType;
   paidById: string;
   groupId: string;
+  receiptUrl?: string | null;
   splits: ExpenseSplitResponse[];
   createdAt: string;
   updatedAt: string;

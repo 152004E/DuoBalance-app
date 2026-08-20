@@ -105,7 +105,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 ### API Services — Built
 - **auth.ts**: Auth service (login, register, getProfile, updateProfile, changePassword, uploadAvatar, **verifyEmail, resendVerification, forgotPassword, resetPassword**) ✅
 - **groups.ts**: Full group CRUD (create, join, list, get, update, delete, archive, regenerate invite code, remove member, update member split) ✅
-- **Expenses API** (`src/services/api/expenses.ts`): CRUD completo (create, list, get, update, delete) ✅
+- **Expenses API** (`src/services/api/expenses.ts`): CRUD completo (create, list, get, update, delete) + **comprobante** (`uploadExpenseReceipt`, `removeExpenseReceipt`) ✅
 - **Payments API** (`src/services/api/payments.ts`): createPayment, getPayments, getSettlement, getSettlementSuggestions, **confirmPayment, rejectPayment** — conectado al backend (con `?groupId=` para el workspace) ✅
 - **Dashboard API** (`src/services/api/dashboard.ts`): ❌ Pending — obsoleto como prerrequisito: el Dashboard ya está conectado client-side vía `useDashboardData` + `getExpenses` + `getPayments` (no consume mocks)
 
@@ -145,7 +145,7 @@ DuoBalance is a shared expense tracking app for couples. It consists of:
 
 ### P1 — Remaining features
 1. ~~**Forgot Password**~~ ✅ **completado** — `forgot-password.tsx` conectado a `POST /auth/forgot-password` + nueva pantalla `restablecer-contrasena.tsx` (`?token=` → `POST /auth/reset-password`)
-2. **Receipt Capture** — captura de comprobantes con cámara/galería (hoy el detalle muestra la sección receipt pero sin captura real)
+2. **~~Receipt Capture~~** ✅ **completado** — captura de comprobantes con galería (ImagePicker) en `CreateExpenseSheet` (agregar/reemplazar/eliminar); CRUD real contra `POST/DELETE /expenses/:id/receipt`; preview modal a pantalla completa en `expense-receipt.tsx`
 3. **Settlement Suggestions cards** — UI de las sugerencias "Transfiere $X a Y para saldar" (el API `getSettlementSuggestions` ya existe)
 4. **Payment History screen** — pantalla dedicada de historial de pagos (hoy el historial vive dentro del `LiquidacionesSheet` del Group Detail)
 5. **Dashboard suggestions** — sección en el Dashboard con sugerencias de liquidación si hay balances pendientes
@@ -283,13 +283,13 @@ npx prisma db push        # Push schema (dev)
 | `src/components/expenses/expense-information.tsx` | Expense info (amount, category, date) |
 | `src/components/expenses/expense-participants.tsx` | Expense participants display |
 | `src/components/expenses/expense-split.tsx` | Expense split breakdown |
-| `src/components/expenses/expense-receipt.tsx` | Expense receipt section |
+| `src/components/expenses/expense-receipt.tsx` | Expense receipt section — muestra el comprobante (expo-image), preview modal a pantalla completa, y acciones agregar/reemplazar/eliminar (CRUD vía API) |
 | `src/components/expenses/expense-timeline.tsx` | Expense timeline |
 | `src/components/expenses/expense-actions.tsx` | Expense actions (edit/delete) — botón "Editar gasto" dispara el CreateExpenseSheet en modo edición |
 | `src/components/expenses/expense-menu-sheet.tsx` | Bottom sheet de opciones del gasto (réplica de couple-menu-sheet): expone `ExpenseMenuAction = 'edit' \| 'delete'`, items "Editar gasto"/"Eliminar gasto" con animaciones de entrada |
 | `src/components/movements/filter-sheet.tsx` | Bottom sheet de filtros **compartido** (período + categoría) con expandible "Otros" que muestra categorías extra; usado por Movimientos y Reportes |
 | `src/components/movements/destination-selector.tsx` | Selector de destino/grupo para el CreateExpenseSheet |
-| `src/components/movements/create-expense-sheet.tsx` | Unified bottom sheet form for creating AND editing expenses (`initialExpense` + `onUpdateExpense`, prefill de todos los campos, modo edición "Editar gasto"/"Guardar cambios", campo Valor con formato en vivo vía `formatAmountInput`: solo enteros, sin ceros iniciales y separador de miles 2.000) |
+| `src/components/movements/create-expense-sheet.tsx` | Unified bottom sheet form for creating AND editing expenses (`initialExpense` + `onUpdateExpense`, prefill de todos los campos, modo edición "Editar gasto"/"Guardar cambios", campo Valor con formato en vivo vía `formatAmountInput`: solo enteros, sin ceros iniciales y separador de miles 2.000) + **comprobante opcional** (ImagePicker galería, agregar/reemplazar/eliminar, enviado vía `ExpensePayload.receipt`/`removeReceipt`) |
 | `src/components/expenses/couple-expense-card.tsx` | CoupleExpenseCard — card con reparto Tú vs pareja (sin importar en pantallas activas; ver deuda de componentes huérfanos) |
 
 ### Payment Components

@@ -182,7 +182,7 @@ En esta fase **aún no se muestra quién le debe a quién** (eso es Sprint 3). S
 - [✅] **Edit Expense UI** — `CreateExpenseSheet` reutilizado con `initialExpense`/`onUpdateExpense` (modo edición + prefill), desde `ExpenseMenuSheet` o `ExpenseActions`
 - [✅] **Delete Expense UI** — confirmación en detail/actions
 - [✅] **División en CreateExpenseSheet (decisión de producto)** — PERSONAL sin división; COUPLE siempre ambos (Igual/Porcentaje, default = splitPercentage de la pareja o 50/50); GROUP 3+ solo Igual
-- [❌] **Receipt Capture (básico)** — ImagePicker, preview, upload placeholder
+- [✅] **Receipt Capture (básico)** — ImagePicker + preview en `CreateExpenseSheet` (agregar/reemplazar/eliminar comprobante); CRUD completo vía `POST/DELETE /expenses/:id/receipt` (`uploadExpenseReceipt`/`removeExpenseReceipt`), imagen opcional con preview modal en el detalle (`expense-receipt.tsx`)
 - [✅] **Categories** — enum ampliado (FOOD, TRANSPORT, RENT, SERVICES, ENTERTAINMENT, HEALTH, EDUCATION, SHOPPING, SUBSCRIPTIONS, PETS, GIFTS, TRAVEL, OTHER) con catálogo central `src/constants/categories.ts`
 - [❌] **Split type guardado** — verificar que `POST /expenses` acepta y guarda `splitType`
 

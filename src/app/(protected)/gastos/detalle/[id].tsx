@@ -22,15 +22,14 @@ import {
   getExpense,
   deleteExpense,
   updateExpense,
+  uploadExpenseReceipt,
+  removeExpenseReceipt,
 } from '@/services/api/expenses';
 import { getGroup } from '@/services/api/groups';
 import { useAuth } from '@/hooks/use-auth';
 import { getCategoryMeta } from '@/constants/categories';
-import type {
-  ExpenseResponse,
-  GroupResponse,
-  UpdateExpensePayload,
-} from '@/types/api';
+import type { ExpenseResponse, GroupResponse } from '@/types/api';
+import type { ExpensePayload } from '@/components/movements/create-expense-sheet';
 
 type ScreenState = 'loading' | 'error' | 'empty' | 'data';
 
@@ -47,6 +46,7 @@ export default function ExpenseDetailScreen() {
   const [editVisible, setEditVisible] = useState(false);
   const [editSuccess, setEditSuccess] = useState(false);
   const [editError, setEditError] = useState(false);
+  const [removeReceiptVisible, setRemoveReceiptVisible] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -88,15 +88,36 @@ export default function ExpenseDetailScreen() {
     }
   };
 
-  const handleUpdateExpense = async (payload: UpdateExpensePayload) => {
+  const handleUpdateExpense = async (payload: ExpensePayload) => {
     try {
-      await updateExpense(id!, payload);
+      const { receipt, removeReceipt, ...expenseData } = payload;
+      await updateExpense(id!, expenseData);
+      try {
+        if (removeReceipt) {
+          await removeExpenseReceipt(id!);
+        } else if (receipt) {
+          await uploadExpenseReceipt(id!, receipt);
+        }
+      } catch (receiptError) {
+        console.error('Error al actualizar el comprobante:', receiptError);
+      }
       setEditVisible(false);
       loadData();
       setEditSuccess(true);
     } catch (error) {
       console.error('Error al actualizar gasto:', error);
       setEditVisible(false);
+      setEditError(true);
+    }
+  };
+
+  const handleRemoveReceipt = async () => {
+    try {
+      await removeExpenseReceipt(id!);
+      setRemoveReceiptVisible(false);
+      loadData();
+    } catch {
+      setRemoveReceiptVisible(false);
       setEditError(true);
     }
   };
@@ -247,7 +268,10 @@ export default function ExpenseDetailScreen() {
             <ExpenseSplit participants={participants} />
           )}
 
-          <ExpenseReceipt />
+          <ExpenseReceipt
+            receipt={expense.receiptUrl}
+            onRemove={() => setRemoveReceiptVisible(true)}
+          />
 
           <ExpenseTimeline
             entries={[
@@ -285,6 +309,18 @@ export default function ExpenseDetailScreen() {
           if (!deleteLoading) setDeleteVisible(false);
         }}
         onClose={handleConfirmDelete}
+      />
+
+      {/* Confirmación de eliminación del comprobante */}
+      <AlertModal
+        visible={removeReceiptVisible}
+        type="warning"
+        title="¿Eliminar comprobante?"
+        message="Se quitará la foto del comprobante de este gasto."
+        buttonText="Sí, eliminar"
+        cancelText="Cancelar"
+        onCancel={() => setRemoveReceiptVisible(false)}
+        onClose={handleRemoveReceipt}
       />
 
       {/* Error al eliminar */}

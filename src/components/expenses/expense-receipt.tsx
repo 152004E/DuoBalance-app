@@ -1,12 +1,31 @@
-import { View, Text, Pressable } from 'react-native';
+import { useState } from 'react';
+import { View, Text, Pressable, Modal, StyleSheet } from 'react-native';
+import { Image } from 'expo-image';
 import { FontAwesome6 } from '@expo/vector-icons';
 
 interface ExpenseReceiptProps {
-  receipt?: string;
+  receipt?: string | null;
   onPress?: () => void;
+  onAdd?: () => void;
+  onRemove?: () => void;
 }
 
-export function ExpenseReceipt({ receipt, onPress }: ExpenseReceiptProps) {
+export function ExpenseReceipt({
+  receipt,
+  onPress,
+  onAdd,
+  onRemove,
+}: ExpenseReceiptProps) {
+  const [previewVisible, setPreviewVisible] = useState(false);
+
+  function handlePress() {
+    if (onPress) {
+      onPress();
+    } else {
+      setPreviewVisible(true);
+    }
+  }
+
   return (
     <View
       className="mx-5 rounded-2xl border border-[#E2E8F0] bg-white p-5"
@@ -23,21 +42,76 @@ export function ExpenseReceipt({ receipt, onPress }: ExpenseReceiptProps) {
       </Text>
 
       {receipt ? (
-        <Pressable
-          onPress={onPress}
-          className="relative min-h-[160px] items-center justify-center overflow-hidden rounded-xl border border-dashed border-[#bbcabf] bg-[#f2f4f6] active:opacity-80"
-        >
-          <FontAwesome6 name="image" size={64} color="#bbcabf" />
-          <Text className="mt-2 text-sm text-[#64748B]">Ver comprobante</Text>
-        </Pressable>
+        <>
+          <Pressable
+            onPress={handlePress}
+            className="relative h-[200px] items-center justify-center overflow-hidden rounded-xl border border-[#E2E8F0] bg-[#f2f4f6] active:opacity-80"
+          >
+            <Image
+              source={{ uri: receipt }}
+              style={StyleSheet.absoluteFill}
+              contentFit="cover"
+            />
+          </Pressable>
+
+          {onRemove && (
+            <Pressable
+              onPress={onRemove}
+              className="mt-3 flex-row items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-white py-2.5 active:bg-[#F2F4F6]"
+            >
+              <FontAwesome6 name="trash-can" size={13} color="#EF4444" />
+              <Text className="text-sm font-semibold text-[#EF4444]">
+                Eliminar comprobante
+              </Text>
+            </Pressable>
+          )}
+        </>
       ) : (
-        <View className="flex-col items-center justify-center rounded-xl border border-dashed border-[#bbcabf] bg-[#f2f4f6] py-8">
-          <FontAwesome6 name="receipt" size={40} color="#bbcabf" />
-          <Text className="mt-3 text-sm font-medium text-[#64748B]">
-            No hay comprobante asociado
-          </Text>
-        </View>
+        <Pressable
+          onPress={onAdd}
+          disabled={!onAdd}
+          className="flex-col items-center justify-center rounded-xl border border-dashed border-[#bbcabf] bg-[#f2f4f6] py-8"
+        >
+          {onAdd ? (
+            <>
+              <FontAwesome6 name="camera" size={40} color="#006c49" />
+              <Text className="mt-3 text-sm font-medium text-[#006c49]">
+                Agregar comprobante
+              </Text>
+            </>
+          ) : (
+            <>
+              <FontAwesome6 name="receipt" size={40} color="#bbcabf" />
+              <Text className="mt-3 text-sm font-medium text-[#64748B]">
+                No hay comprobante asociado
+              </Text>
+            </>
+          )}
+        </Pressable>
       )}
+
+      <Modal
+        visible={previewVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPreviewVisible(false)}
+      >
+        <View className="flex-1 bg-black/90">
+          <Pressable
+            onPress={() => setPreviewVisible(false)}
+            className="absolute right-5 top-12 z-10 h-11 w-11 items-center justify-center rounded-full bg-white/15 active:bg-white/25"
+          >
+            <FontAwesome6 name="xmark" size={20} color="#fff" />
+          </Pressable>
+          {receipt && (
+            <Image
+              source={{ uri: receipt }}
+              style={{ width: '100%', height: '100%' }}
+              contentFit="contain"
+            />
+          )}
+        </View>
+      </Modal>
     </View>
   );
 }
