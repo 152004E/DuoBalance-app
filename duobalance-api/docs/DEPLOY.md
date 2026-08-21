@@ -12,9 +12,9 @@
 | Backend API | Oracle Cloud Always Free (Ubuntu VM) | Azure (Container Apps / VM) |
 | PostgreSQL | Oracle VM (local) | Azure Database for PostgreSQL (managed) |
 | Storage (uploads/) | Oracle Block Volume | Azure Blob Storage / Cloudflare R2 |
-| Frontend | Cloudflare Pages (estático) | Cloudflare Pages (estático) |
+| Frontend | Cloudflare Pages (estático) | ✅ `duobalance-app.pages.dev` | Cloudflare Pages (estático) |
 | Dominio API | `api-duobalance.duckdns.org` (DuckDNS) | `api.duobalance.com` |
-| Dominio frontend | `duobalance.pages.dev` (Cloudflare Pages) | `www.duobalance.com` |
+| Dominio frontend | `duobalance-app.pages.dev` (Cloudflare Pages) | `www.duobalance.com` |
 | HTTPS | Let's Encrypt + certbot (API) / Cloudflare auto (frontend) | Cloudflare + Azure managed |
 
 **Objetivo Beta: $0/mes.** Siempre activos, sin sleeps.
@@ -33,7 +33,7 @@
             ▼                           ▼
     Cloudflare Pages              Oracle Cloud VM
     (frontend estático)          (Ubuntu 24.04)
-    duobalance.pages.dev         │
+    duobalance-app.pages.dev     │
             │                    ├── Nginx (reverse proxy + HTTPS)
             │                    │     ↓
             │                    ├── PM2 (process manager)
@@ -142,8 +142,8 @@
 | `RESEND_API_KEY` | string (si resend) | API key de Resend | `re_xxxxxxxxxxxx` | `re_xxxxxxxxxxxx` |
 | `BREVO_API_KEY` | string (si brevo) | API key de Brevo | `xkeysib-xxxxxxxxxxxx` | `xkeysib-xxxxxxxxxxxx` |
 | `MAIL_FROM` | string | Email remitente | `onboarding@resend.dev` | `noreply@tudominio.com` |
-| `FRONTEND_URL` | string | URL del frontend (para links de email) | `http://localhost:8081` | `https://duobalance.pages.dev` |
-| `CORS_ORIGINS` | string | Orígenes permitidos (CSV) | `http://localhost:8081,http://localhost:8082` | `https://duobalance.pages.dev` |
+| `FRONTEND_URL` | string | URL del frontend (para links de email) | `http://localhost:8081` | `https://duobalance-app.pages.dev` |
+| `CORS_ORIGINS` | string | Orígenes permitidos (CSV) | `http://localhost:8081,http://localhost:8082` | `https://duobalance-app.pages.dev` |
 
 **Generar `JWT_SECRET` seguro:**
 ```bash
@@ -354,8 +354,8 @@ pnpm web  # o pnpm start
    MAIL_PROVIDER=resend
    RESEND_API_KEY=re_xxxxxxxxxxxx
    MAIL_FROM=noreply@tudominio.com
-   FRONTEND_URL=https://duobalance.pages.dev
-   CORS_ORIGINS=https://duobalance.pages.dev
+   FRONTEND_URL=https://duobalance-app.pages.dev
+   CORS_ORIGINS=https://duobalance-app.pages.dev
    ```
 6. Crear `ecosystem.config.js`:
    ```javascript
@@ -466,23 +466,28 @@ pnpm web  # o pnpm start
 
 ---
 
-### FASE 7 — Cloudflare Pages (frontend)
+### FASE 7 — Cloudflare Pages (frontend) ✅ COMPLETADO
 
-**Tareas:**
-1. Crear cuenta en [Cloudflare](https://dash.cloudflare.com/).
-2. Ir a **Workers & Pages → Create application → Pages**.
-3. Conectar repo GitHub: `152004E/DuoBalance-app`.
-4. Configurar build:
-   - **Build command:** `pnpm install --frozen-lockfile && pnpm export:web`
-   - **Build output directory:** `dist`
-   - **Root directory:** `/`
-   - **Environment variables (Production):**
-     ```
-     EXPO_PUBLIC_API_URL=https://api-duobalance.duckdns.org
-     EXPO_PUBLIC_APP_NAME=DuoBalance
-     ```
-5. Deploy → Cloudflare asigna `duobalance.pages.dev` (gratis, HTTPS auto).
-6. Probar acceso: `https://duobalance.pages.dev`.
+**Estado:** Frontend desplegado y funcionando.
+
+**URL:** `https://duobalance-app.pages.dev`
+
+**Configuración utilizada:**
+- Build command: `pnpm install --frozen-lockfile && pnpm export:web`
+- Build output directory: `dist`
+- Root directory: `/`
+- Branch: `main`
+
+**Variables de entorno configuradas:**
+- `EXPO_PUBLIC_API_URL=https://api-duobalance.duckdns.org`
+- `EXPO_PUBLIC_APP_NAME=DuoBalance`
+
+**Archivos creados para Cloudflare Pages:**
+- `public/_redirects` — SPA routing fallback (`/* /index.html 200`)
+- `public/_headers` — Headers de seguridad y caché
+- `public/404.html` — Página 404 personalizada
+
+**Fecha de despliegue:** Agosto 2026
 
 ---
 
@@ -491,7 +496,7 @@ pnpm web  # o pnpm start
 **Checklist end-to-end:**
 - [ ] Registro de usuario nuevo
 - [ ] Email de verificación llega
-- [ ] Link de verificación abre `https://duobalance.pages.dev/verify-email?token=...`
+- [ ] Link de verificación abre `https://duobalance-app.pages.dev/verify-email?token=...`
 - [ ] Login funciona
 - [ ] Crear grupo/pareja
 - [ ] Registrar gasto
@@ -591,7 +596,7 @@ pnpm web  # o pnpm start
 
 ### FASE 12 — Prueba end-to-end de producción
 
-1. Abrir `https://duobalance.pages.dev`
+1. Abrir `https://duobalance-app.pages.dev`
 2. Registrar usuario nuevo
 3. Verificar email → click link → cuenta verificada
 4. Login
@@ -815,11 +820,11 @@ API scaling → DB optimization → CDN → Object storage → Caching → Queue
 
 ### CORS error en navegador
 **Causa:** `CORS_ORIGINS` no incluye el dominio de Cloudflare Pages.
-**Solución:** Verificar `.env` en VM: `CORS_ORIGINS=https://duobalance.pages.dev` → reiniciar PM2.
+**Solución:** Verificar `.env` en VM: `CORS_ORIGINS=https://duobalance-app.pages.dev` → reiniciar PM2.
 
 ### Links de email apuntan a localhost
 **Causa:** `FRONTEND_URL` no configurado para producción.
-**Solución:** Verificar `.env` en VM: `FRONTEND_URL=https://duobalance.pages.dev`.
+**Solución:** Verificar `.env` en VM: `FRONTEND_URL=https://duobalance-app.pages.dev`.
 
 ### API no arranca después de reinicio VM
 **Causa:** PM2 no está configurado para arrancar al boot.
