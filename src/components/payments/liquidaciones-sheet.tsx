@@ -13,6 +13,7 @@ interface LiquidacionesSheetProps {
   currentUserId: string;
   groupId: string;
   pendingToConfirm: PaymentResponse[];
+  sentPending: PaymentResponse[];
   history: PaymentResponse[];
   onConfirm?: (payment: PaymentResponse) => void;
   onReject?: (payment: PaymentResponse) => void;
@@ -43,6 +44,7 @@ export function LiquidacionesSheet({
   currentUserId,
   groupId,
   pendingToConfirm,
+  sentPending,
   history,
   onConfirm,
   onReject,
@@ -55,10 +57,11 @@ export function LiquidacionesSheet({
   const fmt = (value: number) =>
     `$${Math.round(value).toLocaleString('es-CL')}`;
 
-  const pendingCount = pendingToConfirm.length;
+  const pendingCount = pendingToConfirm.length + sentPending.length;
 
   const renderPending = () => {
-    if (pendingCount === 0) {
+    const hasAnyPending = pendingCount > 0;
+    if (!hasAnyPending) {
       return (
         <View className="items-center justify-center px-6 py-14">
           <View className="flex h-14 w-14 items-center justify-center rounded-full bg-[#10B981]/10">
@@ -76,66 +79,107 @@ export function LiquidacionesSheet({
     }
 
     return (
-      <View className="gap-3">
-        {pendingToConfirm.map((payment) => {
-          const isFromMe = payment.fromUserId === currentUserId;
-          const fromUser = isFromMe
-            ? { id: currentUserId, firstName: 'Tú', lastName: '' }
-            : payment.fromUser;
-          return (
-            <View
-              key={payment.id}
-              className="rounded-xl border border-[#E2E8F0] bg-white p-4"
-            >
-              <View className="flex-row items-center gap-3">
-                <View className="flex h-11 w-11 items-center justify-center rounded-full bg-[#006c49]/10">
-                  <FontAwesome6
-                    name="money-bill-transfer"
-                    size={16}
-                    color="#006c49"
-                  />
-                </View>
-                <View className="flex-1 shrink">
-                  <Text className="text-sm font-semibold text-[#0F172A]">
-                    {fromUser
-                      ? `${fromUser.firstName} ${fromUser.lastName}`
-                      : 'Alguien'}{' '}
-                    dice que te pagó
-                  </Text>
-                  <Text className="mt-0.5 text-xs text-[#64748B]">
-                    {formatRelativeDate(payment.createdAt)}
-                  </Text>
-                </View>
-                <Text className="text-base font-bold text-[#10B981]">
-                  {fmt(payment.amount)}
-                </Text>
-              </View>
+      <View className="gap-4">
+        {/* Pagos que me llegan — puedo aceptar o rechazar */}
+        {pendingToConfirm.length > 0 && (
+          <View className="gap-3">
+            {pendingToConfirm.map((payment) => {
+              const isFromMe = payment.fromUserId === currentUserId;
+              const fromUser = isFromMe
+                ? { id: currentUserId, firstName: 'Tú', lastName: '' }
+                : payment.fromUser;
+              return (
+                <View
+                  key={payment.id}
+                  className="rounded-xl border border-[#E2E8F0] bg-white p-4"
+                >
+                  <View className="flex-row items-center gap-3">
+                    <View className="flex h-11 w-11 items-center justify-center rounded-full bg-[#006c49]/10">
+                      <FontAwesome6
+                        name="money-bill-transfer"
+                        size={16}
+                        color="#006c49"
+                      />
+                    </View>
+                    <View className="flex-1 shrink">
+                      <Text className="text-sm font-semibold text-[#0F172A]">
+                        {fromUser
+                          ? `${fromUser.firstName} ${fromUser.lastName}`
+                          : 'Alguien'}{' '}
+                        dice que te pagó
+                      </Text>
+                      <Text className="mt-0.5 text-xs text-[#64748B]">
+                        {formatRelativeDate(payment.createdAt)}
+                      </Text>
+                    </View>
+                    <Text className="text-base font-bold text-[#10B981]">
+                      {fmt(payment.amount)}
+                    </Text>
+                  </View>
 
-              <View className="mt-4 flex-row gap-2">
-                <Pressable
-                  onPress={() => onConfirm?.(payment)}
-                  disabled={isMutating}
-                  className="flex-1 flex-row items-center justify-center gap-2 rounded-lg bg-[#10B981] py-2.5 active:opacity-80 disabled:opacity-50"
+                  <View className="mt-4 flex-row gap-2">
+                    <Pressable
+                      onPress={() => onConfirm?.(payment)}
+                      disabled={isMutating}
+                      className="flex-1 flex-row items-center justify-center gap-2 rounded-lg bg-[#10B981] py-2.5 active:opacity-80 disabled:opacity-50"
+                    >
+                      <FontAwesome6 name="check" size={12} color="#FFFFFF" />
+                      <Text className="text-sm font-semibold text-white">
+                        Aceptar
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => onReject?.(payment)}
+                      disabled={isMutating}
+                      className="flex-1 flex-row items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-white py-2.5 active:bg-[#F2F4F6] disabled:opacity-50"
+                    >
+                      <FontAwesome6 name="xmark" size={12} color="#EF4444" />
+                      <Text className="text-sm font-semibold text-[#EF4444]">
+                        Rechazar
+                      </Text>
+                    </Pressable>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        )}
+
+        {/* Pagos que yo envié — esperando confirmación del otro */}
+        {sentPending.length > 0 && (
+          <View className="gap-3">
+            {sentPending.map((payment) => {
+              const toUser = payment.toUser;
+              return (
+                <View
+                  key={payment.id}
+                  className="rounded-xl border border-[#F59E0B]/30 bg-[#FFFBEB] p-4"
                 >
-                  <FontAwesome6 name="check" size={12} color="#FFFFFF" />
-                  <Text className="text-sm font-semibold text-white">
-                    Aceptar
-                  </Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => onReject?.(payment)}
-                  disabled={isMutating}
-                  className="flex-1 flex-row items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-white py-2.5 active:bg-[#F2F4F6] disabled:opacity-50"
-                >
-                  <FontAwesome6 name="xmark" size={12} color="#EF4444" />
-                  <Text className="text-sm font-semibold text-[#EF4444]">
-                    Rechazar
-                  </Text>
-                </Pressable>
-              </View>
-            </View>
-          );
-        })}
+                  <View className="flex-row items-center gap-3">
+                    <View className="flex h-11 w-11 items-center justify-center rounded-full bg-[#F59E0B]/10">
+                      <FontAwesome6 name="clock" size={16} color="#F59E0B" />
+                    </View>
+                    <View className="flex-1 shrink">
+                      <Text className="text-sm font-semibold text-[#0F172A]">
+                        {'Enviaste pago a '}
+                        {toUser
+                          ? `${toUser.firstName} ${toUser.lastName}`
+                          : 'un miembro'}
+                      </Text>
+                      <Text className="mt-0.5 text-xs text-[#92400E]">
+                        {'Esperando confirmación · '}
+                        {formatRelativeDate(payment.createdAt)}
+                      </Text>
+                    </View>
+                    <Text className="text-base font-bold text-[#F59E0B]">
+                      {fmt(payment.amount)}
+                    </Text>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        )}
       </View>
     );
   };

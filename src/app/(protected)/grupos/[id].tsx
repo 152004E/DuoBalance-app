@@ -100,6 +100,7 @@ export default function CoupleDetail() {
 
   const {
     pendingToConfirm,
+    sentPending,
     history,
     settlement,
     refetch: refetchPayments,
@@ -573,10 +574,10 @@ export default function CoupleDetail() {
                     <Text className="text-sm font-semibold text-[#0F172A]">
                       Historial de liquidaciones
                     </Text>
-                    {pendingToConfirm.length > 0 && (
+                    {pendingToConfirm.length + sentPending.length > 0 && (
                       <View className="ml-1 rounded-full bg-[#EF4444] px-2 py-0.5">
                         <Text className="text-xs font-bold text-white">
-                          {pendingToConfirm.length}
+                          {pendingToConfirm.length + sentPending.length}
                         </Text>
                       </View>
                     )}
@@ -823,6 +824,7 @@ export default function CoupleDetail() {
         currentUserId={user!.id}
         groupId={id}
         pendingToConfirm={pendingToConfirm}
+        sentPending={sentPending}
         history={history}
         onConfirm={handleConfirmPayment}
         onReject={handleRejectPayment}

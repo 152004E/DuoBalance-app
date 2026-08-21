@@ -12,6 +12,7 @@ interface UseGroupPaymentsOptions {
 export interface GroupPaymentsData {
   payments: PaymentResponse[];
   pendingToConfirm: PaymentResponse[];
+  sentPending: PaymentResponse[];
   history: PaymentResponse[];
   settlement: SettlementResponse | null;
   isLoading: boolean;
@@ -21,6 +22,7 @@ export interface GroupPaymentsData {
 /**
  * Carga los pagos y el settlement real del grupo.
  * - `pendingToConfirm`: pagos PENDING donde yo soy el receptor (solicitudes por confirmar).
+ * - `sentPending`: pagos PENDING donde yo soy el emisor (esperando confirmación del otro).
  * - `history`: pagos CONFIRMED/REJECTED (historial de liquidaciones).
  * Se re-ejecuta cada vez que la pantalla recibe foco (useFocusEffect) y al llamar refetch.
  */
@@ -64,11 +66,16 @@ export function useGroupPayments({
     (p) => p.status === 'PENDING' && p.toUserId === userId,
   );
 
+  const sentPending = payments.filter(
+    (p) => p.status === 'PENDING' && p.fromUserId === userId,
+  );
+
   const history = payments.filter((p) => p.status !== 'PENDING');
 
   return {
     payments,
     pendingToConfirm,
+    sentPending,
     history,
     settlement,
     isLoading,
