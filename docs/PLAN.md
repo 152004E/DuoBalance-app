@@ -425,7 +425,7 @@ Settlements history muestra:
 
 > Todo el desarrollo previo corre en localhost con Expo Go. Solo al llegar a beta se despliega.
 
-- [❌] Conectar con backend desplegado (URL de producción)
+- [✅] Conectar con backend desplegado (URL de producción: `https://api-duobalance.duckdns.org`)
 - [❌] Generar APK con EAS Build (`eas build --platform android`)
 - [❌] Pruebas en dispositivo físico con APK
 - [❌] App store submission (Google Play)
