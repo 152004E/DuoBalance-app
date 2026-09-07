@@ -22,7 +22,13 @@
     "web": {
       "output": "static",
       "bundler": "metro",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "name": "DuoBalance — Finanzas Compartidas para Parejas y Grupos",
+      "shortName": "DuoBalance",
+      "description": "Gestiona y divide los gastos de pareja y grupos fácilmente con balances claros en tiempo real.",
+      "lang": "es",
+      "themeColor": "#208AEF",
+      "backgroundColor": "#F8FAFC"
     },
     "plugins": [
       "expo-router",

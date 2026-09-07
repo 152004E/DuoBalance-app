@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 
 import { AlertModal } from '@/components/ui/alert-modal';
+import { SeoHead } from '@/components/common/seo-head';
 import { extractErrorMessage } from '@/utils/errors';
 import * as authService from '@/services/api/auth';
 
@@ -122,6 +123,11 @@ export default function RegisterScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]">
+      <SeoHead
+        title="Crear Cuenta Gratuita — DuoBalance"
+        description="Regístrate en DuoBalance y comienza a dividir gastos de pareja o grupos sin complicaciones. Balances claros y transparentes."
+        canonicalUrl="https://duobalance-app.pages.dev/register"
+      />
       <ScrollView
         className="flex-1"
         contentContainerClassName="grow justify-center px-6 py-10"

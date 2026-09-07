@@ -11,6 +11,7 @@ import { SocialLoginButton } from '@/components/auth/social-login-button';
 import { AuthFooter } from '@/components/auth/auth-footer';
 
 import { useAuth } from '@/hooks/use-auth';
+import { SeoHead } from '@/components/common/seo-head';
 import * as authService from '@/services/api/auth';
 import { tokenStorage, refreshTokenStorage } from '@/storage/token';
 import { extractErrorMessage } from '@/utils/errors';
@@ -92,6 +93,11 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]">
+      <SeoHead
+        title="Iniciar Sesión — DuoBalance"
+        description="Inicia sesión en DuoBalance para gestionar tus gastos compartidos, balances en tiempo real y liquidación de saldos."
+        canonicalUrl="https://duobalance-app.pages.dev/login"
+      />
       <ScrollView
         className="flex-1"
         contentContainerClassName="grow justify-center px-6 py-10"

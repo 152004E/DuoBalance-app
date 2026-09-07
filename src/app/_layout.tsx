@@ -6,10 +6,12 @@ import Toast from 'react-native-toast-message';
 import { AuthProvider } from '@/features/auth/auth.context';
 import { SessionExpiredAlert } from '@/components/auth/session-expired-alert';
 import { appToastConfig } from '@/components/ui/app-toast';
+import { SeoHead } from '@/components/common/seo-head';
 
 export default function RootLayout() {
   return (
     <AuthProvider>
+      <SeoHead />
       <Stack screenOptions={{ headerShown: false }} />
       <Toast
         config={appToastConfig}
