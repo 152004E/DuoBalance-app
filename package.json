@@ -60,5 +60,10 @@
     "lint": "expo lint",
     "export:web": "EXPO_PUBLIC_API_URL=https://api-duobalance.duckdns.org expo export -p web"
   },
-  "private": true
+  "private": true,
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "unrs-resolver"
+    ]
+  }
 }
