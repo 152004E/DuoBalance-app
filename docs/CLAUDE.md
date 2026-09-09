@@ -1,9 +1,11 @@
 # CLAUDE.md — AI Context for DuoBalance
 
 ## Project Overview
-DuoBalance is a shared expense tracking app for couples. It consists of:
-- **duobalance-api**: NestJS backend (TypeScript, Prisma, PostgreSQL) — auth, couples, expenses CRUD, balances, payments, settlements, dashboard
-- **DuoBalance-app**: React Native + Expo SDK 56 mobile client (auth flow complete, couple/dashboard/reports screens implemented)
+DuoBalance is a shared expense tracking app for groups (couples, roommates, friends). It consists of:
+- **duobalance-api**: NestJS backend (TypeScript, Prisma, PostgreSQL Serverless en Neon.tech, desplegado en GCP Compute Engine + Cloudflare R2) — auth estricta, grupos, gastos CRUD, balances, pagos, liquidaciones, dashboard, emails transaccionales
+- **DuoBalance-app**: React Native + Expo mobile/web client (flujos completos de auth, grupos, gastos, liquidaciones, reportes y perfil)
+
+> **Entorno de producción:** Backend accesible en `https://api-duobalance.duckdns.org` (o `http://localhost:3000` en local). Frontend web preparado para Cloudflare Pages (`duobalance-app.pages.dev`).
 
 > **Decisión de plataforma (web-first):** DuoBalance inicia como aplicación **web** (Expo Web, `pnpm web`). El soporte móvil (Android/iOS vía Expo Go → EAS build) se agregará **solo cuando el producto avance**. Toda UI/UX y todo componente debe funcionar primero en navegador. No preguntar por esta decisión: está tomada. Implicación práctica: **no usar `Alert.alert` de React Native (es un no-op en web)** — usar siempre el `AlertModal` custom de la app y el helper `extractErrorMessage` de `src/utils/errors.ts` para mostrar errores de la API.
 
@@ -357,6 +359,8 @@ npx prisma db push        # Push schema (dev)
 | `docs/ARCHITECTURE.md` | Full architecture docs |
 | `docs/PLAN.md` | Implementation plan |
 | `docs/ROADMAP.md` | Release roadmap |
+| `docs/FUTURE.md` | Post-MVP differentiators and innovation roadmap (dual balance, smart insights) |
+| `AGENTS.md` | Agent persona, strict operational rules, and project guidelines |
 
 ### AI Agents (`.opencode/agents/`)
 | File | Purpose |

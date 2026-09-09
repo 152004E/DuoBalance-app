@@ -10,6 +10,7 @@ import { AuthHeader } from '@/components/auth/auth-header';
 import { AuthFooter } from '@/components/auth/auth-footer';
 import { extractErrorMessage } from '@/utils/errors';
 import { forgotPassword } from '@/services/api/auth';
+import { SeoHead } from '@/components/common/seo-head';
 
 const EMAIL_REGEX = /^[^\s@]{2,}@[^\s@]{2,}\.[A-Za-z]{2,}$/;
 
@@ -55,6 +56,11 @@ export default function ForgotPasswordScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]">
+      <SeoHead
+        title="Recuperar Contraseña — DuoBalance"
+        description="Recupera el acceso a tu cuenta de DuoBalance. Ingresa tu correo electrónico y te enviaremos un enlace seguro."
+        canonicalUrl="https://duobalance-app.pages.dev/forgot-password"
+      />
       <ScrollView
         className="flex-1"
         contentContainerClassName="grow justify-center px-6 py-10"

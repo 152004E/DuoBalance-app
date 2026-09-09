@@ -58,7 +58,13 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "export:web": "EXPO_PUBLIC_API_URL=https://api-duobalance.duckdns.org expo export -p web"
+    "export:web": "EXPO_PUBLIC_API_URL=https://api-duobalance.duckdns.org expo export -p web",
+    "postexport:web": "node ./scripts/fix-pnpm-paths.js"
   },
-  "private": true
+  "private": true,
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "unrs-resolver"
+    ]
+  }
 }

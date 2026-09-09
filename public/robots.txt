@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+Allow: /login
+Allow: /register
+Allow: /forgot-password
+Allow: /restablecer-contrasena
+Allow: /verify-email
+
+# Proteger rutas privadas de la aplicación
+Disallow: /(protected)/
+Disallow: /gastos
+Disallow: /gastos/*
+Disallow: /grupos
+Disallow: /grupos/*
+Disallow: /perfil
+Disallow: /perfil/*
+Disallow: /reportes
+
+Sitemap: https://duobalance-app.pages.dev/sitemap.xml

@@ -1,0 +1,18 @@
+{
+  "short_name": "DuoBalance",
+  "name": "DuoBalance — Finanzas Compartidas para Parejas y Grupos",
+  "description": "Gestiona y divide los gastos de pareja y grupos fácilmente con balances claros en tiempo real.",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#208AEF",
+  "background_color": "#F8FAFC",
+  "lang": "es"
+}

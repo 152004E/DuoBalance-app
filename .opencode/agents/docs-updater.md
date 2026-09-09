@@ -52,9 +52,11 @@ Cuando te llamen con `@docs-updater`, debes:
 | `docs/PLAN.md` | Items completados (✅), items en progreso (🔄), cambios en fases |
 | `docs/ROADMAP.md` | Avance de fases, cambios en estimaciones, progreso visual |
 | `docs/DATA_STRUCTURE.md` | Nuevos tipos en `src/types/`, nuevos endpoints, cambios en DTOs |
+| `docs/FUTURE.md` | Nuevas propuestas técnicas, innovaciones post-MVP (doble balance, gamificación) y mejoras a futuro |
 | `docs/COLORS.md` | Solo si cambió la paleta de colores (raro) |
 | `docs/AI_RULES.md` | Solo si cambian las convenciones del proyecto |
 | `docs/CONTRIBUTING.md` | Solo si cambian los flujos de trabajo o comandos |
+| `AGENTS.md` | Reglas operativas, rol y directrices globales del agente |
 
 ### Documentos ausentes
 
