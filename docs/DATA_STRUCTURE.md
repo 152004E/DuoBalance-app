@@ -273,6 +273,7 @@ interface ExpenseResponse {
   id: string;
   description: string;
   amount: number;
+  receiptUrl?: string;
   category: ExpenseCategory;
   splitType: SplitType;
   paidById: string;
