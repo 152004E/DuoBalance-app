@@ -9,6 +9,7 @@ import { useDashboardData } from '@/hooks/use-dashboard-data';
 import { useSettlementSuggestions } from '@/hooks/use-settlement-suggestions';
 import { usePendingIncomingPayments } from '@/hooks/use-pending-incoming-payments';
 import { HeroSection } from '@/components/layout/HeroSection';
+import { PwaInstallBanner } from '@/components/ui/pwa-install-banner';
 import { GroupSelector } from '@/components/ui/group-selector';
 import { GroupSection } from '@/components/ui/group-section';
 import { EmptyStateCard } from '@/components/ui/empty-state-card';
@@ -140,6 +141,8 @@ export default function DashboardScreen() {
             />
           }
         />
+
+        <PwaInstallBanner />
 
         <View className="px-5 pt-8">
           <Text className="mb-4 text-2xl font-bold text-[#0F172A]">
