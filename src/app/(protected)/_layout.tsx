@@ -56,11 +56,33 @@ export default function ProtectedLayout() {
         screenOptions={{ headerShown: false }}
         tabBar={(props) => <BottomTab {...props} />}
       >
-        <Tabs.Screen name="index" />
-        <Tabs.Screen name="gastos" />
-        <Tabs.Screen name="grupos" />
-        <Tabs.Screen name="reportes" />
-        <Tabs.Screen name="perfil" />
+        {user.role === 'SUPER_ADMIN' ? (
+          <>
+            <Tabs.Screen name="admin/index" />
+            <Tabs.Screen name="admin/users" />
+            <Tabs.Screen name="admin/reportes" />
+            <Tabs.Screen name="perfil" />
+            
+            {/* Ocultar pestañas de usuario */}
+            <Tabs.Screen name="index" options={{ href: null }} />
+            <Tabs.Screen name="gastos" options={{ href: null }} />
+            <Tabs.Screen name="grupos" options={{ href: null }} />
+            <Tabs.Screen name="reportes" options={{ href: null }} />
+          </>
+        ) : (
+          <>
+            <Tabs.Screen name="index" />
+            <Tabs.Screen name="gastos" />
+            <Tabs.Screen name="grupos" />
+            <Tabs.Screen name="reportes" />
+            <Tabs.Screen name="perfil" />
+            
+            {/* Ocultar pestañas de admin */}
+            <Tabs.Screen name="admin/index" options={{ href: null }} />
+            <Tabs.Screen name="admin/users" options={{ href: null }} />
+            <Tabs.Screen name="admin/reportes" options={{ href: null }} />
+          </>
+        )}
       </Tabs>
     </WorkspaceProvider>
   );

@@ -1,7 +1,9 @@
 import { View, Text, TouchableOpacity } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
 
-const tabs = [
+import { useAuth } from '@/hooks/use-auth';
+
+const USER_TABS = [
   { name: 'index', label: 'Inicio', icon: 'house' },
   { name: 'gastos', label: 'Gastos', icon: 'receipt' },
   { name: 'grupos', label: 'Grupos', icon: 'users' },
@@ -9,9 +11,18 @@ const tabs = [
   { name: 'perfil', label: 'Perfil', icon: 'user' },
 ];
 
-const NESTED_TABS = ['gastos', 'grupos', 'perfil'];
+const ADMIN_TABS = [
+  { name: 'admin/index', label: 'Inicio', icon: 'house' },
+  { name: 'admin/users', label: 'Usuarios', icon: 'users-gear' },
+  { name: 'admin/reportes', label: 'Reportes', icon: 'chart-line' },
+  { name: 'perfil', label: 'Perfil', icon: 'user' },
+];
+
+const NESTED_TABS = ['gastos', 'grupos', 'perfil', 'admin/users', 'admin/reportes'];
 
 export default function BottomTab({ state, navigation, insets }: any) {
+  const { user } = useAuth();
+  const activeTabs = user?.role === 'SUPER_ADMIN' ? ADMIN_TABS : USER_TABS;
   return (
     <View
       style={{ paddingBottom: insets.bottom }}
@@ -30,7 +41,7 @@ export default function BottomTab({ state, navigation, insets }: any) {
         {state.routes.map(
           (route: { key: string; name: string }, index: number) => {
             const isFocused = state.index === index;
-            const tab = tabs.find((t) => t.name === route.name);
+            const tab = activeTabs.find((t) => t.name === route.name);
 
             if (!tab) return null;
 
