@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
-import { Stack, router } from 'expo-router';
+import { router } from 'expo-router';
 import { FontAwesome6 } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { HeroSection } from '@/components/layout/HeroSection';
 import { adminService } from '@/services/api/admin';
 import { UserBrief } from '@/types/api';
 import { useAuth } from '@/hooks/use-auth';
@@ -73,25 +74,18 @@ export default function AdminUsersScreen() {
   }
 
   return (
-    <View className="flex-1 bg-[#F8FAFC]">
-      <Stack.Screen
-        options={{
-          title: 'Usuarios',
-          headerShown: true,
-          headerStyle: { backgroundColor: '#0F172A' },
-          headerTintColor: '#fff',
-        }}
-      />
-      
-      <LinearGradient
-        colors={['#0F172A', '#1E293B']}
-        className="absolute inset-x-0 top-0 h-48"
-      />
-
-      <ScrollView className="flex-1" contentContainerClassName="pb-10 pt-4 px-5">
-        <Text className="text-white text-lg font-bold mb-4">Gestión de Usuarios</Text>
+    <SafeAreaView className="flex-1 bg-[#F8FAFC]" edges={['top']}>
+      <ScrollView className="flex-1" contentContainerClassName="pb-10" showsVerticalScrollIndicator={false}>
+        <HeroSection
+          variant="page"
+          userName={user?.firstName ?? 'Admin'}
+          title="Usuarios"
+          subtitle="Gestión de usuarios"
+          height={220}
+        />
         
-        <View className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <View className="px-5 mt-6">
+          <View className="bg-white rounded-2xl shadow-sm overflow-hidden">
           {users.map((u, index) => (
             <View 
               key={u.id} 
@@ -127,6 +121,7 @@ export default function AdminUsersScreen() {
               )}
             </View>
           ))}
+        </View>
         </View>
       </ScrollView>
 
@@ -176,6 +171,6 @@ export default function AdminUsersScreen() {
           </View>
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 }

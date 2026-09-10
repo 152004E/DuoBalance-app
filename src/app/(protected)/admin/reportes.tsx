@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
-import { View, Text } from 'react-native';
-import { Stack, router } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, Text, ScrollView } from 'react-native';
+import { router } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { HeroSection } from '@/components/layout/HeroSection';
 import { useAuth } from '@/hooks/use-auth';
 
 export default function AdminReportesScreen() {
@@ -14,29 +15,25 @@ export default function AdminReportesScreen() {
   }, [user]);
 
   return (
-    <View className="flex-1 bg-[#F8FAFC]">
-      <Stack.Screen
-        options={{
-          title: 'Reportes Globales',
-          headerShown: true,
-          headerStyle: { backgroundColor: '#0F172A' },
-          headerTintColor: '#fff',
-        }}
-      />
-      
-      <LinearGradient
-        colors={['#0F172A', '#1E293B']}
-        className="absolute inset-x-0 top-0 h-48"
-      />
+    <SafeAreaView className="flex-1 bg-[#F8FAFC]" edges={['top']}>
+      <ScrollView className="flex-1" contentContainerClassName="pb-10" showsVerticalScrollIndicator={false}>
+        <HeroSection
+          variant="page"
+          userName={user?.firstName ?? 'Admin'}
+          title="Reportes"
+          subtitle="Gráficas y analíticas"
+          height={220}
+        />
 
-      <View className="flex-1 items-center justify-center pt-20 px-5">
-        <View className="bg-white p-6 rounded-2xl shadow-sm items-center">
-          <Text className="text-[#0F172A] text-lg font-bold mb-2">Reportes Globales</Text>
-          <Text className="text-[#64748B] text-center text-sm">
-            Pronto podrás ver aquí gráficas avanzadas sobre la actividad de la aplicación.
-          </Text>
+        <View className="flex-1 items-center justify-center pt-20 px-5">
+          <View className="bg-white p-6 rounded-2xl shadow-sm items-center">
+            <Text className="text-[#0F172A] text-lg font-bold mb-2">Reportes Globales</Text>
+            <Text className="text-[#64748B] text-center text-sm">
+              Pronto podrás ver aquí gráficas avanzadas sobre la actividad de la aplicación.
+            </Text>
+          </View>
         </View>
-      </View>
-    </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
