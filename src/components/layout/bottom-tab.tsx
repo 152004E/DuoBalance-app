@@ -13,12 +13,12 @@ const USER_TABS = [
 
 const ADMIN_TABS = [
   { name: 'admin/index', label: 'Inicio', icon: 'house' },
-  { name: 'admin/users', label: 'Usuarios', icon: 'users-gear' },
+  { name: 'admin/Users/users', label: 'Usuarios', icon: 'users-gear' },
   { name: 'admin/reportes', label: 'Reportes', icon: 'chart-line' },
   { name: 'perfil', label: 'Perfil', icon: 'user' },
 ];
 
-const NESTED_TABS = ['gastos', 'grupos', 'perfil', 'admin/users', 'admin/reportes'];
+const NESTED_TABS = ['gastos', 'grupos', 'perfil', 'admin/Users/users', 'admin/reportes'];
 
 export default function BottomTab({ state, navigation, insets }: any) {
   const { user } = useAuth();

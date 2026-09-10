@@ -1,25 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { View, ScrollView, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { HeroSection } from '@/components/layout/HeroSection';
+import { RecentUsersCard, AdminUserItem } from '@/components/admin/recent-users-card';
+import { LoadMoreButton } from '@/components/ui/load-more-button';
 import { adminService } from '@/services/api/admin';
-import { UserBrief } from '@/types/api';
 import { useAuth } from '@/hooks/use-auth';
 import { AlertModal } from '@/components/ui/alert-modal';
-
-type AdminUser = UserBrief & { createdAt: string; _count: { members: number; expenses: number } };
+import { Pressable, Text } from 'react-native';
 
 export default function AdminUsersScreen() {
   const { user } = useAuth();
-  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [users, setUsers] = useState<AdminUserItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+  const [visibleCount, setVisibleCount] = useState(10);
+
   const [errorModal, setErrorModal] = useState<string | null>(null);
   const [confirmModal, setConfirmModal] = useState<{
     visible: boolean;
-    user: AdminUser | null;
+    user: AdminUserItem | null;
   }>({ visible: false, user: null });
 
   useEffect(() => {
@@ -46,17 +47,23 @@ export default function AdminUsersScreen() {
   const executeToggleSuspension = async () => {
     if (!confirmModal.user) return;
     const targetUserId = confirmModal.user.id;
-    
+
     try {
       setConfirmModal({ visible: false, user: null });
       const result = await adminService.toggleUserSuspension(targetUserId);
-      setUsers(prev => prev.map(u => u.id === targetUserId ? { ...u, isActive: result.isActive } : u));
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === targetUserId ? { ...u, isActive: result.isActive } : u,
+        ),
+      );
     } catch (error: any) {
-      setErrorModal(error.response?.data?.message || 'Error al cambiar estado del usuario');
+      setErrorModal(
+        error.response?.data?.message || 'Error al cambiar estado del usuario',
+      );
     }
   };
 
-  const requestToggleSuspension = (targetUser: AdminUser) => {
+  const requestToggleSuspension = (targetUser: AdminUserItem) => {
     if (targetUser.role === 'SUPER_ADMIN') {
       setErrorModal('No puedes suspender a otro Super Admin.');
       return;
@@ -75,7 +82,11 @@ export default function AdminUsersScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]" edges={['top']}>
-      <ScrollView className="flex-1" contentContainerClassName="pb-10" showsVerticalScrollIndicator={false}>
+      <ScrollView
+        className="flex-1"
+        contentContainerClassName="pb-32"
+        showsVerticalScrollIndicator={false}
+      >
         <HeroSection
           variant="page"
           userName={user?.firstName ?? 'Admin'}
@@ -83,45 +94,26 @@ export default function AdminUsersScreen() {
           subtitle="Gestión de usuarios"
           height={220}
         />
-        
-        <View className="px-5 mt-6">
-          <View className="bg-white rounded-2xl shadow-sm overflow-hidden">
-          {users.map((u, index) => (
-            <View 
-              key={u.id} 
-              className={`flex-row items-center justify-between p-4 ${index !== users.length - 1 ? 'border-b border-[#F1F5F9]' : ''}`}
-            >
-              <View className="flex-1">
-                <View className="flex-row items-center gap-2">
-                  <Text className="text-sm font-bold text-[#0F172A]">{u.firstName} {u.lastName}</Text>
-                  {u.role === 'SUPER_ADMIN' && (
-                    <FontAwesome6 name="crown" size={12} color="#FBBF24" />
-                  )}
-                  {!u.isActive && (
-                    <View className="bg-red-100 px-1.5 py-0.5 rounded">
-                      <Text className="text-[10px] font-bold text-red-600">SUSPENDIDO</Text>
-                    </View>
-                  )}
-                </View>
-                <Text className="text-xs text-[#64748B]">{u.email}</Text>
-                <Text className="text-[10px] text-[#94A3B8] mt-1">
-                  Grupos: {u._count.members} | Gastos: {u._count.expenses}
-                </Text>
-              </View>
 
-              {user?.id !== u.id && (
-                <Pressable
-                  onPress={() => requestToggleSuspension(u)}
-                  className={`px-3 py-1.5 rounded-full ${u.isActive ? 'bg-red-50' : 'bg-green-50'}`}
-                >
-                  <Text className={`text-xs font-semibold ${u.isActive ? 'text-red-600' : 'text-green-600'}`}>
-                    {u.isActive ? 'Suspender' : 'Restaurar'}
-                  </Text>
-                </Pressable>
-              )}
-            </View>
-          ))}
-        </View>
+        <View className="mt-6 px-5">
+          <RecentUsersCard
+            title="Usuarios Registrados"
+            users={users}
+            maxItems={visibleCount}
+            onViewAll={() => router.push('/admin/Users/todos-usuarios')}
+            onToggleSuspension={requestToggleSuspension}
+            currentUserId={user?.id}
+          />
+
+          <View className="mt-5">
+            <LoadMoreButton
+              visibleCount={visibleCount}
+              totalCount={users.length}
+              step={10}
+              label="Cargar más usuarios"
+              onLoadMore={setVisibleCount}
+            />
+          </View>
         </View>
       </ScrollView>
 
@@ -135,20 +127,32 @@ export default function AdminUsersScreen() {
         />
       )}
 
-      {/* ConfirmModal */}
+      {/* Modal de Confirmación */}
       {confirmModal.visible && confirmModal.user && (
         <View className="absolute inset-0 z-50 items-center justify-center bg-black/50 p-4">
           <View className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-xl">
             <View className="mb-4 items-center justify-center">
-              <View className={`h-16 w-16 items-center justify-center rounded-full ${confirmModal.user.isActive ? 'bg-red-100' : 'bg-green-100'}`}>
-                <FontAwesome6 name={confirmModal.user.isActive ? "ban" : "check"} size={24} color={confirmModal.user.isActive ? "#DC2626" : "#10B981"} />
+              <View
+                className={`h-16 w-16 items-center justify-center rounded-full ${
+                  confirmModal.user.isActive ? 'bg-red-100' : 'bg-green-100'
+                }`}
+              >
+                <FontAwesome6
+                  name={confirmModal.user.isActive ? 'ban' : 'check'}
+                  size={24}
+                  color={confirmModal.user.isActive ? '#DC2626' : '#10B981'}
+                />
               </View>
             </View>
             <Text className="mb-2 text-center text-xl font-bold text-[#0F172A]">
-              {confirmModal.user.isActive ? 'Suspender Usuario' : 'Restaurar Usuario'}
+              {confirmModal.user.isActive
+                ? 'Suspender Usuario'
+                : 'Restaurar Usuario'}
             </Text>
             <Text className="mb-6 text-center text-base text-[#64748B]">
-              ¿Estás seguro de que deseas {confirmModal.user.isActive ? 'suspender' : 'restaurar'} a {confirmModal.user.email}?
+              ¿Estás seguro de que deseas{' '}
+              {confirmModal.user.isActive ? 'suspender' : 'restaurar'} a{' '}
+              {confirmModal.user.email}?
             </Text>
             <View className="flex-row gap-3">
               <Pressable
@@ -161,7 +165,9 @@ export default function AdminUsersScreen() {
               </Pressable>
               <Pressable
                 onPress={executeToggleSuspension}
-                className={`flex-1 rounded-xl py-3.5 active:opacity-90 ${confirmModal.user.isActive ? 'bg-red-600' : 'bg-green-600'}`}
+                className={`flex-1 rounded-xl py-3.5 active:opacity-90 ${
+                  confirmModal.user.isActive ? 'bg-red-600' : 'bg-green-600'
+                }`}
               >
                 <Text className="text-center text-base font-semibold text-white">
                   Confirmar

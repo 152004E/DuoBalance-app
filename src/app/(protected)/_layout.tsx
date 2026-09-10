@@ -59,11 +59,13 @@ export default function ProtectedLayout() {
         {user.role === 'SUPER_ADMIN' ? (
           <>
             <Tabs.Screen name="admin/index" />
-            <Tabs.Screen name="admin/users" />
+            <Tabs.Screen name="admin/Users/users" />
             <Tabs.Screen name="admin/reportes" />
             <Tabs.Screen name="perfil" />
             
-            {/* Ocultar pestañas de usuario */}
+            {/* Ocultar pantallas secundarias de admin y pestañas de usuario */}
+            <Tabs.Screen name="admin/Users/todos-usuarios" options={{ href: null }} />
+            <Tabs.Screen name="admin/Users/index" options={{ href: null }} />
             <Tabs.Screen name="index" options={{ href: null }} />
             <Tabs.Screen name="gastos" options={{ href: null }} />
             <Tabs.Screen name="grupos" options={{ href: null }} />
@@ -79,7 +81,9 @@ export default function ProtectedLayout() {
             
             {/* Ocultar pestañas de admin */}
             <Tabs.Screen name="admin/index" options={{ href: null }} />
-            <Tabs.Screen name="admin/users" options={{ href: null }} />
+            <Tabs.Screen name="admin/Users/users" options={{ href: null }} />
+            <Tabs.Screen name="admin/Users/index" options={{ href: null }} />
+            <Tabs.Screen name="admin/Users/todos-usuarios" options={{ href: null }} />
             <Tabs.Screen name="admin/reportes" options={{ href: null }} />
           </>
         )}
