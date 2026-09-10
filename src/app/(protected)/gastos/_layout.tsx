@@ -4,8 +4,7 @@ export default function GastosLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
-      <Stack.Screen name="add" />
-      <Stack.Screen name="detalle" />
+      <Stack.Screen name="detalle/[id]" />
     </Stack>
   );
 }

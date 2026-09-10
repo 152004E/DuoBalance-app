@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, ScrollView, Pressable, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import Toast from 'react-native-toast-message';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -72,20 +73,49 @@ export default function LoginScreen() {
 
       router.replace('/(protected)');
     } catch (err: any) {
-      if (err?.response?.status === 403) {
-        setErrors({
-          general:
-            'Debes verificar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada.',
+      const serverMessage = err?.response?.data?.message;
+      const isSuspended =
+        typeof serverMessage === 'string' &&
+        serverMessage.toLowerCase().includes('suspendid');
+
+      if (isSuspended) {
+        const msg = serverMessage || 'Tu cuenta ha sido suspendida por un administrador.';
+        Toast.show({
+          type: 'error',
+          text1: 'Cuenta Suspendida',
+          text2: msg,
+          visibilityTime: 6000,
         });
+        setErrors({ general: msg });
         return;
       }
 
-      setErrors({
-        general: extractErrorMessage(
-          err,
-          'Error al iniciar sesión. Intenta de nuevo.',
-        ),
+      if (err?.response?.status === 403) {
+        const msg =
+          typeof serverMessage === 'string'
+            ? serverMessage
+            : 'Debes verificar tu correo antes de iniciar sesión.';
+        Toast.show({
+          type: 'error',
+          text1: 'Acceso Denegado',
+          text2: msg,
+          visibilityTime: 6000,
+        });
+        setErrors({ general: msg });
+        return;
+      }
+
+      const generalMsg = extractErrorMessage(
+        err,
+        'Error al iniciar sesión. Intenta de nuevo.',
+      );
+      Toast.show({
+        type: 'error',
+        text1: 'Error de inicio de sesión',
+        text2: generalMsg,
+        visibilityTime: 5000,
       });
+      setErrors({ general: generalMsg });
     } finally {
       setIsLoading(false);
     }

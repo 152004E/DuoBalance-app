@@ -50,16 +50,55 @@ export default function ProtectedLayout() {
     return <Redirect href="/login" />;
   }
 
+  const isAdmin = user.role === 'SUPER_ADMIN';
+
   return (
     <WorkspaceProvider>
       <Tabs
         screenOptions={{ headerShown: false }}
         tabBar={(props) => <BottomTab {...props} />}
       >
-        <Tabs.Screen name="index" />
-        <Tabs.Screen name="gastos" />
-        <Tabs.Screen name="grupos" />
-        <Tabs.Screen name="reportes" />
+        {/* Pestañas Admin */}
+        <Tabs.Screen
+          name="admin/index"
+          options={{ href: isAdmin ? undefined : null }}
+        />
+        <Tabs.Screen
+          name="admin/Users/users"
+          options={{ href: isAdmin ? undefined : null }}
+        />
+        <Tabs.Screen
+          name="admin/reportes"
+          options={{ href: isAdmin ? undefined : null }}
+        />
+        <Tabs.Screen
+          name="admin/Users/todos-usuarios"
+          options={{ href: null }}
+        />
+        <Tabs.Screen
+          name="admin/Users/index"
+          options={{ href: null }}
+        />
+
+        {/* Pestañas Usuario Normal */}
+        <Tabs.Screen
+          name="index"
+          options={{ href: isAdmin ? null : undefined }}
+        />
+        <Tabs.Screen
+          name="gastos"
+          options={{ href: isAdmin ? null : undefined }}
+        />
+        <Tabs.Screen
+          name="grupos"
+          options={{ href: isAdmin ? null : undefined }}
+        />
+        <Tabs.Screen
+          name="reportes"
+          options={{ href: isAdmin ? null : undefined }}
+        />
+
+        {/* Pestaña Común */}
         <Tabs.Screen name="perfil" />
       </Tabs>
     </WorkspaceProvider>

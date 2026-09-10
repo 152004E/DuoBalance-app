@@ -5,6 +5,7 @@ import {
   Image,
   Animated,
   Easing,
+  Platform,
   useWindowDimensions,
 } from 'react-native';
 import Svg, {
@@ -207,18 +208,19 @@ export function HeroSection(props: HeroSectionProps) {
 
   useEffect(() => {
     if (variant !== 'dashboard') {
+      const isNative = Platform.OS !== 'web';
       Animated.timing(contentOpacity, {
         toValue: 1,
         duration: 550,
         easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
+        useNativeDriver: isNative,
       }).start();
 
       Animated.timing(contentSlideUp, {
         toValue: 0,
         duration: 550,
         easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
+        useNativeDriver: isNative,
       }).start();
 
       if (props.subtitle) {
@@ -228,14 +230,14 @@ export function HeroSection(props: HeroSectionProps) {
             duration: 400,
             delay: 200,
             easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
+            useNativeDriver: isNative,
           }),
           Animated.timing(subtitleSlideUp, {
             toValue: 0,
             duration: 400,
             delay: 200,
             easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
+            useNativeDriver: isNative,
           }),
         ]).start();
       }

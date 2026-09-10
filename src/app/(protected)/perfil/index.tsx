@@ -139,6 +139,8 @@ export default function PerfilScreen() {
             ))}
           </View>
 
+          {/* Panel de control removido - ahora tiene pestaña propia */}
+
           <View className="mx-5 mt-4 rounded-2xl bg-white shadow-sm">
             <Pressable
               onPress={handleLogout}

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Modal, View, Text, Pressable, Animated } from 'react-native';
+import { Modal, View, Text, Pressable, Animated, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { FontAwesome6 } from '@expo/vector-icons';
 
@@ -52,11 +52,12 @@ export function AlertModal({
 
   useEffect(() => {
     if (visible) {
+      const isNative = Platform.OS !== 'web';
       Animated.parallel([
         Animated.timing(opacity, {
           toValue: 1,
           duration: 250,
-          useNativeDriver: true,
+          useNativeDriver: isNative,
         }),
 
         Animated.spring(scale, {
@@ -64,14 +65,14 @@ export function AlertModal({
           damping: 12,
           stiffness: 150,
           mass: 0.8,
-          useNativeDriver: true,
+          useNativeDriver: isNative,
         }),
 
         Animated.spring(translateY, {
           toValue: 0,
           damping: 14,
           stiffness: 140,
-          useNativeDriver: true,
+          useNativeDriver: isNative,
         }),
       ]).start();
     } else {
@@ -103,13 +104,13 @@ export function AlertModal({
         <BlurView
           intensity={25}
           tint="dark"
-          pointerEvents="none"
           style={{
             position: 'absolute',
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
+            pointerEvents: 'none',
           }}
         />
 

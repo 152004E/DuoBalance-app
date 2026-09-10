@@ -1,7 +1,7 @@
 import { useCallback, useState, useRef, useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect, useScrollToTop, router } from 'expo-router';
+import { useFocusEffect, useScrollToTop, router, Redirect } from 'expo-router';
 import { useAuth } from '@/hooks/use-auth';
 import { useGroups } from '@/hooks/use-groups';
 import { useGroupSummaries } from '@/hooks/use-group-summaries';
@@ -28,6 +28,11 @@ const fmt = (value: number) => `$${Math.round(value).toLocaleString('es-CL')}`;
 
 export default function DashboardScreen() {
   const { user } = useAuth();
+
+  if (user?.role === 'SUPER_ADMIN') {
+    return <Redirect href="/admin" />;
+  }
+
   const { groups, personalGroups, coupleGroups, sharedGroups } = useGroups();
   const { workspace, setWorkspace } = useWorkspace();
   const { summaries } = useGroupSummaries(groups);
