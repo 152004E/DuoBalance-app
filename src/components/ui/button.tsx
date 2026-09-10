@@ -5,6 +5,7 @@ import {
   View,
   ActivityIndicator,
   Animated,
+  Platform,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
@@ -35,6 +36,7 @@ function LoadingDots() {
   const opacity3 = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    const isNative = Platform.OS !== 'web';
     const anim = (opacity: Animated.Value, delay: number) =>
       Animated.loop(
         Animated.sequence([
@@ -42,12 +44,12 @@ function LoadingDots() {
           Animated.timing(opacity, {
             toValue: 1,
             duration: 300,
-            useNativeDriver: true,
+            useNativeDriver: isNative,
           }),
           Animated.timing(opacity, {
             toValue: 0,
             duration: 300,
-            useNativeDriver: true,
+            useNativeDriver: isNative,
           }),
         ]),
       );
@@ -74,17 +76,18 @@ function LoadingPulse() {
   const opacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
+    const isNative = Platform.OS !== 'web';
     const anim = Animated.loop(
       Animated.sequence([
         Animated.timing(opacity, {
           toValue: 0.3,
           duration: 750,
-          useNativeDriver: true,
+          useNativeDriver: isNative,
         }),
         Animated.timing(opacity, {
           toValue: 1,
           duration: 750,
-          useNativeDriver: true,
+          useNativeDriver: isNative,
         }),
       ]),
     );

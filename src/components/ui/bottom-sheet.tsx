@@ -90,9 +90,9 @@ export function BottomSheet({
                 right: 0,
                 height: HEADER_HEIGHT,
                 zIndex: 50,
+                pointerEvents: 'box-none',
               },
             ]}
-            pointerEvents="box-none"
           >
             {header}
           </Animated.View>

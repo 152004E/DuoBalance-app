@@ -1,5 +1,6 @@
 import '../global.css';
 
+import { LogBox } from 'react-native';
 import { Stack } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { useFonts } from 'expo-font';
@@ -9,6 +10,11 @@ import { AuthProvider } from '@/features/auth/auth.context';
 import { SessionExpiredAlert } from '@/components/auth/session-expired-alert';
 import { appToastConfig } from '@/components/ui/app-toast';
 import { SeoHead } from '@/components/common/seo-head';
+
+LogBox.ignoreLogs([
+  'props.pointerEvents is deprecated',
+  '"shadow*" style props are deprecated',
+]);
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({

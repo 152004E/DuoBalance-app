@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { Animated, Easing } from 'react-native';
+import { Animated, Easing, Platform } from 'react-native';
 
 export function useDashboardHeroAnimation() {
   const greetingOpacity = useRef(new Animated.Value(0)).current;
@@ -12,19 +12,20 @@ export function useDashboardHeroAnimation() {
   const selectorTranslateY = useRef(new Animated.Value(10)).current;
 
   useEffect(() => {
+    const isNative = Platform.OS !== 'web';
     Animated.stagger(180, [
       Animated.parallel([
         Animated.timing(greetingOpacity, {
           toValue: 1,
           duration: 400,
           easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
+          useNativeDriver: isNative,
         }),
         Animated.timing(greetingTranslateY, {
           toValue: 0,
           duration: 400,
           easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
+          useNativeDriver: isNative,
         }),
       ]),
       Animated.parallel([
@@ -32,13 +33,13 @@ export function useDashboardHeroAnimation() {
           toValue: 1,
           duration: 400,
           easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
+          useNativeDriver: isNative,
         }),
         Animated.spring(numberScale, {
           toValue: 1,
           friction: 8,
           tension: 50,
-          useNativeDriver: true,
+          useNativeDriver: isNative,
         }),
       ]),
       Animated.parallel([
@@ -46,13 +47,13 @@ export function useDashboardHeroAnimation() {
           toValue: 1,
           duration: 400,
           easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
+          useNativeDriver: isNative,
         }),
         Animated.timing(badgeTranslateY, {
           toValue: 0,
           duration: 400,
           easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
+          useNativeDriver: isNative,
         }),
       ]),
       Animated.parallel([
@@ -60,13 +61,13 @@ export function useDashboardHeroAnimation() {
           toValue: 1,
           duration: 400,
           easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
+          useNativeDriver: isNative,
         }),
         Animated.timing(selectorTranslateY, {
           toValue: 0,
           duration: 400,
           easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
+          useNativeDriver: isNative,
         }),
       ]),
     ]).start();
