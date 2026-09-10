@@ -139,6 +139,30 @@ export default function PerfilScreen() {
             ))}
           </View>
 
+          {user?.role === 'SUPER_ADMIN' && (
+            <View className="mx-5 mt-4 rounded-2xl bg-[#0F172A] shadow-sm">
+              <Pressable
+                onPress={() => router.push('/admin')}
+                className="flex-row items-center justify-between px-4 py-4 active:bg-[#1E293B]"
+              >
+                <View className="flex-row items-center gap-4">
+                  <View className="h-10 w-10 items-center justify-center rounded-full bg-white/10">
+                    <FontAwesome6 name="crown" size={16} color="#FBBF24" />
+                  </View>
+                  <View>
+                    <Text className="text-base font-semibold text-white">
+                      Panel de Control
+                    </Text>
+                    <Text className="text-xs text-white/70">
+                      Super Admin
+                    </Text>
+                  </View>
+                </View>
+                <FontAwesome6 name="chevron-right" size={14} color="#CBD5E1" />
+              </Pressable>
+            </View>
+          )}
+
           <View className="mx-5 mt-4 rounded-2xl bg-white shadow-sm">
             <Pressable
               onPress={handleLogout}

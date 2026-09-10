@@ -19,6 +19,8 @@ export interface UserBrief {
   firstName: string;
   lastName: string;
   email: string;
+  role: 'USER' | 'SUPER_ADMIN';
+  isActive: boolean;
 }
 
 export enum SplitType {
@@ -66,6 +68,8 @@ export interface UserResponse {
   email: string;
   avatarUrl?: string | null;
   emailVerifiedAt?: string | null;
+  role: 'USER' | 'SUPER_ADMIN';
+  isActive: boolean;
   createdAt: string;
 }
 
