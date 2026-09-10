@@ -5,6 +5,7 @@ import {
   ScrollView,
   Pressable,
   ActivityIndicator,
+  Share,
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import * as Clipboard from 'expo-clipboard';
@@ -33,17 +34,29 @@ export function InviteMemberSheet({
 }: InviteMemberSheetProps) {
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = async () => {
-    await Clipboard.setStringAsync(invitationCode);
+  const inviteUrl = `https://duobalance.pages.dev/join?code=${invitationCode}`;
+
+  const handleCopyLink = async () => {
+    await Clipboard.setStringAsync(inviteUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleShareLink = async () => {
+    try {
+      await Share.share({
+        message: `¡Únete a mi grupo en DuoBalance!\n\nHaz clic en este enlace para entrar directamente:\n${inviteUrl}`,
+      });
+    } catch (error) {
+      console.error('Error al compartir', error);
+    }
   };
 
   const header = (
     <BottomSheetHeader
       visible={visible}
       title="Invitar miembro"
-      subtitle="Comparte este código para que otros se unan al grupo"
+      subtitle="Comparte este enlace para que otros se unan al grupo"
       onClose={onClose}
       gradientPaddingBottom={600}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
@@ -77,10 +90,10 @@ export function InviteMemberSheet({
         <View className="mt-3 items-center">
           <View className="items-center justify-center rounded-2xl border border-[#E2E8F0] bg-white px-4 py-3">
             <Text className="mb-3 text-sm font-medium text-[#64748B]">
-              Escanea para unirte
+              Escanea con tu cámara para unirte
             </Text>
             <View className="h-62 w-62 items-center justify-center rounded-xl bg-white">
-              <QRCode value={invitationCode} size={180} />
+              <QRCode value={inviteUrl} size={180} />
             </View>
           </View>
         </View>
@@ -88,65 +101,60 @@ export function InviteMemberSheet({
         {/* Texto explicativo */}
         <View className="mt-3 rounded-2xl bg-[#ECFDF5] p-3">
           <Text className="text-[12px] leading-4 text-[#065F46]">
-            Los miembros deben ingresar este código en "Unirse a grupo" para
-            conectarse al grupo. El código expirará en 24 horas.
+            También puedes escanear este código QR. El enlace expirará en 24 horas.
           </Text>
         </View>
 
-        {/* Botón Copiar */}
+        {/* Botón 1: Compartir Enlace (Principal) */}
         <Pressable
-          onPress={handleCopy}
-          className="mt-3 flex-row items-center justify-center gap-2 rounded-xl bg-[#10B981] py-4 active:opacity-80"
+          onPress={handleShareLink}
+          className="mt-4 flex-row items-center justify-center gap-2 rounded-xl bg-[#10B981] py-4 active:opacity-80"
+          style={{
+            shadowColor: '#10B981',
+            shadowOpacity: 0.25,
+            shadowRadius: 12,
+            shadowOffset: { width: 0, height: 6 },
+            elevation: 6,
+          }}
         >
-          <FontAwesome6
-            name={copied ? 'circle-check' : 'copy'}
-            size={16}
-            color="#FFFFFF"
-          />
+          <FontAwesome6 name="share-nodes" size={16} color="#FFFFFF" />
           <Text className="text-base font-semibold text-white">
-            {copied ? '¡Copiado!' : 'Copiar código'}
+            Compartir enlace
           </Text>
         </Pressable>
 
-        {/* Regenerar código */}
+        {/* Botón 2: Copiar Enlace (Secundario) */}
+        <Pressable
+          onPress={handleCopyLink}
+          className="mt-3 flex-row items-center justify-center gap-2 rounded-xl border border-[#10B981] bg-white py-4 active:opacity-80"
+        >
+          <FontAwesome6
+            name={copied ? 'circle-check' : 'link'}
+            size={16}
+            color="#10B981"
+          />
+          <Text className="text-base font-semibold text-[#10B981]">
+            {copied ? '¡Enlace copiado!' : 'Copiar enlace'}
+          </Text>
+        </Pressable>
+
+        {/* Botón 3: Regenerar código (Terciario ghost) */}
         <Pressable
           onPress={onRegenerate}
           disabled={isRegenerating}
-          className={`mt-4 flex-row items-center justify-center gap-2 rounded-xl py-4 ${
-            isRegenerating ? 'bg-[#10B981]/50' : 'bg-[#10B981]'
-          }`}
+          className="mt-2 flex-row items-center justify-center gap-2 py-4 active:opacity-60"
         >
           {isRegenerating ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
+            <ActivityIndicator size="small" color="#64748B" />
           ) : (
             <>
-              <FontAwesome6 name="rotate" size={16} color="#FFFFFF" />
-              <Text className="text-base font-semibold text-white">
-                Regenerar código
+              <FontAwesome6 name="rotate" size={14} color="#64748B" />
+              <Text className="text-sm font-semibold text-[#64748B]">
+                Regenerar enlace de invitación
               </Text>
             </>
           )}
         </Pressable>
-
-        {/* Placeholders para futuras acciones */}
-        <View className="mt-4 gap-3">
-          {[
-            { icon: 'share-nodes', label: 'Compartir código' },
-            { icon: 'link', label: 'Invitar mediante enlace' },
-          ].map((item) => (
-            <View
-              key={item.icon}
-              className="flex-row items-center gap-3 rounded-xl border border-dashed border-[#E2E8F0] px-4 py-3 opacity-40"
-            >
-              <View className="h-10 w-10 items-center justify-center rounded-full bg-[#E2E8F0]">
-                <FontAwesome6 name={item.icon} size={16} color="#94A3B8" />
-              </View>
-              <Text className="text-sm font-medium text-[#94A3B8]">
-                {item.label}
-              </Text>
-            </View>
-          ))}
-        </View>
       </ScrollView>
     </BottomSheet>
   );

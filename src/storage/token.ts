@@ -7,6 +7,7 @@ const KEYS = {
   ACCESS_TOKEN: 'duobalance_access_token',
   REFRESH_TOKEN: 'duobalance_refresh_token',
   USER: 'duobalance_user',
+  PENDING_JOIN_CODE: 'duobalance_pending_join_code',
 } as const;
 
 function createStorage<T>(key: string) {
@@ -44,3 +45,4 @@ export const tokenStorage = createStorage<string>(KEYS.ACCESS_TOKEN);
 export const refreshTokenStorage = createStorage<string>(KEYS.REFRESH_TOKEN);
 
 export const userStorage = createStorage<unknown>(KEYS.USER);
+export const pendingJoinStorage = createStorage<string>(KEYS.PENDING_JOIN_CODE);

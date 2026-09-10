@@ -534,3 +534,10 @@ pnpm add @tanstack/react-query @tanstack/react-query-devtools
 4. **P3** when ready for production
 
 **Which P0 item do you want to tackle first?** Use `/brainstorming` for migration plan, or `/grill-me` to stress-test any feature before committing.
+
+---
+### ♻️ Componentes Reservados para el Futuro
+*Durante la limpieza de código muerto (Sprint actual), se preservaron los siguientes componentes huérfanos por su alto valor estratégico para funciones futuras:*
+- `src/components/ui/percentage-slider.tsx`: Se utilizará para la Feature **"CUSTOM Split Picker for GROUP type"**.
+- `src/components/finance/stat-card.tsx`: Se utilizará para la Feature **"Smart Balance Insights"**.
+- `src/constants/theme.ts`: Contiene los tokens necesarios para la Feature **"Theme Toggle (Dark/Light Mode)"**.
