@@ -176,10 +176,25 @@ export function Button({
 
   const pressableClasses = `items-center justify-center rounded-xl px-6 py-3 ${bg} ${isDisabled ? 'opacity-50' : ''} ${className ?? ''}`;
 
+  const handleWebBlur = () => {
+    if (Platform.OS === 'web' && typeof document !== 'undefined') {
+      if (
+        document.activeElement instanceof HTMLElement &&
+        document.activeElement !== document.body
+      ) {
+        document.activeElement.blur();
+      }
+    }
+  };
+
   if (to && !isLoading) {
     return (
       <Link href={to} asChild>
         <Pressable
+          onPress={(e) => {
+            handleWebBlur();
+            onPress?.();
+          }}
           disabled={isDisabled}
           className={pressableClasses}
           style={style}
@@ -192,7 +207,10 @@ export function Button({
 
   return (
     <Pressable
-      onPress={onPress}
+      onPress={(e) => {
+        handleWebBlur();
+        onPress?.();
+      }}
       disabled={isDisabled}
       className={pressableClasses}
       style={style}

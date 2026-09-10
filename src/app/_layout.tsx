@@ -31,6 +31,25 @@ if (Platform.OS === 'web' && typeof console !== 'undefined') {
   };
 }
 
+// Prevenir retención de foco en elementos interactivos al navegar o abrir modales en Web (WAI-ARIA)
+if (Platform.OS === 'web' && typeof window !== 'undefined') {
+  window.addEventListener(
+    'click',
+    (event) => {
+      const target = event.target as HTMLElement | null;
+      const interactive = target?.closest?.('a, button, [role="button"], [role="link"]');
+      if (
+        interactive &&
+        document.activeElement instanceof HTMLElement &&
+        document.activeElement !== document.body
+      ) {
+        document.activeElement.blur();
+      }
+    },
+    { capture: true }
+  );
+}
+
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
     ...FontAwesome6.font,
