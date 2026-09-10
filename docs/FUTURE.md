@@ -1,3 +1,27 @@
+## Nuevas Funcionalidades Prioritarias (En Plan)
+
+Las siguientes funcionalidades han sido promovidas a la planificación activa y serán las próximas en desarrollarse:
+
+### 1. Super Admin Role
+- **Backend**: Implementar middleware/guards para `@Roles('SUPER_ADMIN')`.
+- **Frontend**: Dashboard para gestión global, visualización de métricas de la plataforma, listado de usuarios, suspensión de cuentas y atención a reclamos/soporte técnico.
+
+### 2. Autenticación con Google (OAuth2)
+- **Backend**: Implementar `passport-google-oauth20` para crear/loguear usuarios.
+- **Frontend**: Utilizar `expo-auth-session` o librerías nativas para brindar el botón "Continuar con Google".
+
+### 3. Theme Toggle (Dark/Light Mode)
+- **Frontend**: Sistema en las preferencias de la app para permitir al usuario cambiar manualmente el tema usando las variables de Tailwind CSS.
+
+### 4. Invitaciones por Enlace (Deep Linking Avanzado)
+- **Generación de Link**: Compartir un enlace web limpio e institucional (ej. `https://duobalance.pages.dev/join?code=XYZ`) en lugar de `duobalance://`.
+- **Manejo de Usuarios Sin Cuenta**:
+  - Si el usuario abre el enlace y **no está logueado**, la app mostrará un `Toast` indicando: *"Para unirte al grupo, primero tienes que hacerte una cuenta o iniciar sesión"*.
+  - El código de invitación se guardará temporalmente de forma silenciosa en `AsyncStorage`.
+  - Una vez que el usuario termine su registro/login, la app consumirá el código guardado y abrirá el modal de grupo automáticamente.
+
+---
+
 # Future Work — Beyond Current Plan
 
 > Este archivo documenta ideas y features diferidos. Se revisa solo cuando todo lo del plan actual está completo.

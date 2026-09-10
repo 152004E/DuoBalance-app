@@ -433,6 +433,14 @@ Settlements history muestra:
 
 ---
 
+# Nuevas Funcionalidades Prioritarias
+- [❌] **Super Admin Panel**: UI para gestión global (lista de usuarios, reclamos, métricas). Solo visible para cuentas con rol admin.
+- [❌] **Login con Google**: Integrar botón nativo "Continuar con Google" (`expo-auth-session` o similar).
+- [❌] **Dark/Light Mode Toggle**: Botón en configuración para forzar modo oscuro o claro (Tailwind/NativeWind).
+- [❌] **Invitación por Link**: Capturar Deep Links (`https://duobalance.pages.dev/join?code=ABC`) y pre-llenar código. **Especificaciones clave:** Si el usuario NO tiene cuenta, mostrar alerta ("Debes iniciar sesión primero") y guardar el código temporalmente (`AsyncStorage`) para abrir el grupo automáticamente después del registro.
+
+---
+
 # Fase Post-MVP: Multi-actor Support (v2.0+)
 
 Una vez completado el MVP (Sprints 1-4 completos), se generaliza la plataforma para soporte de **tres tipos de actores**.

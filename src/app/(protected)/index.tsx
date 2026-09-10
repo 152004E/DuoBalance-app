@@ -7,7 +7,9 @@ import { useGroups } from '@/hooks/use-groups';
 import { useGroupSummaries } from '@/hooks/use-group-summaries';
 import { useDashboardData } from '@/hooks/use-dashboard-data';
 import { useSettlementSuggestions } from '@/hooks/use-settlement-suggestions';
+import { usePendingIncomingPayments } from '@/hooks/use-pending-incoming-payments';
 import { HeroSection } from '@/components/layout/HeroSection';
+import { PwaInstallBanner } from '@/components/ui/pwa-install-banner';
 import { GroupSelector } from '@/components/ui/group-selector';
 import { GroupSection } from '@/components/ui/group-section';
 import { EmptyStateCard } from '@/components/ui/empty-state-card';
@@ -22,8 +24,7 @@ import { FloatingAddButton } from '@/components/dashboard/FloatingAddButton';
 import { useWorkspace } from '@/hooks/use-workspace';
 import Toast from 'react-native-toast-message';
 
-const fmt = (value: number) =>
-  `$${Math.round(value).toLocaleString('es-CL')}`;
+const fmt = (value: number) => `$${Math.round(value).toLocaleString('es-CL')}`;
 
 export default function DashboardScreen() {
   const { user } = useAuth();
@@ -50,6 +51,15 @@ export default function DashboardScreen() {
     groups,
     userId: user?.id,
   });
+  const {
+    incomingPayments,
+    totalIncoming,
+    refetch: refetchIncoming,
+  } = usePendingIncomingPayments({
+    workspace,
+    groups,
+    userId: user?.id,
+  });
   const [focusCount, setFocusCount] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
@@ -71,7 +81,8 @@ export default function DashboardScreen() {
       setFocusCount((c) => c + 1);
       refetch();
       refetchSuggestions();
-    }, [refetch, refetchSuggestions]),
+      refetchIncoming();
+    }, [refetch, refetchSuggestions, refetchIncoming]),
   );
 
   useEffect(() => {
@@ -88,6 +99,21 @@ export default function DashboardScreen() {
       onPress: () => router.push(`/grupos/${primary.groupId}?liquidar=1`),
     });
   }, [dues, totalDue]);
+
+  useEffect(() => {
+    if (incomingPayments.length === 0) return;
+    const primary = incomingPayments[0];
+    Toast.show({
+      type: 'success',
+      text1:
+        incomingPayments.length === 1
+          ? `${primary.fromFirstName} te pagó ${fmt(primary.amount)}`
+          : `Tienes ${incomingPayments.length} pagos por confirmar`,
+      text2: 'Toca para confirmar el pago',
+      visibilityTime: 6000,
+      onPress: () => router.push(`/grupos/${primary.groupId}?liquidar=1`),
+    });
+  }, [incomingPayments, totalIncoming]);
 
   return (
     <SafeAreaView className="relative flex-1 bg-[#F8FAFC]" edges={['top']}>
@@ -115,6 +141,8 @@ export default function DashboardScreen() {
             />
           }
         />
+
+        <PwaInstallBanner />
 
         <View className="px-5 pt-8">
           <Text className="mb-4 text-2xl font-bold text-[#0F172A]">

@@ -100,6 +100,7 @@ export default function CoupleDetail() {
 
   const {
     pendingToConfirm,
+    sentPending,
     history,
     settlement,
     refetch: refetchPayments,
@@ -109,6 +110,8 @@ export default function CoupleDetail() {
     if (liquidar === '1' && group && settlement) {
       if (settlement.settlementDirection === 'I_OWE') {
         setPaySheetVisible(true);
+      } else {
+        setLiquidacionesVisible(true);
       }
     }
   }, [liquidar, group, settlement]);
@@ -466,18 +469,22 @@ export default function CoupleDetail() {
                 </Text>
               </Pressable>
 
-{groupType !== 'PERSONAL' &&
+              {groupType !== 'PERSONAL' &&
                 memberCount < MEMBER_LIMITS[groupType] && (
-                <Pressable
-                  onPress={() => setInviteVisible(true)}
-                  className="flex-row items-center gap-2 rounded-lg border border-[#E2E8F0] bg-white px-4 py-3 active:bg-[#F2F4F6]"
-                >
-                  <FontAwesome6 name="share-nodes" size={14} color="#0F172A" />
-                  <Text className="text-sm font-semibold text-[#0F172A]">
-                    Invitar
-                  </Text>
-                </Pressable>
-              )}
+                  <Pressable
+                    onPress={() => setInviteVisible(true)}
+                    className="flex-row items-center gap-2 rounded-lg border border-[#E2E8F0] bg-white px-4 py-3 active:bg-[#F2F4F6]"
+                  >
+                    <FontAwesome6
+                      name="share-nodes"
+                      size={14}
+                      color="#0F172A"
+                    />
+                    <Text className="text-sm font-semibold text-[#0F172A]">
+                      Invitar
+                    </Text>
+                  </Pressable>
+                )}
             </View>
           </View>
         </View>
@@ -573,10 +580,10 @@ export default function CoupleDetail() {
                     <Text className="text-sm font-semibold text-[#0F172A]">
                       Historial de liquidaciones
                     </Text>
-                    {pendingToConfirm.length > 0 && (
+                    {pendingToConfirm.length + sentPending.length > 0 && (
                       <View className="ml-1 rounded-full bg-[#EF4444] px-2 py-0.5">
                         <Text className="text-xs font-bold text-white">
-                          {pendingToConfirm.length}
+                          {pendingToConfirm.length + sentPending.length}
                         </Text>
                       </View>
                     )}
@@ -807,7 +814,11 @@ export default function CoupleDetail() {
         onClose={() => setPaySheetVisible(false)}
         group={group!}
         currentUserId={user!.id}
-        amountDue={settlement?.netSettlement ?? 0}
+        amountDue={Math.max(
+          0,
+          (settlement?.netSettlement ?? 0) -
+            sentPending.reduce((acc, p) => acc + Number(p.amount), 0),
+        )}
         creditorId={
           group.members.find((m) => m.user.id !== user?.id)?.user.id ?? ''
         }
@@ -823,6 +834,7 @@ export default function CoupleDetail() {
         currentUserId={user!.id}
         groupId={id}
         pendingToConfirm={pendingToConfirm}
+        sentPending={sentPending}
         history={history}
         onConfirm={handleConfirmPayment}
         onReject={handleRejectPayment}
