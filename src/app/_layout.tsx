@@ -1,6 +1,6 @@
 import '../global.css';
 
-import { LogBox } from 'react-native';
+import { LogBox, Platform } from 'react-native';
 import { Stack } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { useFonts } from 'expo-font';
@@ -15,6 +15,21 @@ LogBox.ignoreLogs([
   'props.pointerEvents is deprecated',
   '"shadow*" style props are deprecated',
 ]);
+
+// Silenciar warnings deprecados de React Native Web en la consola del navegador
+if (Platform.OS === 'web' && typeof console !== 'undefined') {
+  const originalWarn = console.warn;
+  console.warn = (...args: any[]) => {
+    const msg = typeof args[0] === 'string' ? args[0] : '';
+    if (
+      msg.includes('props.pointerEvents is deprecated') ||
+      msg.includes('"shadow*" style props are deprecated')
+    ) {
+      return;
+    }
+    originalWarn(...args);
+  };
+}
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
