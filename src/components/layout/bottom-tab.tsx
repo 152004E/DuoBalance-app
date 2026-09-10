@@ -38,48 +38,46 @@ export default function BottomTab({ state, navigation, insets }: any) {
         }}
         className="h-[74px] flex-row"
       >
-        {state.routes.map(
-          (route: { key: string; name: string }, index: number) => {
-            const isFocused = state.index === index;
-            const tab = activeTabs.find((t) => t.name === route.name);
+        {activeTabs.map((tab, index) => {
+          const route = state.routes.find((r: any) => r.name === tab.name);
+          if (!route) return null;
+          
+          const routeIndex = state.routes.indexOf(route);
+          const isFocused = state.index === routeIndex;
+          const color = isFocused ? '#10B981' : '#94A3B8';
 
-            if (!tab) return null;
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
 
-            const color = isFocused ? '#10B981' : '#94A3B8';
+            if (!event.defaultPrevented) {
+              const hasNestedStack = NESTED_TABS.includes(route.name);
+              navigation.navigate(
+                route.name,
+                hasNestedStack ? { screen: 'index' } : undefined,
+              );
+            }
+          };
 
-            const onPress = () => {
-              const event = navigation.emit({
-                type: 'tabPress',
-                target: route.key,
-                canPreventDefault: true,
-              });
-
-              if (!event.defaultPrevented) {
-                const hasNestedStack = NESTED_TABS.includes(route.name);
-                navigation.navigate(
-                  route.name,
-                  hasNestedStack ? { screen: 'index' } : undefined,
-                );
-              }
-            };
-
-            return (
-              <TouchableOpacity
-                key={route.key}
-                onPress={onPress}
-                className="flex-1 items-center justify-center"
+          return (
+            <TouchableOpacity
+              key={route.key}
+              onPress={onPress}
+              className="flex-1 items-center justify-center"
+            >
+              <FontAwesome6 name={tab.icon} size={22} color={color} />
+              <Text
+                className="mt-0.5 text-[11px]"
+                style={{ color, fontFamily: 'System' }}
               >
-                <FontAwesome6 name={tab.icon} size={22} color={color} />
-                <Text
-                  className="mt-0.5 text-[11px]"
-                  style={{ color, fontFamily: 'System' }}
-                >
-                  {tab.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          },
-        )}
+                {tab.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </View>
   );
