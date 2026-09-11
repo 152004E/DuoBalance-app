@@ -13,6 +13,7 @@ import { router } from 'expo-router';
 import { AlertModal } from '@/components/ui/alert-modal';
 import { SeoHead } from '@/components/common/seo-head';
 import { extractErrorMessage } from '@/utils/errors';
+import { useGoogleAuth } from '@/features/auth/use-google-auth';
 import * as authService from '@/services/api/auth';
 
 const EMAIL_REGEX = /^[^\s@]{2,}@[^\s@]{2,}\.[A-Za-z]{2,}$/;
@@ -27,6 +28,8 @@ interface FormErrors {
 }
 
 export default function RegisterScreen() {
+  const { signInWithGoogle, isLoading: isGoogleLoading } = useGoogleAuth();
+
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -243,14 +246,9 @@ export default function RegisterScreen() {
         <AuthDivider />
         <SocialLoginButton
           provider="google"
-          onPress={() =>
-            setModal({
-              type: 'info',
-              title: 'Próximamente',
-              message: 'Inicio de sesión con Google estará disponible pronto.',
-              onClose: () => setModal(null),
-            })
-          }
+          onPress={signInWithGoogle}
+          isLoading={isGoogleLoading}
+          disabled={isLoading || isGoogleLoading}
         />
 
         <AuthFooter

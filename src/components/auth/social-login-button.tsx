@@ -1,4 +1,4 @@
-import { Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 type Provider = 'google' | 'apple';
@@ -6,6 +6,8 @@ type Provider = 'google' | 'apple';
 interface SocialLoginButtonProps {
   provider: Provider;
   onPress?: () => void;
+  isLoading?: boolean;
+  disabled?: boolean;
 }
 
 function GoogleIcon() {
@@ -62,6 +64,8 @@ const providerConfig = {
 export function SocialLoginButton({
   provider,
   onPress,
+  isLoading = false,
+  disabled = false,
 }: SocialLoginButtonProps) {
   const config = providerConfig[provider];
   const { Icon } = config;
@@ -69,11 +73,19 @@ export function SocialLoginButton({
   return (
     <Pressable
       onPress={onPress}
-      className={`flex-row items-center justify-center gap-3 rounded-full py-3.5 shadow-sm ${config.bg} ${config.border ? 'border border-[#E2E8F0]' : ''}`}
+      disabled={disabled || isLoading}
+      className={`flex-row items-center justify-center gap-3 rounded-full py-3.5 shadow-sm ${config.bg} ${config.border ? 'border border-[#E2E8F0]' : ''} ${disabled || isLoading ? 'opacity-60' : 'active:opacity-80'}`}
     >
-      <Icon />
+      {isLoading ? (
+        <ActivityIndicator
+          size="small"
+          color={provider === 'apple' ? '#FFFFFF' : '#4285F4'}
+        />
+      ) : (
+        <Icon />
+      )}
       <Text className={`text-base font-semibold ${config.textColor}`}>
-        {config.label}
+        {isLoading ? 'Conectando...' : config.label}
       </Text>
     </Pressable>
   );

@@ -12,6 +12,7 @@ import { SocialLoginButton } from '@/components/auth/social-login-button';
 import { AuthFooter } from '@/components/auth/auth-footer';
 
 import { useAuth } from '@/hooks/use-auth';
+import { useGoogleAuth } from '@/features/auth/use-google-auth';
 import { SeoHead } from '@/components/common/seo-head';
 import * as authService from '@/services/api/auth';
 import { tokenStorage, refreshTokenStorage } from '@/storage/token';
@@ -27,6 +28,7 @@ interface FormErrors {
 
 export default function LoginScreen() {
   const { signIn } = useAuth();
+  const { signInWithGoogle, isLoading: isGoogleLoading } = useGoogleAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -79,7 +81,8 @@ export default function LoginScreen() {
         serverMessage.toLowerCase().includes('suspendid');
 
       if (isSuspended) {
-        const msg = serverMessage || 'Tu cuenta ha sido suspendida por un administrador.';
+        const msg =
+          serverMessage || 'Tu cuenta ha sido suspendida por un administrador.';
         Toast.show({
           type: 'error',
           text1: 'Cuenta Suspendida',
@@ -193,7 +196,12 @@ export default function LoginScreen() {
 
         <AuthDivider />
 
-        <SocialLoginButton provider="google" />
+        <SocialLoginButton
+          provider="google"
+          onPress={signInWithGoogle}
+          isLoading={isGoogleLoading}
+          disabled={isLoading || isGoogleLoading}
+        />
 
         <AuthFooter
           question="¿No tienes cuenta?"

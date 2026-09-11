@@ -61,6 +61,14 @@ export interface AuthResponse {
   expires_in: number;
 }
 
+export interface GoogleLoginPayload {
+  idToken: string;
+}
+
+export interface GoogleLoginResponse extends AuthResponse {
+  user: UserResponse;
+}
+
 export interface UserResponse {
   id: string;
   firstName: string;

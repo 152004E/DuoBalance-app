@@ -1,5 +1,6 @@
 import {
   ChangePasswordPayload,
+  GoogleLoginResponse,
   LoginPayload,
   RegisterPayload,
   ResetPasswordPayload,
@@ -11,6 +12,13 @@ import { appendSourceToFormData } from './upload';
 
 export const login = async (payload: LoginPayload) => {
   const { data } = await api.post('/auth/login', payload);
+  return data;
+};
+
+export const loginWithGoogle = async (
+  idToken: string,
+): Promise<GoogleLoginResponse> => {
+  const { data } = await api.post('/auth/google', { idToken });
   return data;
 };
 
