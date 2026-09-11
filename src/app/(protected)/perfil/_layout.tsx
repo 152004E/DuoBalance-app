@@ -5,6 +5,7 @@ export default function PerfilLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
       <Stack.Screen name="editar" />
+      <Stack.Screen name="configuracion" />
       <Stack.Screen name="notificaciones" />
       <Stack.Screen name="seguridad" />
       <Stack.Screen name="acerca" />

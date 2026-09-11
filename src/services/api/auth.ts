@@ -1,5 +1,6 @@
 import {
   ChangePasswordPayload,
+  DeleteAccountPayload,
   GoogleLoginResponse,
   LoginPayload,
   RegisterPayload,
@@ -98,4 +99,9 @@ export const uploadAvatar = async (
 
   const { data } = await api.post('/auth/profile/avatar', formData);
   return data as UserResponse;
+};
+
+export const deleteAccount = async (payload: DeleteAccountPayload) => {
+  const { data } = await api.delete('/auth/account', { data: payload });
+  return data as { message: string };
 };

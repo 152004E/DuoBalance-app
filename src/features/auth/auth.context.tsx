@@ -1,4 +1,10 @@
-import { createContext, useEffect, useState, ReactNode } from 'react';
+import {
+  createContext,
+  useEffect,
+  useState,
+  useCallback,
+  ReactNode,
+} from 'react';
 
 import {
   tokenStorage,
@@ -38,30 +44,29 @@ export function AuthProvider({ children }: Props) {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  async function signIn(
-    userData: User,
-    accessToken: string,
-    refreshToken: string,
-  ) {
-    await tokenStorage.set(accessToken);
-    await refreshTokenStorage.set(refreshToken);
-    await userStorage.set(userData);
+  const signIn = useCallback(
+    async (userData: User, accessToken: string, refreshToken: string) => {
+      await tokenStorage.set(accessToken);
+      await refreshTokenStorage.set(refreshToken);
+      await userStorage.set(userData);
 
-    setUser(userData);
-  }
+      setUser(userData);
+    },
+    [],
+  );
 
-  async function signOut() {
+  const signOut = useCallback(async () => {
     await tokenStorage.remove();
     await refreshTokenStorage.remove();
     await userStorage.remove();
 
     setUser(null);
-  }
+  }, []);
 
-  async function updateUser(userData: User) {
+  const updateUser = useCallback(async (userData: User) => {
     await userStorage.set(userData);
     setUser(userData);
-  }
+  }, []);
 
   async function restoreSession() {
     try {
@@ -106,7 +111,7 @@ export function AuthProvider({ children }: Props) {
     return () => {
       unsubscribe();
     };
-  }, []);
+  }, [signOut]);
 
   return (
     <AuthContext.Provider

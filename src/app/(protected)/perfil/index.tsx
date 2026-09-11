@@ -9,17 +9,16 @@ import { ProfileCard } from '@/components/perfil/profile-card';
 import { AlertModal } from '@/components/ui/alert-modal';
 import { extractErrorMessage } from '@/utils/errors';
 import * as authService from '@/services/api/auth';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 const menuItems = [
   { icon: 'pen-to-square', label: 'Editar Perfil', route: '/perfil/editar' },
-  { icon: 'bell', label: 'Notificaciones', route: '/perfil/notificaciones' },
-  { icon: 'shield-halved', label: 'Seguridad', route: '/perfil/seguridad' },
+  { icon: 'gear', label: 'Configuración', route: '/perfil/configuracion' },
   { icon: 'circle-info', label: 'Acerca de', route: '/perfil/acerca' },
 ] as const;
 
 export default function PerfilScreen() {
-  const { user, signOut, isLoading } = useAuth();
+  const { user, signOut, isLoading, updateUser } = useAuth();
   const [sending, setSending] = useState(false);
   const [modal, setModal] = useState<{
     type: 'success' | 'error';
@@ -28,6 +27,22 @@ export default function PerfilScreen() {
   } | null>(null);
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
+
+  useEffect(() => {
+    let isMounted = true;
+    authService
+      .getProfile()
+      .then((profile) => {
+        if (isMounted && profile) {
+          void updateUser(profile);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      isMounted = false;
+    };
+  }, [updateUser]);
 
   const isVerified = !!user?.emailVerifiedAt;
 

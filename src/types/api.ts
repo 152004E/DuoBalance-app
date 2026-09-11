@@ -78,6 +78,7 @@ export interface UserResponse {
   emailVerifiedAt?: string | null;
   role: 'USER' | 'SUPER_ADMIN';
   isActive: boolean;
+  hasPassword?: boolean;
   createdAt: string;
 }
 
@@ -95,6 +96,11 @@ export interface UpdateProfilePayload {
   firstName?: string;
   lastName?: string;
   email?: string;
+}
+
+export interface DeleteAccountPayload {
+  password?: string;
+  confirmation?: string;
 }
 
 // ─── Groups ────────────────────────────────────────

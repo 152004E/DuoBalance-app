@@ -39,6 +39,7 @@ DuoBalance-app/
 │   │       ├── perfil/index.tsx     Profile screen (avatar, user info, menu options, logout)
 │   │       ├── perfil/              Profile sub-routes
 │   │       │   ├── editar.tsx       Edit profile (name, email, avatar upload)
+│   │       │   ├── configuracion.tsx Settings screen (seguridad, notificaciones, moneda, eliminar cuenta)
 │   │       │   ├── notificaciones.tsx  Notification preferences (toggles)
 │   │       │   ├── seguridad.tsx    Security/change password (validation, API, AlertModal)
 │   │       │   └── acerca.tsx       About screen (hero, funcionalidades, historia, versión real)
@@ -133,7 +134,8 @@ DuoBalance-app/
 │   │
 │   ├── features/                    Feature modules (domain-driven)
 │   │   ├── auth/
-│   │   │   └── auth.context.tsx     AuthContext + AuthProvider
+│   │   │   ├── auth.context.tsx     AuthContext + AuthProvider
+│   │   │   └── use-google-auth.ts   Hook de integración con Google OAuth (expo-auth-session, fallback de contingencia web)
 │   │   └── workspace/
 │   │       ├── workspace.context.tsx  WorkspaceProvider (envuelve los Tabs en (protected)/_layout.tsx)
 │   │       ├── workspace.types.ts     WorkspaceState = FilterState (categoría + groupId)
@@ -270,10 +272,11 @@ App (Expo Router)
     │   └── Reports (datos reales: bar chart por categoría, donut por miembro, stat cards,
     │       filtro de período estilo Movimientos con FilterSheet showCategory=false, estados loading/empty)
     └── /perfil
-        ├── Profile (avatar, user info, menu options: Editar Perfil, Notificaciones, Seguridad, Acerca de, logout)
+        ├── Profile (avatar, user info, 3 menu options: Editar Perfil, Configuración, Acerca de, plus Cerrar sesión)
         ├── /perfil/editar — Edit profile (name, email, avatar upload)
-        ├── /perfil/notificaciones — Notification preferences (toggles)
-        ├── /perfil/seguridad — Change password (validation, API call, success/error AlertModal)
+        ├── /perfil/configuracion — Settings (seguridad/contraseña o Google badge, notificaciones switches, selector de moneda, eliminar cuenta modal)
+        ├── /perfil/notificaciones — Legacy route (compatibilidad)
+        ├── /perfil/seguridad — Legacy route (compatibilidad)
         └── /perfil/acerca — About (hero, funcionalidades, historia, stack, versión real vía expo-constants)
 ```
 

@@ -6,7 +6,7 @@
 
 | Módulo | Estado | Cobertura |
 |--------|--------|-----------|
-| **Auth** | ✅ Completo | Login, register, profile, password, avatar |
+| **Auth** | ✅ Completo | Login, register, Google OAuth2, profile, password, avatar |
 | **Groups** | ✅ Completo | CRUD, invite, join, members, archive (10/10) |
 | **Expenses** | ✅ Muy sólido | EQUAL, PERSONAL, PERCENTAGE, Soft Delete + recalc balance |
 | **Balance** | ✅ Completo | Recalculado en tiempo real, no persistido |

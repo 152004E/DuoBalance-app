@@ -22,11 +22,21 @@ export function useGoogleAuth() {
   const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
   const androidClientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID;
 
+  const configuredClientId =
+    Platform.select({
+      ios: iosClientId,
+      android: androidClientId,
+      default: webClientId,
+    }) || webClientId;
+
+  const isConfigured = Boolean(configuredClientId);
+  const placeholderClientId = 'unconfigured-google-client-id';
+
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    webClientId,
-    iosClientId,
-    androidClientId,
-    clientId: webClientId,
+    webClientId: webClientId || placeholderClientId,
+    iosClientId: iosClientId || placeholderClientId,
+    androidClientId: androidClientId || placeholderClientId,
+    clientId: webClientId || placeholderClientId,
   });
 
   const handleBackendGoogleAuth = useCallback(
@@ -38,7 +48,17 @@ export function useGoogleAuth() {
         await tokenStorage.set(data.access_token);
         await refreshTokenStorage.set(data.refresh_token);
 
-        await signIn(data.user, data.access_token, data.refresh_token);
+        const userWithVerification = {
+          ...data.user,
+          emailVerifiedAt:
+            data.user.emailVerifiedAt || new Date().toISOString(),
+        };
+
+        await signIn(
+          userWithVerification,
+          data.access_token,
+          data.refresh_token,
+        );
 
         Toast.show({
           type: 'success',
@@ -107,19 +127,12 @@ export function useGoogleAuth() {
   }, [response, handleBackendGoogleAuth]);
 
   async function signInWithGoogle() {
-    const configuredClientId =
-      Platform.select({
-        ios: iosClientId,
-        android: androidClientId,
-        default: webClientId,
-      }) || webClientId;
-
-    if (!configuredClientId) {
+    if (!isConfigured) {
       Toast.show({
         type: 'info',
         text1: 'Google OAuth no configurado',
         text2:
-          'Agrega EXPO_PUBLIC_GOOGLE_CLIENT_ID en tus variables de entorno para habilitarlo.',
+          'Agrega EXPO_PUBLIC_GOOGLE_CLIENT_ID en tus variables de entorno (.env) para habilitarlo.',
         visibilityTime: 6000,
       });
       return;

@@ -138,6 +138,10 @@ interface LoginPayload {
   password: string;
 }
 
+interface GoogleLoginPayload {
+  idToken: string;
+}
+
 interface ChangePasswordPayload {
   currentPassword: string;
   newPassword: string;
@@ -147,6 +151,11 @@ interface UpdateProfilePayload {
   firstName?: string;
   lastName?: string;
   email?: string;
+}
+
+interface DeleteAccountPayload {
+  password?: string;
+  confirmation?: string;
 }
 
 interface RefreshTokenPayload {
@@ -218,14 +227,20 @@ interface AuthResponse {
   expires_in: number;
 }
 
+interface GoogleLoginResponse extends AuthResponse {
+  user: UserResponse;
+}
+
 interface UserResponse {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
   avatarUrl?: string | null;
+  emailVerifiedAt?: string | null;
   role: 'USER' | 'SUPER_ADMIN';
   isActive: boolean;
+  hasPassword?: boolean;
   createdAt: string;
 }
 
