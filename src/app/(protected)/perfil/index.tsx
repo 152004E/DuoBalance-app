@@ -13,8 +13,7 @@ import { useState, useRef, useEffect } from 'react';
 
 const menuItems = [
   { icon: 'pen-to-square', label: 'Editar Perfil', route: '/perfil/editar' },
-  { icon: 'bell', label: 'Notificaciones', route: '/perfil/notificaciones' },
-  { icon: 'shield-halved', label: 'Seguridad', route: '/perfil/seguridad' },
+  { icon: 'gear', label: 'Configuración', route: '/perfil/configuracion' },
   { icon: 'circle-info', label: 'Acerca de', route: '/perfil/acerca' },
 ] as const;
 

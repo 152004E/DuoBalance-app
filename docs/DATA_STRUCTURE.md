@@ -153,6 +153,11 @@ interface UpdateProfilePayload {
   email?: string;
 }
 
+interface DeleteAccountPayload {
+  password?: string;
+  confirmation?: string;
+}
+
 interface RefreshTokenPayload {
   refreshToken: string;
 }
@@ -235,6 +240,7 @@ interface UserResponse {
   emailVerifiedAt?: string | null;
   role: 'USER' | 'SUPER_ADMIN';
   isActive: boolean;
+  hasPassword?: boolean;
   createdAt: string;
 }
 
