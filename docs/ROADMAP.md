@@ -201,6 +201,7 @@ Settlements history muestra: "Emerson pagó $70.000 a Andrea el 15/01"
 | **Offline Support** | React Query / TanStack Query, optimistic updates |
 | **Response Interceptor 401** | ✅ Hecho — redirect a login vía `session:expired` + `SessionExpiredAlert` |
 | **Forgot Password** | ✅ Sprint 5 (MailModule Resend): backend + frontend connect |
+| **Super Admin Panel** | ✅ Hecho — dashboard métricas globales (`adminService`), gestión usuarios con toggle suspend, navegación adaptativa por rol en `bottom-tab.tsx` |
 | **App Store Deploy** | EAS Build, TestFlight/Play Console, icons, splash |
 
 ---

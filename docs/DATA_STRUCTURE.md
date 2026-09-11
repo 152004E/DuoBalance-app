@@ -223,8 +223,24 @@ interface UserResponse {
   firstName: string;
   lastName: string;
   email: string;
+  avatarUrl?: string | null;
+  role: 'USER' | 'SUPER_ADMIN';
+  isActive: boolean;
   createdAt: string;
 }
+
+// Admin
+interface AdminStats {
+  totalUsers: number;
+  totalGroups: number;
+  totalExpensesCount: number;
+  totalAmountMoved: number;
+}
+
+type AdminUserItem = UserBrief & {
+  createdAt: string;
+  _count: { members: number; expenses: number };
+};
 
 // Groups
 interface GroupMember {
@@ -445,3 +461,6 @@ interface ApiError {
 | GET | /settlements | Yes | Net settlement calculation (con ?groupId=) |
 | GET | /settlements/suggestions | Yes | Settlement suggestions ("quién le debe a quién") |
 | GET | /dashboard | Yes | Dashboard summary |
+| GET | /admin/stats | Yes | Estadísticas globales de plataforma (usuarios, grupos, gastos, monto) |
+| GET | /admin/users | Yes | Listado de usuarios con contadores y estado isActive |
+| PATCH | /admin/users/:id/toggle-suspend | Yes | Toggle suspensión/reactivación de usuario de plataforma |

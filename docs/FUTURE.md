@@ -2,9 +2,9 @@
 
 Las siguientes funcionalidades han sido promovidas a la planificación activa y serán las próximas en desarrollarse:
 
-### 1. Super Admin Role
-- **Backend**: Implementar middleware/guards para `@Roles('SUPER_ADMIN')`.
-- **Frontend**: Dashboard para gestión global, visualización de métricas de la plataforma, listado de usuarios, suspensión de cuentas y atención a reclamos/soporte técnico.
+### 1. Super Admin Role (✅ Completado)
+- **Backend**: Implementados endpoints (`/admin/stats`, `/admin/users`, `/admin/users/:id/toggle-suspend`), guard `RolesGuard` y decorator `@Roles(GlobalRole.SUPER_ADMIN)` en `duobalance-api`.
+- **Frontend**: Dashboard implementado en `(protected)/admin/` con métricas globales de plataforma, gestión de usuarios (estado activo/suspendido con toggle de suspensión) y navegación adaptativa según rol.
 
 ### 2. Autenticación con Google (OAuth2)
 - **Backend**: Implementar `passport-google-oauth20` para crear/loguear usuarios.
@@ -64,19 +64,14 @@ Feed global dentro de la app para solicitudes de pago pendientes, badges de conf
 - Al tocar una notificación → navega al grupo correspondiente y abre Liquidaciones sheet en tab "Por confirmar"
 - Cuando haya push notifications reales → este feed sirve de fallback/historial
 
-### Super Admin
+### Super Admin (Mejoras Futuras)
 
-Panel de analítica global para administradores de la plataforma (no dueños de grupo).
+El panel base de analítica global y gestión de usuarios ya se encuentra implementado (`(protected)/admin/`). Las siguientes capacidades quedan como mejoras diferidas:
 
-- Vista de métricas agregadas:
-  - Total de usuarios registrados
-  - Total de grupos/parejas activos
-  - Total de gastos registrados
-  - Volumen total de pagos/liquidaciones
-  - Grupos más activos / usuarios más activos
-- Filtros por rango de fechas
-- No permite modificar datos — solo lectura/analítica
-- Acceso restringido a cuentas con rol `SUPER_ADMIN` (nuevo campo en User o tabla aparte)
+- Filtros avanzados por rango de fechas en estadísticas globales
+- Exportación de métricas y listados de usuarios a formato CSV/PDF
+- Módulo de atención de tickets, soporte técnico o resolución de disputas
+- Auditoría avanzada de logs de plataforma
 
 ---
 

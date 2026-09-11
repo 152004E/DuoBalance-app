@@ -114,6 +114,9 @@ Cada nivel depende estrictamente del anterior. No se puede calcular balance sin 
 | Pay Screen | `(protected)/pagos/index.tsx` | ✅ (sin pantalla standalone; cubierto por el `PaySheet` del Group Detail, que autoabre con `?liquidar=1`) |
 | Payment History | `(protected)/pagos/` | ✅ (cubierto por `grupos/[id]/liquidaciones.tsx` — pantalla standalone con tabs "Por confirmar"/"Historial") |
 | Receipt Capture | `(protected)/gastos/receipt.tsx` | ✅ (sin ruta standalone; captura integrada en el `CreateExpenseSheet` + preview en el detalle) |
+| Admin Dashboard | `(protected)/admin/index.tsx` | ✅ (dashboard métricas globales de plataforma, conteo usuarios/grupos/gastos/volumen, lista de usuarios recientes con stats) |
+| Admin Usuarios | `(protected)/admin/Users/todos-usuarios.tsx` / `users.tsx` | ✅ (gestión de usuarios de plataforma, estado activo/suspendido, toggle de suspensión con confirmación) |
+| Admin Reportes | `(protected)/admin/reportes.tsx` | ✅ (pantalla de reportes para el panel de administración) |
 
 ---
 
@@ -434,7 +437,7 @@ Settlements history muestra:
 ---
 
 # Nuevas Funcionalidades Prioritarias
-- [❌] **Super Admin Panel**: UI para gestión global (lista de usuarios, reclamos, métricas). Solo visible para cuentas con rol admin.
+- [✅] **Super Admin Panel**: UI para gestión global (lista de usuarios, métricas de plataforma, suspensión/reactivación de cuentas). Conectado a `adminService` (`GET /admin/stats`, `GET /admin/users`, `PATCH /admin/users/:id/toggle-suspend`), layout con HeroSection, navegación condicional en `bottom-tab.tsx` según rol `SUPER_ADMIN` y redirección en flujo de login.
 - [❌] **Login con Google**: Integrar botón nativo "Continuar con Google" (`expo-auth-session` o similar).
 - [❌] **Dark/Light Mode Toggle**: Botón en configuración para forzar modo oscuro o claro (Tailwind/NativeWind).
 - [❌] **Invitación por Link**: Capturar Deep Links (`https://duobalance.pages.dev/join?code=ABC`) y pre-llenar código. **Especificaciones clave:** Si el usuario NO tiene cuenta, mostrar alerta ("Debes iniciar sesión primero") y guardar el código temporalmente (`AsyncStorage`) para abrir el grupo automáticamente después del registro.

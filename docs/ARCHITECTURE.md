@@ -49,13 +49,20 @@ DuoBalance-app/
 │   │       │   ├── [id].tsx         Shim de compatibilidad (Redirect → /gastos/detalle/[id]) — NO existe add.tsx
 │   │       │   └── detalle/
 │   │       │       └── [id].tsx     Expense detail (hero, info, participants, split, receipt, timeline, actions)
-│   │   └── grupos/               Group stack routes
-│   │           ├── _layout.tsx      Grupos Stack navigator
-│   │           ├── index.tsx        Group list (GroupSection, group filter, create/join sheets — API connected)
-│   │           ├── [id].tsx         Group detail (financial hero, settlement card real, LiquidacionesSheet + PaySheet, distribution, expenses)
-│   │           └── [id]/            Group sub-routes
-│   │               ├── configuracion.tsx  Group settings (name, split %, members, invite code, regenerate code, notifications, danger zone — API connected)
-│   │               └── gastos.tsx        Per-group expense list with date/category filters + CreateExpenseSheet
+│   │   ├── grupos/               Group stack routes
+│   │   │   ├── _layout.tsx      Grupos Stack navigator
+│   │   │   ├── index.tsx        Group list (GroupSection, group filter, create/join sheets — API connected)
+│   │   │   ├── [id].tsx         Group detail (financial hero, settlement card real, LiquidacionesSheet + PaySheet, distribution, expenses)
+│   │   │   └── [id]/            Group sub-routes
+│   │   │       ├── configuracion.tsx  Group settings (name, split %, members, invite code, regenerate code, notifications, danger zone — API connected)
+│   │   │       └── gastos.tsx        Per-group expense list with date/category filters + CreateExpenseSheet
+│   │   └── admin/                Admin routes (SUPER_ADMIN)
+│   │       ├── index.tsx        Dashboard administrativo (métricas globales, usuarios recientes)
+│   │       ├── reportes.tsx     Reportes de administración
+│   │       └── Users/           Gestión de usuarios
+│   │           ├── index.tsx    Redirect a /admin/Users/todos-usuarios
+│   │           ├── users.tsx    Componente base de listado
+│   │           └── todos-usuarios.tsx  Lista completa con búsqueda y toggle de suspensión
 │   │
 │   ├── components/                  Reusable UI components
 │   │   ├── ui/                      Primitives
@@ -86,7 +93,7 @@ DuoBalance-app/
 │   │   │   ├── hero-section.tsx     SVG gradient hero with diagonal
 │   │   │   └── benefit-card.tsx     Icon + text benefit row
 │   │   ├── layout/                  Layout components
-│   │   │   ├── bottom-tab.tsx       Custom bottom tab bar (5 tabs: Inicio, Gastos, Grupos, Reportes, Perfil)
+│   │   │   ├── bottom-tab.tsx       Custom bottom tab bar (adaptativo: 4 tabs en SUPER_ADMIN: Inicio, Usuarios, Reportes, Perfil; 5 tabs estándar: Inicio, Gastos, Grupos, Reportes, Perfil)
 │   │   │   ├── screen-header.tsx    Title + subtitle + optional back button
 │   │   │   ├── splash-screen.tsx    Animated splash with gradient + logo
 │   │   │   └── HeroSection.tsx      Unified hero (dashboard/page variants)
@@ -110,6 +117,8 @@ DuoBalance-app/
 │   │   ├── payments/                 Payment/settlement components
 │   │   │   ├── liquidaciones-sheet.tsx  LiquidacionesSheet — tabs "Por confirmar"/"Historial", confirmar/rechazar
 │   │   │   └── pay-sheet.tsx         PaySheet — abono parcial editable; destino auto en COUPLE, select en GROUP
+│   │   ├── admin/                   Admin dashboard components
+│   │   │   └── recent-users-card.tsx RecentUsersCard (lista de usuarios recientes con stats y navegación)
 │   │   ├── perfil/                   Profile components
 │   │   │   ├── profile-card.tsx      ProfileCard (avatar, nombre, email)
 │   │   │   └── image-preview-modal.tsx  ImagePreviewModal (preview avatar del ImagePicker)
@@ -135,6 +144,7 @@ DuoBalance-app/
 │   │       ├── client.ts            Axios instance (baseURL, timeout)
 │   │       ├── interceptor.ts       Axios interceptors (Bearer token + response 401 → refresh / emite `session:expired`)
 │   │       ├── auth.ts              authService (login, register, getProfile, updateProfile, changePassword, uploadAvatar, verifyEmail, resendVerification, forgotPassword, resetPassword)
+│   │       ├── admin.ts             ✅ adminService (getStats, getUsers, toggleUserSuspension)
 │   │       ├── groups.ts            Groups API service (create, join, list, get, update, delete, archive, regenerate invite, remove member, update split)
 │   │       ├── expenses.ts          ✅ Expense CRUD (create, list, get, update, delete)
 │   │       ├── payments.ts          ✅ Payments + Settlements (createPayment, getPayments, getSettlement, getSettlementSuggestions, confirmPayment, rejectPayment — con ?groupId=)
