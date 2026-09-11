@@ -61,6 +61,9 @@ DuoBalance is a shared expense tracking app for groups (couples, roommates, frie
 - **Group Settings** (`(protected)/grupos/[id]/configuracion.tsx`): Group settings with name, split %, members, invite code, regenerate code, notifications, danger zone — connected to API ✅
 - **Group Expenses** (`(protected)/grupos/[id]/gastos.tsx`): Per-group expense list with date/category filters + CreateExpenseSheet ✅
 - **Creación de gastos**: NO existe `gastos/add.tsx` — se hace vía `gastos/Movimientos.tsx?create=1` (o `gastos/index.tsx` / `grupos/[id].tsx` con el botón "Registrar gasto") que autoabre el `CreateExpenseSheet` ✅
+- **Admin Dashboard** (`(protected)/admin/index.tsx`): Dashboard administrativo para usuarios `SUPER_ADMIN` con `HeroSection`, tarjetas de métricas globales (usuarios, grupos, gastos registrados, volumen total movido vía `adminService.getStats`) y `RecentUsersCard` con acceso a gestión de usuarios ✅
+- **Admin Usuarios** (`(protected)/admin/Users/todos-usuarios.tsx` y `users.tsx`): Listado y control de usuarios de la plataforma (estado activo/suspendido, contadores de grupos y gastos, toggle de suspensión vía `adminService.toggleUserSuspension` con AlertModal) ✅
+- **Admin Reportes** (`(protected)/admin/reportes.tsx`): Pantalla de analítica y reportes del panel de administración ✅
 
 ### Layout Components — Built
 - **BottomTab**: Custom tab bar with 5 tabs (Inicio, Gastos, Grupos, Reportes, Perfil) ✅
@@ -221,6 +224,9 @@ npx prisma db push        # Push schema (dev)
 | `src/app/(protected)/grupos/[id]/configuracion.tsx` | Group settings screen (name, split %, members, invite code, regenerate code, notifications, danger zone — connected to API) |
 | `src/app/(protected)/grupos/[id]/gastos.tsx` | Per-group expense list with date/category filters |
 | `src/app/(protected)/grupos/[id]/liquidaciones.tsx` | Liquidaciones standalone (tabs "Por confirmar"/"Historial" con confirmar/rechazar pagos) |
+| `src/app/(protected)/admin/index.tsx` | Admin Dashboard (métricas de plataforma, stats globales, usuarios recientes) |
+| `src/app/(protected)/admin/Users/todos-usuarios.tsx` | Admin Users management (listado, búsqueda, estado activo/suspendido, toggle suspend) |
+| `src/app/(protected)/admin/reportes.tsx` | Admin Reports (reportes globales del sistema) |
 
 ### UI Components
 | File | Purpose |
@@ -353,6 +359,8 @@ npx prisma db push        # Push schema (dev)
 | `src/services/api/interceptor.ts` | Axios interceptors (Bearer token + respuesta 401 → refresh de token, o emite `session:expired` si falla) |
 | `src/services/api/auth.ts` | Auth service (login, register, getProfile, updateProfile, changePassword, uploadAvatar, verifyEmail, resendVerification, forgotPassword, resetPassword) |
 | `src/services/api/groups.ts` | Groups API service (create, join, list, get, update, delete, archive, regenerate invite, remove member, update split) |
+| `src/services/api/admin.ts` | Admin API service (getStats, getUsers, toggleUserSuspension) |
+| `src/components/admin/recent-users-card.tsx` | RecentUsersCard — componente del dashboard admin con listado de usuarios recientes |
 | `src/services/api/upload.ts` | `appendSourceToFormData` — helper cross-platform para adjuntar `{uri, name, type}` a FormData: en **web** convierte `fetch(uri) → blob → File` (fix del 400 de comprobante/avatar); en nativo usa el objeto RN. Usado por `uploadExpenseReceipt` y `uploadAvatar` |
 | `src/types/api.ts` | Backend DTOs and response types |
 | `src/constants/config.ts` | Environment variables |
