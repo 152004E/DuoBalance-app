@@ -48,7 +48,17 @@ export function useGoogleAuth() {
         await tokenStorage.set(data.access_token);
         await refreshTokenStorage.set(data.refresh_token);
 
-        await signIn(data.user, data.access_token, data.refresh_token);
+        const userWithVerification = {
+          ...data.user,
+          emailVerifiedAt:
+            data.user.emailVerifiedAt || new Date().toISOString(),
+        };
+
+        await signIn(
+          userWithVerification,
+          data.access_token,
+          data.refresh_token,
+        );
 
         Toast.show({
           type: 'success',
