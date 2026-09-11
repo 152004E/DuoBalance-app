@@ -29,6 +29,7 @@ DuoBalance is a shared expense tracking app for groups (couples, roommates, frie
 - **Auth Components**: AuthHeader, AuthDivider, SocialLoginButton, AuthFooter — all reusable ✅
 - **Token persistence**: Fixed — use-auth now reads stored token on mount and calls onAuthStateChanged ✅
 - **Response interceptor (401)**: ✅ **implementado** — `src/services/api/interceptor.ts` intenta refresh con el token de refresco (cola las peticiones pendientes); si no hay refresh token o el refresh falla, emite el evento `session:expired` vía `eventEmitter`. `SessionExpiredAlert` (`src/components/auth/session-expired-alert.tsx`, montado en `src/app/_layout.tsx`) escucha el evento y muestra un AlertModal "Sesión expirada" que redirige a `/login` (auto-redirect tras 15s, o al pulsar "Iniciar sesión")
+- **Google OAuth 2.0**: ✅ **implementado** — autenticación federada con `expo-auth-session` + `expo-crypto`, hook `useGoogleAuth` con fallback de contingencia web (`invariantClientId`), `SocialLoginButton` interactivo, login/registro federado, auto-verificación inmediata de correo (`emailVerifiedAt`), y sincronización reactiva de perfil al montar `(protected)/perfil` ✅
 
 ### UI Components — All built
 - **Enhanced Input**: iconLeft, iconRight, onIconRightPress, secureTextEntry toggle (auto eye/eye-slash), focus border (instant green on focus, instant reset on blur), dynamic padding ✅
@@ -253,7 +254,7 @@ npx prisma db push        # Push schema (dev)
 |------|---------|
 | `src/components/auth/auth-header.tsx` | Logo + title header for auth screens |
 | `src/components/auth/auth-divider.tsx` | "O continúa con" divider |
-| `src/components/auth/social-login-button.tsx` | Google login button |
+| `src/components/auth/social-login-button.tsx` | Google login button (con estados isLoading, disabled y spinner accesible) |
 | `src/components/auth/auth-footer.tsx` | Auth navigation footer |
 | `src/components/auth/session-expired-alert.tsx` | SessionExpiredAlert — escucha `session:expired` del interceptor 401, muestra AlertModal y redirige a `/login` (auto 15s) |
 
@@ -335,6 +336,7 @@ npx prisma db push        # Push schema (dev)
 | `src/hooks/use-group-payments.ts` | Pagos + settlement real del grupo (`getPayments` + `getSettlement`); deriva `pendingToConfirm` y `history`; refetch con useFocusEffect |
 | `src/hooks/use-dashboard-data.ts` | Datos del Dashboard por workspace (balance neto incluyendo pagos, transacciones, top categoría, aportes) |
 | `src/hooks/use-settlement-suggestions.ts` | Sugerencias de liquidación del backend (`getSettlementSuggestions`) por grupo; extrae deudas del usuario (`dues`) y expone `totalDue`/`refetch` — usado por el Dashboard (toast + deep-link `?liquidar=1`) |
+| `src/features/auth/use-google-auth.ts` | `useGoogleAuth` — hook para autenticación federada con Google (`expo-auth-session`), fallback seguro en web (`invariantClientId`), manejo de tokens y navegación |
 
 ### Utils
 | File | Purpose |
@@ -357,7 +359,7 @@ npx prisma db push        # Push schema (dev)
 | `src/storage/token.ts` | SecureStore wrapper (with localStorage fallback for web) |
 | `src/services/api/client.ts` | Axios instance |
 | `src/services/api/interceptor.ts` | Axios interceptors (Bearer token + respuesta 401 → refresh de token, o emite `session:expired` si falla) |
-| `src/services/api/auth.ts` | Auth service (login, register, getProfile, updateProfile, changePassword, uploadAvatar, verifyEmail, resendVerification, forgotPassword, resetPassword) |
+| `src/services/api/auth.ts` | Auth service (login, register, loginWithGoogle, getProfile, updateProfile, changePassword, uploadAvatar, verifyEmail, resendVerification, forgotPassword, resetPassword) |
 | `src/services/api/groups.ts` | Groups API service (create, join, list, get, update, delete, archive, regenerate invite, remove member, update split) |
 | `src/services/api/admin.ts` | Admin API service (getStats, getUsers, toggleUserSuspension) |
 | `src/components/admin/recent-users-card.tsx` | RecentUsersCard — componente del dashboard admin con listado de usuarios recientes |
@@ -368,6 +370,7 @@ npx prisma db push        # Push schema (dev)
 | `docs/PLAN.md` | Implementation plan |
 | `docs/ROADMAP.md` | Release roadmap |
 | `docs/FUTURE.md` | Post-MVP differentiators and innovation roadmap (dual balance, smart insights) |
+| `docs/GOOGLE_OAUTH.md` | Guía de arquitectura e integración de Google OAuth en el cliente |
 | `AGENTS.md` | Agent persona, strict operational rules, and project guidelines |
 
 ### AI Agents (`.opencode/agents/`)

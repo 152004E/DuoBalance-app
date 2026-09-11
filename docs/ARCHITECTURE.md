@@ -133,7 +133,8 @@ DuoBalance-app/
 │   │
 │   ├── features/                    Feature modules (domain-driven)
 │   │   ├── auth/
-│   │   │   └── auth.context.tsx     AuthContext + AuthProvider
+│   │   │   ├── auth.context.tsx     AuthContext + AuthProvider
+│   │   │   └── use-google-auth.ts   Hook de integración con Google OAuth (expo-auth-session, fallback de contingencia web)
 │   │   └── workspace/
 │   │       ├── workspace.context.tsx  WorkspaceProvider (envuelve los Tabs en (protected)/_layout.tsx)
 │   │       ├── workspace.types.ts     WorkspaceState = FilterState (categoría + groupId)
