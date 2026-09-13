@@ -12,6 +12,31 @@ import { extractErrorMessage } from '@/utils/errors';
 
 WebBrowser.maybeCompleteAuthSession();
 
+export async function authenticateWithGoogleToken(
+  idToken: string,
+  signIn: (user: any, accessToken: string, refreshToken: string) => Promise<void>,
+) {
+  const data = await loginWithGoogle(idToken);
+
+  await tokenStorage.set(data.access_token);
+  await refreshTokenStorage.set(data.refresh_token);
+
+  const userWithVerification = {
+    ...data.user,
+    emailVerifiedAt: data.user.emailVerifiedAt || new Date().toISOString(),
+  };
+
+  await signIn(userWithVerification, data.access_token, data.refresh_token);
+
+  Toast.show({
+    type: 'success',
+    text1: '¡Bienvenido!',
+    text2: `Sesión iniciada como ${data.user.firstName}`,
+  });
+
+  router.replace('/(protected)');
+}
+
 export function useGoogleAuth() {
   const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
@@ -37,36 +62,17 @@ export function useGoogleAuth() {
     iosClientId: iosClientId || placeholderClientId,
     androidClientId: androidClientId || placeholderClientId,
     clientId: webClientId || placeholderClientId,
+    selectAccount: true,
+    extraParams: {
+      prompt: 'select_account',
+    },
   });
 
   const handleBackendGoogleAuth = useCallback(
     async (idToken: string) => {
       setIsLoading(true);
       try {
-        const data = await loginWithGoogle(idToken);
-
-        await tokenStorage.set(data.access_token);
-        await refreshTokenStorage.set(data.refresh_token);
-
-        const userWithVerification = {
-          ...data.user,
-          emailVerifiedAt:
-            data.user.emailVerifiedAt || new Date().toISOString(),
-        };
-
-        await signIn(
-          userWithVerification,
-          data.access_token,
-          data.refresh_token,
-        );
-
-        Toast.show({
-          type: 'success',
-          text1: '¡Bienvenido!',
-          text2: `Sesión iniciada como ${data.user.firstName}`,
-        });
-
-        router.replace('/(protected)');
+        await authenticateWithGoogleToken(idToken, signIn);
       } catch (err: unknown) {
         const errorObj = err as {
           response?: { status?: number; data?: { message?: string } };

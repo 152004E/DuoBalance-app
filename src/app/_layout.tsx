@@ -10,6 +10,9 @@ import { AuthProvider } from '@/features/auth/auth.context';
 import { SessionExpiredAlert } from '@/components/auth/session-expired-alert';
 import { appToastConfig } from '@/components/ui/app-toast';
 import { SeoHead } from '@/components/common/seo-head';
+import * as WebBrowser from 'expo-web-browser';
+
+WebBrowser.maybeCompleteAuthSession();
 
 LogBox.ignoreLogs([
   'props.pointerEvents is deprecated',
