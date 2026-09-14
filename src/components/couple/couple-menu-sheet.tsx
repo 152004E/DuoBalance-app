@@ -49,7 +49,7 @@ const MENU_ITEMS: MenuItem[] = [
   {
     action: 'history',
     icon: 'clock-rotate-left',
-    label: 'Historial liquidaciones',
+    label: 'Historial de pagos',
     iconBg: '#8B5CF6',
   },
   {

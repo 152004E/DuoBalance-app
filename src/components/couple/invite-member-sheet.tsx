@@ -34,7 +34,7 @@ export function InviteMemberSheet({
 }: InviteMemberSheetProps) {
   const [copied, setCopied] = useState(false);
 
-  const inviteUrl = `https://duobalance.pages.dev/join?code=${invitationCode}`;
+  const inviteUrl = `https://duobalance-app.pages.dev/join?code=${invitationCode}`;
 
   const handleCopyLink = async () => {
     await Clipboard.setStringAsync(inviteUrl);

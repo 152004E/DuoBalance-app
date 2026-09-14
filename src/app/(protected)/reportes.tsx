@@ -193,7 +193,7 @@ export default function ReportesScreen() {
                 )}
               </View>
               <View className="flex-1 rounded-xl border border-[#E2E8F0] bg-white p-4 shadow-sm">
-                <Text className="text-xs text-[#64748B]">Transacciones</Text>
+                <Text className="text-xs text-[#64748B]">Movimientos</Text>
                 <Text className="mt-1 text-lg font-bold text-[#0F172A]">
                   {count}
                 </Text>

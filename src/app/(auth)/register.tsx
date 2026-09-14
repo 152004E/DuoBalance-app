@@ -9,6 +9,7 @@ import { AuthFooter } from '@/components/auth/auth-footer';
 import { View, ScrollView, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { FontAwesome6 } from '@expo/vector-icons';
 
 import { AlertModal } from '@/components/ui/alert-modal';
 import { SeoHead } from '@/components/common/seo-head';
@@ -44,6 +45,14 @@ export default function RegisterScreen() {
     onClose?: () => void;
   } | null>(null);
 
+  const hasMinLength = password.length >= 8;
+  const hasUpper = /[A-Z]/.test(password);
+  const hasLower = /[a-z]/.test(password);
+  const hasNumber = /\d/.test(password);
+  const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+  const isPasswordValid =
+    hasMinLength && hasUpper && hasLower && hasNumber && hasSpecial;
+
   function validate(): boolean {
     const newErrors: FormErrors = {};
 
@@ -63,8 +72,9 @@ export default function RegisterScreen() {
 
     if (!password) {
       newErrors.password = 'La contraseña es requerida';
-    } else if (password.length < 6) {
-      newErrors.password = 'Mínimo 6 caracteres';
+    } else if (!isPasswordValid) {
+      newErrors.password =
+        'La contraseña debe cumplir todos los requisitos de seguridad';
     }
 
     if (!confirmPassword) {
@@ -209,6 +219,86 @@ export default function RegisterScreen() {
             }}
             error={errors.password}
           />
+
+          {password.length > 0 && (
+            <View className="rounded-xl border border-slate-200 bg-[#F8FAFC] p-3">
+              <Text className="mb-2 text-xs font-semibold text-[#64748B]">
+                Requisitos de contraseña:
+              </Text>
+              <View className="gap-1.5">
+                <View className="flex-row items-center gap-2">
+                  <FontAwesome6
+                    name={hasMinLength ? 'circle-check' : 'circle'}
+                    size={13}
+                    color={hasMinLength ? '#10B981' : '#94A3B8'}
+                  />
+                  <Text
+                    className={`text-xs ${
+                      hasMinLength ? 'font-medium text-[#10B981]' : 'text-[#64748B]'
+                    }`}
+                  >
+                    Mínimo 8 caracteres
+                  </Text>
+                </View>
+                <View className="flex-row items-center gap-2">
+                  <FontAwesome6
+                    name={hasUpper ? 'circle-check' : 'circle'}
+                    size={13}
+                    color={hasUpper ? '#10B981' : '#94A3B8'}
+                  />
+                  <Text
+                    className={`text-xs ${
+                      hasUpper ? 'font-medium text-[#10B981]' : 'text-[#64748B]'
+                    }`}
+                  >
+                    Al menos una letra mayúscula (A-Z)
+                  </Text>
+                </View>
+                <View className="flex-row items-center gap-2">
+                  <FontAwesome6
+                    name={hasLower ? 'circle-check' : 'circle'}
+                    size={13}
+                    color={hasLower ? '#10B981' : '#94A3B8'}
+                  />
+                  <Text
+                    className={`text-xs ${
+                      hasLower ? 'font-medium text-[#10B981]' : 'text-[#64748B]'
+                    }`}
+                  >
+                    Al menos una letra minúscula (a-z)
+                  </Text>
+                </View>
+                <View className="flex-row items-center gap-2">
+                  <FontAwesome6
+                    name={hasNumber ? 'circle-check' : 'circle'}
+                    size={13}
+                    color={hasNumber ? '#10B981' : '#94A3B8'}
+                  />
+                  <Text
+                    className={`text-xs ${
+                      hasNumber ? 'font-medium text-[#10B981]' : 'text-[#64748B]'
+                    }`}
+                  >
+                    Al menos un número (0-9)
+                  </Text>
+                </View>
+                <View className="flex-row items-center gap-2">
+                  <FontAwesome6
+                    name={hasSpecial ? 'circle-check' : 'circle'}
+                    size={13}
+                    color={hasSpecial ? '#10B981' : '#94A3B8'}
+                  />
+                  <Text
+                    className={`text-xs ${
+                      hasSpecial ? 'font-medium text-[#10B981]' : 'text-[#64748B]'
+                    }`}
+                  >
+                    Al menos un carácter especial (!@#$%...)
+                  </Text>
+                </View>
+              </View>
+            </View>
+          )}
 
           <Input
             label="Confirmar contraseña"

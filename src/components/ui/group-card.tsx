@@ -40,7 +40,7 @@ export function GroupCard({
 
   // ── Lógica de reparto según tipo de grupo ─────────────────────────────
   let segments: SplitSegment[] = [];
-  const plural = transactionCount === 1 ? 'transacción' : 'transacciones';
+  const plural = transactionCount === 1 ? 'movimiento' : 'movimientos';
 
   if (isPersonal) {
     // Sin división: 100% tú

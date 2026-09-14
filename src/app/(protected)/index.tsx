@@ -99,7 +99,7 @@ export default function DashboardScreen() {
         dues.length === 1
           ? `Le debes a ${primary.toFirstName} ${fmt(totalDue)}`
           : `Tienes deudas por ${fmt(totalDue)}`,
-      text2: 'Toca para liquidar y saldar',
+      text2: 'Toca para pagar la cuenta',
       visibilityTime: 6000,
       onPress: () => router.push(`/grupos/${primary.groupId}?liquidar=1`),
     });

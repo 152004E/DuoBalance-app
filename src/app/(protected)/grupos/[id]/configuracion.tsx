@@ -732,6 +732,12 @@ export default function ConfiguracionGrupoScreen() {
             placeholder="Nombre del grupo"
             value={editNameValue}
             onChangeText={setEditNameValue}
+            maxLength={30}
+            helperText={
+              editNameValue.length >= 25
+                ? `${editNameValue.length}/30 caracteres`
+                : undefined
+            }
             autoFocus
           />
           <View className="mt-4">

@@ -384,7 +384,7 @@ export default function ConfiguracionScreen() {
               </Text>
               <Text className="mb-3 text-xs text-[#64748B]">
                 Selecciona la divisa para visualizar tus balances y
-                transacciones
+                movimientos
               </Text>
               <View className="flex-row gap-2">
                 {currencies.map((curr) => {

@@ -84,7 +84,8 @@ export function CreateCoupleSheet({
 
   const partnerPercentage = 100 - yourPercentage;
 
-  const isDisabled = coupleName.trim().length === 0;
+  const isDisabled =
+    coupleName.trim().length === 0 || coupleName.trim().length > 30;
 
   // Reset form state when sheet opens
   useEffect(() => {
@@ -237,6 +238,12 @@ export function CreateCoupleSheet({
                 placeholder="Ej: Mis gastos, Viaje personal"
                 value={coupleName}
                 onChangeText={setCoupleName}
+                maxLength={30}
+                helperText={
+                  coupleName.length >= 25
+                    ? `${coupleName.length}/30 caracteres`
+                    : undefined
+                }
               />
               <View className="mt-4 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
                 <Text className="text-sm leading-5 text-[#64748B]">
@@ -254,6 +261,12 @@ export function CreateCoupleSheet({
                 placeholder="Ej: Hogar, Viaje a Italia"
                 value={coupleName}
                 onChangeText={setCoupleName}
+                maxLength={30}
+                helperText={
+                  coupleName.length >= 25
+                    ? `${coupleName.length}/30 caracteres`
+                    : undefined
+                }
               />
 
               <Text className="mb-2 mt-6 text-sm font-semibold text-[#0F172A]">
@@ -351,6 +364,12 @@ export function CreateCoupleSheet({
                 placeholder="Ej: Compañeros de piso"
                 value={coupleName}
                 onChangeText={setCoupleName}
+                maxLength={30}
+                helperText={
+                  coupleName.length >= 25
+                    ? `${coupleName.length}/30 caracteres`
+                    : undefined
+                }
               />
 
               <Text className="mb-2 mt-6 text-sm font-semibold text-[#0F172A]">

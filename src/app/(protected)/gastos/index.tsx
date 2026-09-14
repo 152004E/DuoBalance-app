@@ -184,7 +184,7 @@ export default function GastosScreen() {
             </View>
             <View className="flex-1 rounded-xl border border-[#E2E8F0] bg-white p-4 shadow-sm">
               <Text className="mb-1 text-xs font-semibold uppercase tracking-wider text-[#64748B]">
-                Transacciones
+                Movimientos
               </Text>
               <Text
                 className="text-2xl font-bold text-[#0F172A]"
