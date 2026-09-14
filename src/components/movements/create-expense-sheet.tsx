@@ -10,6 +10,9 @@ import { Button } from '@/components/ui/button';
 import { CATEGORIES } from '@/constants/categories';
 import { formatAmountInput, parseAmount } from '@/utils/format';
 import { resolveImageUrl } from '@/utils/image-url';
+import Toast from 'react-native-toast-message';
+
+const MAX_EXPENSE_AMOUNT = 2000000;
 import type {
   ExpenseCategory,
   ExpenseResponse,
@@ -197,9 +200,28 @@ export function CreateExpenseSheet({
     }
   };
 
+  const handleAmountChange = (t: string) => {
+    const formatted = formatAmountInput(t);
+    const parsed = parseAmount(formatted);
+    if (parsed > MAX_EXPENSE_AMOUNT) {
+      Toast.show({
+        type: 'error',
+        text1: 'Monto máximo: $2.000.000',
+        text2: 'Si el valor es mayor, puedes registrarlo en otro gasto.',
+        visibilityTime: 4500,
+      });
+      setAmount(formatAmountInput(String(MAX_EXPENSE_AMOUNT)));
+      return;
+    }
+    setAmount(formatted);
+  };
+
+  const parsedAmount = parseAmount(amount);
+
   const isFormValid =
     amount.trim().length > 0 &&
-    parseAmount(amount) > 0 &&
+    parsedAmount > 0 &&
+    parsedAmount <= MAX_EXPENSE_AMOUNT &&
     description.trim().length >= 3 &&
     category.length > 0 &&
     date.trim().length > 0 &&
@@ -240,8 +262,13 @@ export function CreateExpenseSheet({
             iconLeft="dollar-sign"
             placeholder="$ 0"
             value={amount}
-            onChangeText={(t) => setAmount(formatAmountInput(t))}
+            onChangeText={handleAmountChange}
             keyboardType="number-pad"
+            helperText={
+              parsedAmount > 0
+                ? 'Límite máximo de $2.000.000 por gasto'
+                : undefined
+            }
           />
 
           <Input

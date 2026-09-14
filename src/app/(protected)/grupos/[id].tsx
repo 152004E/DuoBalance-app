@@ -512,7 +512,7 @@ export default function CoupleDetail() {
               <View className="flex-col gap-4">
                 <Text className="text-[17px] font-bold text-[#0F172A]">
                   {settlement.settlementDirection === 'OWED_TO_ME'
-                    ? 'Pendiente de liquidar'
+                    ? 'Cuenta pendiente de cobro'
                     : settlement.settlementDirection === 'I_OWE'
                       ? 'Debes dinero'
                       : 'Saldado'}
@@ -563,7 +563,7 @@ export default function CoupleDetail() {
                         color="#FFFFFF"
                       />
                       <Text className="text-sm font-semibold text-white">
-                        Liquidar
+                        Pagar cuenta
                       </Text>
                     </Pressable>
                   )}
@@ -578,7 +578,7 @@ export default function CoupleDetail() {
                       color="#0F172A"
                     />
                     <Text className="text-sm font-semibold text-[#0F172A]">
-                      Historial de liquidaciones
+                      Historial de pagos
                     </Text>
                     {pendingToConfirm.length + sentPending.length > 0 && (
                       <View className="ml-1 rounded-full bg-[#EF4444] px-2 py-0.5">

@@ -630,3 +630,17 @@ Además existe `gastos/[id].tsx` como shim `Redirect → /gastos/detalle/[id]` p
 ## 🟣 P4 — v2.0
 - ✅ Backend: DB (groups con type) + N-way splits + endpoints groups
 - ❌ Frontend: `grupos/crear.tsx`, `grupos/[id]/miembros.tsx`, selector global con badge, `MemberBalance`
+
+---
+
+## 📋 Pendientes de Feedback de Testers (Roadmap Post-Feedback)
+
+Tareas identificadas en la sesión de pruebas con testers para implementar en próximos sprints:
+
+1. **Botón `+` en Inicio:** Conectar `onPress` en `src/app/(protected)/index.tsx` para abrir el selector de destino y modal de creación de gasto desde el Dashboard.
+2. **Selector de Calendario:** Implementar selector de fechas interactivo tipo calendario en `src/components/movements/create-expense-sheet.tsx` y persistir la fecha real seleccionada en el backend.
+3. **Campanita de Notificaciones:** Agregar icono de campana en el header (`HeroSection.tsx`) con badge numérico de pendientes (deudas por pagar, pagos por confirmar) y sheet de notificaciones.
+4. **Módulo de Ingresos / Ganancias (Income Tracking):** Crear modelo y endpoints de ingresos para permitir registrar salario/ganancias y calcular el saldo real disponible (`Ingresos - Gastos`).
+5. **Gastos Fijos y Programados:** Botón "Programar gasto" y soporte para deudas fijas / gastos recurrentes mensuales que se descuenten automáticamente de las ganancias proyectadas.
+6. **Ajuste de Altura de Menú de Grupos:** Corregir `heightRatio={0.1}` en `src/app/(protected)/grupos/index.tsx` para que el menú de agregar grupo no se corte.
+7. **Botón directo de WhatsApp:** Agregar acción directa para compartir invitación a través de la API de WhatsApp.

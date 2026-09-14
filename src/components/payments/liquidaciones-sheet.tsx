@@ -192,7 +192,7 @@ export function LiquidacionesSheet({
             <FontAwesome6 name="clock-rotate-left" size={22} color="#64748B" />
           </View>
           <Text className="mt-3 text-center text-base font-semibold text-[#0F172A]">
-            Sin liquidaciones aún
+            Sin pagos aún
           </Text>
           <Text className="mt-1 text-center text-sm text-[#64748B]">
             Los pagos confirmados o rechazados aparecerán aquí.
@@ -252,7 +252,7 @@ export function LiquidacionesSheet({
   const header = (
     <BottomSheetHeader
       visible={visible}
-      title="Liquidaciones"
+      title="Historial de pagos"
       subtitle="Confirma pagos pendientes y revisa el historial"
       onClose={onClose}
       gradientPaddingBottom={600}
