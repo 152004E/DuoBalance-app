@@ -102,6 +102,7 @@ export default function AdminUsersScreen() {
             maxItems={visibleCount}
             onViewAll={() => router.push('/admin/Users/todos-usuarios')}
             onToggleSuspension={requestToggleSuspension}
+            onUserPress={(u) => router.push({ pathname: '/admin/Users/[id]', params: { id: u.id } } as any)}
             currentUserId={user?.id}
           />
 

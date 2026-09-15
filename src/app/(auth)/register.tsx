@@ -323,6 +323,24 @@ export default function RegisterScreen() {
             </Text>
           )}
 
+          <Text className="text-center text-xs text-[#64748B] mt-2 mb-1 px-2">
+            Al crear una cuenta, aceptas nuestros{' '}
+            <Text
+              className="font-bold text-[#10B981]"
+              onPress={() => router.push('/terminos')}
+            >
+              Términos y Condiciones
+            </Text>{' '}
+            y{' '}
+            <Text
+              className="font-bold text-[#10B981]"
+              onPress={() => router.push('/privacidad')}
+            >
+              Política de Privacidad
+            </Text>
+            .
+          </Text>
+
           <Button
             text="Crear Cuenta"
             iconLeft="user-plus"

@@ -275,7 +275,33 @@ export default function AcercaScreen() {
             </View>
           </View>
 
-          <AnimatedSection index={FOOTER_INDEX}>
+          <View className="px-5 pt-6">
+            <AnimatedSection index={STACK_TITLE_INDEX + 1 + STACK.length}>
+              <Text className="mb-3 text-lg font-bold text-[#0F172A]">
+                Legal
+              </Text>
+            </AnimatedSection>
+            <AnimatedSection index={STACK_TITLE_INDEX + 2 + STACK.length}>
+              <View className="rounded-2xl border border-[#E2E8F0] bg-white shadow-sm overflow-hidden">
+                <Text
+                  onPress={() => router.push('/terminos')}
+                  className="px-5 py-4 text-sm font-semibold text-[#0F172A] border-b border-[#F1F5F9] active:bg-[#F8FAFC]"
+                >
+                  <FontAwesome6 name="file-contract" size={14} color="#64748B" />{'  '}
+                  Términos y Condiciones
+                </Text>
+                <Text
+                  onPress={() => router.push('/privacidad')}
+                  className="px-5 py-4 text-sm font-semibold text-[#0F172A] active:bg-[#F8FAFC]"
+                >
+                  <FontAwesome6 name="shield-check" size={14} color="#64748B" />{'  '}
+                  Política de Privacidad
+                </Text>
+              </View>
+            </AnimatedSection>
+          </View>
+
+          <AnimatedSection index={FOOTER_INDEX + 2}>
             <View className="items-center px-5 pt-8">
               <Text className="text-center text-xs text-[#94A3B8]">
                 DuoBalance · Hecho con dedicación y atención al detalle
