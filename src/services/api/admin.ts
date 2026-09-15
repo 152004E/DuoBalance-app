@@ -23,4 +23,14 @@ export const adminService = {
     const response = await api.patch(`/admin/users/${userId}/toggle-suspend`);
     return response.data;
   },
+
+  getUserDetail: async (userId: string) => {
+    const response = await api.get(`/admin/users/${userId}`);
+    return response.data;
+  },
+
+  deleteUser: async (userId: string) => {
+    const response = await api.delete(`/admin/users/${userId}`);
+    return response.data;
+  },
 };

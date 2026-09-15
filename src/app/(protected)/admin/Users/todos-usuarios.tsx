@@ -185,6 +185,7 @@ export default function TodosUsuariosScreen() {
             users={filteredUsers}
             maxItems={visibleCount}
             onToggleSuspension={requestToggleSuspension}
+            onUserPress={(u) => router.push({ pathname: '/admin/Users/[id]', params: { id: u.id } } as any)}
             currentUserId={user?.id}
           />
 
