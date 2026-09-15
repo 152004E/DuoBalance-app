@@ -415,7 +415,7 @@ Settlements history muestra:
 | **Forgot Password** | ✅ Sprint 5 (MailModule Resend): backend + frontend connect |
 | **App Store Deploy** | EAS Build, TestFlight/Play Console, icons, splash |
 
-- [❌] Push notifications (expo-notifications)
+- [❌] Push notifications para PWA (Web Push API): Pedir permiso al usuario, registrar Service Worker de web push y conectar el token con el backend usando las llaves VAPID.
 - [❌] Dark mode
 - [❌] i18n (multi-language)
 - [❌] Offline support
@@ -644,3 +644,5 @@ Tareas identificadas en la sesión de pruebas con testers para implementar en pr
 5. **Gastos Fijos y Programados:** Botón "Programar gasto" y soporte para deudas fijas / gastos recurrentes mensuales que se descuenten automáticamente de las ganancias proyectadas.
 6. **Ajuste de Altura de Menú de Grupos:** Corregir `heightRatio={0.1}` en `src/app/(protected)/grupos/index.tsx` para que el menú de agregar grupo no se corte.
 7. ✅ **Botón directo de WhatsApp:** Agregar acción directa para compartir invitación a través de la API de WhatsApp.
+8. **Persistencia de estado en Modales:** Evitar que se pierda la información digitada (como montos, descripciones, nombres) si el usuario cierra un modal (Bottom Sheet) por accidente deslizando hacia abajo.
+9. **Soporte para Apodos (Nicknames):** Permitir a los usuarios configurar un alias o apodo para mostrarse en la interfaz o dentro de grupos específicos, en lugar de su nombre real o completo.
