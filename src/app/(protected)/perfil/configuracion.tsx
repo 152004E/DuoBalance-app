@@ -419,6 +419,37 @@ export default function ConfiguracionScreen() {
             </View>
           </View>
 
+          {/* ─── SECCIÓN: DISPOSITIVOS CONECTADOS ─── */}
+          <View className="mx-5 mt-6">
+            <View className="mb-2 flex-row items-center gap-2 px-1">
+              <FontAwesome6 name="desktop" size={14} color="#64748B" />
+              <Text className="text-xs font-bold uppercase tracking-wider text-[#64748B]">
+                Dispositivos conectados
+              </Text>
+            </View>
+
+            <View className="rounded-2xl bg-white p-4 shadow-sm">
+              <Text className="mb-1 text-sm font-semibold text-[#0F172A]">
+                Sesión única
+              </Text>
+              <Text className="mb-3 text-xs text-[#64748B]">
+                Por seguridad, solo se permite mantener una sesión activa a la vez. Al iniciar sesión en otro dispositivo, este se desconectará automáticamente.
+              </Text>
+              <View className="flex-row items-center justify-between rounded-xl border border-[#10B981]/20 bg-[#10B981]/5 px-3 py-3">
+                <View className="flex-row items-center gap-3">
+                  <View className="h-8 w-8 items-center justify-center rounded-full bg-[#10B98126]">
+                    <FontAwesome6 name="mobile-screen" size={14} color="#10B981" />
+                  </View>
+                  <View>
+                    <Text className="text-sm font-semibold text-[#0F172A]">Este dispositivo</Text>
+                    <Text className="text-[10px] text-[#10B981]">Sesión activa actual</Text>
+                  </View>
+                </View>
+                <View className="h-2 w-2 rounded-full bg-[#10B981] shadow-sm" />
+              </View>
+            </View>
+          </View>
+
           {/* ─── SECCIÓN: ZONA DE PELIGRO ─── */}
           <View className="mx-5 mt-6">
             <View className="mb-2 flex-row items-center gap-2 px-1">

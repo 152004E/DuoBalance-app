@@ -74,15 +74,6 @@ export function AuthProvider({ children }: Props) {
       const savedUser = await userStorage.get();
 
       if (token && savedUser) {
-        const exp = getJwtExp(token);
-
-        if (exp !== null && exp * 1000 <= Date.now()) {
-          await tokenStorage.remove();
-          await refreshTokenStorage.remove();
-          await userStorage.remove();
-          return;
-        }
-
         setUser(savedUser as User);
 
         getProfile()
