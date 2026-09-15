@@ -415,7 +415,7 @@ Settlements history muestra:
 | **Forgot Password** | ✅ Sprint 5 (MailModule Resend): backend + frontend connect |
 | **App Store Deploy** | EAS Build, TestFlight/Play Console, icons, splash |
 
-- [❌] Push notifications (expo-notifications)
+- [❌] Push notifications para PWA (Web Push API): Pedir permiso al usuario, registrar Service Worker de web push y conectar el token con el backend usando las llaves VAPID.
 - [❌] Dark mode
 - [❌] i18n (multi-language)
 - [❌] Offline support
@@ -438,9 +438,9 @@ Settlements history muestra:
 
 # Nuevas Funcionalidades Prioritarias
 - [✅] **Super Admin Panel**: UI para gestión global (lista de usuarios, métricas de plataforma, suspensión/reactivación de cuentas). Conectado a `adminService` (`GET /admin/stats`, `GET /admin/users`, `PATCH /admin/users/:id/toggle-suspend`), layout con HeroSection, navegación condicional en `bottom-tab.tsx` según rol `SUPER_ADMIN` y redirección en flujo de login.
-- [❌] **Login con Google**: Integrar botón nativo "Continuar con Google" (`expo-auth-session` o similar).
+- [✓] **Login con Google**: Integrar botón nativo "Continuar con Google" (`expo-auth-session` o similar).
 - [❌] **Dark/Light Mode Toggle**: Botón en configuración para forzar modo oscuro o claro (Tailwind/NativeWind).
-- [❌] **Invitación por Link**: Capturar Deep Links (`https://duobalance.pages.dev/join?code=ABC`) y pre-llenar código. **Especificaciones clave:** Si el usuario NO tiene cuenta, mostrar alerta ("Debes iniciar sesión primero") y guardar el código temporalmente (`AsyncStorage`) para abrir el grupo automáticamente después del registro.
+- [✓] **Invitación por Link**: Capturar Deep Links (`https://duobalance.pages.dev/join?code=ABC`) y pre-llenar código. **Especificaciones clave:** Si el usuario NO tiene cuenta, mostrar alerta ("Debes iniciar sesión primero") y guardar el código temporalmente (`AsyncStorage`) para abrir el grupo automáticamente después del registro.
 
 ---
 
@@ -637,10 +637,12 @@ Además existe `gastos/[id].tsx` como shim `Redirect → /gastos/detalle/[id]` p
 
 Tareas identificadas en la sesión de pruebas con testers para implementar en próximos sprints:
 
-1. **Botón `+` en Inicio:** Conectar `onPress` en `src/app/(protected)/index.tsx` para abrir el selector de destino y modal de creación de gasto desde el Dashboard.
+1. **Botón de Acciones Rápidas en Inicio (FAB):** Reemplazar el botón `+` genérico por un menú flotante (Bottom Sheet) similar al de Grupos. Debe incluir opciones para "Registrar Gasto", "Crear Grupo" y "Unirse a Grupo". Al elegir "Registrar Gasto", debe abrir el selector de destino (grupo) si no hay uno previamente seleccionado, igual que ocurre en la pestaña Gastos.
 2. **Selector de Calendario:** Implementar selector de fechas interactivo tipo calendario en `src/components/movements/create-expense-sheet.tsx` y persistir la fecha real seleccionada en el backend.
 3. **Campanita de Notificaciones:** Agregar icono de campana en el header (`HeroSection.tsx`) con badge numérico de pendientes (deudas por pagar, pagos por confirmar) y sheet de notificaciones.
 4. **Módulo de Ingresos / Ganancias (Income Tracking):** Crear modelo y endpoints de ingresos para permitir registrar salario/ganancias y calcular el saldo real disponible (`Ingresos - Gastos`).
 5. **Gastos Fijos y Programados:** Botón "Programar gasto" y soporte para deudas fijas / gastos recurrentes mensuales que se descuenten automáticamente de las ganancias proyectadas.
 6. **Ajuste de Altura de Menú de Grupos:** Corregir `heightRatio={0.1}` en `src/app/(protected)/grupos/index.tsx` para que el menú de agregar grupo no se corte.
-7. **Botón directo de WhatsApp:** Agregar acción directa para compartir invitación a través de la API de WhatsApp.
+7. ✅ **Botón directo de WhatsApp:** Agregar acción directa para compartir invitación a través de la API de WhatsApp.
+8. **Persistencia de estado en Modales:** Evitar que se pierda la información digitada (como montos, descripciones, nombres) si el usuario cierra un modal (Bottom Sheet) por accidente deslizando hacia abajo.
+9. **Soporte para Apodos (Nicknames):** Permitir a los usuarios configurar un alias o apodo para mostrarse en la interfaz o dentro de grupos específicos, en lugar de su nombre real o completo.

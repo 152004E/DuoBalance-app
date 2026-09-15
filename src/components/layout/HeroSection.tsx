@@ -25,6 +25,7 @@ import Reanimated, {
   Easing as ReEasing,
 } from 'react-native-reanimated';
 import { useDashboardHeroAnimation } from '@/hooks/use-dashboard-hero-animation';
+import { NotificationBell } from '../notifications/NotificationBell';
 
 const AnimatedCircle = Reanimated.createAnimatedComponent(Circle);
 const AnimatedPath = Reanimated.createAnimatedComponent(Path);
@@ -318,28 +319,32 @@ export function HeroSection(props: HeroSectionProps) {
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: 8,
+                justifyContent: 'space-between',
+                width: '100%',
                 opacity: dashAnim.greetingOpacity,
                 transform: [{ translateY: dashAnim.greetingTranslateY }],
               }}
             >
-              <Image
-                source={require('@/assets/images/logo-white-green-bg-without.png')}
-                style={{ width: 25, height: 25 }}
-                resizeMode="contain"
-              />
-              <Text className="text-base text-white">
-                Bienvenido,{' '}
-                <Text className="font-semibold">
-                  {userName
-                    .split(' ')
-                    .map(
-                      (w) =>
-                        w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(),
-                    )
-                    .join(' ')}
+              <View className="flex-row items-center gap-2">
+                <Image
+                  source={require('@/assets/images/logo-white-green-bg-without.png')}
+                  style={{ width: 25, height: 25 }}
+                  resizeMode="contain"
+                />
+                <Text className="text-base text-white">
+                  Bienvenido,{' '}
+                  <Text className="font-semibold">
+                    {userName
+                      .split(' ')
+                      .map(
+                        (w) =>
+                          w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(),
+                      )
+                      .join(' ')}
+                  </Text>
                 </Text>
-              </Text>
+              </View>
+              <NotificationBell />
             </Animated.View>
 
             <View className="mt-4 items-center">
@@ -396,24 +401,27 @@ export function HeroSection(props: HeroSectionProps) {
           </>
         ) : (
           <>
-            <View className="flex-row items-center gap-2">
-              <Image
-                source={require('@/assets/images/logo-white-green-bg-without.png')}
-                style={{ width: 25, height: 25 }}
-                resizeMode="contain"
-              />
-              <Text className="text-base text-white">
-                Bienvenido,{' '}
-                <Text className="font-semibold">
-                  {userName
-                    .split(' ')
-                    .map(
-                      (w) =>
-                        w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(),
-                    )
-                    .join(' ')}
+            <View className="flex-row items-center justify-between w-full">
+              <View className="flex-row items-center gap-2">
+                <Image
+                  source={require('@/assets/images/logo-white-green-bg-without.png')}
+                  style={{ width: 25, height: 25 }}
+                  resizeMode="contain"
+                />
+                <Text className="text-base text-white">
+                  Bienvenido,{' '}
+                  <Text className="font-semibold">
+                    {userName
+                      .split(' ')
+                      .map(
+                        (w) =>
+                          w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(),
+                      )
+                      .join(' ')}
+                  </Text>
                 </Text>
-              </Text>
+              </View>
+              <NotificationBell />
             </View>
 
             <View className="mt-8 items-center">
