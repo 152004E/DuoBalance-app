@@ -22,6 +22,7 @@ import { TopCategory } from '@/components/dashboard/TopCategory';
 import { PartnerBalance } from '@/components/dashboard/PartnerBalance';
 import { FloatingAddButton } from '@/components/dashboard/FloatingAddButton';
 import { useWorkspace } from '@/hooks/use-workspace';
+import { WelcomeModal } from '@/components/auth/welcome-modal';
 import Toast from 'react-native-toast-message';
 
 const fmt = (value: number) => `$${Math.round(value).toLocaleString('es-CL')}`;
@@ -230,6 +231,7 @@ export default function DashboardScreen() {
       </ScrollView>
 
       <FloatingAddButton />
+      <WelcomeModal />
     </SafeAreaView>
   );
 }
