@@ -48,9 +48,9 @@ interface CreateExpenseSheetProps {
   group: GroupResponse;
   members: Member[];
   currentUserId?: string;
-  onCreateExpense?: (payload: ExpensePayload) => void;
+  onCreateExpense?: (payload: ExpensePayload) => Promise<void> | void;
   initialExpense?: ExpenseResponse | null;
-  onUpdateExpense?: (payload: ExpensePayload) => void;
+  onUpdateExpense?: (payload: ExpensePayload) => Promise<void> | void;
   heightRatio?: number;
   headerFinalTranslateY?: number;
 }
@@ -97,6 +97,7 @@ export function CreateExpenseSheet({
     null,
   );
   const [removeExistingReceipt, setRemoveExistingReceipt] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const resetKey = useMemo(() => (visible ? Date.now() : 0), [visible]);
 
@@ -575,38 +576,46 @@ export function CreateExpenseSheet({
           <Button
             text={isEditing ? 'Guardar cambios' : 'Registrar gasto'}
             iconRight="check"
-            onPress={() => {
-              const splits = members
-                .filter((m) => selectedParticipants.includes(m.id))
-                .map((m) => ({
-                  userId: m.id,
-                  percentage: Number(
-                    splitType === 'EQUAL'
-                      ? Math.round(100 / selectedParticipants.length)
-                      : m.id === youMemberId
-                        ? yourPercentage
-                        : 100 - yourPercentage,
-                  ),
-                }));
+            isLoading={isSubmitting}
+            loadingText={isEditing ? 'Guardando...' : 'Registrando...'}
+            onPress={async () => {
+              if (isSubmitting) return;
+              setIsSubmitting(true);
+              try {
+                const splits = members
+                  .filter((m) => selectedParticipants.includes(m.id))
+                  .map((m) => ({
+                    userId: m.id,
+                    percentage: Number(
+                      splitType === 'EQUAL'
+                        ? Math.round(100 / selectedParticipants.length)
+                        : m.id === youMemberId
+                          ? yourPercentage
+                          : 100 - yourPercentage,
+                    ),
+                  }));
 
-              const payload: ExpensePayload = {
-                description,
-                amount: parseAmount(amount),
-                category: category as ExpenseCategory,
-                splitType: splitType as SplitType,
-                groupId: group.id,
-                splits,
-                ...(pickedReceipt && { receipt: pickedReceipt }),
-                ...(removeExistingReceipt && { removeReceipt: true }),
-              };
+                const payload: ExpensePayload = {
+                  description,
+                  amount: parseAmount(amount),
+                  category: category as ExpenseCategory,
+                  splitType: splitType as SplitType,
+                  groupId: group.id,
+                  splits,
+                  ...(pickedReceipt && { receipt: pickedReceipt }),
+                  ...(removeExistingReceipt && { removeReceipt: true }),
+                };
 
-              if (isEditing) {
-                onUpdateExpense?.(payload);
-              } else {
-                onCreateExpense?.(payload);
+                if (isEditing) {
+                  await onUpdateExpense?.(payload);
+                } else {
+                  await onCreateExpense?.(payload);
+                }
+              } finally {
+                setIsSubmitting(false);
               }
             }}
-            disabled={!isFormValid}
+            disabled={!isFormValid || isSubmitting}
             className="rounded-full py-4"
           />
         </View>
