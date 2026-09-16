@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
-export function usePwaInstall() {
+export function usePwaInstall(options?: { ignoreDismissal?: boolean }) {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstallable, setIsInstallable] = useState(false);
   const [isIosPrompt, setIsIosPrompt] = useState(false);
@@ -16,12 +16,14 @@ export function usePwaInstall() {
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
     if (isStandalone) return;
 
-    // 2. Verificar si se descartó hace menos de 7 días
-    const dismissedAt = localStorage.getItem('pwa_prompt_dismissed_at');
-    if (dismissedAt) {
-      const timePassed = Date.now() - parseInt(dismissedAt, 10);
-      if (timePassed < SEVEN_DAYS_MS) {
-        return; // Aún no pasa la semana
+    // 2. Verificar si se descartó hace menos de 7 días (a menos que se ignore)
+    if (!options?.ignoreDismissal) {
+      const dismissedAt = localStorage.getItem('pwa_prompt_dismissed_at');
+      if (dismissedAt) {
+        const timePassed = Date.now() - parseInt(dismissedAt, 10);
+        if (timePassed < SEVEN_DAYS_MS) {
+          return; // Aún no pasa la semana
+        }
       }
     }
 

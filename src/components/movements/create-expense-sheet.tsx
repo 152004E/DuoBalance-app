@@ -278,6 +278,7 @@ export function CreateExpenseSheet({
             placeholder="Ej: Mercado, Cena, Gasolina..."
             value={description}
             onChangeText={setDescription}
+            maxLength={60}
           />
 
           {/* Category */}

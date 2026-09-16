@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, Switch, Pressable, Modal } from 'react-native';
+import { View, Text, ScrollView, Switch, Pressable, Modal, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,8 +9,55 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { AlertModal } from '@/components/ui/alert-modal';
 import { useAuth } from '@/hooks/use-auth';
+import { usePwaInstall } from '@/hooks/use-pwa-install';
 import { changePassword, deleteAccount } from '@/services/api/auth';
 import { extractErrorMessage } from '@/utils/errors';
+
+function InstallPwaSection() {
+  const { isInstallable, isIosPrompt, promptInstall } = usePwaInstall({ ignoreDismissal: true });
+
+  if (Platform.OS !== 'web') return null;
+  if (!isInstallable && !isIosPrompt) return null;
+
+  return (
+    <View className="mx-5 mt-6">
+      <View className="mb-2 flex-row items-center gap-2 px-1">
+        <FontAwesome6 name="mobile-screen-button" size={14} color="#64748B" />
+        <Text className="text-xs font-bold uppercase tracking-wider text-[#64748B]">
+          Aplicación Móvil
+        </Text>
+      </View>
+
+      <View className="rounded-2xl bg-white p-4 shadow-sm border border-blue-100/50">
+        <Text className="mb-1 text-sm font-semibold text-[#0F172A]">
+          Instalar DuoBalance
+        </Text>
+        <Text className="mb-3 text-xs text-[#64748B]">
+          Agrega DuoBalance a tu pantalla de inicio para una experiencia nativa, acceso rápido y notificaciones push.
+        </Text>
+
+        {isIosPrompt ? (
+          <View className="rounded-xl bg-blue-50 p-3 mt-1">
+            <Text className="text-sm font-medium text-blue-800">
+              Para instalar en iOS:
+            </Text>
+            <Text className="text-xs text-blue-700 mt-1">
+              Toca el botón <FontAwesome6 name="arrow-up-from-bracket" size={12} color="#1D4ED8" /> (Compartir) en la barra de Safari y selecciona <Text className="font-bold">"Agregar a Inicio"</Text>.
+            </Text>
+          </View>
+        ) : (
+          <Button
+            text="Instalar aplicación"
+            iconLeft="download"
+            variant="primary"
+            onPress={promptInstall}
+            className="mt-1"
+          />
+        )}
+      </View>
+    </View>
+  );
+}
 
 interface NotificationOption {
   icon: string;
@@ -449,6 +496,9 @@ export default function ConfiguracionScreen() {
               </View>
             </View>
           </View>
+
+          {/* ─── SECCIÓN: INSTALAR APLICACIÓN (PWA) ─── */}
+          <InstallPwaSection />
 
           {/* ─── SECCIÓN: ZONA DE PELIGRO ─── */}
           <View className="mx-5 mt-6">
