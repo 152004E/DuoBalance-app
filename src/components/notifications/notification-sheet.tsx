@@ -25,6 +25,8 @@ export function NotificationSheet({
       title="Notificaciones"
       subtitle="Tus tareas pendientes"
       onClose={onClose}
+      gradientPaddingBottom={600}
+      logo={require('@/assets/images/logo-white-green-bg-without.png')}
     />
   );
 
