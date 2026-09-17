@@ -260,13 +260,13 @@ export default function CoupleDetail() {
         break;
       case 'export':
       case 'history':
-        setShowComingSoon(true);
+        router.push(`/grupos/${id}/liquidaciones`);
         break;
       case 'leave':
         setShowLeaveConfirm(true);
         break;
     }
-  }, [id]);
+  }, [id, router]);
 
   const handleLeaveGroup = useCallback(async () => {
     if (isLeaving) return;

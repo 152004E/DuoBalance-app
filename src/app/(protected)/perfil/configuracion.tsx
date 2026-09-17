@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { AlertModal } from '@/components/ui/alert-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { usePwaInstall } from '@/hooks/use-pwa-install';
+import { usePushNotifications } from '@/hooks/use-push-notifications';
 import { changePassword, deleteAccount } from '@/services/api/auth';
 import { extractErrorMessage } from '@/utils/errors';
 
@@ -107,6 +108,7 @@ const currencies = [
 
 export default function ConfiguracionScreen() {
   const { user, signOut } = useAuth();
+  const { requestSubscription, isSubscribing } = usePushNotifications();
 
   // Password change state
   const [currentPassword, setCurrentPassword] = useState('');
@@ -369,11 +371,25 @@ export default function ConfiguracionScreen() {
 
           {/* ─── SECCIÓN: NOTIFICACIONES ─── */}
           <View className="mx-5 mt-6">
-            <View className="mb-2 flex-row items-center gap-2 px-1">
-              <FontAwesome6 name="bell" size={14} color="#64748B" />
-              <Text className="text-xs font-bold uppercase tracking-wider text-[#64748B]">
-                Notificaciones
-              </Text>
+            <View className="mb-2 flex-row items-center justify-between px-1">
+              <View className="flex-row items-center gap-2">
+                <FontAwesome6 name="bell" size={14} color="#64748B" />
+                <Text className="text-xs font-bold uppercase tracking-wider text-[#64748B]">
+                  Notificaciones
+                </Text>
+              </View>
+              {Platform.OS === 'web' && (
+                <Pressable 
+                  onPress={requestSubscription}
+                  disabled={isSubscribing}
+                  className="flex-row items-center gap-1.5 rounded-full bg-[#10B981]/10 px-3 py-1 active:bg-[#10B981]/20"
+                >
+                  <FontAwesome6 name="paper-plane" size={10} color="#059669" />
+                  <Text className="text-[10px] font-bold uppercase text-[#059669]">
+                    {isSubscribing ? 'Activando...' : 'Activar en dispositivo'}
+                  </Text>
+                </Pressable>
+              )}
             </View>
 
             <View className="overflow-hidden rounded-2xl bg-white shadow-sm">
