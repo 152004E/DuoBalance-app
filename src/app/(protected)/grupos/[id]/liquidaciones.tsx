@@ -45,11 +45,35 @@ export default function LiquidacionesScreen() {
     type: 'success' | 'error';
   } | null>(null);
 
-  const { pendingToConfirm, sentPending, history, isLoading, refetch } =
+  const [isReminding, setIsReminding] = useState(false);
+
+  const { pendingToConfirm, sentPending, history, settlement, monthlySettlement, isLoading, refetch } =
     useGroupPayments({
       groupId: id,
       userId: user?.id,
     });
+
+  const handleRemind = useCallback(async (type: 'MONTHLY' | 'TOTAL') => {
+    if (isReminding) return;
+    setIsReminding(true);
+    try {
+      const otherMember = group?.members.find((m) => m.user.id !== user?.id);
+      if (!otherMember) throw new Error('No se encontró al otro miembro');
+      
+      const { remindDebt } = await import('@/services/api/payments');
+      const res = await remindDebt(otherMember.user.id, type, id);
+      setFeedback({
+        title: 'Recordatorio enviado',
+        message: res.message,
+        type: 'success',
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al enviar recordatorio';
+      setFeedback({ title: 'Error', message, type: 'error' });
+    } finally {
+      setIsReminding(false);
+    }
+  }, [group, id, isReminding, user?.id]);
 
   useEffect(() => {
     let mounted = true;
@@ -355,6 +379,94 @@ export default function LiquidacionesScreen() {
           >
             {tab === 'pending' ? renderPending() : renderHistory()}
           </ScrollView>
+
+          {/* Cuadros Estáticos: Deuda Mensual y Total Acumulada */}
+          {group?.type !== 'PERSONAL' && (
+            <View
+              className="mt-2 mb-4 overflow-hidden rounded-xl bg-white border border-[#E2E8F0]"
+              style={{
+                shadowColor: '#0F172A',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.05,
+                shadowRadius: 12,
+                elevation: 2,
+              }}
+            >
+              {/* Deuda Mensual */}
+              {monthlySettlement && (
+                <View className="flex-row items-center justify-between p-4 border-b border-[#E2E8F0]">
+                  <View className="flex-1">
+                    <Text className="text-[13px] font-bold uppercase tracking-wider text-[#64748B]">
+                      Cuenta del mes actual
+                    </Text>
+                    <Text className={`mt-1 text-lg font-bold ${
+                      monthlySettlement.settlementDirection === 'OWED_TO_ME'
+                        ? 'text-[#F59E0B]'
+                        : monthlySettlement.settlementDirection === 'I_OWE'
+                          ? 'text-[#EF4444]'
+                          : 'text-[#10B981]'
+                    }`}>
+                      {monthlySettlement.settlementDirection === 'OWED_TO_ME'
+                        ? `Te deben ${fmt(monthlySettlement.netSettlement)}`
+                        : monthlySettlement.settlementDirection === 'I_OWE'
+                          ? `Debes ${fmt(monthlySettlement.netSettlement)}`
+                          : 'Mes saldado'}
+                    </Text>
+                  </View>
+
+                  {monthlySettlement.settlementDirection === 'OWED_TO_ME' && (
+                    <Pressable
+                      onPress={() => handleRemind('MONTHLY')}
+                      disabled={isReminding}
+                      className="flex-row items-center justify-center gap-2 rounded-lg bg-[#F59E0B]/10 px-3 py-2 active:bg-[#F59E0B]/20"
+                    >
+                      <FontAwesome6 name="bell" size={14} color="#D97706" />
+                      <Text className="text-sm font-semibold text-[#D97706]">
+                        Recordar
+                      </Text>
+                    </Pressable>
+                  )}
+                </View>
+              )}
+
+              {/* Deuda Total */}
+              {settlement && (
+                <View className="flex-row items-center justify-between p-4">
+                  <View className="flex-1">
+                    <Text className="text-[13px] font-bold uppercase tracking-wider text-[#64748B]">
+                      Deuda Total Acumulada
+                    </Text>
+                    <Text className={`mt-1 text-lg font-bold ${
+                      settlement.settlementDirection === 'OWED_TO_ME'
+                        ? 'text-[#F59E0B]'
+                        : settlement.settlementDirection === 'I_OWE'
+                          ? 'text-[#EF4444]'
+                          : 'text-[#10B981]'
+                    }`}>
+                      {settlement.settlementDirection === 'OWED_TO_ME'
+                        ? `Te deben ${fmt(settlement.netSettlement)}`
+                        : settlement.settlementDirection === 'I_OWE'
+                          ? `Debes ${fmt(settlement.netSettlement)}`
+                          : 'Deuda saldada'}
+                    </Text>
+                  </View>
+
+                  {settlement.settlementDirection === 'OWED_TO_ME' && (
+                    <Pressable
+                      onPress={() => handleRemind('TOTAL')}
+                      disabled={isReminding}
+                      className="flex-row items-center justify-center gap-2 rounded-lg bg-[#F59E0B]/10 px-3 py-2 active:bg-[#F59E0B]/20"
+                    >
+                      <FontAwesome6 name="bell" size={14} color="#D97706" />
+                      <Text className="text-sm font-semibold text-[#D97706]">
+                        Recordar
+                      </Text>
+                    </Pressable>
+                  )}
+                </View>
+              )}
+            </View>
+          )}
         </View>
       )}
 

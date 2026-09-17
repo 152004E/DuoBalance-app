@@ -104,7 +104,7 @@ export default function ParejaScreen() {
         break;
       case 'export':
       case 'history':
-        setShowComingSoon(true);
+        router.push(`/grupos/${selectedGroup?.id ?? '1'}/liquidaciones`);
         break;
       case 'leave':
         setShowLeaveConfirm(true);

@@ -13,6 +13,7 @@ import {
   createPayment,
   confirmPayment,
   rejectPayment,
+  remindDebt,
 } from '@/services/api/payments';
 import { getCategoryMeta } from '@/constants/categories';
 import { formatRelativeDate } from '@/utils/date';
@@ -103,8 +104,33 @@ export default function CoupleDetail() {
     sentPending,
     history,
     settlement,
+    monthlySettlement,
     refetch: refetchPayments,
   } = useGroupPayments({ groupId: id, userId: user?.id });
+
+  const [isReminding, setIsReminding] = useState(false);
+
+  const handleRemind = useCallback(async (type: 'MONTHLY' | 'TOTAL') => {
+    if (isReminding) return;
+    setIsReminding(true);
+    try {
+      // Encontrar al otro miembro
+      const otherMember = group?.members.find((m) => m.user.id !== user?.id);
+      if (!otherMember) throw new Error('No se encontró al otro miembro');
+      
+      const res = await remindDebt(otherMember.user.id, type, id);
+      setPaymentFeedback({
+        title: 'Recordatorio enviado',
+        message: res.message,
+        type: 'success',
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al enviar recordatorio';
+      setPaymentFeedback({ title: 'Error', message, type: 'error' });
+    } finally {
+      setIsReminding(false);
+    }
+  }, [group, id, isReminding]);
 
   useEffect(() => {
     if (liquidar === '1' && group && settlement) {
@@ -260,13 +286,13 @@ export default function CoupleDetail() {
         break;
       case 'export':
       case 'history':
-        setShowComingSoon(true);
+        router.push(`/grupos/${id}/liquidaciones`);
         break;
       case 'leave':
         setShowLeaveConfirm(true);
         break;
     }
-  }, [id]);
+  }, [id, router]);
 
   const handleLeaveGroup = useCallback(async () => {
     if (isLeaving) return;
@@ -489,17 +515,17 @@ export default function CoupleDetail() {
           </View>
         </View>
 
-        {/* Liquidaciones - Tarjeta con settlement real del backend */}
-        {groupType !== 'PERSONAL' && settlement && (
+        {/* Liquidaciones - Tarjeta con settlement del mes actual */}
+        {groupType !== 'PERSONAL' && monthlySettlement && (
           <View className="mt-4 px-5">
             <View
               className="rounded-xl border border-[#E2E8F0] bg-white p-4"
               style={{
                 borderLeftWidth: 4,
                 borderLeftColor:
-                  settlement.settlementDirection === 'OWED_TO_ME'
+                  monthlySettlement.settlementDirection === 'OWED_TO_ME'
                     ? '#F59E0B'
-                    : settlement.settlementDirection === 'I_OWE'
+                    : monthlySettlement.settlementDirection === 'I_OWE'
                       ? '#EF4444'
                       : '#10B981',
                 shadowColor: '#0F172A',
@@ -511,19 +537,19 @@ export default function CoupleDetail() {
             >
               <View className="flex-col gap-4">
                 <Text className="text-[17px] font-bold text-[#0F172A]">
-                  {settlement.settlementDirection === 'OWED_TO_ME'
-                    ? 'Cuenta pendiente de cobro'
-                    : settlement.settlementDirection === 'I_OWE'
-                      ? 'Debes dinero'
-                      : 'Saldado'}
+                  {monthlySettlement.settlementDirection === 'OWED_TO_ME'
+                    ? 'Cuenta del mes a favor'
+                    : monthlySettlement.settlementDirection === 'I_OWE'
+                      ? 'Debes dinero del mes'
+                      : 'Mes saldado'}
                 </Text>
 
                 <View className="flex-row items-center gap-3">
                   <View
                     className={`flex h-12 w-12 items-center justify-center rounded-full ${
-                      settlement.settlementDirection === 'OWED_TO_ME'
+                      monthlySettlement.settlementDirection === 'OWED_TO_ME'
                         ? 'bg-[#F59E0B]/10'
-                        : settlement.settlementDirection === 'I_OWE'
+                        : monthlySettlement.settlementDirection === 'I_OWE'
                           ? 'bg-[#EF4444]/10'
                           : 'bg-[#10B981]/10'
                     }`}
@@ -532,9 +558,9 @@ export default function CoupleDetail() {
                       name="hand-holding-dollar"
                       size={20}
                       color={
-                        settlement.settlementDirection === 'OWED_TO_ME'
+                        monthlySettlement.settlementDirection === 'OWED_TO_ME'
                           ? '#F59E0B'
-                          : settlement.settlementDirection === 'I_OWE'
+                          : monthlySettlement.settlementDirection === 'I_OWE'
                             ? '#EF4444'
                             : '#10B981'
                       }
@@ -542,17 +568,17 @@ export default function CoupleDetail() {
                   </View>
                   <View className="shrink">
                     <Text className="text-sm text-[#64748B]">
-                      {settlement.settlementDirection === 'OWED_TO_ME'
-                        ? `Te deben ${fmt(settlement.netSettlement)}`
-                        : settlement.settlementDirection === 'I_OWE'
-                          ? `Debes ${fmt(settlement.netSettlement)}`
-                          : 'No hay deudas pendientes'}
+                      {monthlySettlement.settlementDirection === 'OWED_TO_ME'
+                        ? `Te deben ${fmt(monthlySettlement.netSettlement)}`
+                        : monthlySettlement.settlementDirection === 'I_OWE'
+                          ? `Debes ${fmt(monthlySettlement.netSettlement)}`
+                          : 'No hay deudas este mes'}
                     </Text>
                   </View>
                 </View>
 
                 <View className="flex-col gap-2">
-                  {settlement.settlementDirection === 'I_OWE' && (
+                  {monthlySettlement.settlementDirection === 'I_OWE' && (
                     <Pressable
                       onPress={() => setPaySheetVisible(true)}
                       className="w-full flex-row items-center justify-center gap-2 rounded-lg bg-[#006c49] px-3 py-3 active:opacity-80"
@@ -567,9 +593,25 @@ export default function CoupleDetail() {
                       </Text>
                     </Pressable>
                   )}
+                  {monthlySettlement.settlementDirection === 'OWED_TO_ME' && (
+                    <Pressable
+                      onPress={() => handleRemind('MONTHLY')}
+                      disabled={isReminding}
+                      className="w-full flex-row items-center justify-center gap-2 rounded-lg bg-[#F59E0B]/10 px-3 py-3 active:bg-[#F59E0B]/20"
+                    >
+                      <FontAwesome6
+                        name="bell"
+                        size={14}
+                        color="#D97706"
+                      />
+                      <Text className="text-sm font-semibold text-[#D97706]">
+                        {isReminding ? 'Enviando...' : 'Recordar mes'}
+                      </Text>
+                    </Pressable>
+                  )}
 
                   <Pressable
-                    onPress={() => setLiquidacionesVisible(true)}
+                    onPress={() => router.push(`/grupos/${id}/liquidaciones`)}
                     className="w-full flex-row items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-white px-3 py-3 active:bg-[#F2F4F6]"
                   >
                     <FontAwesome6
