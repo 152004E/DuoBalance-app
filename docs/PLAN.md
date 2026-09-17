@@ -363,7 +363,7 @@ Settlements history muestra:
 ### Pantallas — hechas en frontend ✅
 - [✅] **Registrar pago (abono parcial)** — `PaySheet` en `grupos/[id].tsx`: monto editable (valida `<= amountDue`), destino auto en COUPLE / selector en GROUP; autoabre con `?liquidar=1` (deep-link desde el toast del Dashboard)
 - [✅] **Confirmar/rechazar solicitudes** — `LiquidacionesSheet` + pantalla standalone `grupos/[id]/liquidaciones.tsx` (tabs "Por confirmar"/"Historial")
-- [✅] **Settlement status card en Group Detail** — con botón "Liquidar" (solo cuando yo debo) y "Historial de liquidaciones"; sincronizado con el balance del Dashboard (pagos CONFIRMED via `useDashboardData` + `useGroupPayments`)
+- [✅] **Settlement status card en Group Detail** — ahora separada en Deuda del Mes (limitada por el `cutoffDay`) visible en la tarjeta principal, y Deuda Total Acumulada visible como un cuadro estático en el historial. Sincronizado con el balance.
 - [✅] **Settlement Suggestions en Dashboard** — hook `useSettlementSuggestions` (consume `getSettlementSuggestions` por grupo) + Toast "Le debes a X / Tienes deudas por $Y" con deep-link `?liquidar=1`
 
 ### Pantallas pendientes (bajas / opcionales)
@@ -415,7 +415,7 @@ Settlements history muestra:
 | **Forgot Password** | ✅ Sprint 5 (MailModule Resend): backend + frontend connect |
 | **App Store Deploy** | EAS Build, TestFlight/Play Console, icons, splash |
 
-- [❌] Push notifications para PWA (Web Push API): Pedir permiso al usuario, registrar Service Worker de web push y conectar el token con el backend usando las llaves VAPID.
+- [✅] Push notifications para PWA (Web Push API): Pedir permiso al usuario, registrar Service Worker de web push y conectar el token con el backend usando las llaves VAPID.
 - [❌] Dark mode
 - [❌] i18n (multi-language)
 - [❌] Offline support
