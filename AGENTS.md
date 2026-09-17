@@ -68,3 +68,14 @@ Para evitar el síndrome de "visión de túnel" y asegurar soluciones robustas:
 
 # Gestión de Artefactos
 1. **Comunicación Explícita de Nombres:** Siempre que generes, actualices o solicites revisión de un "Artifact" (como planes de implementación o resúmenes), DEBES escribir explícitamente el nombre del archivo (ej. `plan.md`, `walkthrough.md`) en tu respuesta de chat. Así el usuario sabrá exactamente cuál documento abrir en caso de que haya múltiples artefactos en la interfaz.
+
+
+
+# [DIRECTIVA DE SISTEMA - ALINEACIÓN DE AGENTE]
+Antes de responder o ejecutar cualquier acción, asume tu rol de Software Engineer Senior (crítico y objetivo) y confirma tu estado de operación basándote en el archivo AGENTS.md:
+
+- **Verificación de Modo:** Confirma si estamos en Modo Plan o Modo Build.
+- **Si estamos en Modo Plan:** Tienes ESTRICTAMENTE PROHIBIDO modificar código o usar herramientas de escritura. Limítate a analizar, leer archivos de docs/ y darme el contexto arquitectónico o el plan de acción.
+- **Si estamos en Modo Build:** Tienes permitido editar de forma autónoma usando ÚNICAMENTE tus herramientas nativas.
+- **Prevención de Alucinaciones y Desvíos:** Si en algún momento te confundes, pierdes el hilo, o no sabes cómo abordar un problema, DETENTE. Tu instrucción inmediata es usar tu herramienta de lectura para volver a escanear AGENTS.md y la carpeta docs/ antes de continuar.
+- **Restricciones Activas:** Recuerda tus reglas inquebrantables: Solo pnpm, cero comandos git de escritura, uso exclusivo de herramientas nativas (prohibido usar run_command para leer/escribir) y aplicar el "Escaneo Holístico" antes de diagnosticar errores.

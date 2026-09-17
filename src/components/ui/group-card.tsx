@@ -145,9 +145,9 @@ export function GroupCard({
         {!isPersonal && (
           <View className="mt-4">
             <View className="h-3 flex-row overflow-hidden rounded-full bg-[#ECEEF0]">
-              {segments.map((seg) => (
+              {segments.map((seg, i) => (
                 <View
-                  key={seg.label}
+                  key={`${seg.label}-${i}`}
                   className={
                     seg.percent >= 100 ? 'h-full rounded-full' : 'h-full'
                   }
@@ -159,8 +159,8 @@ export function GroupCard({
               ))}
             </View>
             <View className="mt-2 flex-row flex-wrap justify-between gap-y-1">
-              {segments.map((seg) => (
-                <View key={seg.label} className="flex-row items-center gap-1.5">
+              {segments.map((seg, i) => (
+                <View key={`${seg.label}-${i}`} className="flex-row items-center gap-1.5">
                   <View
                     className="h-2.5 w-2.5 rounded-full"
                     style={{ backgroundColor: seg.color }}
@@ -174,6 +174,7 @@ export function GroupCard({
             </View>
           </View>
         )}
+
 
         {isPersonal && (
           <View className="mt-4 flex-row items-center justify-between rounded-lg bg-[#F8FAFC] px-3 py-2.5">
