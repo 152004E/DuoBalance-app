@@ -40,6 +40,11 @@ export default function ConfiguracionGrupoScreen() {
   const [editNameVisible, setEditNameVisible] = useState(false);
   const [editNameValue, setEditNameValue] = useState('');
   const [editNameLoading, setEditNameLoading] = useState(false);
+  
+  const [cutoffDayVisible, setCutoffDayVisible] = useState(false);
+  const [cutoffDayValue, setCutoffDayValue] = useState(30);
+  const [cutoffDayLoading, setCutoffDayLoading] = useState(false);
+
   const [adjustPercentageVisible, setAdjustPercentageVisible] = useState(false);
   const [adjustYourPercentage, setAdjustYourPercentage] = useState(50);
   const [archiveVisible, setArchiveVisible] = useState(false);
@@ -76,6 +81,7 @@ export default function ConfiguracionGrupoScreen() {
         if (mounted) {
           setGroup(data);
           setEditNameValue(data.name);
+          setCutoffDayValue(data.cutoffDay ?? 30);
           const mySplit = data.members[0]?.splitPercentage;
           if (mySplit != null) {
             setAdjustYourPercentage(Number(mySplit));
@@ -127,6 +133,23 @@ export default function ConfiguracionGrupoScreen() {
       setTimeout(() => setSuccessMessage(null), 2500);
     } finally {
       setEditNameLoading(false);
+    }
+  };
+
+  const handleSaveCutoffDay = async () => {
+    if (!group || !cutoffDayValue) return;
+    setCutoffDayLoading(true);
+    try {
+      const updated = await updateGroup(id, { cutoffDay: Number(cutoffDayValue) });
+      setGroup(updated);
+      setCutoffDayVisible(false);
+      setSuccessMessage('Día de corte actualizado');
+      setTimeout(() => setSuccessMessage(null), 2500);
+    } catch {
+      setSuccessMessage('Error al actualizar el día de corte');
+      setTimeout(() => setSuccessMessage(null), 2500);
+    } finally {
+      setCutoffDayLoading(false);
     }
   };
 
@@ -387,6 +410,50 @@ export default function ConfiguracionGrupoScreen() {
               </View>
             </View>
           </Animated.View>
+          {/* Liquidación */}
+          <Animated.View style={style1}>
+            <View
+              className="mt-4 rounded-2xl border border-[#E2E8F0] bg-white p-5"
+              style={{
+                shadowColor: '#0F172A',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.05,
+                shadowRadius: 12,
+                elevation: 2,
+              }}
+            >
+              <Text className="text-[13px] font-semibold uppercase tracking-wider text-[#64748B]">
+                Ciclo de Liquidación
+              </Text>
+              
+              <View className="mt-4 space-y-4">
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-1">
+                    <Text className="text-sm text-[#64748B]">Tu mes corta el día</Text>
+                    <Text className="mt-1 text-base font-semibold text-[#0F172A]">
+                      {group.cutoffDay ?? 30} de cada mes
+                    </Text>
+                    <Text className="mt-2 text-xs text-[#94A3B8]">
+                      Tienes hasta el día {((group.cutoffDay ?? 30) + 5 > 31) ? ((group.cutoffDay ?? 30) + 5) % 31 || 31 : (group.cutoffDay ?? 30) + 5} para pagar.
+                    </Text>
+                  </View>
+                </View>
+
+                <View className="border-t border-[#E2E8F0] pt-4">
+                  <Pressable
+                    onPress={() => setCutoffDayVisible(true)}
+                    className="w-full flex-row items-center justify-center gap-1 active:opacity-80"
+                  >
+                    <Text className="text-sm font-semibold text-[#006c49]">
+                      Cambiar fecha de liquidación
+                    </Text>
+                    <FontAwesome6 name="pen" size={12} color="#006c49" />
+                  </Pressable>
+                </View>
+              </View>
+            </View>
+          </Animated.View>
+
 
           {/* Miembros */}
           <Animated.View style={style2}>
@@ -746,6 +813,92 @@ export default function ConfiguracionGrupoScreen() {
               iconRight="check"
               onPress={handleSaveName}
               className="rounded-full py-4"
+            />
+          </View>
+        </View>
+      </BottomSheet>
+
+      {/* Bottom Sheet: Cambiar día de corte */}
+      <BottomSheet
+        visible={cutoffDayVisible}
+        onClose={() => setCutoffDayVisible(false)}
+        header={
+          <BottomSheetHeader
+            visible={cutoffDayVisible}
+            title="Día de corte"
+            subtitle="El mes cierra este día"
+            onClose={() => setCutoffDayVisible(false)}
+            gradientPaddingBottom={600}
+            logo={require('@/assets/images/logo-white-green-bg-without.png')}
+          />
+        }
+        heightRatio={0.4}
+        headerFinalTranslateY={0.15}
+      >
+        <View className="flex-1 px-5 pt-4">
+          <View className="items-center justify-center mb-6">
+            <Text className="text-sm font-medium text-[#64748B] mb-4">
+              Selecciona el día del mes
+            </Text>
+            
+            <View className="w-full flex-row items-center justify-between rounded-3xl bg-[#F8FAFC] py-4 px-2 border border-[#E2E8F0]">
+              <Pressable 
+                onPress={() => setCutoffDayValue(p => p > 1 ? p - 1 : 31)}
+                className="h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm border border-[#E2E8F0] active:bg-gray-100"
+              >
+                <FontAwesome6 name="chevron-left" size={16} color="#0F172A" />
+              </Pressable>
+              
+              <View className="flex-row items-center justify-center flex-1">
+                {[
+                  cutoffDayValue - 2 < 1 ? cutoffDayValue - 2 + 31 : cutoffDayValue - 2,
+                  cutoffDayValue - 1 < 1 ? cutoffDayValue - 1 + 31 : cutoffDayValue - 1,
+                  cutoffDayValue,
+                  cutoffDayValue + 1 > 31 ? cutoffDayValue + 1 - 31 : cutoffDayValue + 1,
+                  cutoffDayValue + 2 > 31 ? cutoffDayValue + 2 - 31 : cutoffDayValue + 2,
+                ].map((day, i) => {
+                  const isCenter = i === 2;
+                  const isAdjacent = i === 1 || i === 3;
+                  return (
+                    <View 
+                      key={`${day}-${i}`} 
+                      className={`items-center justify-center mx-1 ${
+                        isCenter 
+                          ? 'w-16 h-16 rounded-full bg-[#10B981] shadow-sm' 
+                          : isAdjacent ? 'w-10' : 'w-8'
+                      }`}
+                    >
+                      <Text 
+                        className={`font-bold ${
+                          isCenter 
+                            ? 'text-2xl text-white' 
+                            : isAdjacent 
+                              ? 'text-lg text-[#94A3B8]' 
+                              : 'text-sm text-[#CBD5E1]'
+                        }`}
+                      >
+                        {day}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
+              
+              <Pressable 
+                onPress={() => setCutoffDayValue(p => p < 31 ? p + 1 : 1)}
+                className="h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm border border-[#E2E8F0] active:bg-gray-100"
+              >
+                <FontAwesome6 name="chevron-right" size={16} color="#0F172A" />
+              </Pressable>
+            </View>
+          </View>
+          <View className="mt-4">
+            <Button
+              text={cutoffDayLoading ? 'Guardando...' : 'Guardar cambios'}
+              iconRight="check"
+              onPress={handleSaveCutoffDay}
+              className="rounded-full py-4"
+              disabled={cutoffDayLoading}
             />
           </View>
         </View>

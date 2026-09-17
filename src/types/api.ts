@@ -119,6 +119,7 @@ export interface GroupResponse {
   name: string;
   inviteCode: string | null;
   type: GroupType;
+  cutoffDay: number;
   createdAt: string;
   members: GroupMember[];
 }
@@ -139,6 +140,7 @@ export interface LeaveGroupResponse {
 
 export interface UpdateGroupPayload {
   name?: string;
+  cutoffDay?: number;
 }
 
 export interface MemberSplitResponse {
