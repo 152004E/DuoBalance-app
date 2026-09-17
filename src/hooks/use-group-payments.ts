@@ -14,18 +14,12 @@ export interface GroupPaymentsData {
   pendingToConfirm: PaymentResponse[];
   sentPending: PaymentResponse[];
   history: PaymentResponse[];
-  settlement: SettlementResponse | null;
+  settlement: SettlementResponse | null; // Total settlement
+  monthlySettlement: SettlementResponse | null; // Monthly settlement
   isLoading: boolean;
   refetch: () => Promise<boolean>;
 }
 
-/**
- * Carga los pagos y el settlement real del grupo.
- * - `pendingToConfirm`: pagos PENDING donde yo soy el receptor (solicitudes por confirmar).
- * - `sentPending`: pagos PENDING donde yo soy el emisor (esperando confirmación del otro).
- * - `history`: pagos CONFIRMED/REJECTED (historial de liquidaciones).
- * Se re-ejecuta cada vez que la pantalla recibe foco (useFocusEffect) y al llamar refetch.
- */
 export function useGroupPayments({
   groupId,
   userId,
@@ -33,21 +27,30 @@ export function useGroupPayments({
 }: UseGroupPaymentsOptions): GroupPaymentsData {
   const [payments, setPayments] = useState<PaymentResponse[]>([]);
   const [settlement, setSettlement] = useState<SettlementResponse | null>(null);
+  const [monthlySettlement, setMonthlySettlement] = useState<SettlementResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const load = useCallback(async (): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const [paymentsData, settlementData] = await Promise.all([
+      const now = new Date();
+      const currentMonth = now.getMonth() + 1;
+      const currentYear = now.getFullYear();
+
+      const [paymentsData, totalSettlementData, monthlySettlementData] = await Promise.all([
         getPayments(groupId),
         getSettlement(groupId),
+        getSettlement(groupId, currentMonth, currentYear),
       ]);
+      
       setPayments(paymentsData);
-      setSettlement(settlementData);
+      setSettlement(totalSettlementData);
+      setMonthlySettlement(monthlySettlementData);
       return true;
     } catch {
       setPayments([]);
       setSettlement(null);
+      setMonthlySettlement(null);
       return false;
     } finally {
       setIsLoading(false);
@@ -59,15 +62,15 @@ export function useGroupPayments({
       if (enabled) {
         load();
       }
-    }, [enabled, load]),
+    }, [enabled, load])
   );
 
   const pendingToConfirm = payments.filter(
-    (p) => p.status === 'PENDING' && p.toUserId === userId,
+    (p) => p.status === 'PENDING' && p.toUserId === userId
   );
 
   const sentPending = payments.filter(
-    (p) => p.status === 'PENDING' && p.fromUserId === userId,
+    (p) => p.status === 'PENDING' && p.fromUserId === userId
   );
 
   const history = payments.filter((p) => p.status !== 'PENDING');
@@ -78,6 +81,7 @@ export function useGroupPayments({
     sentPending,
     history,
     settlement,
+    monthlySettlement,
     isLoading,
     refetch: load,
   };

@@ -24,19 +24,36 @@ export const getPayments = async (
 
 export const getSettlement = async (
   groupId?: string,
+  month?: number,
+  year?: number,
 ): Promise<SettlementResponse> => {
   const { data } = await api.get<SettlementResponse>('/settlements', {
-    params: { groupId },
+    params: { groupId, month, year },
   });
   return data;
 };
 
 export const getSettlementSuggestions = async (
   groupId?: string,
+  month?: number,
+  year?: number,
 ): Promise<SettlementSuggestionsResponse> => {
   const { data } = await api.get<SettlementSuggestionsResponse>(
     '/settlements/suggestions',
-    { params: { groupId } },
+    { params: { groupId, month, year } },
+  );
+  return data;
+};
+
+export const remindDebt = async (
+  debtorId: string,
+  type: 'MONTHLY' | 'TOTAL',
+  groupId?: string,
+): Promise<{ message: string }> => {
+  const { data } = await api.post<{ message: string }>(
+    `/settlements/remind/${debtorId}`,
+    { type },
+    { params: { groupId } }
   );
   return data;
 };
