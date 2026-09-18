@@ -7,6 +7,8 @@ import { useFonts } from 'expo-font';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 import { AuthProvider } from '@/features/auth/auth.context';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@/lib/query-client';
 import { SessionExpiredAlert } from '@/components/auth/session-expired-alert';
 import { appToastConfig } from '@/components/ui/app-toast';
 import { SeoHead } from '@/components/common/seo-head';
@@ -107,17 +109,19 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <SeoHead />
-      <Stack screenOptions={{ headerShown: false }} />
-      <Toast
-        config={appToastConfig}
-        position="top"
-        topOffset={12}
-        visibilityTime={3000}
-        autoHide
-      />
-      <SessionExpiredAlert />
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <SeoHead />
+        <Stack screenOptions={{ headerShown: false }} />
+        <Toast
+          config={appToastConfig}
+          position="top"
+          topOffset={12}
+          visibilityTime={3000}
+          autoHide
+        />
+        <SessionExpiredAlert />
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }

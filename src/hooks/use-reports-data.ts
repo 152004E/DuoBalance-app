@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { getExpenses } from '@/services/api/expenses';
 import type {
   ExpenseCategory,
@@ -31,7 +32,7 @@ export interface ReportsData {
   averageComparison: number | null;
   isLoading: boolean;
   hasData: boolean;
-  refetch: () => Promise<void>;
+  refetch: () => Promise<any>;
 }
 
 const MEMBER_COLORS = [
@@ -61,7 +62,6 @@ function monthEnd(offset: number): Date {
   );
 }
 
-// Ventana temporal del período seleccionado (null = sin límite, p.ej. 'Todo')
 function periodWindow(period: ReportPeriod): {
   start: Date | null;
   end: Date | null;
@@ -80,7 +80,6 @@ function periodWindow(period: ReportPeriod): {
   }
 }
 
-// Ventana de comparación (inmediatamente anterior al período seleccionado)
 function previousWindow(period: ReportPeriod): {
   start: Date | null;
   end: Date | null;
@@ -116,13 +115,6 @@ export function useReportsData(
   period: ReportPeriod,
   category?: ExpenseCategory | 'all',
 ): ReportsData {
-  const [isLoading, setIsLoading] = useState(true);
-  const [expenses, setExpenses] = useState<ExpenseResponse[]>([]);
-  const [lastMonthExpenses, setLastMonthExpenses] = useState<ExpenseResponse[]>(
-    [],
-  );
-
-  // Grupos que aplican según el workspace (vacío = todos los grupos)
   const targetGroupIds = useMemo(() => {
     if (workspace.groupId) return [workspace.groupId];
     if (workspace.category === 'personal') {
@@ -139,9 +131,9 @@ export function useReportsData(
 
   const groupIdsKey = targetGroupIds.join(',');
 
-  const load = useCallback(async () => {
-    setIsLoading(true);
-    try {
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ['reports-data', groupIdsKey, period, category],
+    queryFn: async () => {
       const current = periodWindow(period);
       const previous = previousWindow(period);
       const categoryFilter = category && category !== 'all' ? { category } : {};
@@ -174,19 +166,16 @@ export function useReportsData(
         Promise.all(previousPromises),
       ]);
 
-      setExpenses(currentResults.flat());
-      setLastMonthExpenses(previousResults.flat());
-    } catch {
-      setExpenses([]);
-      setLastMonthExpenses([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [targetGroupIds, period, category]);
+      return {
+        expenses: currentResults.flat(),
+        lastMonthExpenses: previousResults.flat(),
+      };
+    },
+    enabled: targetGroupIds.length > 0,
+  });
 
-  useEffect(() => {
-    load();
-  }, [load, groupIdsKey]);
+  const expenses = data?.expenses ?? [];
+  const lastMonthExpenses = data?.lastMonthExpenses ?? [];
 
   // ── Cálculos derivados ────────────────────────────────────────────────
   const total = expenses.reduce((acc, e) => acc + Number(e.amount), 0);
@@ -218,7 +207,6 @@ export function useReportsData(
         : null
     : null;
 
-  // Barra: por categoría (top 5)
   const categoryTotals = new Map<string, number>();
   for (const e of expenses) {
     const cat = e.category;
@@ -233,7 +221,6 @@ export function useReportsData(
       color: CATEGORY_COLORS[category] ?? '#94A3B8',
     }));
 
-  // Donut: por miembro (suma de lo que pagó cada uno)
   const memberTotals = new Map<string, number>();
   for (const e of expenses) {
     const payerId = e.paidById;
@@ -269,6 +256,6 @@ export function useReportsData(
     averageComparison,
     isLoading,
     hasData: count > 0,
-    refetch: load,
+    refetch,
   };
 }

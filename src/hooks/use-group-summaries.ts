@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { getExpenses } from '@/services/api/expenses';
 import type { GroupResponse } from '@/types/api';
 
@@ -19,24 +19,14 @@ function getCurrentMonthRange(): { startDate: string; endDate: string } {
   return { startDate: start.toISOString(), endDate: end.toISOString() };
 }
 
-/**
- * Carga el resumen real (nº de gastos y total del mes) de cada grupo en paralelo.
- * Se re-ejecuta cuando cambia la lista de grupos (p.ej. tras refetch).
- */
 export function useGroupSummaries(
   groups: GroupResponse[],
 ): UseGroupSummariesReturn {
-  const [summaries, setSummaries] = useState<Record<string, GroupSummary>>({});
-  const [isLoading, setIsLoading] = useState(false);
+  const groupIds = groups.map((g) => g.id).sort().join(',');
 
-  const loadSummaries = useCallback(async () => {
-    if (groups.length === 0) {
-      setSummaries({});
-      return;
-    }
-
-    setIsLoading(true);
-    try {
+  const { data: summaries = {}, isLoading } = useQuery({
+    queryKey: ['group-summaries', groupIds],
+    queryFn: async () => {
       const { startDate, endDate } = getCurrentMonthRange();
       const results = await Promise.all(
         groups.map(async (group) => {
@@ -61,15 +51,10 @@ export function useGroupSummaries(
       for (const r of results) {
         next[r.id] = { count: r.count, total: r.total };
       }
-      setSummaries(next);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [groups]);
-
-  useEffect(() => {
-    loadSummaries();
-  }, [loadSummaries]);
+      return next;
+    },
+    enabled: groups.length > 0,
+  });
 
   return { summaries, isLoading };
 }
