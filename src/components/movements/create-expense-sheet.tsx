@@ -51,8 +51,6 @@ interface CreateExpenseSheetProps {
   onCreateExpense?: (payload: ExpensePayload) => Promise<void> | void;
   initialExpense?: ExpenseResponse | null;
   onUpdateExpense?: (payload: ExpensePayload) => Promise<void> | void;
-  heightRatio?: number;
-  headerFinalTranslateY?: number;
 }
 
 function getTodayDate(): string {
@@ -72,8 +70,6 @@ export function CreateExpenseSheet({
   onCreateExpense,
   initialExpense,
   onUpdateExpense,
-  heightRatio = 0.75,
-  headerFinalTranslateY,
 }: CreateExpenseSheetProps) {
   const isPersonal = group.type === 'PERSONAL' || members.length === 1;
   const isCouple = group.type === 'COUPLE' || members.length === 2;
@@ -239,18 +235,40 @@ export function CreateExpenseSheet({
           : `Registra un gasto compartido en ${group.name}`
       }
       onClose={onClose}
-      gradientPaddingBottom={600}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
     />
   );
+
+const handleBeforeClose = async () => {
+    if (amount !== '' || description.trim() !== '' || pickedReceipt) {
+      return new Promise<boolean>((resolve) => {
+        Toast.show({
+          type: 'confirmDiscard',
+          text1: '¿Descartar gasto?',
+          text2: 'Tienes información sin guardar.',
+          autoHide: false,
+          props: {
+            onConfirm: () => {
+              Toast.hide();
+              resolve(true);
+            },
+            onCancel: () => {
+              Toast.hide();
+              resolve(false);
+            },
+          },
+        });
+      });
+    }
+    return true;
+  };
 
   return (
     <BottomSheet
       visible={visible}
       onClose={onClose}
+      beforeClose={handleBeforeClose}
       header={header}
-      heightRatio={heightRatio}
-      headerFinalTranslateY={headerFinalTranslateY}
     >
       <View className="flex-1">
         <ScrollView

@@ -1,4 +1,5 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { getSettlementSuggestions } from '@/services/api/payments';
 import type { GroupResponse } from '@/types/api';
 import type { WorkspaceState } from '@/features/workspace/workspace.types';
@@ -19,21 +20,12 @@ interface UseSettlementSuggestionsOptions {
   enabled?: boolean;
 }
 
-/**
- * Carga las liquidaciones sugeridas por el backend (getSettlementSuggestions)
- * para los grupos del workspace y extrae las deudas del usuario actual
- * (sugerencias donde `from === userId`).
- * Se re-ejecuta al cambiar de workspace/grupos y al enfocar la pantalla.
- */
 export function useSettlementSuggestions({
   workspace,
   groups,
   userId,
   enabled = true,
 }: UseSettlementSuggestionsOptions) {
-  const [dues, setDues] = useState<SettlementDue[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
   const targetGroupIds = useMemo(() => {
     if (workspace.groupId) return [workspace.groupId];
     if (workspace.category === 'personal') {
@@ -58,14 +50,9 @@ export function useSettlementSuggestions({
     return map;
   }, [groups]);
 
-  const load = useCallback(async () => {
-    if (!enabled || !userId) {
-      setDues([]);
-      setIsLoading(false);
-      return;
-    }
-    setIsLoading(true);
-    try {
+  const { data: dues = [], isLoading, refetch } = useQuery({
+    queryKey: ['settlement-suggestions', groupIdsKey, userId],
+    queryFn: async () => {
       const results = await Promise.all(
         targetGroupIds.map((groupId) =>
           getSettlementSuggestions(groupId).catch(() => null),
@@ -88,17 +75,13 @@ export function useSettlementSuggestions({
           }
         }
       });
-      // Ordena de mayor a menor deuda para destacar lo más urgente
       acc.sort((a, b) => b.amount - a.amount);
-      setDues(acc);
-    } catch {
-      setDues([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [targetGroupIds, groupIdsKey, userId, nameByGroup]); // eslint-disable-line react-hooks/exhaustive-deps
+      return acc;
+    },
+    enabled: enabled && !!userId && targetGroupIds.length > 0,
+  });
 
   const totalDue = dues.reduce((acc, d) => acc + d.amount, 0);
 
-  return { dues, totalDue, isLoading, refetch: load };
+  return { dues, totalDue, isLoading, refetch };
 }

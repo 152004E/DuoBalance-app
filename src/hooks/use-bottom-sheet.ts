@@ -23,7 +23,7 @@ enum TransitionState {
 interface UseBottomSheetProps {
   visible: boolean;
   onClose: () => void;
-  headerFinalTranslateY: number;
+  beforeClose?: () => boolean | Promise<boolean>;
   onOpenComplete?: () => void;
   onCloseComplete?: () => void;
 }
@@ -31,7 +31,7 @@ interface UseBottomSheetProps {
 export function useBottomSheet({
   visible,
   onClose,
-  headerFinalTranslateY,
+  beforeClose,
   onOpenComplete,
   onCloseComplete,
 }: UseBottomSheetProps) {
@@ -44,7 +44,7 @@ export function useBottomSheet({
   const overlayOpacity = useSharedValue(0);
   const scale = useSharedValue(0.97);
 
-  const headerTranslateY = useSharedValue(SCREEN_HEIGHT);
+  const headerTranslateY = useSharedValue(20);
   const headerOpacity = useSharedValue(0);
 
   const open = useCallback(() => {
@@ -94,7 +94,7 @@ export function useBottomSheet({
       duration: 250,
     });
 
-    headerTranslateY.value = withTiming(SCREEN_HEIGHT, {
+    headerTranslateY.value = withTiming(20, {
       duration: 250,
     });
 
@@ -102,6 +102,18 @@ export function useBottomSheet({
       duration: 250,
     });
   }, [finishClose]);
+
+  const handleClose = useCallback(async () => {
+    if (beforeClose) {
+      const shouldClose = await beforeClose();
+      if (!shouldClose) {
+        translateY.value = withTiming(0, { duration: 250 });
+        overlayOpacity.value = withTiming(0.6, { duration: 250 });
+        return;
+      }
+    }
+    startClose();
+  }, [beforeClose, startClose, translateY, overlayOpacity]);
 
   const fireOpenComplete = useCallback(() => {
     onOpenComplete?.();
@@ -116,7 +128,7 @@ export function useBottomSheet({
         const sheetTimer = setTimeout(open, 50);
 
         const headerTimer = setTimeout(() => {
-          headerTranslateY.value = withTiming(headerFinalTranslateY, {
+          headerTranslateY.value = withTiming(0, {
             duration: 400,
             easing: Easing.out(Easing.cubic),
           });
@@ -138,15 +150,11 @@ export function useBottomSheet({
       }
     } else {
       if (prevVisible.current) {
-        startClose();
+        startClose(); // Force close from parent prop change bypasses beforeClose
       }
       prevVisible.current = false;
     }
-  }, [visible, open, headerFinalTranslateY, startClose, fireOpenComplete]);
-
-  const handleClose = useCallback(() => {
-    startClose();
-  }, [startClose]);
+  }, [visible, open, startClose, fireOpenComplete]);
 
   const panGesture = Gesture.Pan()
     .activeOffsetY(10)
@@ -163,7 +171,7 @@ export function useBottomSheet({
         event.translationY > DISMISS_THRESHOLD ||
         event.velocityY > DISMISS_VELOCITY
       ) {
-        startClose();
+        runOnJS(handleClose)();
       } else {
         translateY.value = withTiming(0, {
           duration: 250,

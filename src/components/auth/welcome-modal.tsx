@@ -57,7 +57,6 @@ export function WelcomeModal() {
       title={`¡Hola, ${user.firstName}!`}
       subtitle="Te damos la bienvenida a DuoBalance."
       onClose={handleClose}
-      gradientPaddingBottom={300}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
     />
   );
@@ -67,8 +66,6 @@ export function WelcomeModal() {
       visible={visible}
       onClose={handleClose}
       header={header}
-      heightRatio={0.70}
-      headerFinalTranslateY={0.15}
     >
       <View className="px-6 pb-6 pt-5 items-center flex-1">
         

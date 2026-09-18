@@ -14,7 +14,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface BottomSheetHeaderProps {
   visible: boolean;
@@ -23,9 +22,11 @@ interface BottomSheetHeaderProps {
   onClose: () => void;
   logo?: ImageSourcePropType;
   gradientColors?: [string, string, ...string[]];
+  /** @deprecated Ya no se usa. */
   gradientPaddingBottom?: number;
   titleAnimationDelay?: number;
   subtitleAnimationDelay?: number;
+  sheetHeight?: number;
 }
 
 export function BottomSheetHeader({
@@ -35,12 +36,10 @@ export function BottomSheetHeader({
   onClose,
   logo,
   gradientColors = ['#10B981', '#0F766E'],
-  gradientPaddingBottom = 100,
-  titleAnimationDelay = 950,
-  subtitleAnimationDelay = 1100,
+  titleAnimationDelay = 700,
+  subtitleAnimationDelay = 850,
+  sheetHeight = 0,
 }: BottomSheetHeaderProps) {
-  const insets = useSafeAreaInsets();
-
   const titleOpacity = useSharedValue(0);
   const titleTranslateY = useSharedValue(20);
   const subtitleOpacity = useSharedValue(0);
@@ -92,33 +91,31 @@ export function BottomSheetHeader({
   }));
 
   return (
-    <View
-      style={{
-        borderTopLeftRadius: 32,
-        borderTopRightRadius: 32,
-        overflow: 'hidden',
-      }}
-    >
+    <View style={{ flex: 1, width: '100%', height: '100%' }}>
       <LinearGradient
         colors={gradientColors}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        className="flex-1 justify-end px-5"
         style={{
-          padding: insets.top + 17,
-          paddingBottom: insets.bottom + gradientPaddingBottom,
+          flex: 1,
+          width: '100%',
+          height: '100%',
+          paddingTop: 40,
+          paddingHorizontal: 20,
+          borderTopLeftRadius: 32,
+          borderTopRightRadius: 32,
         }}
       >
         <Pressable
           onPress={onClose}
-          className="h-8 w-8 items-center justify-center rounded-full"
+          className="h-8 w-8 items-center justify-center rounded-full z-10"
           style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}
         >
           <FontAwesome6 name="arrow-left" size={18} color="#FFFFFF" />
         </Pressable>
 
-        <Animated.View style={titleStyle}>
-          <Text className="mt-5 text-[28px] font-extrabold tracking-tight text-white">
+        <Animated.View style={[titleStyle, { marginTop: 20 }]}>
+          <Text className="text-[28px] font-extrabold tracking-tight text-white">
             {title}
           </Text>
         </Animated.View>
@@ -129,11 +126,23 @@ export function BottomSheetHeader({
           </Text>
         </Animated.View>
 
+        {/* Logo posicionado absolutamente en la parte inferior.
+            Como este contenedor verde se extiende 'sheetHeight' píxeles hacia abajo 
+            por debajo del inicio de la sábana blanca, el logo a bottom: 40 queda 
+            completamente oculto detrás de la sábana blanca. */}
         {logo && (
-          <View className="items-center pt-20">
+          <View 
+            className="items-center" 
+            style={{ 
+              position: 'absolute', 
+              left: 0, 
+              right: 0, 
+              bottom: 40
+            }}
+          >
             <Image
               source={logo}
-              style={{ width: 80, height: 80 }}
+              style={{ width: 80, height: 80, opacity: 0.5 }}
               resizeMode="contain"
             />
           </View>

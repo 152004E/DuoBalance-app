@@ -13,8 +13,6 @@ import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
 import { CreateCoupleSheet } from '@/components/couple/create-couple-sheet';
 
 interface FloatingAddMenuProps {
-  heightRatio?: number;
-  headerFinalTranslateY?: number;
   createCoupleHeightRatio?: number;
   createCoupleHeaderFinalTranslateY?: number;
   onJoinCouple?: () => void;
@@ -90,8 +88,6 @@ function MenuItemRow({
 }
 
 export function FloatingAddMenu({
-  heightRatio = 0.45,
-  headerFinalTranslateY = 0.27,
   createCoupleHeightRatio = 0.65,
   createCoupleHeaderFinalTranslateY = 0.17,
   onJoinCouple,
@@ -184,7 +180,6 @@ export function FloatingAddMenu({
       title="Agregar"
       subtitle="Crea o únete a un grupo para gestionar gastos"
       onClose={handleCloseMenu}
-      gradientPaddingBottom={500}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
     />
   );
@@ -212,8 +207,6 @@ export function FloatingAddMenu({
         onClose={handleCloseMenu}
         onCloseComplete={handleMenuCloseComplete}
         header={header}
-        heightRatio={heightRatio}
-        headerFinalTranslateY={headerFinalTranslateY}
       >
         <View className="flex-1 px-5 pt-2">
           {MENU_ITEMS.map((item, index) => (
@@ -236,8 +229,6 @@ export function FloatingAddMenu({
       <CreateCoupleSheet
         visible={showCreateSheet}
         onClose={() => setShowCreateSheet(false)}
-        heightRatio={createCoupleHeightRatio}
-        headerFinalTranslateY={createCoupleHeaderFinalTranslateY}
       />
     </>
   );

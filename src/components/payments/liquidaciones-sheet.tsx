@@ -18,8 +18,6 @@ interface LiquidacionesSheetProps {
   onConfirm?: (payment: PaymentResponse) => void;
   onReject?: (payment: PaymentResponse) => void;
   isMutating?: boolean;
-  heightRatio?: number;
-  headerFinalTranslateY?: number;
 }
 
 type Tab = 'pending' | 'history';
@@ -49,8 +47,6 @@ export function LiquidacionesSheet({
   onConfirm,
   onReject,
   isMutating = false,
-  heightRatio = 0.8,
-  headerFinalTranslateY = 0.1,
 }: LiquidacionesSheetProps) {
   const [tab, setTab] = useState<Tab>('pending');
 
@@ -255,7 +251,6 @@ export function LiquidacionesSheet({
       title="Historial de pagos"
       subtitle="Confirma pagos pendientes y revisa el historial"
       onClose={onClose}
-      gradientPaddingBottom={600}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
     />
   );
@@ -265,8 +260,6 @@ export function LiquidacionesSheet({
       visible={visible}
       onClose={onClose}
       header={header}
-      heightRatio={heightRatio}
-      headerFinalTranslateY={headerFinalTranslateY}
     >
       <View className="flex-1">
         {/* Tabs */}

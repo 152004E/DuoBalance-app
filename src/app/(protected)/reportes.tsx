@@ -224,8 +224,6 @@ export default function ReportesScreen() {
           setSelectedPeriod(DEFAULT_PERIOD);
           setSelectedCategory('all');
         }}
-        heightRatio={0.48}
-        headerFinalTranslateY={0.35}
       />
     </SafeAreaView>
   );

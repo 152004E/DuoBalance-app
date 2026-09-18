@@ -65,8 +65,6 @@ interface CoupleMenuSheetProps {
   visible: boolean;
   onClose: () => void;
   onAction: (action: CoupleMenuAction) => void;
-  heightRatio?: number;
-  headerFinalTranslateY?: number;
   onCloseComplete?: () => void;
 }
 
@@ -133,8 +131,6 @@ export function CoupleMenuSheet({
   visible,
   onClose,
   onAction,
-  heightRatio = 0.65,
-  headerFinalTranslateY,
   onCloseComplete,
 }: CoupleMenuSheetProps) {
   const insets = useSafeAreaInsets();
@@ -174,7 +170,6 @@ export function CoupleMenuSheet({
       title="Opciones del grupo"
       subtitle="Administra tu grupo de gastos compartidos"
       onClose={onClose}
-      gradientPaddingBottom={500}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
     />
   );
@@ -184,8 +179,6 @@ export function CoupleMenuSheet({
       visible={visible}
       onClose={onClose}
       header={header}
-      heightRatio={heightRatio}
-      headerFinalTranslateY={headerFinalTranslateY}
       onCloseComplete={onCloseComplete}
     >
       <View className="flex-1">

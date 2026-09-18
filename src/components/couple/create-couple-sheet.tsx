@@ -16,8 +16,6 @@ type SplitOption = '50_50' | 'percentage';
 interface CreateCoupleSheetProps {
   visible: boolean;
   onClose: () => void;
-  heightRatio?: number;
-  headerFinalTranslateY?: number;
 }
 
 const TYPE_CARDS: {
@@ -71,8 +69,6 @@ function SplitToggle({
 export function CreateCoupleSheet({
   visible,
   onClose,
-  heightRatio = 0.85,
-  headerFinalTranslateY,
 }: CreateCoupleSheetProps) {
   const router = useRouter();
   const [groupType, setGroupType] = useState<GroupType>('personal');
@@ -163,18 +159,40 @@ export function CreateCoupleSheet({
       title="Opciones del grupo"
       subtitle="Administra tu grupo de gastos compartidos"
       onClose={onClose}
-      gradientPaddingBottom={500}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
     />
   );
+
+const handleBeforeClose = async () => {
+    if (coupleName.trim() !== '') {
+      return new Promise<boolean>((resolve) => {
+        Toast.show({
+          type: 'confirmDiscard',
+          text1: '¿Descartar grupo?',
+          text2: 'Tienes información sin guardar.',
+          autoHide: false,
+          props: {
+            onConfirm: () => {
+              Toast.hide();
+              resolve(true);
+            },
+            onCancel: () => {
+              Toast.hide();
+              resolve(false);
+            },
+          },
+        });
+      });
+    }
+    return true;
+  };
 
   return (
     <BottomSheet
       visible={visible}
       onClose={onClose}
+      beforeClose={handleBeforeClose}
       header={header}
-      heightRatio={heightRatio}
-      headerFinalTranslateY={headerFinalTranslateY}
     >
       <View className="flex-1">
         <ScrollView

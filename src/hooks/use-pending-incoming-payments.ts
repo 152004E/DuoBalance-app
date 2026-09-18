@@ -1,5 +1,5 @@
-import { useState, useMemo, useCallback } from 'react';
-import { useFocusEffect } from 'expo-router';
+import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { getPayments } from '@/services/api/payments';
 import type { GroupResponse, PaymentResponse } from '@/types/api';
 import type { WorkspaceState } from '@/features/workspace/workspace.types';
@@ -20,22 +20,12 @@ interface UsePendingIncomingPaymentsOptions {
   enabled?: boolean;
 }
 
-/**
- * Carga los pagos pendientes que otros usuarios me enviaron (pendingToConfirm)
- * para todos los grupos del workspace.
- * Se re-ejecuta al cambiar de workspace/grupos y al enfocar la pantalla.
- */
 export function usePendingIncomingPayments({
   workspace,
   groups,
   userId,
   enabled = true,
 }: UsePendingIncomingPaymentsOptions) {
-  const [incomingPayments, setIncomingPayments] = useState<
-    PendingIncomingPayment[]
-  >([]);
-  const [isLoading, setIsLoading] = useState(true);
-
   const targetGroupIds = useMemo(() => {
     if (workspace.groupId) return [workspace.groupId];
     if (workspace.category === 'personal') {
@@ -60,14 +50,9 @@ export function usePendingIncomingPayments({
     return map;
   }, [groups]);
 
-  const load = useCallback(async () => {
-    if (!enabled || !userId) {
-      setIncomingPayments([]);
-      setIsLoading(false);
-      return;
-    }
-    setIsLoading(true);
-    try {
+  const { data: incomingPayments = [], isLoading, refetch } = useQuery({
+    queryKey: ['pending-incoming-payments', groupIdsKey, userId],
+    queryFn: async () => {
       const results = await Promise.all(
         targetGroupIds.map((groupId) =>
           getPayments(groupId).catch((): PaymentResponse[] => []),
@@ -90,23 +75,12 @@ export function usePendingIncomingPayments({
         }
       });
       acc.sort((a, b) => b.amount - a.amount);
-      setIncomingPayments(acc);
-    } catch {
-      setIncomingPayments([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [targetGroupIds, groupIdsKey, userId, nameByGroup]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useFocusEffect(
-    useCallback(() => {
-      if (enabled) {
-        load();
-      }
-    }, [enabled, load]),
-  );
+      return acc;
+    },
+    enabled: enabled && !!userId && targetGroupIds.length > 0,
+  });
 
   const totalIncoming = incomingPayments.reduce((acc, p) => acc + p.amount, 0);
 
-  return { incomingPayments, totalIncoming, isLoading, refetch: load };
+  return { incomingPayments, totalIncoming, isLoading, refetch };
 }

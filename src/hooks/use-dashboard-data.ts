@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { getExpenses } from '@/services/api/expenses';
 import { getPayments } from '@/services/api/payments';
 import type {
@@ -37,7 +38,7 @@ export interface DashboardData {
     userAmount: number;
     partnerAmount: number;
   };
-  refetch: () => Promise<void>;
+  refetch: () => Promise<any>;
 }
 
 function getMonthStart(): Date {
@@ -45,21 +46,11 @@ function getMonthStart(): Date {
   return new Date(now.getFullYear(), now.getMonth(), 1);
 }
 
-/**
- * Datos reales del Dashboard respetando el workspace global (selector de grupos).
- * Calcula balance neto del usuario (pagado − share), transacciones del mes,
- * top categoría y aportes por miembro. Se re-ejecuta al cambiar workspace/grupos
- * y al enfocar la pantalla (refetch).
- */
 export function useDashboardData(
   workspace: WorkspaceState,
   groups: GroupResponse[],
   userId?: string,
 ): DashboardData {
-  const [isLoading, setIsLoading] = useState(true);
-  const [expenses, setExpenses] = useState<ExpenseResponse[]>([]);
-  const [payments, setPayments] = useState<PaymentResponse[]>([]);
-
   const targetGroupIds = useMemo(() => {
     if (workspace.groupId) return [workspace.groupId];
     if (workspace.category === 'personal') {
@@ -74,34 +65,28 @@ export function useDashboardData(
     return groups.map((g) => g.id);
   }, [workspace.groupId, workspace.category, groups]);
 
-  const groupIdsKey = targetGroupIds.join(',');
-
-  const load = useCallback(async () => {
-    setIsLoading(true);
-    try {
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ['dashboard', targetGroupIds.join(',')],
+    queryFn: async () => {
       const monthStart = getMonthStart().toISOString();
       const promises = targetGroupIds.map((groupId) =>
         getExpenses({ groupId, startDate: monthStart }),
       );
       const results = await Promise.all(promises);
-      setExpenses(results.flat());
+      const expenses = results.flat();
 
       const paymentPromises = targetGroupIds.map((groupId) =>
         getPayments(groupId),
       );
       const paymentResults = await Promise.all(paymentPromises);
-      setPayments(paymentResults.flat());
-    } catch {
-      setExpenses([]);
-      setPayments([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [targetGroupIds]);
+      const payments = paymentResults.flat();
+      return { expenses, payments };
+    },
+    enabled: targetGroupIds.length > 0,
+  });
 
-  useEffect(() => {
-    load();
-  }, [load, groupIdsKey]);
+  const expenses = data?.expenses ?? [];
+  const payments = data?.payments ?? [];
 
   // ── Balance neto del usuario ─────────────────────────────────────────
   const totalPaidByMe = expenses
@@ -116,7 +101,6 @@ export function useDashboardData(
     if (mySplit) {
       return acc + (Number(e.amount) * Number(mySplit.percentage)) / 100;
     }
-    // EQUAL: divide entre los participantes del gasto
     return acc + Number(e.amount) / Math.max(1, e.splits.length || 1);
   }, 0);
 
@@ -228,6 +212,6 @@ export function useDashboardData(
     transactions,
     topCategory,
     memberSplit,
-    refetch: load,
+    refetch,
   };
 }

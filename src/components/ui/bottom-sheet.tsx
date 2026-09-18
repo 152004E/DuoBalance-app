@@ -1,16 +1,22 @@
+import React, { useState } from 'react';
 import { Modal, Pressable, Dimensions, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated from 'react-native-reanimated';
 import { GestureDetector } from 'react-native-gesture-handler';
 
 import { useBottomSheet } from '@/hooks/use-bottom-sheet';
+import Toast from 'react-native-toast-message';
+import { appToastConfig } from '@/components/ui/app-toast';
 
 interface BottomSheetProps {
   visible: boolean;
   onClose: () => void;
+  beforeClose?: () => boolean | Promise<boolean>;
   children: React.ReactNode;
   header?: React.ReactNode;
+  /** @deprecated Ya no se usa. El modal calcula su altura automáticamente. */
   heightRatio?: number;
+  /** @deprecated Ya no se usa. */
   headerFinalTranslateY?: number;
   onOpenComplete?: () => void;
   onCloseComplete?: () => void;
@@ -18,29 +24,20 @@ interface BottomSheetProps {
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-const MIN_HEIGHT_RATIO = 0.3;
-const MAX_HEIGHT_RATIO = 0.85;
-
-const HEADER_HEIGHT = SCREEN_HEIGHT * 0.35;
+// Límite máximo para que el modal blanco no cubra toda la pantalla
+const MAX_HEIGHT = SCREEN_HEIGHT * 0.88;
 
 export function BottomSheet({
   visible,
   onClose,
+  beforeClose,
   children,
   header,
-  heightRatio = 0.65,
-  headerFinalTranslateY = 0.17,
   onOpenComplete,
   onCloseComplete,
 }: BottomSheetProps) {
   const insets = useSafeAreaInsets();
-
-  const SHEET_HEIGHT = Math.min(
-    Math.max(SCREEN_HEIGHT * heightRatio, SCREEN_HEIGHT * MIN_HEIGHT_RATIO),
-    SCREEN_HEIGHT * MAX_HEIGHT_RATIO,
-  );
-
-  const HEADER_FINAL_TRANSLATE_Y = SCREEN_HEIGHT * headerFinalTranslateY;
+  const [sheetHeight, setSheetHeight] = useState(0);
 
   const {
     internalVisible,
@@ -52,7 +49,7 @@ export function BottomSheet({
   } = useBottomSheet({
     visible,
     onClose,
-    headerFinalTranslateY: HEADER_FINAL_TRANSLATE_Y,
+    beforeClose,
     onOpenComplete,
     onCloseComplete,
   });
@@ -66,6 +63,12 @@ export function BottomSheet({
       onRequestClose={handleClose}
     >
       <View style={StyleSheet.absoluteFill}>
+        {/* Toast en capa Z muy alta para modales */}
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 9999, elevation: 9999 }}>
+          <Toast config={appToastConfig} position="top" topOffset={insets.top + 12} visibilityTime={3000} />
+        </View>
+
+        {/* Overlay oscuro */}
         <Animated.View
           style={[
             overlayAnimatedStyle,
@@ -79,25 +82,32 @@ export function BottomSheet({
           <Pressable style={StyleSheet.absoluteFill} onPress={handleClose} />
         </Animated.View>
 
-        {header && (
+        {/* Header (actúa como fondo de agua y título) */}
+        {header && sheetHeight > 0 && (
           <Animated.View
             style={[
               headerAnimatedStyle,
               {
                 position: 'absolute',
-                top: 0,
+                bottom: 0,
                 left: 0,
                 right: 0,
-                height: HEADER_HEIGHT,
+                height: sheetHeight + 170,
+                borderTopLeftRadius: 32,
+                borderTopRightRadius: 32,
+                overflow: 'hidden',
                 zIndex: 50,
                 pointerEvents: 'box-none',
               },
             ]}
           >
-            {header}
+            {React.cloneElement(header as React.ReactElement<any>, {
+              sheetHeight,
+            })}
           </Animated.View>
         )}
 
+        {/* Modal Blanco Principal */}
         <GestureDetector gesture={panGesture}>
           <Animated.View
             style={[
@@ -107,7 +117,7 @@ export function BottomSheet({
                 bottom: 0,
                 left: 0,
                 right: 0,
-                height: SHEET_HEIGHT,
+                maxHeight: MAX_HEIGHT,
                 backgroundColor: '#FFFFFF',
                 borderTopLeftRadius: 32,
                 borderTopRightRadius: 32,
@@ -120,14 +130,21 @@ export function BottomSheet({
                 zIndex: 100,
               },
             ]}
+            onLayout={(e) => {
+              const { height } = e.nativeEvent.layout;
+              setSheetHeight(height);
+            }}
           >
             <View className="items-center py-3">
               <View className="h-1 w-10 rounded-full bg-[#D1D5DB]" />
             </View>
 
-            <View className="flex-1">{children}</View>
+            <View style={{ flexShrink: 1 }}>{children}</View>
           </Animated.View>
         </GestureDetector>
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 9999, elevation: 9999 }} pointerEvents="box-none">
+          <Toast config={appToastConfig} position="top" topOffset={insets.top + 12} visibilityTime={3000} />
+        </View>
       </View>
     </Modal>
   );

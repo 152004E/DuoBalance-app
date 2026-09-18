@@ -774,8 +774,6 @@ export default function CoupleDetail() {
         onClose={() => setMenuVisible(false)}
         onAction={handleMenuAction}
         onCloseComplete={handleMenuCloseComplete}
-        heightRatio={0.55}
-        headerFinalTranslateY={0.27}
       />
 
       <InviteMemberSheet
@@ -784,8 +782,6 @@ export default function CoupleDetail() {
         invitationCode={group.inviteCode ?? ''}
         onRegenerate={handleRegenerateCode}
         isRegenerating={isRegenerating}
-        heightRatio={0.65}
-        headerFinalTranslateY={0.17}
       />
 
       <AlertModal
@@ -866,8 +862,6 @@ export default function CoupleDetail() {
         }
         isSubmitting={isSubmittingPayment}
         onSubmit={handleCreatePayment}
-        heightRatio={0.55}
-        headerFinalTranslateY={0.27}
       />
 
       <LiquidacionesSheet
@@ -881,8 +875,6 @@ export default function CoupleDetail() {
         onConfirm={handleConfirmPayment}
         onReject={handleRejectPayment}
         isMutating={isSubmittingPayment}
-        heightRatio={0.5}
-        headerFinalTranslateY={0.3}
       />
 
       <AlertModal

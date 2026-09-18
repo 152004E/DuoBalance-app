@@ -1,5 +1,4 @@
-import { useState, useCallback } from 'react';
-import { useFocusEffect } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
 import { getPayments, getSettlement } from '@/services/api/payments';
 import type { PaymentResponse, SettlementResponse } from '@/types/api';
 
@@ -17,7 +16,7 @@ export interface GroupPaymentsData {
   settlement: SettlementResponse | null; // Total settlement
   monthlySettlement: SettlementResponse | null; // Monthly settlement
   isLoading: boolean;
-  refetch: () => Promise<boolean>;
+  refetch: () => Promise<any>;
 }
 
 export function useGroupPayments({
@@ -25,14 +24,9 @@ export function useGroupPayments({
   userId,
   enabled = true,
 }: UseGroupPaymentsOptions): GroupPaymentsData {
-  const [payments, setPayments] = useState<PaymentResponse[]>([]);
-  const [settlement, setSettlement] = useState<SettlementResponse | null>(null);
-  const [monthlySettlement, setMonthlySettlement] = useState<SettlementResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const load = useCallback(async (): Promise<boolean> => {
-    setIsLoading(true);
-    try {
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ['group-payments', groupId],
+    queryFn: async () => {
       const now = new Date();
       const currentMonth = now.getMonth() + 1;
       const currentYear = now.getFullYear();
@@ -43,27 +37,18 @@ export function useGroupPayments({
         getSettlement(groupId, currentMonth, currentYear),
       ]);
       
-      setPayments(paymentsData);
-      setSettlement(totalSettlementData);
-      setMonthlySettlement(monthlySettlementData);
-      return true;
-    } catch {
-      setPayments([]);
-      setSettlement(null);
-      setMonthlySettlement(null);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [groupId]);
+      return {
+        payments: paymentsData,
+        settlement: totalSettlementData,
+        monthlySettlement: monthlySettlementData,
+      };
+    },
+    enabled: enabled && !!groupId,
+  });
 
-  useFocusEffect(
-    useCallback(() => {
-      if (enabled) {
-        load();
-      }
-    }, [enabled, load])
-  );
+  const payments = data?.payments ?? [];
+  const settlement = data?.settlement ?? null;
+  const monthlySettlement = data?.monthlySettlement ?? null;
 
   const pendingToConfirm = payments.filter(
     (p) => p.status === 'PENDING' && p.toUserId === userId
@@ -83,6 +68,6 @@ export function useGroupPayments({
     settlement,
     monthlySettlement,
     isLoading,
-    refetch: load,
+    refetch,
   };
 }

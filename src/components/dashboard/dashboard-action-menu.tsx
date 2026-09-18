@@ -12,8 +12,6 @@ import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
 
 interface DashboardActionMenuProps {
-  heightRatio?: number;
-  headerFinalTranslateY?: number;
   onCreateExpense?: () => void;
   onCreateGroup?: () => void;
   onJoinGroup?: () => void;
@@ -94,8 +92,6 @@ function MenuItemRow({
 }
 
 export function DashboardActionMenu({
-  heightRatio = 0.52,
-  headerFinalTranslateY = 0.25,
   onCreateExpense,
   onCreateGroup,
   onJoinGroup,
@@ -172,7 +168,6 @@ export function DashboardActionMenu({
       title="Acciones Rápidas"
       subtitle="¿Qué te gustaría hacer?"
       onClose={handleCloseMenu}
-      gradientPaddingBottom={500}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
     />
   );
@@ -200,8 +195,6 @@ export function DashboardActionMenu({
         onClose={handleCloseMenu}
         onCloseComplete={handleMenuCloseComplete}
         header={header}
-        heightRatio={heightRatio}
-        headerFinalTranslateY={headerFinalTranslateY}
       >
         <View className="flex-1 px-5 pt-2">
           {MENU_ITEMS.map((item, index) => (

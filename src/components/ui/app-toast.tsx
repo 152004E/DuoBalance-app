@@ -64,4 +64,49 @@ export const appToastConfig: ToastConfig = {
   warning: ({ text1, text2, onPress }) => (
     <AppToast text1={text1} text2={text2} onPress={onPress} type="warning" />
   ),
+  confirmDiscard: ({ text1, text2, props }) => (
+    <View className="w-full px-4 pt-2">
+      <View
+        className="w-full flex-row items-center gap-3 rounded-2xl px-4 py-3.5"
+        style={{
+          backgroundColor: '#1E293B',
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 12,
+          elevation: 8,
+        }}
+      >
+        <View className="h-9 w-9 items-center justify-center rounded-full bg-orange-500/20">
+          <FontAwesome6 name="triangle-exclamation" size={16} color="#F97316" />
+        </View>
+        <View className="flex-1">
+          <Text className="text-sm font-bold text-white" numberOfLines={1}>
+            {text1}
+          </Text>
+          {text2 ? (
+            <Text className="mt-0.5 text-xs text-white/80" numberOfLines={2}>
+              {text2}
+            </Text>
+          ) : null}
+        </View>
+
+        <View className="flex-row gap-2">
+          <Pressable
+            onPress={props.onCancel}
+            className="h-10 w-10 items-center justify-center rounded-full bg-white/10 active:bg-white/20"
+          >
+            <FontAwesome6 name="arrow-rotate-left" size={16} color="#F8FAFC" />
+          </Pressable>
+
+          <Pressable
+            onPress={props.onConfirm}
+            className="h-10 w-10 items-center justify-center rounded-full bg-red-500/20 active:bg-red-500/30"
+          >
+            <FontAwesome6 name="trash-can" size={16} color="#F87171" />
+          </Pressable>
+        </View>
+      </View>
+    </View>
+  ),
 };

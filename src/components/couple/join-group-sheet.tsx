@@ -16,8 +16,6 @@ interface JoinGroupSheetProps {
   onClose: () => void;
   onJoin?: (code: string) => void;
   isLoading?: boolean;
-  heightRatio?: number;
-  headerFinalTranslateY?: number;
 }
 
 export function JoinGroupSheet({
@@ -25,8 +23,6 @@ export function JoinGroupSheet({
   onClose,
   onJoin,
   isLoading = false,
-  heightRatio = 0.75,
-  headerFinalTranslateY = Math.max(0.01, 0.37 - heightRatio * 0.75),
 }: JoinGroupSheetProps) {
   const [code, setCode] = useState('');
 
@@ -43,7 +39,6 @@ export function JoinGroupSheet({
       title="Unirse a un grupo"
       subtitle="Ingresa el código de invitación del grupo al que quieres unirte."
       onClose={onClose}
-      gradientPaddingBottom={600}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
     />
   );
@@ -53,8 +48,6 @@ export function JoinGroupSheet({
       visible={visible}
       onClose={onClose}
       header={header}
-      heightRatio={heightRatio}
-      headerFinalTranslateY={headerFinalTranslateY}
     >
       <View className="flex-1">
         <ScrollView

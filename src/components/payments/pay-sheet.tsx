@@ -4,6 +4,8 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
+import Toast from 'react-native-toast-message';
+
 import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
 import { formatAmountInput, parseAmount } from '@/utils/format';
 import type { GroupResponse, GroupMember } from '@/types/api';
@@ -20,8 +22,6 @@ interface PaySheetProps {
   creditorId: string;
   isSubmitting?: boolean;
   onSubmit?: (payload: { amount: number; toUserId: string }) => void;
-  heightRatio?: number;
-  headerFinalTranslateY?: number;
 }
 
 export function PaySheet({
@@ -34,8 +34,6 @@ export function PaySheet({
   creditorId,
   isSubmitting = false,
   onSubmit,
-  heightRatio = 0.55,
-  headerFinalTranslateY = 0.27,
 }: PaySheetProps) {
   const [amount, setAmount] = useState('');
   const [toUserId, setToUserId] = useState(creditorId);
@@ -84,18 +82,40 @@ export function PaySheet({
       title="Registrar pago"
       subtitle={`Liquida lo que debes en ${group.name}`}
       onClose={onClose}
-      gradientPaddingBottom={600}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
     />
   );
+
+const handleBeforeClose = async () => {
+    if (amount !== '') {
+      return new Promise<boolean>((resolve) => {
+        Toast.show({
+          type: 'confirmDiscard',
+          text1: '¿Descartar pago?',
+          text2: 'Tienes información sin guardar.',
+          autoHide: false,
+          props: {
+            onConfirm: () => {
+              Toast.hide();
+              resolve(true);
+            },
+            onCancel: () => {
+              Toast.hide();
+              resolve(false);
+            },
+          },
+        });
+      });
+    }
+    return true;
+  };
 
   return (
     <BottomSheet
       visible={visible}
       onClose={onClose}
+      beforeClose={handleBeforeClose}
       header={header}
-      heightRatio={heightRatio}
-      headerFinalTranslateY={headerFinalTranslateY}
     >
       <View className="flex-1">
         <View className="flex-1 px-5">
