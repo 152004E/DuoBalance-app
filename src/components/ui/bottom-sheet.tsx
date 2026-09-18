@@ -5,10 +5,13 @@ import Animated from 'react-native-reanimated';
 import { GestureDetector } from 'react-native-gesture-handler';
 
 import { useBottomSheet } from '@/hooks/use-bottom-sheet';
+import Toast from 'react-native-toast-message';
+import { appToastConfig } from '@/components/ui/app-toast';
 
 interface BottomSheetProps {
   visible: boolean;
   onClose: () => void;
+  beforeClose?: () => boolean | Promise<boolean>;
   children: React.ReactNode;
   header?: React.ReactNode;
   /** @deprecated Ya no se usa. El modal calcula su altura automáticamente. */
@@ -27,6 +30,7 @@ const MAX_HEIGHT = SCREEN_HEIGHT * 0.88;
 export function BottomSheet({
   visible,
   onClose,
+  beforeClose,
   children,
   header,
   onOpenComplete,
@@ -45,6 +49,7 @@ export function BottomSheet({
   } = useBottomSheet({
     visible,
     onClose,
+    beforeClose,
     onOpenComplete,
     onCloseComplete,
   });
@@ -58,6 +63,11 @@ export function BottomSheet({
       onRequestClose={handleClose}
     >
       <View style={StyleSheet.absoluteFill}>
+        {/* Toast en capa Z muy alta para modales */}
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 9999, elevation: 9999 }}>
+          <Toast config={appToastConfig} position="top" topOffset={insets.top + 12} visibilityTime={3000} />
+        </View>
+
         {/* Overlay oscuro */}
         <Animated.View
           style={[
@@ -132,6 +142,9 @@ export function BottomSheet({
             <View style={{ flexShrink: 1 }}>{children}</View>
           </Animated.View>
         </GestureDetector>
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 9999, elevation: 9999 }} pointerEvents="box-none">
+          <Toast config={appToastConfig} position="top" topOffset={insets.top + 12} visibilityTime={3000} />
+        </View>
       </View>
     </Modal>
   );

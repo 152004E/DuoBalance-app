@@ -239,10 +239,35 @@ export function CreateExpenseSheet({
     />
   );
 
+const handleBeforeClose = async () => {
+    if (amount !== '' || description.trim() !== '' || pickedReceipt) {
+      return new Promise<boolean>((resolve) => {
+        Toast.show({
+          type: 'confirmDiscard',
+          text1: '¿Descartar gasto?',
+          text2: 'Tienes información sin guardar.',
+          autoHide: false,
+          props: {
+            onConfirm: () => {
+              Toast.hide();
+              resolve(true);
+            },
+            onCancel: () => {
+              Toast.hide();
+              resolve(false);
+            },
+          },
+        });
+      });
+    }
+    return true;
+  };
+
   return (
     <BottomSheet
       visible={visible}
       onClose={onClose}
+      beforeClose={handleBeforeClose}
       header={header}
     >
       <View className="flex-1">

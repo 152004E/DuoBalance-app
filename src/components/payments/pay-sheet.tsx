@@ -4,6 +4,8 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
+import Toast from 'react-native-toast-message';
+
 import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
 import { formatAmountInput, parseAmount } from '@/utils/format';
 import type { GroupResponse, GroupMember } from '@/types/api';
@@ -84,10 +86,35 @@ export function PaySheet({
     />
   );
 
+const handleBeforeClose = async () => {
+    if (amount !== '') {
+      return new Promise<boolean>((resolve) => {
+        Toast.show({
+          type: 'confirmDiscard',
+          text1: '¿Descartar pago?',
+          text2: 'Tienes información sin guardar.',
+          autoHide: false,
+          props: {
+            onConfirm: () => {
+              Toast.hide();
+              resolve(true);
+            },
+            onCancel: () => {
+              Toast.hide();
+              resolve(false);
+            },
+          },
+        });
+      });
+    }
+    return true;
+  };
+
   return (
     <BottomSheet
       visible={visible}
       onClose={onClose}
+      beforeClose={handleBeforeClose}
       header={header}
     >
       <View className="flex-1">

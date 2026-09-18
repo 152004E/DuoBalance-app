@@ -23,6 +23,7 @@ enum TransitionState {
 interface UseBottomSheetProps {
   visible: boolean;
   onClose: () => void;
+  beforeClose?: () => boolean | Promise<boolean>;
   onOpenComplete?: () => void;
   onCloseComplete?: () => void;
 }
@@ -30,6 +31,7 @@ interface UseBottomSheetProps {
 export function useBottomSheet({
   visible,
   onClose,
+  beforeClose,
   onOpenComplete,
   onCloseComplete,
 }: UseBottomSheetProps) {
@@ -101,6 +103,18 @@ export function useBottomSheet({
     });
   }, [finishClose]);
 
+  const handleClose = useCallback(async () => {
+    if (beforeClose) {
+      const shouldClose = await beforeClose();
+      if (!shouldClose) {
+        translateY.value = withTiming(0, { duration: 250 });
+        overlayOpacity.value = withTiming(0.6, { duration: 250 });
+        return;
+      }
+    }
+    startClose();
+  }, [beforeClose, startClose, translateY, overlayOpacity]);
+
   const fireOpenComplete = useCallback(() => {
     onOpenComplete?.();
   }, [onOpenComplete]);
@@ -136,15 +150,11 @@ export function useBottomSheet({
       }
     } else {
       if (prevVisible.current) {
-        startClose();
+        startClose(); // Force close from parent prop change bypasses beforeClose
       }
       prevVisible.current = false;
     }
   }, [visible, open, startClose, fireOpenComplete]);
-
-  const handleClose = useCallback(() => {
-    startClose();
-  }, [startClose]);
 
   const panGesture = Gesture.Pan()
     .activeOffsetY(10)
@@ -161,7 +171,7 @@ export function useBottomSheet({
         event.translationY > DISMISS_THRESHOLD ||
         event.velocityY > DISMISS_VELOCITY
       ) {
-        startClose();
+        runOnJS(handleClose)();
       } else {
         translateY.value = withTiming(0, {
           duration: 250,
