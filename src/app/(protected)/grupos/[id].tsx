@@ -231,7 +231,7 @@ export default function CoupleDetail() {
 
   const partnerLabel =
     groupType === 'COUPLE'
-      ? (group?.members.find((m) => m.user.id !== user?.id)?.user.firstName ??
+      ? (getUserDisplayName(group?.members.find((m) => m.user.id !== user?.id)?.user) ??
         'Pareja')
       : 'Grupo';
 
@@ -679,8 +679,7 @@ export default function CoupleDetail() {
                   <View className="flex-row items-center gap-2">
                     <View className="h-3 w-3 rounded-full bg-[#006c49]" />
                     <Text className="text-[#0F172A]">
-                      {group?.members.find((m) => m.user.id === user?.id)?.user
-                        .firstName ?? 'Tú'}
+                      {'Tú'}
                     </Text>
                   </View>
                   <Text

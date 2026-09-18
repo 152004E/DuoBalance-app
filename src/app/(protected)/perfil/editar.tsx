@@ -12,6 +12,7 @@ import { ProfileCard } from '@/components/perfil/profile-card';
 import { ImagePreviewModal } from '@/components/perfil/image-preview-modal';
 import { AlertModal } from '@/components/ui/alert-modal';
 import { extractErrorMessage } from '@/utils/errors';
+import { queryClient } from '@/lib/query-client';
 import * as authService from '@/services/api/auth';
 
 const EMAIL_REGEX = /^[^\s@]{2,}@[^\s@]{2,}\.[A-Za-z]{2,}$/;
@@ -113,6 +114,7 @@ export default function EditarPerfilScreen() {
         avatarUrl: currentUser?.avatarUrl ?? profileUpdated.avatarUrl,
       };
       await updateUser(merged);
+      queryClient.invalidateQueries();
       setShowSuccess(true);
     } catch (error) {
       setShowError(

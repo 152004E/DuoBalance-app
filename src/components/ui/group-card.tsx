@@ -63,7 +63,7 @@ export function GroupCard({
 
     segments = [
       {
-        label: getUserDisplayName(currentMember?.user) ?? "Tú",
+        label: 'Tú',
         percent: userPercent,
         color: '#006c49',
       },
@@ -83,7 +83,7 @@ export function GroupCard({
 
     segments = [
       {
-        label: getUserDisplayName(currentMember?.user) ?? "Tú",
+        label: 'Tú',
         percent: perMember,
         color: '#006c49',
       },
