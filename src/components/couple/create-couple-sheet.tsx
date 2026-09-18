@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { Input } from '@/components/ui/input';
 import { createGroup } from '@/services/api/groups';
+import { queryClient } from '@/lib/query-client';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
 import { Button } from '@/components/ui/button';
@@ -132,6 +133,7 @@ export function CreateCoupleSheet({
             : undefined,
       });
 
+      queryClient.invalidateQueries({ queryKey: ['groups'] });
       onClose();
       router.push(`/grupos/${group.id}`);
       Toast.show({

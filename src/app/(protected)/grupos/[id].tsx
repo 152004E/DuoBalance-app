@@ -10,6 +10,7 @@ import {
   regenerateInviteCode,
 } from '@/services/api/groups';
 import { getExpenses } from '@/services/api/expenses';
+import { queryClient } from '@/lib/query-client';
 import {
   createPayment,
   confirmPayment,
@@ -301,6 +302,7 @@ export default function CoupleDetail() {
     setLeaveError(null);
     try {
       await leaveGroup(id);
+      queryClient.invalidateQueries({ queryKey: ['groups'] });
       setShowLeaveConfirm(false);
       setLeaveSuccess(true);
     } catch (err: unknown) {

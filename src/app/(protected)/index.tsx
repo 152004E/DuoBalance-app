@@ -42,7 +42,7 @@ export default function DashboardScreen() {
     return <Redirect href="/admin" />;
   }
 
-  const { groups, personalGroups, coupleGroups, sharedGroups } = useGroups();
+  const { groups, personalGroups, coupleGroups, sharedGroups, refetch: refetchGroups } = useGroups();
   const { workspace, setWorkspace } = useWorkspace();
   const { summaries } = useGroupSummaries(groups);
   const {
@@ -125,6 +125,7 @@ export default function DashboardScreen() {
     try {
       await joinGroup({ inviteCode: code });
       setShowJoinSheet(false);
+      await refetchGroups();
       refetch();
       Toast.show({ type: 'success', text1: '¡Te has unido!', text2: 'Ahora formas parte del grupo.' });
     } catch (err: any) {
@@ -132,7 +133,7 @@ export default function DashboardScreen() {
     } finally {
       setIsJoining(false);
     }
-  }, [refetch]);
+  }, [refetch, refetchGroups]);
 
   const handleCloseCreateSheet = useCallback(() => {
     setCreatingExpenseGroup(null);
