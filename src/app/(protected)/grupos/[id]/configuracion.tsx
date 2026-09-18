@@ -722,8 +722,6 @@ export default function ConfiguracionGrupoScreen() {
         invitationCode={group?.inviteCode ?? ''}
         onRegenerate={handleRegenerateCode}
         isRegenerating={isRegenerating}
-        heightRatio={0.65}
-        headerFinalTranslateY={0.17}
       />
 
       {/* Modals */}
@@ -790,8 +788,6 @@ export default function ConfiguracionGrupoScreen() {
             onClose={() => setEditNameVisible(false)}
           />
         }
-        heightRatio={0.4}
-        headerFinalTranslateY={0.15}
       >
         <View className="flex-1 px-5 pt-4">
           <Input
@@ -828,12 +824,9 @@ export default function ConfiguracionGrupoScreen() {
             title="Día de corte"
             subtitle="El mes cierra este día"
             onClose={() => setCutoffDayVisible(false)}
-            gradientPaddingBottom={600}
             logo={require('@/assets/images/logo-white-green-bg-without.png')}
           />
         }
-        heightRatio={0.4}
-        headerFinalTranslateY={0.15}
       >
         <View className="flex-1 px-5 pt-4">
           <View className="items-center justify-center mb-6">
@@ -914,12 +907,9 @@ export default function ConfiguracionGrupoScreen() {
             title="Ajustar porcentaje"
             subtitle="Define cómo se reparten los gastos"
             onClose={() => setAdjustPercentageVisible(false)}
-            gradientPaddingBottom={500}
             logo={require('@/assets/images/logo-white-green-bg-without.png')}
           />
         }
-        heightRatio={0.45}
-        headerFinalTranslateY={0.38}
       >
         <View className="flex-1 px-5 pt-4">
           <View className="flex-row gap-3">

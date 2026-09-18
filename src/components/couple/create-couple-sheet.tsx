@@ -16,8 +16,6 @@ type SplitOption = '50_50' | 'percentage';
 interface CreateCoupleSheetProps {
   visible: boolean;
   onClose: () => void;
-  heightRatio?: number;
-  headerFinalTranslateY?: number;
 }
 
 const TYPE_CARDS: {
@@ -71,8 +69,6 @@ function SplitToggle({
 export function CreateCoupleSheet({
   visible,
   onClose,
-  heightRatio = 0.85,
-  headerFinalTranslateY,
 }: CreateCoupleSheetProps) {
   const router = useRouter();
   const [groupType, setGroupType] = useState<GroupType>('personal');
@@ -163,7 +159,6 @@ export function CreateCoupleSheet({
       title="Opciones del grupo"
       subtitle="Administra tu grupo de gastos compartidos"
       onClose={onClose}
-      gradientPaddingBottom={500}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
     />
   );
@@ -173,8 +168,6 @@ export function CreateCoupleSheet({
       visible={visible}
       onClose={onClose}
       header={header}
-      heightRatio={heightRatio}
-      headerFinalTranslateY={headerFinalTranslateY}
     >
       <View className="flex-1">
         <ScrollView

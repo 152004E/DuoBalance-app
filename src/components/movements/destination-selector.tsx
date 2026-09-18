@@ -13,8 +13,6 @@ interface DestinationSelectorProps {
   coupleGroups: GroupResponse[];
   sharedGroups: GroupResponse[];
   onSelect: (group: GroupResponse) => void;
-  heightRatio?: number;
-  headerFinalTranslateY?: number;
 }
 
 interface DestItem {
@@ -38,8 +36,6 @@ export function DestinationSelector({
   coupleGroups,
   sharedGroups,
   onSelect,
-  heightRatio = 0.5,
-  headerFinalTranslateY,
 }: DestinationSelectorProps) {
   const getHeaderConfig = () => {
     switch (filter.category) {
@@ -105,7 +101,6 @@ export function DestinationSelector({
       title={config.title}
       subtitle={config.subtitle}
       onClose={onClose}
-      gradientPaddingBottom={500}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
     />
   );
@@ -115,8 +110,6 @@ export function DestinationSelector({
       visible={visible}
       onClose={onClose}
       header={header}
-      heightRatio={heightRatio}
-      headerFinalTranslateY={headerFinalTranslateY}
     >
       <View className="flex-1 px-5 pt-2">
         <FlatList

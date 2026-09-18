@@ -19,8 +19,6 @@ export interface InviteMemberSheetProps {
   invitationCode?: string;
   onRegenerate?: () => void;
   isRegenerating?: boolean;
-  heightRatio?: number;
-  headerFinalTranslateY?: number;
 }
 
 export function InviteMemberSheet({
@@ -29,8 +27,6 @@ export function InviteMemberSheet({
   invitationCode = '------',
   onRegenerate,
   isRegenerating = false,
-  heightRatio = 0.75,
-  headerFinalTranslateY = 0.17,
 }: InviteMemberSheetProps) {
   const [copied, setCopied] = useState(false);
 
@@ -58,7 +54,6 @@ export function InviteMemberSheet({
       title="Invitar miembro"
       subtitle="Comparte este enlace para que otros se unan al grupo"
       onClose={onClose}
-      gradientPaddingBottom={600}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
     />
   );
@@ -68,8 +63,6 @@ export function InviteMemberSheet({
       visible={visible}
       onClose={onClose}
       header={header}
-      heightRatio={heightRatio}
-      headerFinalTranslateY={headerFinalTranslateY}
     >
       <ScrollView
         className="flex-1 px-5"

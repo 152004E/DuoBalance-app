@@ -338,8 +338,6 @@ export default function ExpenseDetailScreen() {
         visible={menuVisible}
         onClose={() => setMenuVisible(false)}
         onAction={handleMenuAction}
-        heightRatio={0.1}
-        headerFinalTranslateY={0.53}
       />
 
       {/* Editar gasto */}
@@ -354,8 +352,6 @@ export default function ExpenseDetailScreen() {
           }))}
           currentUserId={user.id}
           initialExpense={expense}
-          heightRatio={0.63}
-          headerFinalTranslateY={0.19}
           onUpdateExpense={handleUpdateExpense}
         />
       )}

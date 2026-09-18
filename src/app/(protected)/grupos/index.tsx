@@ -256,8 +256,6 @@ export default function ParejaScreen() {
       </ScrollView>
 
       <FloatingAddMenu
-        heightRatio={0.1}
-        headerFinalTranslateY={0.53}
         createCoupleHeightRatio={0.65}
         createCoupleHeaderFinalTranslateY={0.17}
         onJoinCouple={() => setShowJoinSheet(true)}
@@ -269,8 +267,6 @@ export default function ParejaScreen() {
         onClose={() => setMenuVisible(false)}
         onAction={handleMenuAction}
         onCloseComplete={handleMenuCloseComplete}
-        heightRatio={0.55}
-        headerFinalTranslateY={0.27}
       />
 
       <InviteMemberSheet
@@ -279,8 +275,6 @@ export default function ParejaScreen() {
         invitationCode={selectedGroup?.inviteCode ?? ''}
         onRegenerate={handleRegenerateCode}
         isRegenerating={isRegenerating}
-        heightRatio={0.65}
-        headerFinalTranslateY={0.17}
       />
 
       <JoinGroupSheet
@@ -290,8 +284,6 @@ export default function ParejaScreen() {
         }}
         onJoin={handleJoinGroup}
         isLoading={isJoining}
-        heightRatio={0.7}
-        headerFinalTranslateY={0.1}
       />
 
       <AlertModal

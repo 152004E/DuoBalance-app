@@ -25,7 +25,6 @@ export function NotificationSheet({
       title="Notificaciones"
       subtitle="Tus tareas pendientes"
       onClose={onClose}
-      gradientPaddingBottom={600}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
     />
   );
@@ -37,7 +36,6 @@ export function NotificationSheet({
       visible={visible}
       onClose={onClose}
       header={header}
-      heightRatio={0.65}
     >
       <ScrollView
         className="flex-1 px-5 pb-8 pt-2"
@@ -60,7 +58,7 @@ export function NotificationSheet({
                 <View className="space-y-3">
                   {incomingPayments.map((payment) => (
                     <TouchableOpacity
-                      key={payment.id || `${payment.groupId}-${payment.fromUserId}`}
+                      key={(payment as any).id || `${payment.groupId}-${payment.fromUserId}`}
                       onPress={() => {
                         onClose();
                         router.push(`/grupos/${payment.groupId}?liquidar=1`);

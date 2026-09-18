@@ -42,8 +42,6 @@ interface ExpenseMenuSheetProps {
   visible: boolean;
   onClose: () => void;
   onAction: (action: ExpenseMenuAction) => void;
-  heightRatio?: number;
-  headerFinalTranslateY?: number;
   onCloseComplete?: () => void;
 }
 
@@ -110,8 +108,6 @@ export function ExpenseMenuSheet({
   visible,
   onClose,
   onAction,
-  heightRatio = 0.5,
-  headerFinalTranslateY,
   onCloseComplete,
 }: ExpenseMenuSheetProps) {
   const insets = useSafeAreaInsets();
@@ -151,7 +147,6 @@ export function ExpenseMenuSheet({
       title="Opciones del gasto"
       subtitle="Administra este gasto"
       onClose={onClose}
-      gradientPaddingBottom={500}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
     />
   );
@@ -161,8 +156,6 @@ export function ExpenseMenuSheet({
       visible={visible}
       onClose={onClose}
       header={header}
-      heightRatio={heightRatio}
-      headerFinalTranslateY={headerFinalTranslateY}
       onCloseComplete={onCloseComplete}
     >
       <View className="flex-1">

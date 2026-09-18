@@ -20,8 +20,6 @@ interface PaySheetProps {
   creditorId: string;
   isSubmitting?: boolean;
   onSubmit?: (payload: { amount: number; toUserId: string }) => void;
-  heightRatio?: number;
-  headerFinalTranslateY?: number;
 }
 
 export function PaySheet({
@@ -34,8 +32,6 @@ export function PaySheet({
   creditorId,
   isSubmitting = false,
   onSubmit,
-  heightRatio = 0.55,
-  headerFinalTranslateY = 0.27,
 }: PaySheetProps) {
   const [amount, setAmount] = useState('');
   const [toUserId, setToUserId] = useState(creditorId);
@@ -84,7 +80,6 @@ export function PaySheet({
       title="Registrar pago"
       subtitle={`Liquida lo que debes en ${group.name}`}
       onClose={onClose}
-      gradientPaddingBottom={600}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
     />
   );
@@ -94,8 +89,6 @@ export function PaySheet({
       visible={visible}
       onClose={onClose}
       header={header}
-      heightRatio={heightRatio}
-      headerFinalTranslateY={headerFinalTranslateY}
     >
       <View className="flex-1">
         <View className="flex-1 px-5">

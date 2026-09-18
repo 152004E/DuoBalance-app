@@ -20,8 +20,6 @@ interface FilterSheetProps {
   onSelectPeriod: (period: string) => void;
   onSelectCategory?: (category: string) => void;
   onClear: () => void;
-  heightRatio?: number;
-  headerFinalTranslateY?: number;
   showCategory?: boolean;
 }
 
@@ -33,8 +31,6 @@ export function FilterSheet({
   onSelectPeriod,
   onSelectCategory,
   onClear,
-  heightRatio = 0.55,
-  headerFinalTranslateY = 0.28,
   showCategory = true,
 }: FilterSheetProps) {
   // Expandible "Otros": se abre si el usuario lo toca o si una categoría extra está activa
@@ -54,7 +50,6 @@ export function FilterSheet({
           : 'Selecciona el período del reporte.'
       }
       onClose={onClose}
-      gradientPaddingBottom={500}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
     />
   );
@@ -109,8 +104,6 @@ export function FilterSheet({
       visible={visible}
       onClose={onClose}
       header={header}
-      heightRatio={heightRatio}
-      headerFinalTranslateY={headerFinalTranslateY}
     >
       <View className="flex-1 px-5 pt-2">
         <ScrollView

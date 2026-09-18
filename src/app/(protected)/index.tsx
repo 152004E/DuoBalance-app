@@ -302,8 +302,6 @@ export default function DashboardScreen() {
       <CreateCoupleSheet
         visible={showCreateGroupSheet}
         onClose={() => setShowCreateGroupSheet(false)}
-        heightRatio={0.65}
-        headerFinalTranslateY={0.17}
       />
 
       <JoinGroupSheet
@@ -313,8 +311,6 @@ export default function DashboardScreen() {
         }}
         onJoin={handleJoinGroup}
         isLoading={isJoining}
-        heightRatio={0.7}
-        headerFinalTranslateY={0.1}
       />
 
       <DestinationSelector
@@ -325,8 +321,6 @@ export default function DashboardScreen() {
         coupleGroups={coupleGroups}
         sharedGroups={sharedGroups}
         onSelect={handleDestSelect}
-        heightRatio={0.35}
-        headerFinalTranslateY={0.45}
       />
 
       {creatingExpenseGroup && (
@@ -336,8 +330,6 @@ export default function DashboardScreen() {
           group={creatingExpenseGroup.group}
           members={creatingExpenseGroup.members}
           currentUserId={user?.id}
-          heightRatio={0.66}
-          headerFinalTranslateY={0.14}
           onCreateExpense={async (payload) => {
             try {
               const { receipt, ...expenseData } = payload;

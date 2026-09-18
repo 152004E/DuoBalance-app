@@ -296,8 +296,6 @@ export default function MovimientosScreen() {
         onSelectPeriod={setSelectedPeriod}
         onSelectCategory={setSelectedCategory}
         onClear={handleClearFilters}
-        heightRatio={0.48}
-        headerFinalTranslateY={0.35}
       />
 
       <DestinationSelector
@@ -308,8 +306,6 @@ export default function MovimientosScreen() {
         coupleGroups={coupleGroups}
         sharedGroups={sharedGroups}
         onSelect={handleDestSelect}
-        heightRatio={0.35}
-        headerFinalTranslateY={0.45}
       />
 
       {creatingExpenseGroup && (
@@ -319,8 +315,6 @@ export default function MovimientosScreen() {
           group={creatingExpenseGroup.group}
           members={creatingExpenseGroup.members}
           currentUserId={user?.id}
-          heightRatio={0.65}
-          headerFinalTranslateY={0.19}
           onCreateExpense={async (payload) => {
             try {
               const { receipt, ...expenseData } = payload;

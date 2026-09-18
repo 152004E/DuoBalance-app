@@ -23,7 +23,6 @@ enum TransitionState {
 interface UseBottomSheetProps {
   visible: boolean;
   onClose: () => void;
-  headerFinalTranslateY: number;
   onOpenComplete?: () => void;
   onCloseComplete?: () => void;
 }
@@ -31,7 +30,6 @@ interface UseBottomSheetProps {
 export function useBottomSheet({
   visible,
   onClose,
-  headerFinalTranslateY,
   onOpenComplete,
   onCloseComplete,
 }: UseBottomSheetProps) {
@@ -44,7 +42,7 @@ export function useBottomSheet({
   const overlayOpacity = useSharedValue(0);
   const scale = useSharedValue(0.97);
 
-  const headerTranslateY = useSharedValue(SCREEN_HEIGHT);
+  const headerTranslateY = useSharedValue(20);
   const headerOpacity = useSharedValue(0);
 
   const open = useCallback(() => {
@@ -94,7 +92,7 @@ export function useBottomSheet({
       duration: 250,
     });
 
-    headerTranslateY.value = withTiming(SCREEN_HEIGHT, {
+    headerTranslateY.value = withTiming(20, {
       duration: 250,
     });
 
@@ -116,7 +114,7 @@ export function useBottomSheet({
         const sheetTimer = setTimeout(open, 50);
 
         const headerTimer = setTimeout(() => {
-          headerTranslateY.value = withTiming(headerFinalTranslateY, {
+          headerTranslateY.value = withTiming(0, {
             duration: 400,
             easing: Easing.out(Easing.cubic),
           });
@@ -142,7 +140,7 @@ export function useBottomSheet({
       }
       prevVisible.current = false;
     }
-  }, [visible, open, headerFinalTranslateY, startClose, fireOpenComplete]);
+  }, [visible, open, startClose, fireOpenComplete]);
 
   const handleClose = useCallback(() => {
     startClose();
