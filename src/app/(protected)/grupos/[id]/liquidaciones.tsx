@@ -1,3 +1,4 @@
+import { getUserDisplayName, getUserFullName } from '@/utils/user';
 import { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
@@ -27,7 +28,7 @@ function UserName({
 }) {
   return (
     <Text className="font-semibold text-[#0F172A]">
-      {user ? `${user.firstName} ${user.lastName}` : fallback}
+      {user ? getUserFullName(user) : fallback}
     </Text>
   );
 }
@@ -170,7 +171,7 @@ export default function LiquidacionesScreen() {
                     <View className="flex-1 shrink">
                       <Text className="text-sm font-semibold text-[#0F172A]">
                         {fromUser
-                          ? `${fromUser.firstName} ${fromUser.lastName}`
+                          ? getUserFullName(fromUser)
                           : 'Alguien'}{' '}
                         dice que te pagó
                       </Text>
@@ -229,7 +230,7 @@ export default function LiquidacionesScreen() {
                       <Text className="text-sm font-semibold text-[#0F172A]">
                         {'Enviaste pago a '}
                         {toUser
-                          ? `${toUser.firstName} ${toUser.lastName}`
+                          ? getUserFullName(toUser)
                           : 'un miembro'}
                       </Text>
                       <Text className="mt-0.5 text-xs text-[#92400E]">

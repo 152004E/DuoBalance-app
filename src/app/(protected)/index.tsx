@@ -1,3 +1,4 @@
+import { getUserDisplayName } from '@/utils/user';
 import { useCallback, useState, useRef, useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -102,7 +103,7 @@ export default function DashboardScreen() {
       }
       const members = group.members.map((m) => ({
         id: m.user.id,
-        name: m.user.id === user?.id ? 'Tú' : m.user.firstName,
+        name: m.user.id === user?.id ? 'Tú' : getUserDisplayName(m.user),
       }));
       setCreatingExpenseGroup({ group, members });
     } else {
@@ -114,7 +115,7 @@ export default function DashboardScreen() {
     setDestSelectorVisible(false);
     const members = group.members.map((m) => ({
       id: m.user.id,
-      name: m.user.id === user?.id ? 'Tú' : m.user.firstName,
+      name: m.user.id === user?.id ? 'Tú' : getUserDisplayName(m.user),
     }));
     setCreatingExpenseGroup({ group, members });
   }, [user?.id]);
@@ -193,7 +194,7 @@ export default function DashboardScreen() {
       >
         <HeroSection
           key={focusCount}
-          userName={user?.firstName ?? 'Usuario'}
+          userName={getUserDisplayName(user)}
           variant="dashboard"
           balance={isLoading ? 0 : balance}
           partnerShare={partnerShare}

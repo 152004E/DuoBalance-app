@@ -1,3 +1,4 @@
+import { getUserDisplayName } from '@/utils/user';
 import { useState, useEffect, useCallback } from 'react';
 import { Platform } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
@@ -31,7 +32,7 @@ export async function authenticateWithGoogleToken(
   Toast.show({
     type: 'success',
     text1: '¡Bienvenido!',
-    text2: `Sesión iniciada como ${data.user.firstName}`,
+    text2: `Sesión iniciada como ${getUserDisplayName(data.user)}`,
   });
 
   router.replace('/(protected)');

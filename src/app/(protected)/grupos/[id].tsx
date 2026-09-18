@@ -1,3 +1,4 @@
+import { getUserDisplayName } from '@/utils/user';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
@@ -253,7 +254,7 @@ export default function CoupleDetail() {
       id: e.id,
       name: e.description,
       amount: Number(e.amount),
-      paidBy: payer ? payer.firstName : 'Miembro',
+      paidBy: payer ? getUserDisplayName(payer) : 'Miembro',
       date: formatRelativeDate(e.createdAt),
       category: e.category,
       icon: meta.icon,

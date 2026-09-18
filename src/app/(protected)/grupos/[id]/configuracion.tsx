@@ -1,3 +1,4 @@
+import { getUserDisplayName, getUserFullName, getUserInitials } from '@/utils/user';
 import { useState, useCallback, useEffect } from 'react';
 import {
   View,
@@ -311,8 +312,7 @@ export default function ConfiguracionGrupoScreen() {
                     <View key={m.id} className={i > 0 ? '-ml-4' : ''}>
                       <View className="h-12 w-12 overflow-hidden rounded-full border-2 border-white bg-[#E2E8F0]">
                         <Text className="text-center text-xl font-bold leading-[48px] text-[#64748B]">
-                          {m.user.firstName[0]}
-                          {m.user.lastName[0]}
+                          {getUserInitials(m.user)}
                         </Text>
                       </View>
                     </View>
@@ -486,14 +486,13 @@ export default function ConfiguracionGrupoScreen() {
                   <View className="flex-row items-center gap-4">
                     <View className="h-10 w-10 items-center justify-center rounded-full bg-[#E2E8F0]">
                       <Text className="text-base font-bold text-[#64748B]">
-                        {member.user.firstName[0]}
-                        {member.user.lastName[0]}
+                        {getUserInitials(member.user)}
                       </Text>
                     </View>
                     <View>
                       <View className="flex-row items-center gap-2">
                         <Text className="text-sm font-semibold text-[#0F172A]">
-                          {member.user.firstName} {member.user.lastName}
+                          {getUserFullName(member.user)}
                         </Text>
                         <View className="rounded-full bg-[#10B981]/10 px-2 py-0.5">
                           <Text className="text-[10px] font-bold uppercase text-[#10B981]">

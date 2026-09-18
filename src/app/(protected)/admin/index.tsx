@@ -1,3 +1,4 @@
+import { getUserDisplayName } from '@/utils/user';
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -90,7 +91,7 @@ export default function AdminDashboardScreen() {
       >
         <HeroSection
           variant="page"
-          userName={user?.firstName ?? 'Admin'}
+          userName={getUserDisplayName(user)}
           title="Panel de Control"
           subtitle="Métricas globales"
           height={220}

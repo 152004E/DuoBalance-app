@@ -1,3 +1,4 @@
+import { getUserDisplayName } from '@/utils/user';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { HeroSection } from '@/components/layout/HeroSection';
@@ -97,7 +98,7 @@ export default function ReportesScreen() {
         <HeroSection
           key={focusCount}
           variant="page"
-          userName={user?.firstName ?? 'Usuario'}
+          userName={getUserDisplayName(user)}
           title="Reportes"
           subtitle="Visualiza tus estadísticas"
           height={220}

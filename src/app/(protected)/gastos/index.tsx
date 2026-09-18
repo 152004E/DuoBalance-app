@@ -1,3 +1,4 @@
+import { getUserDisplayName } from '@/utils/user';
 import { useCallback, useState, useRef, useEffect, useMemo } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -82,7 +83,7 @@ export default function GastosScreen() {
       }
       const members = group.members.map((m) => ({
         id: m.user.id,
-        name: m.user.id === user?.id ? 'Tú' : m.user.firstName,
+        name: m.user.id === user?.id ? 'Tú' : getUserDisplayName(m.user),
       }));
       setCreatingExpenseGroup({ group, members });
     } else {
@@ -94,7 +95,7 @@ export default function GastosScreen() {
     setDestSelectorVisible(false);
     const members = group.members.map((m) => ({
       id: m.user.id,
-      name: m.user.id === user?.id ? 'Tú' : m.user.firstName,
+      name: m.user.id === user?.id ? 'Tú' : getUserDisplayName(m.user),
     }));
     setCreatingExpenseGroup({ group, members });
   }, [user?.id]);
@@ -153,7 +154,7 @@ export default function GastosScreen() {
         <HeroSection
           key={focusCount}
           variant="page"
-          userName={user?.firstName ?? 'Usuario'}
+          userName={getUserDisplayName(user)}
           title="Gastos"
           subtitle="Gastos totales"
           height={220}

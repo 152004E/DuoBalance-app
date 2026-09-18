@@ -1,3 +1,4 @@
+import { getUserDisplayName, getUserInitials } from '@/utils/user';
 import { useState, useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -161,10 +162,10 @@ export default function ExpenseDetailScreen() {
   const paidByName = paidByUser
     ? paidByUser.id === user.id
       ? 'Tú'
-      : paidByUser.firstName
+      : getUserDisplayName(paidByUser)
     : 'Desconocido';
   const paidByInitials = paidByUser
-    ? (paidByUser.firstName[0] + (paidByUser.lastName?.[0] ?? '')).toUpperCase()
+    ? getUserInitials(paidByUser)
     : '?';
 
   const participants = (expense.splits ?? []).map((s) => {
@@ -172,10 +173,10 @@ export default function ExpenseDetailScreen() {
     const name = member
       ? member.id === user.id
         ? 'Tú'
-        : member.firstName
+        : getUserDisplayName(member)
       : 'Usuario';
     const initials = member
-      ? (member.firstName[0] + (member.lastName?.[0] ?? '')).toUpperCase()
+      ? getUserInitials(member)
       : '?';
     const isPayer = s.userId === expense.paidById;
     return {
@@ -348,7 +349,7 @@ export default function ExpenseDetailScreen() {
           group={group}
           members={group.members.map((m) => ({
             id: m.user.id,
-            name: m.user.id === user.id ? 'Tú' : m.user.firstName,
+            name: m.user.id === user.id ? 'Tú' : getUserDisplayName(m.user),
           }))}
           currentUserId={user.id}
           initialExpense={expense}

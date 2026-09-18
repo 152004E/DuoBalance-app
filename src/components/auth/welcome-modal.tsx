@@ -1,3 +1,4 @@
+import { getUserDisplayName } from '@/utils/user';
 import { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
@@ -54,7 +55,7 @@ export function WelcomeModal() {
   const header = (
     <BottomSheetHeader
       visible={visible}
-      title={`¡Hola, ${user.firstName}!`}
+      title={`¡Hola, ${getUserDisplayName(user)}!`}
       subtitle="Te damos la bienvenida a DuoBalance."
       onClose={handleClose}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}

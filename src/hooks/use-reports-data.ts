@@ -1,3 +1,4 @@
+import { getUserDisplayName } from '@/utils/user';
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getExpenses } from '@/services/api/expenses';
@@ -234,7 +235,7 @@ export function useReportsData(
   for (const g of groups) {
     for (const m of g.members) {
       if (!memberNames.has(m.user.id)) {
-        memberNames.set(m.user.id, m.user.firstName);
+        memberNames.set(m.user.id, getUserDisplayName(m.user));
       }
     }
   }

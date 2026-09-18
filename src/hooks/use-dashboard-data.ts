@@ -1,3 +1,4 @@
+import { getUserDisplayName } from '@/utils/user';
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getExpenses } from '@/services/api/expenses';
@@ -127,7 +128,7 @@ export function useDashboardData(
     for (const g of groups) {
       for (const m of g.members) {
         if (!names.has(m.user.id)) {
-          names.set(m.user.id, m.user.firstName);
+          names.set(m.user.id, getUserDisplayName(m.user));
         }
       }
     }
