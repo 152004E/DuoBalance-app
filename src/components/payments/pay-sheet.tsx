@@ -1,3 +1,4 @@
+import { getUserDisplayName, getUserFullName } from '@/utils/user';
 import { useState, useEffect, useMemo } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
@@ -170,7 +171,7 @@ const handleBeforeClose = async () => {
                           isActive ? 'text-white' : 'text-[#0F172A]'
                         }`}
                       >
-                        {member.user.firstName}
+                        {getUserDisplayName(member.user)}
                       </Text>
                     </Pressable>
                   );
@@ -187,7 +188,7 @@ const handleBeforeClose = async () => {
               <View>
                 <Text className="text-xs text-[#64748B]">Se pagará a</Text>
                 <Text className="text-sm font-semibold text-[#0F172A]">
-                  {recipient.user.firstName} {recipient.user.lastName}
+                  {getUserFullName(recipient.user)}
                 </Text>
               </View>
             </View>

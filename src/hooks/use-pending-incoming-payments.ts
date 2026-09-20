@@ -1,3 +1,4 @@
+import { getUserDisplayName } from '@/utils/user';
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getPayments } from '@/services/api/payments';
@@ -67,7 +68,7 @@ export function usePendingIncomingPayments({
               groupId,
               groupName: nameByGroup.get(groupId) ?? 'Grupo',
               fromUserId: p.fromUserId,
-              fromFirstName: p.fromUser?.firstName ?? 'Alguien',
+              fromFirstName: getUserDisplayName(p.fromUser),
               fromLastName: p.fromUser?.lastName ?? '',
               amount: Number(p.amount),
             });

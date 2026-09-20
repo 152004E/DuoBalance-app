@@ -1,3 +1,4 @@
+import { getUserDisplayName } from '@/utils/user';
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator, Modal } from 'react-native';
 import { useLocalSearchParams, router, useFocusEffect } from 'expo-router';
@@ -179,7 +180,7 @@ export default function AdminUserDetailScreen() {
               </View>
               <View className="flex-1">
                 <Text className="text-xl font-bold text-[#0F172A]" numberOfLines={1}>
-                  {user.firstName} {user.lastName}
+                  {getUserDisplayName(user)} {user.lastName}
                 </Text>
                 <Text className="text-sm text-[#64748B] mb-1" numberOfLines={1}>
                   {user.email}

@@ -1,3 +1,4 @@
+import { getUserDisplayName } from '@/utils/user';
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getSettlementSuggestions } from '@/services/api/payments';
@@ -68,7 +69,7 @@ export function useSettlementSuggestions({
               groupId,
               groupName: nameByGroup.get(groupId) || result.group.name,
               toUserId: s.to.id,
-              toFirstName: s.to.firstName,
+              toFirstName: getUserDisplayName(s.to),
               toLastName: s.to.lastName,
               amount: s.amount,
             });

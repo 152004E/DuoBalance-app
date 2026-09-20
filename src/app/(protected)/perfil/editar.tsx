@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, Switch, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -12,6 +12,7 @@ import { ProfileCard } from '@/components/perfil/profile-card';
 import { ImagePreviewModal } from '@/components/perfil/image-preview-modal';
 import { AlertModal } from '@/components/ui/alert-modal';
 import { extractErrorMessage } from '@/utils/errors';
+import { queryClient } from '@/lib/query-client';
 import * as authService from '@/services/api/auth';
 
 const EMAIL_REGEX = /^[^\s@]{2,}@[^\s@]{2,}\.[A-Za-z]{2,}$/;
@@ -20,6 +21,8 @@ export default function EditarPerfilScreen() {
   const { user, updateUser } = useAuth();
   const [firstName, setFirstName] = useState(user?.firstName ?? '');
   const [lastName, setLastName] = useState(user?.lastName ?? '');
+  const [nickname, setNickname] = useState(user?.nickname ?? '');
+  const [useNickname, setUseNickname] = useState(user?.useNickname ?? false);
   const [email, setEmail] = useState(user?.email ?? '');
   const [emailError, setEmailError] = useState<string>();
   const [localPhotoUri, setLocalPhotoUri] = useState<string | null>(null);
@@ -68,6 +71,19 @@ export default function EditarPerfilScreen() {
   };
 
   const handleSave = async () => {
+    const hasChanges =
+      firstName.trim() !== (user?.firstName ?? '') ||
+      lastName.trim() !== (user?.lastName ?? '') ||
+      email.trim() !== (user?.email ?? '') ||
+      nickname.trim() !== (user?.nickname ?? '') ||
+      useNickname !== (user?.useNickname ?? false) ||
+      localPhotoSource !== null;
+
+    if (!hasChanges) {
+      router.back();
+      return;
+    }
+
     if (!email.trim()) {
       setEmailError('El correo es requerido');
       return;
@@ -90,12 +106,15 @@ export default function EditarPerfilScreen() {
         firstName,
         lastName,
         email,
+        nickname,
+        useNickname,
       });
       const merged = {
         ...profileUpdated,
         avatarUrl: currentUser?.avatarUrl ?? profileUpdated.avatarUrl,
       };
       await updateUser(merged);
+      queryClient.invalidateQueries();
       setShowSuccess(true);
     } catch (error) {
       setShowError(
@@ -135,8 +154,8 @@ export default function EditarPerfilScreen() {
           />
 
           <ProfileCard
-            firstName={firstName}
-            lastName={lastName}
+            firstName={useNickname && nickname.trim() ? nickname.trim() : firstName}
+            lastName={useNickname && nickname.trim() ? '' : lastName}
             email={email}
             avatarUrl={displayAvatar}
             showChangePhoto
@@ -151,13 +170,38 @@ export default function EditarPerfilScreen() {
               onChangeText={setFirstName}
               placeholder="Tu nombre"
             />
-            <Input
+<Input
               label="Apellido"
               iconLeft="user"
               value={lastName}
               onChangeText={setLastName}
               placeholder="Tu apellido"
             />
+            
+            <View className="rounded-2xl border border-blue-200 bg-blue-50/50 p-4 shadow-sm">
+              <Input
+                label="Apodo / Sobrenombre"
+                iconLeft="mask"
+                value={nickname}
+                onChangeText={setNickname}
+                placeholder="Ej. Juancho, El Jefe..."
+              />
+              
+              <View className="mt-4 flex-row items-center justify-between">
+                <View className="flex-1 pr-4">
+                  <Text className="text-sm font-semibold text-slate-800">Usar apodo</Text>
+                  <Text className="mt-0.5 text-xs text-slate-500">
+                    Mostrar este apodo en lugar de mi nombre real en los grupos y gastos.
+                  </Text>
+                </View>
+                <Switch
+                  value={useNickname}
+                  onValueChange={setUseNickname}
+                  trackColor={{ false: '#CBD5E1', true: '#2563EB' }}
+                  thumbColor="#FFFFFF"
+                />
+              </View>
+            </View>
             <Input
               label="Correo electrónico"
               iconLeft="envelope"

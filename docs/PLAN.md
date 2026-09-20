@@ -645,5 +645,5 @@ Tareas identificadas en la sesión de pruebas con testers para implementar en pr
 6. ✅ **Ajuste Global de Alturas de Modales:** (Resuelto globalmente con auto-sizing) Corregir `heightRatio={0.1}` en `src/app/(protected)/grupos/index.tsx` para que el menú de agregar grupo no se corte.
 7. ✅ **Botón directo de WhatsApp:** Agregar acción directa para compartir invitación a través de la API de WhatsApp.
 8. ✅ **Persistencia de estado en Modales:** (Resuelto con Toast interactivo) Evitar que se pierda la información digitada (como montos, descripciones, nombres) si el usuario cierra un modal (Bottom Sheet) por accidente deslizando hacia abajo.
-9. **Soporte para Apodos (Nicknames):** Permitir a los usuarios configurar un alias o apodo para mostrarse en la interfaz o dentro de grupos específicos, en lugar de su nombre real o completo.
+9. ✅ **Soporte para Apodos (Nicknames):** (Implementado con switch en Perfil) Permitir a los usuarios configurar un alias o apodo para mostrarse en la interfaz o dentro de grupos específicos, en lugar de su nombre real o completo.
 10. ✅ **Sincronización Global de Estado (React Query):** Implementado `@tanstack/react-query` para garantizar que los datos (gastos, grupos, balances) se actualicen en tiempo real y se compartan entre todas las pestañas sin necesidad de recargar la aplicación.

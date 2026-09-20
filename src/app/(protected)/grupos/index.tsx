@@ -1,3 +1,4 @@
+import { getUserDisplayName } from '@/utils/user';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -180,7 +181,7 @@ export default function ParejaScreen() {
       >
         <HeroSection
           variant="page"
-          userName={user?.firstName ?? 'Usuario'}
+          userName={getUserDisplayName(user)}
           title="Grupos"
           subtitle="Administra tus grupos"
           height={220}

@@ -1,3 +1,4 @@
+import { getUserDisplayName } from '@/utils/user';
 import { View, Text, Pressable } from 'react-native';
 import { router } from 'expo-router';
 import { FontAwesome6 } from '@expo/vector-icons';
@@ -62,12 +63,12 @@ export function GroupCard({
 
     segments = [
       {
-        label: currentMember?.user.firstName ?? 'Tú',
+        label: 'Tú',
         percent: userPercent,
         color: '#006c49',
       },
       {
-        label: partner?.user.firstName ?? 'Pareja',
+        label: getUserDisplayName(partner?.user) ?? "Pareja",
         percent: partnerPercent,
         color: '#8B5CF6',
       },
@@ -82,7 +83,7 @@ export function GroupCard({
 
     segments = [
       {
-        label: currentMember?.user.firstName ?? 'Tú',
+        label: 'Tú',
         percent: perMember,
         color: '#006c49',
       },

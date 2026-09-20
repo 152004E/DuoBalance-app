@@ -1,3 +1,4 @@
+import { getUserDisplayName } from '@/utils/user';
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
@@ -95,7 +96,7 @@ export function RecentUsersCard({
                     ellipsizeMode="tail"
                     className="font-bold text-[#0F172A]"
                   >
-                    {u.firstName} {u.lastName}
+                    {getUserDisplayName(u)} {u.lastName}
                   </Text>
                   {u.role === 'SUPER_ADMIN' && (
                     <FontAwesome6 name="crown" size={11} color="#FBBF24" />

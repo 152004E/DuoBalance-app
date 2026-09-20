@@ -19,6 +19,8 @@ export interface UserBrief {
   firstName: string;
   lastName: string;
   email: string;
+  nickname?: string | null;
+  useNickname?: boolean;
   role: 'USER' | 'SUPER_ADMIN';
   isActive: boolean;
 }
@@ -74,6 +76,8 @@ export interface UserResponse {
   firstName: string;
   lastName: string;
   email: string;
+  nickname?: string | null;
+  useNickname?: boolean;
   avatarUrl?: string | null;
   emailVerifiedAt?: string | null;
   role: 'USER' | 'SUPER_ADMIN';
@@ -96,6 +100,8 @@ export interface UpdateProfilePayload {
   firstName?: string;
   lastName?: string;
   email?: string;
+  nickname?: string;
+  useNickname?: boolean;
 }
 
 export interface DeleteAccountPayload {

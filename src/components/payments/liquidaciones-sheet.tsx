@@ -1,3 +1,4 @@
+import { getUserDisplayName, getUserFullName } from '@/utils/user';
 import { useState } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { router } from 'expo-router';
@@ -31,7 +32,7 @@ function UserName({
 }) {
   return (
     <Text className="font-semibold text-[#0F172A]">
-      {user ? `${user.firstName} ${user.lastName}` : fallback}
+      {user ? getUserFullName(user) : fallback}
     </Text>
   );
 }
@@ -99,9 +100,7 @@ export function LiquidacionesSheet({
                     </View>
                     <View className="flex-1 shrink">
                       <Text className="text-sm font-semibold text-[#0F172A]">
-                        {fromUser
-                          ? `${fromUser.firstName} ${fromUser.lastName}`
-                          : 'Alguien'}{' '}
+                        {fromUser ? getUserFullName(fromUser) : 'Alguien'}{' '}
                         dice que te pagó
                       </Text>
                       <Text className="mt-0.5 text-xs text-[#64748B]">
@@ -158,9 +157,7 @@ export function LiquidacionesSheet({
                     <View className="flex-1 shrink">
                       <Text className="text-sm font-semibold text-[#0F172A]">
                         {'Enviaste pago a '}
-                        {toUser
-                          ? `${toUser.firstName} ${toUser.lastName}`
-                          : 'un miembro'}
+                        {toUser ? getUserFullName(toUser) : 'un miembro'}
                       </Text>
                       <Text className="mt-0.5 text-xs text-[#92400E]">
                         {'Esperando confirmación · '}

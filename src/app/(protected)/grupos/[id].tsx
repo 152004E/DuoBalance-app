@@ -1,3 +1,4 @@
+import { getUserDisplayName } from '@/utils/user';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
@@ -9,6 +10,7 @@ import {
   regenerateInviteCode,
 } from '@/services/api/groups';
 import { getExpenses } from '@/services/api/expenses';
+import { queryClient } from '@/lib/query-client';
 import {
   createPayment,
   confirmPayment,
@@ -230,7 +232,7 @@ export default function CoupleDetail() {
 
   const partnerLabel =
     groupType === 'COUPLE'
-      ? (group?.members.find((m) => m.user.id !== user?.id)?.user.firstName ??
+      ? (getUserDisplayName(group?.members.find((m) => m.user.id !== user?.id)?.user) ??
         'Pareja')
       : 'Grupo';
 
@@ -253,7 +255,7 @@ export default function CoupleDetail() {
       id: e.id,
       name: e.description,
       amount: Number(e.amount),
-      paidBy: payer ? payer.firstName : 'Miembro',
+      paidBy: payer ? getUserDisplayName(payer) : 'Miembro',
       date: formatRelativeDate(e.createdAt),
       category: e.category,
       icon: meta.icon,
@@ -300,6 +302,7 @@ export default function CoupleDetail() {
     setLeaveError(null);
     try {
       await leaveGroup(id);
+      queryClient.invalidateQueries({ queryKey: ['groups'] });
       setShowLeaveConfirm(false);
       setLeaveSuccess(true);
     } catch (err: unknown) {
@@ -678,8 +681,7 @@ export default function CoupleDetail() {
                   <View className="flex-row items-center gap-2">
                     <View className="h-3 w-3 rounded-full bg-[#006c49]" />
                     <Text className="text-[#0F172A]">
-                      {group?.members.find((m) => m.user.id === user?.id)?.user
-                        .firstName ?? 'Tú'}
+                      {'Tú'}
                     </Text>
                   </View>
                   <Text

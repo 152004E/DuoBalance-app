@@ -1,3 +1,4 @@
+import { getUserDisplayName } from '@/utils/user';
 import React, { useEffect, useState } from 'react';
 import { View, ScrollView, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
@@ -89,7 +90,7 @@ export default function AdminUsersScreen() {
       >
         <HeroSection
           variant="page"
-          userName={user?.firstName ?? 'Admin'}
+          userName={getUserDisplayName(user)}
           title="Usuarios"
           subtitle="Gestión de usuarios"
           height={220}

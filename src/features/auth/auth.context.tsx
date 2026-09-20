@@ -14,6 +14,7 @@ import {
 import { eventEmitter } from '@/utils/event-emitter';
 import { getJwtExp } from '@/utils/jwt';
 import { getProfile } from '@/services/api/auth';
+import { queryClient } from '@/lib/query-client';
 
 import type { UserResponse } from '@/types/api';
 
@@ -61,6 +62,7 @@ export function AuthProvider({ children }: Props) {
     await userStorage.remove();
 
     setUser(null);
+    queryClient.clear();
   }, []);
 
   const updateUser = useCallback(async (userData: User) => {

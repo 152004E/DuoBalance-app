@@ -1,3 +1,4 @@
+import { getUserDisplayName } from '@/utils/user';
 import { useCallback, useState, useMemo, useEffect } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -165,7 +166,7 @@ export default function MovimientosScreen() {
       }
       const members = group.members.map((m) => ({
         id: m.user.id,
-        name: m.user.id === user?.id ? 'Tú' : m.user.firstName,
+        name: m.user.id === user?.id ? 'Tú' : getUserDisplayName(m.user),
       }));
       setCreatingExpenseGroup({ group, members });
     } else {
@@ -178,7 +179,7 @@ export default function MovimientosScreen() {
       setDestSelectorVisible(false);
       const members = group.members.map((m) => ({
         id: m.user.id,
-        name: m.user.id === user?.id ? 'Tú' : m.user.firstName,
+        name: m.user.id === user?.id ? 'Tú' : getUserDisplayName(m.user),
       }));
       setCreatingExpenseGroup({ group, members });
     },
@@ -198,7 +199,7 @@ export default function MovimientosScreen() {
     if (!group) return;
     const members = group.members.map((m) => ({
       id: m.user.id,
-      name: m.user.id === user?.id ? 'Tú' : m.user.firstName,
+      name: m.user.id === user?.id ? 'Tú' : getUserDisplayName(m.user),
     }));
     setCreatingExpenseGroup({ group, members });
     router.setParams({ create: undefined });

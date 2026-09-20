@@ -1,3 +1,4 @@
+import { getUserDisplayName, getUserFullName } from '@/utils/user';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -102,8 +103,8 @@ export default function PerfilScreen() {
           </Text>
 
           <ProfileCard
-            firstName={user?.firstName ?? ''}
-            lastName={user?.lastName ?? ''}
+            firstName={getUserFullName(user)}
+            lastName=""
             email={user?.email ?? ''}
             avatarUrl={user?.avatarUrl}
           />

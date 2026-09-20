@@ -1,3 +1,4 @@
+import { getUserDisplayName } from '@/utils/user';
 import React, { useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { router } from 'expo-router';
@@ -19,7 +20,7 @@ export default function AdminReportesScreen() {
       <ScrollView className="flex-1" contentContainerClassName="pb-10" showsVerticalScrollIndicator={false}>
         <HeroSection
           variant="page"
-          userName={user?.firstName ?? 'Admin'}
+          userName={getUserDisplayName(user)}
           title="Reportes"
           subtitle="Gráficas y analíticas"
           height={220}
