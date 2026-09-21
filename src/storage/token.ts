@@ -47,4 +47,5 @@ export const refreshTokenStorage = createStorage<string>(KEYS.REFRESH_TOKEN);
 export const userStorage = createStorage<unknown>(KEYS.USER);
 export const pendingJoinStorage = createStorage<string>(KEYS.PENDING_JOIN_CODE);
 export const welcomeStorage = createStorage<boolean>('duobalance_welcome_seen_v3');
+export const snoozeStorage = createStorage<{ lastViewedAt: number; totalDueAmount: number }>('duobalance_snoozed_dues');
 

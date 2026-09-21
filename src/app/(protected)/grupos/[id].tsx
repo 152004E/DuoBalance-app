@@ -241,11 +241,14 @@ export default function CoupleDetail() {
     .filter((e) => e.paidById !== user?.id)
     .reduce((acc, e) => acc + Number(e.amount), 0);
 
+  const effectivePaidByMe = totalPaidByMe + (monthlySettlement?.paymentsMade || 0) - (monthlySettlement?.paymentsReceived || 0);
+  const effectivePaidByOthers = paidByOthers + (monthlySettlement?.paymentsReceived || 0) - (monthlySettlement?.paymentsMade || 0);
+
   const memberSplit = {
     userName: 'Tú',
     partnerName: groupType === 'COUPLE' ? partnerLabel : 'El grupo',
-    userAmount: totalPaidByMe,
-    partnerAmount: paidByOthers,
+    userAmount: Math.max(0, effectivePaidByMe),
+    partnerAmount: Math.max(0, effectivePaidByOthers),
   };
 
   const recentExpenses: RecentExpense[] = expenses.map((e) => {
