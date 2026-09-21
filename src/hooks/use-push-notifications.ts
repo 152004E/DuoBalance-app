@@ -55,17 +55,25 @@ export function usePushNotifications() {
 
       // 3. Obtener suscripción existente o crear una nueva
       let subscription = await registration.pushManager.getSubscription();
+      
+      // Manejo de suscripciones conflictivas en localhost
+      if (subscription) {
+        const currentKey = subscription.options.applicationServerKey;
+        // Si la llave no existe o el estado es dudoso, nos desuscribimos para forzar una limpia
+        if (!currentKey) {
+          await subscription.unsubscribe();
+          subscription = null;
+        }
+      }
+
       if (!subscription) {
         const vapidPublicKey = process.env.EXPO_PUBLIC_VAPID_KEY;
-        console.log('VAPID Key from env:', vapidPublicKey);
         
         if (!vapidPublicKey) {
           throw new Error('No VAPID key found');
         }
 
         const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
-        console.log('Converted key length:', convertedVapidKey.length);
-        console.log('Converted key starts with 0x04:', convertedVapidKey[0] === 0x04);
 
         subscription = await registration.pushManager.subscribe({
           userVisibleOnly: true,
@@ -73,8 +81,12 @@ export function usePushNotifications() {
         });
       }
 
-      // 4. Enviar suscripción al backend
-      await api.post('/notifications/subscribe', subscription.toJSON());
+      // 4. Enviar suscripción al backend (FIX: Evitar 400 Bad Request por campos extra)
+      const subData = subscription.toJSON();
+      await api.post('/notifications/subscribe', {
+        endpoint: subData.endpoint,
+        keys: subData.keys,
+      });
       
       Toast.show({
         type: 'success',
@@ -83,12 +95,24 @@ export function usePushNotifications() {
       });
       
       return subscription;
-    } catch (error) {
-      console.error('Error al suscribir notificaciones:', error);
+    } catch (error: any) {
+      console.error('Error al suscribir notificaciones:', error.response?.data || error);
+      
+      let errorTitle = 'No pudimos activarlas';
+      let errorMsg = 'Hubo un problema inesperado. Inténtalo de nuevo más tarde.';
+      
+      // Manejo controlado para navegadores que bloquean FCM (Brave, Incógnito, etc.)
+      if (error.name === 'AbortError' && error.message.includes('push service error')) {
+        errorTitle = 'Notificaciones bloqueadas';
+        errorMsg = 'Parece que navegas en privado o tu navegador bloquea este servicio. Revisa tus ajustes de privacidad.';
+      } else if (error.isAxiosError && error.response?.status === 400) {
+        errorMsg = 'Tuvimos un problema guardando tu configuración. Inténtalo en un momento.';
+      }
+
       Toast.show({
         type: 'error',
-        text1: 'Error',
-        text2: 'Hubo un problema activando las notificaciones.',
+        text1: errorTitle,
+        text2: errorMsg,
       });
       return null;
     } finally {

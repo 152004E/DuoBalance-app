@@ -11,6 +11,14 @@ interface NotificationSheetProps {
   onClose: () => void;
   dues: SettlementDue[];
   incomingPayments: PendingIncomingPayment[];
+  inAppNotifications?: Array<{
+    id: string;
+    title: string;
+    body: string;
+    isRead: boolean;
+    url?: string;
+  }>;
+  markAsRead?: (id: string) => void;
 }
 
 export function NotificationSheet({
@@ -18,6 +26,8 @@ export function NotificationSheet({
   onClose,
   dues,
   incomingPayments,
+  inAppNotifications = [],
+  markAsRead,
 }: NotificationSheetProps) {
   const header = (
     <BottomSheetHeader
@@ -29,7 +39,7 @@ export function NotificationSheet({
     />
   );
 
-  const hasNotifications = dues.length > 0 || incomingPayments.length > 0;
+  const hasNotifications = dues.length > 0 || incomingPayments.length > 0 || inAppNotifications.length > 0;
 
   return (
     <BottomSheet
@@ -122,6 +132,52 @@ export function NotificationSheet({
                       <Text className="text-base font-bold text-[#DC2626]">
                         ${Number(due.amount).toLocaleString('es-CL')}
                       </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {inAppNotifications.length > 0 && (
+              <View>
+                <Text className="mb-3 text-xs font-bold uppercase tracking-wider text-[#64748B]">
+                  Actividad Reciente
+                </Text>
+                <View className="space-y-3">
+                  {inAppNotifications.map((notif) => (
+                    <TouchableOpacity
+                      key={notif.id}
+                      onPress={() => {
+                        if (!notif.isRead && markAsRead) {
+                          markAsRead(notif.id);
+                        }
+                        onClose();
+                        if (notif.url) {
+                          router.push(notif.url as any);
+                        }
+                      }}
+                      className={`flex-row items-center gap-4 rounded-2xl border p-4 active:bg-[#F8FAFC] ${
+                        notif.isRead ? 'border-[#E2E8F0] bg-white opacity-80' : 'border-[#059669]/20 bg-[#F0FDF4]'
+                      }`}
+                    >
+                      <View className={`h-10 w-10 items-center justify-center rounded-full ${notif.isRead ? 'bg-gray-100' : 'bg-green-100'}`}>
+                        <FontAwesome6
+                          name="bell"
+                          size={16}
+                          color={notif.isRead ? '#64748B' : '#059669'}
+                        />
+                      </View>
+                      <View className="flex-1">
+                        <Text className={`text-base ${notif.isRead ? 'font-medium text-[#475569]' : 'font-bold text-[#0F172A]'}`}>
+                          {notif.title}
+                        </Text>
+                        <Text className="text-sm text-[#64748B]">
+                          {notif.body}
+                        </Text>
+                      </View>
+                      {!notif.isRead && (
+                        <View className="h-2 w-2 rounded-full bg-red-500" />
+                      )}
                     </TouchableOpacity>
                   ))}
                 </View>
