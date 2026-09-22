@@ -192,6 +192,8 @@ export interface ExpenseQueryParams {
   endDate?: string;
   minAmount?: number;
   maxAmount?: number;
+  status?: ExpenseStatus | string;
+  paidById?: string;
 }
 
 export interface ExpenseSplitResponse {
@@ -202,12 +204,19 @@ export interface ExpenseSplitResponse {
   createdAt: string;
 }
 
+export enum ExpenseStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
 export interface ExpenseResponse {
   id: string;
   description: string;
   amount: number;
   category: ExpenseCategory;
   splitType: SplitType;
+  status: ExpenseStatus;
   paidById: string;
   groupId: string;
   receiptUrl?: string | null;
@@ -333,6 +342,23 @@ export interface DashboardResponse {
   expensesByCategory: CategoryBreakdown[];
   lastExpense: LastExpense | null;
   monthlyComparison: MonthlyComparison;
+}
+
+// ─── Budget ──────────────────────────────────────────
+export interface BudgetPayload {
+  month: number;
+  year: number;
+  income: number;
+  budget?: number;
+}
+
+export interface BudgetResponse {
+  month: number;
+  year: number;
+  income: number;
+  budget: number;
+  totalSpent: number;
+  remaining: number;
 }
 
 // ─── API Client Config ───────────────────────────────
