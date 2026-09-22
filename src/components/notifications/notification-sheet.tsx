@@ -17,6 +17,7 @@ interface NotificationSheetProps {
     body: string;
     isRead: boolean;
     url?: string;
+  }>;
   pendingExpenses?: any[];
   onApproveExpense?: (id: string) => Promise<void>;
   onRejectExpense?: (id: string) => Promise<void>;

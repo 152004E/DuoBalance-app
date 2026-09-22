@@ -31,6 +31,8 @@ import { joinGroup } from '@/services/api/groups';
 import type { GroupResponse } from '@/types/api';
 import { useWorkspace } from '@/hooks/use-workspace';
 import { WelcomeModal } from '@/components/auth/welcome-modal';
+import { BudgetWidget } from '@/components/budget/budget-widget';
+import { SetBudgetSheet } from '@/components/budget/set-budget-sheet';
 import Toast from 'react-native-toast-message';
 
 const fmt = (value: number) => `$${Math.round(value).toLocaleString('es-CL')}`;
@@ -86,6 +88,7 @@ export default function DashboardScreen() {
 
   const [showCreateGroupSheet, setShowCreateGroupSheet] = useState(false);
   const [showJoinSheet, setShowJoinSheet] = useState(false);
+  const [showBudgetSheet, setShowBudgetSheet] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
   const [destSelectorVisible, setDestSelectorVisible] = useState(false);
   const [creatingExpenseGroup, setCreatingExpenseGroup] = useState<{
@@ -253,7 +256,14 @@ export default function DashboardScreen() {
           )}
         </View>
 
-        <View className="mt-6 space-y-6 px-5">
+        <View className="mt-6 px-5">
+          <BudgetWidget 
+            onConfigurePress={() => setShowBudgetSheet(true)}
+            onHistoryPress={() => router.push('/gastos/HistorialPresupuesto')}
+          />
+        </View>
+
+        <View className="mt-2 space-y-6 px-5">
           {isLoading ? (
             <Loading message="Cargando tu actividad..." />
           ) : !hasData ? (
@@ -367,6 +377,11 @@ export default function DashboardScreen() {
           }}
         />
       )}
+
+      <SetBudgetSheet
+        visible={showBudgetSheet}
+        onClose={() => setShowBudgetSheet(false)}
+      />
 
       <WelcomeModal />
     </SafeAreaView>
