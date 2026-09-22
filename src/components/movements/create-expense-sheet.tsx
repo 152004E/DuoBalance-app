@@ -61,6 +61,8 @@ function getTodayDate(): string {
   return `${dd}/${mm}/${yyyy}`;
 }
 
+type SheetView = 'MAIN' | 'SELECT_PAYER' | 'SELECT_SPLIT' | 'SELECT_PARTICIPANTS';
+
 export function CreateExpenseSheet({
   visible,
   onClose,
@@ -75,23 +77,19 @@ export function CreateExpenseSheet({
   const isCouple = group.type === 'COUPLE' || members.length === 2;
   const isEditing = !!initialExpense;
 
-  // El "tú" de la división es el usuario logueado, no necesariamente members[0]
   const youMember = members.find((m) => m.id === currentUserId) ?? members[0];
   const youMemberId = youMember?.id;
 
+  const [activeView, setActiveView] = useState<SheetView>('MAIN');
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('FOOD');
   const [date, setDate] = useState(getTodayDate());
   const [paidBy, setPaidBy] = useState('');
-  const [selectedParticipants, setSelectedParticipants] = useState<string[]>(
-    [],
-  );
+  const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
   const [splitType, setSplitType] = useState<'EQUAL' | 'PERCENTAGE'>('EQUAL');
   const [yourPercentage, setYourPercentage] = useState(50);
-  const [pickedReceipt, setPickedReceipt] = useState<ReceiptSource | null>(
-    null,
-  );
+  const [pickedReceipt, setPickedReceipt] = useState<ReceiptSource | null>(null);
   const [removeExistingReceipt, setRemoveExistingReceipt] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -124,15 +122,11 @@ export function CreateExpenseSheet({
             )
           : 50;
 
-      // En parejas, el % por defecto es el configurado al crear la pareja
-      // (splitPercentage del miembro actual, o el inverso del de la pareja si
-      // el actual no lo tiene), o 50/50 si no existe.
       const myMember =
         group.members.find((m) => m.user.id === youMemberId) ?? null;
       const partnerMember =
         group.members.find((m) => m.user.id !== youMemberId) ?? null;
-      // splitPercentage llega como string desde la API (Prisma Decimal):
-      // convertir siempre a número antes de usarlo en el payload.
+
       const groupDefaultPercentage =
         isCouple && !isPersonal
           ? myMember?.splitPercentage != null
@@ -148,8 +142,7 @@ export function CreateExpenseSheet({
         groupDefaultPercentage != null && groupDefaultPercentage !== 50
           ? 'PERCENTAGE'
           : 'EQUAL';
-      // En grupos de 3+ solo existe división EQUAL: forzar al editar para no
-      // corromper splits de gastos PERCENTAGE heredados de la UI vieja.
+
       const resolvedSplitType: 'EQUAL' | 'PERCENTAGE' = isEditing
         ? isCouple
           ? defaultSplitType
@@ -170,6 +163,7 @@ export function CreateExpenseSheet({
       );
       setPickedReceipt(null);
       setRemoveExistingReceipt(false);
+      setActiveView('MAIN');
     }
   }, [resetKey, members]);
 
@@ -228,18 +222,40 @@ export function CreateExpenseSheet({
   const header = (
     <BottomSheetHeader
       visible={visible}
-      title={isEditing ? 'Editar gasto' : 'Nuevo gasto'}
-      subtitle={
-        isEditing
-          ? `Actualiza el gasto en ${group.name}`
-          : `Registra un gasto compartido en ${group.name}`
+      title={
+        activeView === 'SELECT_PAYER'
+          ? '¿Quién pagó?'
+          : activeView === 'SELECT_SPLIT'
+            ? 'Tipo de división'
+            : activeView === 'SELECT_PARTICIPANTS'
+              ? 'Participantes'
+              : isEditing
+                ? 'Editar gasto'
+                : 'Nuevo gasto'
       }
-      onClose={onClose}
+      subtitle={
+        activeView === 'MAIN'
+          ? isEditing
+            ? `Actualiza el gasto en ${group.name}`
+            : `Registra un gasto compartido en ${group.name}`
+          : ''
+      }
+      onClose={() => {
+        if (activeView !== 'MAIN') {
+          setActiveView('MAIN');
+        } else {
+          onClose();
+        }
+      }}
       logo={require('@/assets/images/logo-white-green-bg-without.png')}
     />
   );
 
-const handleBeforeClose = async () => {
+  const handleBeforeClose = async () => {
+    if (activeView !== 'MAIN') {
+      setActiveView('MAIN');
+      return false; // Prevent closing the sheet if in a sub-view
+    }
     if (amount !== '' || description.trim() !== '' || pickedReceipt) {
       return new Promise<boolean>((resolve) => {
         Toast.show({
@@ -271,373 +287,533 @@ const handleBeforeClose = async () => {
       header={header}
     >
       <View className="flex-1">
-        <ScrollView
-          className="flex-1 px-5"
-          showsVerticalScrollIndicator={false}
-          contentContainerClassName="pb-4"
-        >
-          <Input
-            label="Valor"
-            iconLeft="dollar-sign"
-            placeholder="$ 0"
-            value={amount}
-            onChangeText={handleAmountChange}
-            keyboardType="number-pad"
-            helperText={
-              parsedAmount > 0
-                ? 'Límite máximo de $2.000.000 por gasto'
-                : undefined
-            }
-          />
+        {activeView === 'MAIN' && (
+          <>
+            <ScrollView
+              className="flex-1 px-5"
+              showsVerticalScrollIndicator={false}
+              contentContainerClassName="pb-4"
+            >
+              <Input
+                label="Valor"
+                iconLeft="dollar-sign"
+                placeholder="$ 0"
+                value={amount}
+                onChangeText={handleAmountChange}
+                keyboardType="number-pad"
+                helperText={
+                  parsedAmount > 0
+                    ? 'Límite máximo de $2.000.000 por gasto'
+                    : undefined
+                }
+              />
 
-          <Input
-            label="Descripción"
-            iconLeft="note-sticky"
-            placeholder="Ej: Mercado, Cena, Gasolina..."
-            value={description}
-            onChangeText={setDescription}
-            maxLength={60}
-          />
+              <Input
+                label="Descripción"
+                iconLeft="note-sticky"
+                placeholder="Ej: Mercado, Cena, Gasolina..."
+                value={description}
+                onChangeText={setDescription}
+                maxLength={60}
+              />
 
-          {/* Category */}
-          <Text className="mb-2 mt-5 text-sm font-semibold text-[#0F172A]">
-            🏷️ Categoría
-          </Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            className="-mx-5 px-5"
-          >
-            <View className="flex-row gap-2">
-              {CATEGORIES.map((cat) => {
-                const isActive = category === cat.value;
-                return (
-                  <Pressable
-                    key={cat.value}
-                    onPress={() => setCategory(cat.value)}
-                    className={`rounded-full px-4 py-2.5 ${
-                      isActive
-                        ? 'bg-[#10B981]'
-                        : 'border border-[#E2E8F0] bg-white'
-                    }`}
-                  >
-                    <Text
-                      className={`text-sm font-medium ${
-                        isActive ? 'text-white' : 'text-[#64748B]'
-                      }`}
+              {/* Category */}
+              <Text className="mb-2 mt-5 text-sm font-semibold text-[#0F172A]">
+                🏷️ Categoría
+              </Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                className="-mx-4 px-2"
+              >
+                <View className="flex-row gap-1">
+                  {CATEGORIES.map((cat) => {
+                    const isActive = category === cat.value;
+                    return (
+                      <Pressable
+                        key={cat.value}
+                        onPress={() => setCategory(cat.value)}
+                        className={`rounded-full px-4 py-2 ${
+                          isActive
+                            ? 'bg-[#10B981]'
+                            : 'border border-[#E2E8F0] bg-white'
+                        }`}
+                      >
+                        <Text
+                          className={`text-sm font-medium ${
+                            isActive ? 'text-white' : 'text-[#64748B]'
+                          }`}
+                        >
+                          {cat.emoji} {cat.label}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </ScrollView>
+
+              <Input
+                label="Fecha"
+                iconLeft="calendar"
+                placeholder="dd/mm/aaaa"
+                value={date}
+                onChangeText={setDate}
+              />
+
+              {/* Paid by Summary */}
+              {!isPersonal && (
+                <>
+                  <View className="mb-2 mt-5 flex-row items-center justify-between">
+                    <Text className="text-sm font-semibold text-[#0F172A]">
+                      👤 Pagado por
+                    </Text>
+                    <Pressable
+                      onPress={() => setActiveView('SELECT_PAYER')}
+                      className="px-2 "
                     >
-                      {cat.emoji} {cat.label}
+                      <Text className="text-sm font-semibold text-[#10B981]">
+                        Cambiar
+                      </Text>
+                    </Pressable>
+                  </View>
+                  <Pressable
+                    onPress={() => setActiveView('SELECT_PAYER')}
+                    className="flex-row items-center justify-between rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] py-2 px-4 active:bg-[#F1F5F9]"
+                  >
+                    <View className="flex-row items-center gap-3">
+                      <FontAwesome6 name="user" size={14} color="#64748B" />
+                      <Text className="text-base font-medium text-[#0F172A]">
+                        {members.find((m) => m.id === paidBy)?.name ??
+                          'Seleccionar'}
+                      </Text>
+                    </View>
+                    <FontAwesome6
+                      name="chevron-right"
+                      size={12}
+                      color="#94A3B8"
+                    />
+                  </Pressable>
+                </>
+              )}
+
+              {/* Participants Summary */}
+              {!isPersonal && !isCouple && (
+                <>
+                  <View className="mb-2 mt-5 flex-row items-center justify-between">
+                    <Text className="text-sm font-semibold text-[#0F172A]">
+                      👥 Participantes
+                    </Text>
+                    <Pressable
+                      onPress={() => setActiveView('SELECT_PARTICIPANTS')}
+                      className="px-2 py-1"
+                    >
+                      <Text className="text-sm font-semibold text-[#10B981]">
+                        Cambiar
+                      </Text>
+                    </Pressable>
+                  </View>
+                  <Pressable
+                    onPress={() => setActiveView('SELECT_PARTICIPANTS')}
+                    className="flex-row items-center justify-between rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-4 active:bg-[#F1F5F9]"
+                  >
+                    <View className="flex-1 flex-row flex-wrap items-center gap-1">
+                      <Text className="text-base font-medium text-[#0F172A]">
+                        {selectedParticipants.length === members.length
+                          ? 'Todos los miembros'
+                          : `${selectedParticipants.length} participante${selectedParticipants.length !== 1 ? 's' : ''}`}
+                      </Text>
+                    </View>
+                    <FontAwesome6
+                      name="chevron-right"
+                      size={12}
+                      color="#94A3B8"
+                    />
+                  </Pressable>
+                </>
+              )}
+
+              {/* Split Type Summary */}
+              {!isPersonal && (
+                <>
+                  <View className="mb-2 mt-5 flex-row items-center justify-between">
+                    <Text className="text-sm font-semibold text-[#0F172A]">
+                      🔄 Tipo de división
+                    </Text>
+                    <Pressable
+                      onPress={() => setActiveView('SELECT_SPLIT')}
+                      className="px-2 py-1"
+                    >
+                      <Text className="text-sm font-semibold text-[#10B981]">
+                        Cambiar
+                      </Text>
+                    </Pressable>
+                  </View>
+                  <Pressable
+                    onPress={() => setActiveView('SELECT_SPLIT')}
+                    className="flex-row items-center justify-between rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-4 active:bg-[#F1F5F9]"
+                  >
+                    <View className="flex-1">
+                      {splitType === 'EQUAL' ? (
+                        <View className="flex-row items-center gap-2">
+                          <FontAwesome6
+                            name="scale-balanced"
+                            size={14}
+                            color="#64748B"
+                          />
+                          <Text className="text-base font-medium text-[#0F172A]">
+                            Partes iguales
+                          </Text>
+                        </View>
+                      ) : (
+                        <View className="gap-1">
+                          <View className="flex-row justify-between">
+                            <Text className="text-sm font-medium text-[#0F172A]">
+                              Tú pagas
+                            </Text>
+                            <Text className="text-sm font-bold text-[#10B981]">
+                              {yourPercentage}%
+                            </Text>
+                          </View>
+                          <View className="flex-row justify-between">
+                            <Text className="text-sm font-medium text-[#64748B]">
+                              Tu pareja paga
+                            </Text>
+                            <Text className="text-sm font-bold text-[#64748B]">
+                              {100 - yourPercentage}%
+                            </Text>
+                          </View>
+                        </View>
+                      )}
+                    </View>
+                    <View className="ml-3">
+                      <FontAwesome6
+                        name="chevron-right"
+                        size={12}
+                        color="#94A3B8"
+                      />
+                    </View>
+                  </Pressable>
+                </>
+              )}
+
+              {/* Receipt */}
+              <Text className="mb-2 mt-5 text-sm font-semibold text-[#0F172A]">
+                🖼️ Comprobante (opcional)
+              </Text>
+
+              {pickedReceipt ? (
+                <View className="gap-2">
+                  <Image
+                    source={{ uri: pickedReceipt.uri }}
+                    className="h-40 w-full rounded-xl border border-[#E2E8F0] bg-[#f2f4f6]"
+                    contentFit="cover"
+                  />
+                  <Pressable
+                    onPress={() => {
+                      setPickedReceipt(null);
+                      if (initialExpense?.receiptUrl) {
+                        setRemoveExistingReceipt(false);
+                      }
+                    }}
+                    className="flex-row items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-white py-2.5 active:bg-[#F2F4F6]"
+                  >
+                    <FontAwesome6 name="xmark" size={13} color="#EF4444" />
+                    <Text className="text-sm font-semibold text-[#EF4444]">
+                      Quitar foto
                     </Text>
                   </Pressable>
-                );
-              })}
+                </View>
+              ) : initialExpense?.receiptUrl && !removeExistingReceipt ? (
+                <View className="gap-2">
+                  <Image
+                    source={{
+                      uri: resolveImageUrl(initialExpense.receiptUrl) ?? '',
+                    }}
+                    className="h-40 w-full rounded-xl border border-[#E2E8F0] bg-[#f2f4f6]"
+                    contentFit="cover"
+                  />
+                  <Pressable
+                    onPress={handlePickReceipt}
+                    className="flex-row items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-white py-2.5 active:bg-[#F2F4F6]"
+                  >
+                    <FontAwesome6 name="pen" size={13} color="#0F766E" />
+                    <Text className="text-sm font-semibold text-[#0F766E]">
+                      Reemplazar
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => setRemoveExistingReceipt(true)}
+                    className="flex-row items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-white py-2.5 active:bg-[#F2F4F6]"
+                  >
+                    <FontAwesome6 name="trash-can" size={13} color="#EF4444" />
+                    <Text className="text-sm font-semibold text-[#EF4444]">
+                      Eliminar comprobante
+                    </Text>
+                  </Pressable>
+                </View>
+              ) : (
+                <Pressable
+                  onPress={handlePickReceipt}
+                  className="flex-row items-center justify-center gap-2 rounded-xl border border-dashed border-[#94A3B8] bg-white py-8 active:opacity-80"
+                >
+                  <FontAwesome6 name="camera" size={20} color="#006c49" />
+                  <Text className="text-sm text-[#006c49]">Agregar foto</Text>
+                </Pressable>
+              )}
+            </ScrollView>
+
+            <View className="border-t border-[#E2E8F0] px-5 pb-2 pt-4">
+              <Button
+                text={isEditing ? 'Guardar cambios' : 'Registrar gasto'}
+                iconRight="check"
+                isLoading={isSubmitting}
+                loadingText={isEditing ? 'Guardando...' : 'Registrando...'}
+                onPress={async () => {
+                  if (isSubmitting) return;
+                  setIsSubmitting(true);
+                  try {
+                    const splits = members
+                      .filter((m) => selectedParticipants.includes(m.id))
+                      .map((m) => ({
+                        userId: m.id,
+                        percentage: Number(
+                          splitType === 'EQUAL'
+                            ? Math.round(100 / selectedParticipants.length)
+                            : m.id === youMemberId
+                              ? yourPercentage
+                              : 100 - yourPercentage,
+                        ),
+                      }));
+
+                    const payload: ExpensePayload = {
+                      description,
+                      amount: parseAmount(amount),
+                      category: category as ExpenseCategory,
+                      splitType: splitType as SplitType,
+                      groupId: group.id,
+                      splits,
+                      ...(pickedReceipt && { receipt: pickedReceipt }),
+                      ...(removeExistingReceipt && { removeReceipt: true }),
+                    };
+
+                    if (isEditing) {
+                      await onUpdateExpense?.(payload);
+                    } else {
+                      await onCreateExpense?.(payload);
+                    }
+                  } finally {
+                    setIsSubmitting(false);
+                  }
+                }}
+                disabled={!isFormValid || isSubmitting}
+                className="rounded-full py-4"
+              />
             </View>
-          </ScrollView>
+          </>
+        )}
 
-          <Input
-            label="Fecha"
-            iconLeft="calendar"
-            placeholder="dd/mm/aaaa"
-            value={date}
-            onChangeText={setDate}
-          />
-
-          {/* Paid by */}
-          {!isPersonal && (
-            <>
-              <Text className="mb-2 mt-5 text-sm font-semibold text-[#0F172A]">
-                👤 Pagado por
-              </Text>
-              <View className="flex-row flex-wrap gap-2">
-                {members.map((member) => {
-                  const isActive = paidBy === member.id;
-                  return (
-                    <Pressable
-                      key={member.id}
-                      onPress={() => setPaidBy(member.id)}
-                      className={`flex-row items-center gap-2 rounded-full px-4 py-2.5 ${
-                        isActive
-                          ? 'bg-[#10B981]'
-                          : 'border border-[#E2E8F0] bg-white'
-                      }`}
-                    >
-                      <FontAwesome6
-                        name="user"
-                        size={12}
-                        color={isActive ? 'white' : '#64748B'}
-                      />
+        {/* SELECT_PAYER VIEW */}
+        {activeView === 'SELECT_PAYER' && (
+          <View className="flex-1 px-5 pt-4">
+            <Text className="mb-4 text-base font-semibold text-[#0F172A]">
+              Selecciona quién pagó el gasto:
+            </Text>
+            <View className="gap-3">
+              {members.map((member) => {
+                const isActive = paidBy === member.id;
+                return (
+                  <Pressable
+                    key={member.id}
+                    onPress={() => {
+                      setPaidBy(member.id);
+                      setActiveView('MAIN');
+                    }}
+                    className={`flex-row items-center justify-between rounded-xl border p-4 ${
+                      isActive
+                        ? 'border-[#10B981] bg-[#F0FDF4]'
+                        : 'border-[#E2E8F0] bg-white'
+                    }`}
+                  >
+                    <View className="flex-row items-center gap-3">
+                      <View
+                        className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                          isActive ? 'bg-[#10B981]' : 'bg-[#F1F5F9]'
+                        }`}
+                      >
+                        <FontAwesome6
+                          name="user"
+                          size={16}
+                          color={isActive ? 'white' : '#64748B'}
+                        />
+                      </View>
                       <Text
-                        className={`text-sm font-medium ${
-                          isActive ? 'text-white' : 'text-[#0F172A]'
+                        className={`text-base font-medium ${
+                          isActive ? 'text-[#0F172A]' : 'text-[#64748B]'
                         }`}
                       >
                         {member.name}
                       </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </>
-          )}
+                    </View>
+                    {isActive && (
+                      <FontAwesome6 name="check" size={16} color="#10B981" />
+                    )}
+                  </Pressable>
+                );
+              })}
+            </View>
+            <Button
+              text="Volver"
+              variant="secondary"
+              className="mt-6 rounded-full py-4"
+              onPress={() => setActiveView('MAIN')}
+            />
+          </View>
+        )}
 
-          {/* Participants — solo para grupos de 3+; en parejas siempre participan ambos */}
-          {!isPersonal && !isCouple && (
-            <>
-              <Text className="mb-2 mt-5 text-sm font-semibold text-[#0F172A]">
-                👥 Participantes
-              </Text>
-              <View className="gap-2">
-                {members.map((member) => {
-                  const isSelected = selectedParticipants.includes(member.id);
-                  return (
-                    <Pressable
-                      key={member.id}
-                      onPress={() => toggleParticipant(member.id)}
-                      className={`flex-row items-center justify-between rounded-xl border px-4 py-3 ${
-                        isSelected
-                          ? 'border-[#10B981] bg-[#F0FDF4]'
-                          : 'border-[#E2E8F0] bg-white'
-                      }`}
-                    >
-                      <View className="flex-row items-center gap-3">
-                        <View
-                          className={`h-6 w-6 items-center justify-center rounded-full border-2 ${
-                            isSelected
-                              ? 'border-[#10B981] bg-[#10B981]'
-                              : 'border-[#94A3B8]'
-                          }`}
-                        >
-                          {isSelected && (
-                            <FontAwesome6
-                              name="check"
-                              size={10}
-                              color="white"
-                            />
-                          )}
-                        </View>
-                        <Text className="text-sm font-medium text-[#0F172A]">
-                          {member.name}
-                        </Text>
+        {/* SELECT_PARTICIPANTS VIEW */}
+        {activeView === 'SELECT_PARTICIPANTS' && (
+          <ScrollView
+            className="flex-1 px-5 pt-4"
+            showsVerticalScrollIndicator={false}
+          >
+            <Text className="mb-4 text-base font-semibold text-[#0F172A]">
+              ¿Quiénes participan en el gasto?
+            </Text>
+            <View className="gap-3">
+              {members.map((member) => {
+                const isSelected = selectedParticipants.includes(member.id);
+                return (
+                  <Pressable
+                    key={member.id}
+                    onPress={() => toggleParticipant(member.id)}
+                    className={`flex-row items-center justify-between rounded-xl border px-4 py-4 ${
+                      isSelected
+                        ? 'border-[#10B981] bg-[#F0FDF4]'
+                        : 'border-[#E2E8F0] bg-white'
+                    }`}
+                  >
+                    <View className="flex-row items-center gap-3">
+                      <View
+                        className={`h-6 w-6 items-center justify-center rounded-full border-2 ${
+                          isSelected
+                            ? 'border-[#10B981] bg-[#10B981]'
+                            : 'border-[#94A3B8]'
+                        }`}
+                      >
+                        {isSelected && (
+                          <FontAwesome6 name="check" size={10} color="white" />
+                        )}
                       </View>
-                      {isSelected && (
-                        <Text className="text-xs text-[#64748B]">
-                          {splitType === 'EQUAL'
-                            ? `${Math.round(100 / selectedParticipants.length)}%`
-                            : `${member.id === youMemberId ? yourPercentage : 100 - yourPercentage}%`}
-                        </Text>
-                      )}
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </>
-          )}
+                      <Text className="text-base font-medium text-[#0F172A]">
+                        {member.name}
+                      </Text>
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </View>
+            <Button
+              text="Aplicar participantes"
+              className="mb-4 mt-6 rounded-full py-4"
+              onPress={() => setActiveView('MAIN')}
+            />
+          </ScrollView>
+        )}
 
-          {/* Split Type — porcentaje solo en parejas; grupos de 3+ solo igual */}
-          {!isPersonal && (
-            <>
-              <Text className="mb-2 mt-5 text-sm font-semibold text-[#0F172A]">
-                🔄 Tipo de división
-              </Text>
-              <View className="flex-row gap-2">
+        {/* SELECT_SPLIT VIEW */}
+        {activeView === 'SELECT_SPLIT' && (
+          <ScrollView
+            className="flex-1 px-5 pt-4"
+            showsVerticalScrollIndicator={false}
+          >
+            <View className="mb-6 flex-row gap-2">
+              <Pressable
+                onPress={() => setSplitType('EQUAL')}
+                className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl border py-4 ${
+                  splitType === 'EQUAL'
+                    ? 'border-[#10B981] bg-[#F0FDF4]'
+                    : 'border-[#E2E8F0] bg-white'
+                }`}
+              >
+                <FontAwesome6
+                  name="scale-balanced"
+                  size={16}
+                  color={splitType === 'EQUAL' ? '#10B981' : '#64748B'}
+                />
+                <Text
+                  className={`text-base font-medium ${
+                    splitType === 'EQUAL' ? 'text-[#10B981]' : 'text-[#64748B]'
+                  }`}
+                >
+                  Igual
+                </Text>
+              </Pressable>
+              {isCouple && (
                 <Pressable
-                  onPress={() => setSplitType('EQUAL')}
-                  className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl border py-3 ${
-                    splitType === 'EQUAL'
+                  onPress={() => setSplitType('PERCENTAGE')}
+                  className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl border py-4 ${
+                    splitType === 'PERCENTAGE'
                       ? 'border-[#10B981] bg-[#F0FDF4]'
                       : 'border-[#E2E8F0] bg-white'
                   }`}
                 >
                   <FontAwesome6
-                    name="scale-balanced"
-                    size={14}
-                    color={splitType === 'EQUAL' ? '#10B981' : '#64748B'}
+                    name="percent"
+                    size={16}
+                    color={splitType === 'PERCENTAGE' ? '#10B981' : '#64748B'}
                   />
                   <Text
-                    className={`text-sm font-medium ${
-                      splitType === 'EQUAL'
+                    className={`text-base font-medium ${
+                      splitType === 'PERCENTAGE'
                         ? 'text-[#10B981]'
                         : 'text-[#64748B]'
                     }`}
                   >
-                    Igual
+                    Porcentaje
                   </Text>
                 </Pressable>
-                {isCouple && (
+              )}
+            </View>
+
+            {isCouple && splitType === 'PERCENTAGE' && (
+              <View className="mb-6 rounded-xl border border-[#E2E8F0] bg-white p-6">
+                <Text className="mb-4 text-center text-base font-medium text-[#0F172A]">
+                  Tu porcentaje
+                </Text>
+                <View className="flex-row items-center justify-center gap-6">
                   <Pressable
-                    onPress={() => setSplitType('PERCENTAGE')}
-                    className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl border py-3 ${
-                      splitType === 'PERCENTAGE'
-                        ? 'border-[#10B981] bg-[#F0FDF4]'
-                        : 'border-[#E2E8F0] bg-white'
-                    }`}
+                    onPress={() =>
+                      setYourPercentage(Math.max(10, yourPercentage - 5))
+                    }
+                    className="flex h-12 w-12 items-center justify-center rounded-full bg-[#10B981]"
                   >
-                    <FontAwesome6
-                      name="percent"
-                      size={14}
-                      color={splitType === 'PERCENTAGE' ? '#10B981' : '#64748B'}
-                    />
-                    <Text
-                      className={`text-sm font-medium ${
-                        splitType === 'PERCENTAGE'
-                          ? 'text-[#10B981]'
-                          : 'text-[#64748B]'
-                      }`}
-                    >
-                      Porcentaje
-                    </Text>
+                    <Text className="text-2xl font-bold text-white">−</Text>
                   </Pressable>
-                )}
+                  <Text className="text-4xl font-extrabold text-[#10B981]">
+                    {yourPercentage}%
+                  </Text>
+                  <Pressable
+                    onPress={() =>
+                      setYourPercentage(Math.min(90, yourPercentage + 5))
+                    }
+                    className="flex h-12 w-12 items-center justify-center rounded-full bg-[#10B981]"
+                  >
+                    <Text className="text-2xl font-bold text-white">+</Text>
+                  </Pressable>
+                </View>
+                <Text className="mt-4 text-center text-sm text-[#64748B]">
+                  Tu pareja recibirá el {100 - yourPercentage}%
+                </Text>
               </View>
-            </>
-          )}
+            )}
 
-          {/* Percentage controls — solo en parejas */}
-          {isCouple && splitType === 'PERCENTAGE' && (
-            <View className="mt-4 rounded-xl border border-[#E2E8F0] bg-white p-4">
-              <Text className="mb-3 text-center text-sm font-medium text-[#0F172A]">
-                Tu porcentaje
-              </Text>
-              <View className="flex-row items-center justify-center gap-4">
-                <Pressable
-                  onPress={() =>
-                    setYourPercentage(Math.max(10, yourPercentage - 5))
-                  }
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-[#10B981]"
-                >
-                  <Text className="text-lg font-bold text-white">−</Text>
-                </Pressable>
-                <Text className="text-2xl font-extrabold text-[#10B981]">
-                  {yourPercentage}%
-                </Text>
-                <Pressable
-                  onPress={() =>
-                    setYourPercentage(Math.min(90, yourPercentage + 5))
-                  }
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-[#10B981]"
-                >
-                  <Text className="text-lg font-bold text-white">+</Text>
-                </Pressable>
-              </View>
-              <Text className="mt-2 text-center text-xs text-[#64748B]">
-                Tu pareja recibirá el {100 - yourPercentage}%
-              </Text>
-            </View>
-          )}
-
-          {/* Receipt */}
-          <Text className="mb-2 mt-5 text-sm font-semibold text-[#0F172A]">
-            🖼️ Comprobante (opcional)
-          </Text>
-
-          {pickedReceipt ? (
-            <View className="gap-2">
-              <Image
-                source={{ uri: pickedReceipt.uri }}
-                className="h-40 w-full rounded-xl border border-[#E2E8F0] bg-[#f2f4f6]"
-                contentFit="cover"
-              />
-              <Pressable
-                onPress={() => {
-                  setPickedReceipt(null);
-                  if (initialExpense?.receiptUrl) {
-                    setRemoveExistingReceipt(false);
-                  }
-                }}
-                className="flex-row items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-white py-2.5 active:bg-[#F2F4F6]"
-              >
-                <FontAwesome6 name="xmark" size={13} color="#EF4444" />
-                <Text className="text-sm font-semibold text-[#EF4444]">
-                  Quitar foto
-                </Text>
-              </Pressable>
-            </View>
-          ) : initialExpense?.receiptUrl && !removeExistingReceipt ? (
-            <View className="gap-2">
-              <Image
-                source={{
-                  uri: resolveImageUrl(initialExpense.receiptUrl) ?? '',
-                }}
-                className="h-40 w-full rounded-xl border border-[#E2E8F0] bg-[#f2f4f6]"
-                contentFit="cover"
-              />
-              <Pressable
-                onPress={handlePickReceipt}
-                className="flex-row items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-white py-2.5 active:bg-[#F2F4F6]"
-              >
-                <FontAwesome6 name="pen" size={13} color="#0F766E" />
-                <Text className="text-sm font-semibold text-[#0F766E]">
-                  Reemplazar
-                </Text>
-              </Pressable>
-              <Pressable
-                onPress={() => setRemoveExistingReceipt(true)}
-                className="flex-row items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-white py-2.5 active:bg-[#F2F4F6]"
-              >
-                <FontAwesome6 name="trash-can" size={13} color="#EF4444" />
-                <Text className="text-sm font-semibold text-[#EF4444]">
-                  Eliminar comprobante
-                </Text>
-              </Pressable>
-            </View>
-          ) : (
-            <Pressable
-              onPress={handlePickReceipt}
-              className="flex-row items-center justify-center gap-2 rounded-xl border border-dashed border-[#94A3B8] bg-white py-8 active:opacity-80"
-            >
-              <FontAwesome6 name="camera" size={20} color="#006c49" />
-              <Text className="text-sm text-[#006c49]">Agregar foto</Text>
-            </Pressable>
-          )}
-        </ScrollView>
-
-        <View className="border-t border-[#E2E8F0] px-5 pb-2 pt-4">
-          <Button
-            text={isEditing ? 'Guardar cambios' : 'Registrar gasto'}
-            iconRight="check"
-            isLoading={isSubmitting}
-            loadingText={isEditing ? 'Guardando...' : 'Registrando...'}
-            onPress={async () => {
-              if (isSubmitting) return;
-              setIsSubmitting(true);
-              try {
-                const splits = members
-                  .filter((m) => selectedParticipants.includes(m.id))
-                  .map((m) => ({
-                    userId: m.id,
-                    percentage: Number(
-                      splitType === 'EQUAL'
-                        ? Math.round(100 / selectedParticipants.length)
-                        : m.id === youMemberId
-                          ? yourPercentage
-                          : 100 - yourPercentage,
-                    ),
-                  }));
-
-                const payload: ExpensePayload = {
-                  description,
-                  amount: parseAmount(amount),
-                  category: category as ExpenseCategory,
-                  splitType: splitType as SplitType,
-                  groupId: group.id,
-                  splits,
-                  ...(pickedReceipt && { receipt: pickedReceipt }),
-                  ...(removeExistingReceipt && { removeReceipt: true }),
-                };
-
-                if (isEditing) {
-                  await onUpdateExpense?.(payload);
-                } else {
-                  await onCreateExpense?.(payload);
-                }
-              } finally {
-                setIsSubmitting(false);
-              }
-            }}
-            disabled={!isFormValid || isSubmitting}
-            className="rounded-full py-4"
-          />
-        </View>
+            <Button
+              text="Aplicar cambios"
+              className="mb-4 mt-2 rounded-full py-4"
+              onPress={() => setActiveView('MAIN')}
+            />
+          </ScrollView>
+        )}
       </View>
     </BottomSheet>
   );
