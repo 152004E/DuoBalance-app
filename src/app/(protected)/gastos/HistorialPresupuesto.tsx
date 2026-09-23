@@ -1,9 +1,9 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, router } from 'expo-router';
-import { FontAwesome6 } from '@expo/vector-icons';
 import { useQueries } from '@tanstack/react-query';
 import { getPersonalBudget } from '@/services/api/budget';
+import { ScreenHeader } from '@/components/ui/screen-header';
 
 const getMonthsToFetch = () => {
   const result = [];
@@ -35,22 +35,18 @@ export default function HistorialPresupuestoScreen() {
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]" edges={['top']}>
       <Stack.Screen options={{ headerShown: false }} />
-      
-      <View className="flex-row items-center justify-between bg-white px-5 pb-4 pt-2 shadow-sm">
-        <TouchableOpacity
-          onPress={() => router.back()}
-          className="h-10 w-10 items-center justify-center rounded-full bg-[#F8FAFC]"
-        >
-          <FontAwesome6 name="arrow-left" size={20} color="#0F172A" />
-        </TouchableOpacity>
-        <Text className="text-lg font-bold text-[#0F172A]">Historial de Gastos</Text>
-        <View className="w-10" />
-      </View>
 
-      <ScrollView className="flex-1 px-5 pt-6" contentContainerClassName="pb-10">
-        <Text className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#64748B]">
-          Últimos 6 meses
-        </Text>
+      <ScrollView className="flex-1" contentContainerClassName="pb-10 pt-2" showsVerticalScrollIndicator={false}>
+        <ScreenHeader
+          title="Historial de Gastos"
+          subtitle="Resumen de tu actividad mensual"
+          onBack={() => router.navigate('/')}
+        />
+
+        <View className="px-5 pt-6">
+          <Text className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#64748B]">
+            Últimos 6 meses
+          </Text>
 
         {isLoading ? (
           <Text className="text-center text-[#64748B] py-10">Cargando historial...</Text>
@@ -116,6 +112,7 @@ export default function HistorialPresupuestoScreen() {
             })}
           </View>
         )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

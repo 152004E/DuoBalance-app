@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
 import { useBudget } from '@/hooks/use-budget';
+import { formatAmountInput, parseAmount } from '@/utils/format';
 
 interface SetBudgetSheetProps {
   visible: boolean;
@@ -21,18 +22,20 @@ export function SetBudgetSheet({ visible, onClose }: SetBudgetSheetProps) {
 
   useEffect(() => {
     if (budget && visible) {
-      setIncomeStr(budget.income ? String(budget.income) : '');
-      // Mostrar límite solo si es distinto al salario (o si se configuró explícitamente, pero por ahora lo mostramos)
-      setBudgetLimitStr(budget.budget ? String(budget.budget) : '');
+      setIncomeStr(budget.income ? formatAmountInput(String(budget.income)) : '');
+      setBudgetLimitStr(budget.budget ? formatAmountInput(String(budget.budget)) : '');
     } else if (visible) {
       setIncomeStr('');
       setBudgetLimitStr('');
     }
   }, [budget, visible]);
 
+  const handleIncomeChange = (text: string) => setIncomeStr(formatAmountInput(text));
+  const handleLimitChange = (text: string) => setBudgetLimitStr(formatAmountInput(text));
+
   const handleSave = async () => {
-    const incomeNum = Number(incomeStr.replace(/[^0-9]/g, ''));
-    const limitNum = budgetLimitStr ? Number(budgetLimitStr.replace(/[^0-9]/g, '')) : undefined;
+    const incomeNum = parseAmount(incomeStr);
+    const limitNum = budgetLimitStr ? parseAmount(budgetLimitStr) : undefined;
 
     if (!incomeNum || incomeNum <= 0) {
       Alert.alert('Error', 'Debes ingresar un salario válido.');
@@ -75,7 +78,7 @@ export function SetBudgetSheet({ visible, onClose }: SetBudgetSheetProps) {
           placeholder="$0"
           keyboardType="numeric"
           value={incomeStr}
-          onChangeText={setIncomeStr}
+          onChangeText={handleIncomeChange}
         />
 
         <Text className="mb-2 text-sm font-semibold text-[#64748B] uppercase tracking-wider">
@@ -86,7 +89,7 @@ export function SetBudgetSheet({ visible, onClose }: SetBudgetSheetProps) {
           placeholder="Usa tu salario como límite"
           keyboardType="numeric"
           value={budgetLimitStr}
-          onChangeText={setBudgetLimitStr}
+          onChangeText={handleLimitChange}
         />
         <Text className="mb-6 mt-2 text-xs text-[#64748B]">
           Si lo dejas en blanco, tu límite de gasto será igual a tu ingreso.

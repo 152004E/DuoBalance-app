@@ -37,19 +37,19 @@ export function BudgetWidget({ onConfigurePress, onHistoryPress }: BudgetWidgetP
         </TouchableOpacity>
       </View>
 
-      {!budget ? (
+      {(!budget || limit === 0) ? (
         <View className="items-center py-4">
           <View className="mb-3 h-12 w-12 items-center justify-center rounded-full bg-orange-100">
             <FontAwesome6 name="wallet" size={20} color="#F97316" />
           </View>
           <Text className="mb-3 text-center text-sm text-[#64748B]">
-            No has definido tu ingreso para este mes.
+            No has definido tu presupuesto para este mes.
           </Text>
           <TouchableOpacity
             onPress={onConfigurePress}
             className="rounded-xl bg-[#0F172A] px-6 py-2.5"
           >
-            <Text className="font-bold text-white">Configurar mes</Text>
+            <Text className="font-bold text-white">Configurar presupuesto</Text>
           </TouchableOpacity>
         </View>
       ) : (
