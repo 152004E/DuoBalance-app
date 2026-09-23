@@ -32,6 +32,7 @@ import { ScreenHeader } from '@/components/ui/screen-header';
 import { Loading } from '@/components/ui/loading';
 import { EmptyState } from '@/components/ui/empty-state';
 import { PartnerBalance } from '@/components/dashboard/PartnerBalance';
+import { ContributionCard } from '@/components/dashboard/ContributionCard';
 import { PaySheet } from '@/components/payments/pay-sheet';
 import { LiquidacionesSheet } from '@/components/payments/liquidaciones-sheet';
 import {
@@ -779,97 +780,17 @@ export default function CoupleDetail() {
           </View>
         )}
 
-        {/* Distribución de Gastos - Progress Bar Card (solo COUPLE y GROUP) */}
+        {/* Distribución de Gastos y Aportes Combinados */}
         {groupType !== 'PERSONAL' && (
           <View className="mt-4 px-5">
-            <View
-              className="rounded-xl border border-[#E2E8F0] bg-white p-5"
-              style={{
-                shadowColor: '#0F172A',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.05,
-                shadowRadius: 12,
-                elevation: 2,
-              }}
-            >
-              <Text className="text-[13px] font-semibold uppercase tracking-wider text-[#64748B]">
-                Distribución de Gastos
-              </Text>
-
-              {/* Progress Bar */}
-              <View className="mt-4 h-8 flex-row overflow-hidden rounded-full bg-[#ECEEF0]">
-                <View
-                  className="h-full items-center justify-center bg-[#006c49]"
-                  style={{ width: `${userPercent}%` }}
-                >
-                  <Text className="text-xs font-bold text-white">
-                    {Math.round(userPercent)}%
-                  </Text>
-                </View>
-                <View
-                  className="h-full items-center justify-center bg-[#8B5CF6]"
-                  style={{ width: `${partnerPercent}%` }}
-                >
-                  <Text className="text-xs font-bold text-white">
-                    {Math.round(partnerPercent)}%
-                  </Text>
-                </View>
-              </View>
-
-              <View className="mt-3">
-                <View className="flex-row items-center justify-between rounded-lg p-3">
-                  <View className="flex-row items-center gap-2">
-                    <View className="h-3 w-3 rounded-full bg-[#006c49]" />
-                    <Text className="text-[#0F172A]">
-                      {'Tú'}
-                    </Text>
-                  </View>
-                  <Text
-                    className="font-bold text-[#006c49]"
-                    style={{ fontFamily: 'monospace' }}
-                  >
-                    {fmt(userAmount)}
-                  </Text>
-                </View>
-
-                <View className="flex-row items-center justify-between rounded-lg p-3">
-                  <View className="flex-row items-center gap-2">
-                    <View className="h-3 w-3 rounded-full bg-[#8B5CF6]" />
-                    <Text className="text-[#0F172A]">{partnerLabel}</Text>
-                  </View>
-                  <Text
-                    className="font-bold text-[#8B5CF6]"
-                    style={{ fontFamily: 'monospace' }}
-                  >
-                    {fmt(partnerAmount)}
-                  </Text>
-                </View>
-              </View>
-
-              <View className="mt-4 border-t border-[#E2E8F0] pt-4">
-                <Pressable
-                  onPress={() => router.push(`/grupos/${id}/configuracion`)}
-                  className="w-full flex-row items-center justify-center gap-1"
-                >
-                  <Text className="text-sm font-semibold text-[#006c49]">
-                    Ajustar porcentaje
-                  </Text>
-                  <FontAwesome6 name="gear" size={12} color="#006c49" />
-                </Pressable>
-              </View>
-            </View>
-          </View>
-        )}
-
-        {/* Aportes del mes - solo COUPLE y GROUP (oculto en PERSONAL) */}
-        {groupType !== 'PERSONAL' && (
-          <View className="mt-4 px-5">
-            <PartnerBalance
+            <ContributionCard
+              groupId={id}
               userName={memberSplit.userName}
               partnerName={memberSplit.partnerName}
               userAmount={memberSplit.userAmount}
               partnerAmount={memberSplit.partnerAmount}
-              title="Aportes del mes"
+              expectedUserPercent={userPercent}
+              expectedPartnerPercent={partnerPercent}
             />
           </View>
         )}
