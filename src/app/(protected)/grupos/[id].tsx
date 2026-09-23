@@ -92,6 +92,8 @@ export default function CoupleDetail() {
   const [regenerateError, setRegenerateError] = useState<string | null>(null);
   const [regenerateSuccess, setRegenerateSuccess] = useState(false);
   const [paySheetVisible, setPaySheetVisible] = useState(false);
+  const [payTargetAmount, setPayTargetAmount] = useState<number | null>(null);
+  const [payTargetType, setPayTargetType] = useState<'MONTHLY' | 'TOTAL' | null>(null);
   const [liquidacionesVisible, setLiquidacionesVisible] = useState(false);
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
   const [paymentFeedback, setPaymentFeedback] = useState<{
@@ -109,6 +111,16 @@ export default function CoupleDetail() {
     monthlySettlement,
     refetch: refetchPayments,
   } = useGroupPayments({ groupId: id, userId: user?.id });
+
+  const getSigned = (dir: string, amount: number) => 
+    dir === 'OWED_TO_ME' ? amount : (dir === 'I_OWE' ? -amount : 0);
+
+  const totalSigned = settlement ? getSigned(settlement.settlementDirection, settlement.netSettlement) : 0;
+  const monthlySigned = monthlySettlement ? getSigned(monthlySettlement.settlementDirection, monthlySettlement.netSettlement) : 0;
+  const pastSigned = totalSigned - monthlySigned;
+
+  const pastNetSettlement = Math.abs(pastSigned);
+  const pastSettlementDirection = pastSigned > 0 ? 'OWED_TO_ME' : (pastSigned < 0 ? 'I_OWE' : 'SETTLED');
 
   const [isReminding, setIsReminding] = useState(false);
 
@@ -349,13 +361,14 @@ export default function CoupleDetail() {
 
   // ── Payment handlers ───────────────────────────────────────────────────
   const handleCreatePayment = useCallback(
-    async (payload: { amount: number; toUserId: string }) => {
+    async (payload: { amount: number; toUserId: string; target?: 'MONTHLY' | 'TOTAL' }) => {
       setIsSubmittingPayment(true);
       try {
         await createPayment({
           amount: payload.amount,
           toUserId: payload.toUserId,
           groupId: id,
+          target: payload.target,
         });
         await refetchPayments();
         setPaySheetVisible(false);
@@ -525,17 +538,17 @@ export default function CoupleDetail() {
           </View>
         </View>
 
-        {/* Liquidaciones - Tarjeta con settlement TOTAL */}
-        {groupType !== 'PERSONAL' && settlement && (
+        {/* Liquidaciones - Tarjeta con settlement de MESES ANTERIORES */}
+        {groupType !== 'PERSONAL' && settlement && pastNetSettlement > 0 && (
           <View className="mt-4 px-5">
             <View
               className="rounded-xl border border-[#E2E8F0] bg-white p-4"
               style={{
                 borderLeftWidth: 4,
                 borderLeftColor:
-                  settlement.settlementDirection === 'OWED_TO_ME'
+                  pastSettlementDirection === 'OWED_TO_ME'
                     ? '#F59E0B'
-                    : settlement.settlementDirection === 'I_OWE'
+                    : pastSettlementDirection === 'I_OWE'
                       ? '#EF4444'
                       : '#10B981',
                 shadowColor: '#0F172A',
@@ -547,19 +560,19 @@ export default function CoupleDetail() {
             >
               <View className="flex-col gap-4">
                 <Text className="text-[17px] font-bold text-[#0F172A]">
-                  {settlement.settlementDirection === 'OWED_TO_ME'
-                    ? 'Saldo total a favor'
-                    : settlement.settlementDirection === 'I_OWE'
+                  {pastSettlementDirection === 'OWED_TO_ME'
+                    ? 'Saldo a favor anterior'
+                    : pastSettlementDirection === 'I_OWE'
                       ? 'Deuda total acumulada'
-                      : 'Cuentas claras'}
+                      : 'Sin deudas pasadas'}
                 </Text>
 
                 <View className="flex-row items-center gap-3">
                   <View
                     className={`flex h-12 w-12 items-center justify-center rounded-full ${
-                      settlement.settlementDirection === 'OWED_TO_ME'
+                      pastSettlementDirection === 'OWED_TO_ME'
                         ? 'bg-[#F59E0B]/10'
-                        : settlement.settlementDirection === 'I_OWE'
+                        : pastSettlementDirection === 'I_OWE'
                           ? 'bg-[#EF4444]/10'
                           : 'bg-[#10B981]/10'
                     }`}
@@ -568,9 +581,9 @@ export default function CoupleDetail() {
                       name="vault"
                       size={20}
                       color={
-                        settlement.settlementDirection === 'OWED_TO_ME'
+                        pastSettlementDirection === 'OWED_TO_ME'
                           ? '#F59E0B'
-                          : settlement.settlementDirection === 'I_OWE'
+                          : pastSettlementDirection === 'I_OWE'
                             ? '#EF4444'
                             : '#10B981'
                       }
@@ -581,19 +594,23 @@ export default function CoupleDetail() {
                       Balance Global
                     </Text>
                     <Text className="text-base font-bold text-[#0F172A]">
-                      {settlement.settlementDirection === 'OWED_TO_ME'
-                        ? `Te deben en total ${fmt(settlement.netSettlement)}`
-                        : settlement.settlementDirection === 'I_OWE'
-                          ? `Debes en total ${fmt(settlement.netSettlement)}`
+                      {pastSettlementDirection === 'OWED_TO_ME'
+                        ? `Te deben en total ${fmt(pastNetSettlement)}`
+                        : pastSettlementDirection === 'I_OWE'
+                          ? `Debes en total ${fmt(pastNetSettlement)}`
                           : 'No hay deudas acumuladas'}
                     </Text>
                   </View>
                 </View>
 
                 <View className="flex-row gap-2 mt-2">
-                  {settlement.settlementDirection === 'I_OWE' && (
+                  {pastSettlementDirection === 'I_OWE' && (
                     <Pressable
-                      onPress={() => setPaySheetVisible(true)}
+                      onPress={() => {
+                        setPayTargetAmount(pastNetSettlement);
+                        setPayTargetType('TOTAL');
+                        setPaySheetVisible(true);
+                      }}
                       className="flex-1 flex-row items-center justify-center gap-2 rounded-lg bg-[#006c49] py-3 active:opacity-80"
                     >
                       <FontAwesome6
@@ -702,7 +719,11 @@ export default function CoupleDetail() {
                 <View className="flex-col gap-2">
                   {monthlySettlement.settlementDirection === 'I_OWE' && (
                     <Pressable
-                      onPress={() => setPaySheetVisible(true)}
+                      onPress={() => {
+                        setPayTargetAmount(monthlySettlement.netSettlement);
+                        setPayTargetType('MONTHLY');
+                        setPaySheetVisible(true);
+                      }}
                       className="w-full flex-row items-center justify-center gap-2 rounded-lg bg-[#006c49] px-3 py-3 active:opacity-80"
                     >
                       <FontAwesome6
@@ -970,19 +991,23 @@ export default function CoupleDetail() {
 
       <PaySheet
         visible={paySheetVisible}
-        onClose={() => setPaySheetVisible(false)}
+        onClose={() => { setPayTargetAmount(null); setPayTargetType(null); setPaySheetVisible(false); }}
         group={group!}
         currentUserId={user!.id}
-        amountDue={Math.max(
-          0,
-          (settlement?.netSettlement ?? 0) -
-            sentPending.reduce((acc, p) => acc + Number(p.amount), 0),
-        )}
+        amountDue={
+          payTargetAmount !== null
+            ? Math.max(0, payTargetAmount - sentPending.reduce((acc, p) => acc + Number(p.amount), 0))
+            : Math.max(
+                0,
+                (settlement?.netSettlement ?? 0) -
+                  sentPending.reduce((acc, p) => acc + Number(p.amount), 0),
+              )
+        }
         creditorId={
           group.members.find((m) => m.user.id !== user?.id)?.user.id ?? ''
         }
         isSubmitting={isSubmittingPayment}
-        onSubmit={handleCreatePayment}
+        onSubmit={(payload) => handleCreatePayment({ ...payload, target: payTargetType ?? undefined })}
       />
 
       <LiquidacionesSheet

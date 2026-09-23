@@ -12,6 +12,7 @@ import * as Clipboard from 'expo-clipboard';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
+import Toast from 'react-native-toast-message';
 
 export interface InviteMemberSheetProps {
   visible: boolean;
@@ -70,14 +71,24 @@ export function InviteMemberSheet({
         contentContainerClassName="pb-3"
       >
         {/* Código de invitación */}
-        <View className="mt-1 items-center rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2">
+        <Pressable 
+          onPress={async () => {
+            await Clipboard.setStringAsync(invitationCode);
+            Toast.show({
+              type: 'success',
+              text1: '¡Código copiado!',
+              text2: 'El código de invitación se ha copiado al portapapeles',
+            });
+          }}
+          className="mt-1 items-center rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2 active:opacity-60"
+        >
           <Text className="text-sm font-medium text-[#64748B]">
-            Código de invitación
+            Código de invitación (Toca para copiar)
           </Text>
           <Text className="text-2xl font-bold tracking-[0.3em] text-[#10B981]">
             {invitationCode}
           </Text>
-        </View>
+        </Pressable>
 
         {/* QR Code */}
         <View className="mt-3 items-center">

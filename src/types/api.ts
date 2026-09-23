@@ -246,6 +246,7 @@ export interface CreatePaymentPayload {
   amount: number;
   toUserId: string;
   groupId?: string;
+  target?: 'MONTHLY' | 'TOTAL';
 }
 
 export interface PaymentUser {
