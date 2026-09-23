@@ -200,13 +200,14 @@ export default function CoupleDetail() {
   const subtitle = `${typeConfig.label} · ${groupType === 'PERSONAL' ? 'Solo tú' : groupType === 'COUPLE' ? '2 miembros' : `${memberCount} miembros`}`;
 
   // ── Datos financieros reales ──────────────────────────────────────────
-  const totalExpenses = expenses.reduce((acc, e) => acc + Number(e.amount), 0);
+  const approvedExpenses = expenses.filter(e => e.status === 'APPROVED');
+  const totalExpenses = approvedExpenses.reduce((acc, e) => acc + Number(e.amount), 0);
 
-  const totalPaidByMe = expenses
+  const totalPaidByMe = approvedExpenses
     .filter((e) => e.paidById === user?.id)
     .reduce((acc, e) => acc + Number(e.amount), 0);
 
-  const myShare = expenses.reduce((acc, e) => {
+  const myShare = approvedExpenses.reduce((acc, e) => {
     if (e.splitType === 'PERSONAL') {
       return e.paidById === user?.id ? acc + Number(e.amount) : acc;
     }
@@ -250,7 +251,7 @@ export default function CoupleDetail() {
       : 'Grupo';
 
   // ── Aportes del mes (Tú vs el resto) — solo para parejas y grupos ───
-  const paidByOthers = expenses
+  const paidByOthers = approvedExpenses
     .filter((e) => e.paidById !== user?.id)
     .reduce((acc, e) => acc + Number(e.amount), 0);
 
