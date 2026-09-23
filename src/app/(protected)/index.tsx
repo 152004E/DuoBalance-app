@@ -160,20 +160,7 @@ export default function DashboardScreen() {
     }, [refetch, refetchSuggestions, refetchIncoming]),
   );
 
-  useEffect(() => {
-    if (dues.length === 0) return;
-    const primary = dues[0];
-    Toast.show({
-      type: 'warning',
-      text1:
-        dues.length === 1
-          ? `Le debes a ${primary.toFirstName} ${fmt(totalDue)}`
-          : `Tienes deudas por ${fmt(totalDue)}`,
-      text2: 'Toca para pagar la cuenta',
-      visibilityTime: 6000,
-      onPress: () => router.push(`/grupos/${primary.groupId}?liquidar=1`),
-    });
-  }, [dues, totalDue]);
+
 
   useEffect(() => {
     if (incomingPayments.length === 0) return;

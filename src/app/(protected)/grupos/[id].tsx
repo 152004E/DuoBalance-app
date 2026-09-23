@@ -525,6 +525,118 @@ export default function CoupleDetail() {
           </View>
         </View>
 
+        {/* Liquidaciones - Tarjeta con settlement TOTAL */}
+        {groupType !== 'PERSONAL' && settlement && (
+          <View className="mt-4 px-5">
+            <View
+              className="rounded-xl border border-[#E2E8F0] bg-white p-4"
+              style={{
+                borderLeftWidth: 4,
+                borderLeftColor:
+                  settlement.settlementDirection === 'OWED_TO_ME'
+                    ? '#F59E0B'
+                    : settlement.settlementDirection === 'I_OWE'
+                      ? '#EF4444'
+                      : '#10B981',
+                shadowColor: '#0F172A',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.05,
+                shadowRadius: 12,
+                elevation: 2,
+              }}
+            >
+              <View className="flex-col gap-4">
+                <Text className="text-[17px] font-bold text-[#0F172A]">
+                  {settlement.settlementDirection === 'OWED_TO_ME'
+                    ? 'Saldo total a favor'
+                    : settlement.settlementDirection === 'I_OWE'
+                      ? 'Deuda total acumulada'
+                      : 'Cuentas claras'}
+                </Text>
+
+                <View className="flex-row items-center gap-3">
+                  <View
+                    className={`flex h-12 w-12 items-center justify-center rounded-full ${
+                      settlement.settlementDirection === 'OWED_TO_ME'
+                        ? 'bg-[#F59E0B]/10'
+                        : settlement.settlementDirection === 'I_OWE'
+                          ? 'bg-[#EF4444]/10'
+                          : 'bg-[#10B981]/10'
+                    }`}
+                  >
+                    <FontAwesome6
+                      name="vault"
+                      size={20}
+                      color={
+                        settlement.settlementDirection === 'OWED_TO_ME'
+                          ? '#F59E0B'
+                          : settlement.settlementDirection === 'I_OWE'
+                            ? '#EF4444'
+                            : '#10B981'
+                      }
+                    />
+                  </View>
+                  <View className="shrink">
+                    <Text className="text-sm font-semibold text-[#64748B]">
+                      Balance Global
+                    </Text>
+                    <Text className="text-base font-bold text-[#0F172A]">
+                      {settlement.settlementDirection === 'OWED_TO_ME'
+                        ? `Te deben en total ${fmt(settlement.netSettlement)}`
+                        : settlement.settlementDirection === 'I_OWE'
+                          ? `Debes en total ${fmt(settlement.netSettlement)}`
+                          : 'No hay deudas acumuladas'}
+                    </Text>
+                  </View>
+                </View>
+
+                <View className="flex-row gap-2 mt-2">
+                  {settlement.settlementDirection === 'I_OWE' && (
+                    <Pressable
+                      onPress={() => setPaySheetVisible(true)}
+                      className="flex-1 flex-row items-center justify-center gap-2 rounded-lg bg-[#006c49] py-3 active:opacity-80"
+                    >
+                      <FontAwesome6
+                        name="money-bill-transfer"
+                        size={14}
+                        color="#FFFFFF"
+                      />
+                      <Text className="text-sm font-semibold text-white">
+                        Pagar deuda
+                      </Text>
+                    </Pressable>
+                  )}
+                  {settlement.settlementDirection === 'OWED_TO_ME' && (
+                    <Pressable
+                      onPress={() => handleRemind('TOTAL')}
+                      disabled={isReminding}
+                      className="flex-1 flex-row items-center justify-center gap-2 rounded-lg bg-[#F59E0B]/10 py-3 active:bg-[#F59E0B]/20"
+                    >
+                      <FontAwesome6 name="bell" size={14} color="#D97706" />
+                      <Text className="text-sm font-semibold text-[#D97706]">
+                        Recordar
+                      </Text>
+                    </Pressable>
+                  )}
+                  <Pressable
+                    onPress={() => router.push(`/grupos/${id}/estado-cuenta`)}
+                    className="flex-1 flex-row items-center justify-center gap-2 rounded-lg bg-[#F1F5F9] py-3 active:opacity-80"
+                  >
+                    <FontAwesome6
+                      name="file-invoice"
+                      size={14}
+                      color="#0F172A"
+                    />
+                    <Text className="text-sm font-semibold text-[#0F172A]">
+                      Estado de cuenta
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+            </View>
+          </View>
+        )}
+
         {/* Liquidaciones - Tarjeta con settlement del mes actual */}
         {groupType !== 'PERSONAL' && monthlySettlement && (
           <View className="mt-4 px-5">
