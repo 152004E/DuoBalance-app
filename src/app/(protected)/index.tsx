@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { getUserDisplayName } from '@/utils/user';
 import { useCallback, useState, useRef, useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
@@ -39,6 +40,7 @@ const fmt = (value: number) => `$${Math.round(value).toLocaleString('es-CL')}`;
 
 export default function DashboardScreen() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   if (user?.role === 'SUPER_ADMIN') {
     return <Redirect href="/admin" />;
@@ -357,11 +359,13 @@ export default function DashboardScreen() {
                   });
                   handleCloseCreateSheet();
                   refetch();
+                  queryClient.invalidateQueries({ queryKey: ['budget'] });
                   return;
                 }
               }
               handleCloseCreateSheet();
               refetch();
+              queryClient.invalidateQueries({ queryKey: ['budget'] });
               Toast.show({
                 type: 'success',
                 text1: 'Gasto registrado',

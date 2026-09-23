@@ -381,6 +381,8 @@ export default function CoupleDetail() {
       try {
         await confirmPayment(payment.id);
         await refetchPayments();
+        queryClient.invalidateQueries({ queryKey: ['budget'] });
+        queryClient.invalidateQueries({ queryKey: ['pending-incoming-payments'] });
         setPaymentFeedback({
           title: 'Pago aceptado',
           message: `Has confirmado el pago de ${fmt(payment.amount)}. El saldo se ha actualizado.`,
@@ -400,6 +402,8 @@ export default function CoupleDetail() {
       try {
         await rejectPayment(payment.id);
         await refetchPayments();
+        queryClient.invalidateQueries({ queryKey: ['budget'] });
+        queryClient.invalidateQueries({ queryKey: ['pending-incoming-payments'] });
         setPaymentFeedback({
           title: 'Pago rechazado',
           message: 'El pago ha sido rechazado. No se descuenta nada del saldo.',

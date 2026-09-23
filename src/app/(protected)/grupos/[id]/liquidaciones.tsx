@@ -1,3 +1,4 @@
+import { queryClient } from '@/lib/query-client';
 import { getUserDisplayName, getUserFullName } from '@/utils/user';
 import { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
@@ -97,6 +98,8 @@ export default function LiquidacionesScreen() {
       try {
         await confirmPayment(payment.id);
         await refetch();
+        queryClient.invalidateQueries({ queryKey: ['budget'] });
+        queryClient.invalidateQueries({ queryKey: ['pending-incoming-payments'] });
         setFeedback({
           title: 'Pago aceptado',
           message: `Has confirmado el pago de ${fmt(payment.amount)}. El saldo se ha actualizado.`,
@@ -119,6 +122,8 @@ export default function LiquidacionesScreen() {
       try {
         await rejectPayment(payment.id);
         await refetch();
+        queryClient.invalidateQueries({ queryKey: ['budget'] });
+        queryClient.invalidateQueries({ queryKey: ['pending-incoming-payments'] });
         setFeedback({
           title: 'Pago rechazado',
           message: 'El pago ha sido rechazado. No se descuenta nada del saldo.',

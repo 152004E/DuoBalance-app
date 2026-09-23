@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { getUserDisplayName, getUserInitials } from '@/utils/user';
 import { useState, useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
@@ -37,6 +38,7 @@ type ScreenState = 'loading' | 'error' | 'empty' | 'data';
 export default function ExpenseDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [state, setState] = useState<ScreenState>('loading');
   const [expense, setExpense] = useState<ExpenseResponse | null>(null);
   const [group, setGroup] = useState<GroupResponse | null>(null);
@@ -72,6 +74,7 @@ export default function ExpenseDetailScreen() {
     try {
       await deleteExpense(id!);
       setDeleteVisible(false);
+      queryClient.invalidateQueries({ queryKey: ['budget'] });
       router.back();
     } catch {
       setDeleteLoading(false);
@@ -103,6 +106,7 @@ export default function ExpenseDetailScreen() {
         console.error('Error al actualizar el comprobante:', receiptError);
       }
       setEditVisible(false);
+      queryClient.invalidateQueries({ queryKey: ['budget'] });
       loadData();
       setEditSuccess(true);
     } catch (error) {
