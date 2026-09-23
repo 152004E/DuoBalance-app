@@ -72,3 +72,13 @@ export const removeExpenseReceipt = async (
   const { data } = await api.delete<ExpenseResponse>(`/expenses/${id}/receipt`);
   return data;
 };
+
+export const approveExpense = async (id: string): Promise<ExpenseResponse> => {
+  const { data } = await api.patch<ExpenseResponse>(`/expenses/${id}/approve`);
+  return data;
+};
+
+export const rejectExpense = async (id: string): Promise<ExpenseResponse> => {
+  const { data } = await api.patch<ExpenseResponse>(`/expenses/${id}/reject`);
+  return data;
+};

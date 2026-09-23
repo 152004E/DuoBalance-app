@@ -24,8 +24,8 @@ interface BottomSheetProps {
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-// Límite máximo para que el modal blanco no cubra toda la pantalla
-const MAX_HEIGHT = SCREEN_HEIGHT * 0.88;
+// Límite máximo para que el modal blanco no cubra toda la pantalla, se reduce en 40px a petición
+const MAX_HEIGHT = SCREEN_HEIGHT * 0.88 - 100;
 
 export function BottomSheet({
   visible,

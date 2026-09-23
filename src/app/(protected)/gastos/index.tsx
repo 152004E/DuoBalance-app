@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { getUserDisplayName } from '@/utils/user';
 import { useCallback, useState, useRef, useEffect, useMemo } from 'react';
 import { View, Text, ScrollView } from 'react-native';
@@ -47,6 +48,7 @@ function expenseToRecent(e: ExpenseResponse, userId: string): RecentExpense {
 
 export default function GastosScreen() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const { groups, personalGroups, coupleGroups, sharedGroups } = useGroups();
   const { summaries } = useGroupSummaries(groups);
   const [focusCount, setFocusCount] = useState(0);
@@ -287,11 +289,13 @@ export default function GastosScreen() {
                   });
                   handleCloseCreateSheet();
                   getExpenses().then(setAllExpenses);
+                  queryClient.invalidateQueries({ queryKey: ['budget'] });
                   return;
                 }
               }
               handleCloseCreateSheet();
               getExpenses().then(setAllExpenses);
+              queryClient.invalidateQueries({ queryKey: ['budget'] });
               Toast.show({
                 type: 'success',
                 text1: 'Gasto registrado',

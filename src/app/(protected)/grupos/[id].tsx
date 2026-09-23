@@ -32,6 +32,7 @@ import { ScreenHeader } from '@/components/ui/screen-header';
 import { Loading } from '@/components/ui/loading';
 import { EmptyState } from '@/components/ui/empty-state';
 import { PartnerBalance } from '@/components/dashboard/PartnerBalance';
+import { ContributionCard } from '@/components/dashboard/ContributionCard';
 import { PaySheet } from '@/components/payments/pay-sheet';
 import { LiquidacionesSheet } from '@/components/payments/liquidaciones-sheet';
 import {
@@ -92,6 +93,8 @@ export default function CoupleDetail() {
   const [regenerateError, setRegenerateError] = useState<string | null>(null);
   const [regenerateSuccess, setRegenerateSuccess] = useState(false);
   const [paySheetVisible, setPaySheetVisible] = useState(false);
+  const [payTargetAmount, setPayTargetAmount] = useState<number | null>(null);
+  const [payTargetType, setPayTargetType] = useState<'MONTHLY' | 'TOTAL' | null>(null);
   const [liquidacionesVisible, setLiquidacionesVisible] = useState(false);
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
   const [paymentFeedback, setPaymentFeedback] = useState<{
@@ -109,6 +112,16 @@ export default function CoupleDetail() {
     monthlySettlement,
     refetch: refetchPayments,
   } = useGroupPayments({ groupId: id, userId: user?.id });
+
+  const getSigned = (dir: string, amount: number) => 
+    dir === 'OWED_TO_ME' ? amount : (dir === 'I_OWE' ? -amount : 0);
+
+  const totalSigned = settlement ? getSigned(settlement.settlementDirection, settlement.netSettlement) : 0;
+  const monthlySigned = monthlySettlement ? getSigned(monthlySettlement.settlementDirection, monthlySettlement.netSettlement) : 0;
+  const pastSigned = totalSigned - monthlySigned;
+
+  const pastNetSettlement = Math.abs(pastSigned);
+  const pastSettlementDirection = pastSigned > 0 ? 'OWED_TO_ME' : (pastSigned < 0 ? 'I_OWE' : 'SETTLED');
 
   const [isReminding, setIsReminding] = useState(false);
 
@@ -349,13 +362,14 @@ export default function CoupleDetail() {
 
   // ── Payment handlers ───────────────────────────────────────────────────
   const handleCreatePayment = useCallback(
-    async (payload: { amount: number; toUserId: string }) => {
+    async (payload: { amount: number; toUserId: string; target?: 'MONTHLY' | 'TOTAL' }) => {
       setIsSubmittingPayment(true);
       try {
         await createPayment({
           amount: payload.amount,
           toUserId: payload.toUserId,
           groupId: id,
+          target: payload.target,
         });
         await refetchPayments();
         setPaySheetVisible(false);
@@ -381,6 +395,8 @@ export default function CoupleDetail() {
       try {
         await confirmPayment(payment.id);
         await refetchPayments();
+        queryClient.invalidateQueries({ queryKey: ['budget'] });
+        queryClient.invalidateQueries({ queryKey: ['pending-incoming-payments'] });
         setPaymentFeedback({
           title: 'Pago aceptado',
           message: `Has confirmado el pago de ${fmt(payment.amount)}. El saldo se ha actualizado.`,
@@ -400,6 +416,8 @@ export default function CoupleDetail() {
       try {
         await rejectPayment(payment.id);
         await refetchPayments();
+        queryClient.invalidateQueries({ queryKey: ['budget'] });
+        queryClient.invalidateQueries({ queryKey: ['pending-incoming-payments'] });
         setPaymentFeedback({
           title: 'Pago rechazado',
           message: 'El pago ha sido rechazado. No se descuenta nada del saldo.',
@@ -521,6 +539,122 @@ export default function CoupleDetail() {
           </View>
         </View>
 
+        {/* Liquidaciones - Tarjeta con settlement de MESES ANTERIORES */}
+        {groupType !== 'PERSONAL' && settlement && pastNetSettlement > 0 && (
+          <View className="mt-4 px-5">
+            <View
+              className="rounded-xl border border-[#E2E8F0] bg-white p-4"
+              style={{
+                borderLeftWidth: 4,
+                borderLeftColor:
+                  pastSettlementDirection === 'OWED_TO_ME'
+                    ? '#F59E0B'
+                    : pastSettlementDirection === 'I_OWE'
+                      ? '#EF4444'
+                      : '#10B981',
+                shadowColor: '#0F172A',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.05,
+                shadowRadius: 12,
+                elevation: 2,
+              }}
+            >
+              <View className="flex-col gap-4">
+                <Text className="text-[17px] font-bold text-[#0F172A]">
+                  {pastSettlementDirection === 'OWED_TO_ME'
+                    ? 'Saldo a favor anterior'
+                    : pastSettlementDirection === 'I_OWE'
+                      ? 'Deuda total acumulada'
+                      : 'Sin deudas pasadas'}
+                </Text>
+
+                <View className="flex-row items-center gap-3">
+                  <View
+                    className={`flex h-12 w-12 items-center justify-center rounded-full ${
+                      pastSettlementDirection === 'OWED_TO_ME'
+                        ? 'bg-[#F59E0B]/10'
+                        : pastSettlementDirection === 'I_OWE'
+                          ? 'bg-[#EF4444]/10'
+                          : 'bg-[#10B981]/10'
+                    }`}
+                  >
+                    <FontAwesome6
+                      name="vault"
+                      size={20}
+                      color={
+                        pastSettlementDirection === 'OWED_TO_ME'
+                          ? '#F59E0B'
+                          : pastSettlementDirection === 'I_OWE'
+                            ? '#EF4444'
+                            : '#10B981'
+                      }
+                    />
+                  </View>
+                  <View className="shrink">
+                    <Text className="text-sm font-semibold text-[#64748B]">
+                      Balance Global
+                    </Text>
+                    <Text className="text-base font-bold text-[#0F172A]">
+                      {pastSettlementDirection === 'OWED_TO_ME'
+                        ? `Te deben en total ${fmt(pastNetSettlement)}`
+                        : pastSettlementDirection === 'I_OWE'
+                          ? `Debes en total ${fmt(pastNetSettlement)}`
+                          : 'No hay deudas acumuladas'}
+                    </Text>
+                  </View>
+                </View>
+
+                <View className="flex-row gap-2 mt-2">
+                  {pastSettlementDirection === 'I_OWE' && (
+                    <Pressable
+                      onPress={() => {
+                        setPayTargetAmount(pastNetSettlement);
+                        setPayTargetType('TOTAL');
+                        setPaySheetVisible(true);
+                      }}
+                      className="flex-1 flex-row items-center justify-center gap-2 rounded-lg bg-[#006c49] py-3 active:opacity-80"
+                    >
+                      <FontAwesome6
+                        name="money-bill-transfer"
+                        size={14}
+                        color="#FFFFFF"
+                      />
+                      <Text className="text-sm font-semibold text-white">
+                        Pagar deuda
+                      </Text>
+                    </Pressable>
+                  )}
+                  {settlement.settlementDirection === 'OWED_TO_ME' && (
+                    <Pressable
+                      onPress={() => handleRemind('TOTAL')}
+                      disabled={isReminding}
+                      className="flex-1 flex-row items-center justify-center gap-2 rounded-lg bg-[#F59E0B]/10 py-3 active:bg-[#F59E0B]/20"
+                    >
+                      <FontAwesome6 name="bell" size={14} color="#D97706" />
+                      <Text className="text-sm font-semibold text-[#D97706]">
+                        Recordar
+                      </Text>
+                    </Pressable>
+                  )}
+                  <Pressable
+                    onPress={() => router.push(`/grupos/${id}/estado-cuenta`)}
+                    className="flex-1 flex-row items-center justify-center gap-2 rounded-lg bg-[#F1F5F9] py-3 active:opacity-80"
+                  >
+                    <FontAwesome6
+                      name="file-invoice"
+                      size={14}
+                      color="#0F172A"
+                    />
+                    <Text className="text-sm font-semibold text-[#0F172A]">
+                      Estado de cuenta
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+            </View>
+          </View>
+        )}
+
         {/* Liquidaciones - Tarjeta con settlement del mes actual */}
         {groupType !== 'PERSONAL' && monthlySettlement && (
           <View className="mt-4 px-5">
@@ -586,7 +720,11 @@ export default function CoupleDetail() {
                 <View className="flex-col gap-2">
                   {monthlySettlement.settlementDirection === 'I_OWE' && (
                     <Pressable
-                      onPress={() => setPaySheetVisible(true)}
+                      onPress={() => {
+                        setPayTargetAmount(monthlySettlement.netSettlement);
+                        setPayTargetType('MONTHLY');
+                        setPaySheetVisible(true);
+                      }}
                       className="w-full flex-row items-center justify-center gap-2 rounded-lg bg-[#006c49] px-3 py-3 active:opacity-80"
                     >
                       <FontAwesome6
@@ -642,97 +780,17 @@ export default function CoupleDetail() {
           </View>
         )}
 
-        {/* Distribución de Gastos - Progress Bar Card (solo COUPLE y GROUP) */}
+        {/* Distribución de Gastos y Aportes Combinados */}
         {groupType !== 'PERSONAL' && (
           <View className="mt-4 px-5">
-            <View
-              className="rounded-xl border border-[#E2E8F0] bg-white p-5"
-              style={{
-                shadowColor: '#0F172A',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.05,
-                shadowRadius: 12,
-                elevation: 2,
-              }}
-            >
-              <Text className="text-[13px] font-semibold uppercase tracking-wider text-[#64748B]">
-                Distribución de Gastos
-              </Text>
-
-              {/* Progress Bar */}
-              <View className="mt-4 h-8 flex-row overflow-hidden rounded-full bg-[#ECEEF0]">
-                <View
-                  className="h-full items-center justify-center bg-[#006c49]"
-                  style={{ width: `${userPercent}%` }}
-                >
-                  <Text className="text-xs font-bold text-white">
-                    {Math.round(userPercent)}%
-                  </Text>
-                </View>
-                <View
-                  className="h-full items-center justify-center bg-[#8B5CF6]"
-                  style={{ width: `${partnerPercent}%` }}
-                >
-                  <Text className="text-xs font-bold text-white">
-                    {Math.round(partnerPercent)}%
-                  </Text>
-                </View>
-              </View>
-
-              <View className="mt-3">
-                <View className="flex-row items-center justify-between rounded-lg p-3">
-                  <View className="flex-row items-center gap-2">
-                    <View className="h-3 w-3 rounded-full bg-[#006c49]" />
-                    <Text className="text-[#0F172A]">
-                      {'Tú'}
-                    </Text>
-                  </View>
-                  <Text
-                    className="font-bold text-[#006c49]"
-                    style={{ fontFamily: 'monospace' }}
-                  >
-                    {fmt(userAmount)}
-                  </Text>
-                </View>
-
-                <View className="flex-row items-center justify-between rounded-lg p-3">
-                  <View className="flex-row items-center gap-2">
-                    <View className="h-3 w-3 rounded-full bg-[#8B5CF6]" />
-                    <Text className="text-[#0F172A]">{partnerLabel}</Text>
-                  </View>
-                  <Text
-                    className="font-bold text-[#8B5CF6]"
-                    style={{ fontFamily: 'monospace' }}
-                  >
-                    {fmt(partnerAmount)}
-                  </Text>
-                </View>
-              </View>
-
-              <View className="mt-4 border-t border-[#E2E8F0] pt-4">
-                <Pressable
-                  onPress={() => router.push(`/grupos/${id}/configuracion`)}
-                  className="w-full flex-row items-center justify-center gap-1"
-                >
-                  <Text className="text-sm font-semibold text-[#006c49]">
-                    Ajustar porcentaje
-                  </Text>
-                  <FontAwesome6 name="gear" size={12} color="#006c49" />
-                </Pressable>
-              </View>
-            </View>
-          </View>
-        )}
-
-        {/* Aportes del mes - solo COUPLE y GROUP (oculto en PERSONAL) */}
-        {groupType !== 'PERSONAL' && (
-          <View className="mt-4 px-5">
-            <PartnerBalance
+            <ContributionCard
+              groupId={id}
               userName={memberSplit.userName}
               partnerName={memberSplit.partnerName}
               userAmount={memberSplit.userAmount}
               partnerAmount={memberSplit.partnerAmount}
-              title="Aportes del mes"
+              expectedUserPercent={userPercent}
+              expectedPartnerPercent={partnerPercent}
             />
           </View>
         )}
@@ -854,19 +912,23 @@ export default function CoupleDetail() {
 
       <PaySheet
         visible={paySheetVisible}
-        onClose={() => setPaySheetVisible(false)}
+        onClose={() => { setPayTargetAmount(null); setPayTargetType(null); setPaySheetVisible(false); }}
         group={group!}
         currentUserId={user!.id}
-        amountDue={Math.max(
-          0,
-          (settlement?.netSettlement ?? 0) -
-            sentPending.reduce((acc, p) => acc + Number(p.amount), 0),
-        )}
+        amountDue={
+          payTargetAmount !== null
+            ? Math.max(0, payTargetAmount - sentPending.reduce((acc, p) => acc + Number(p.amount), 0))
+            : Math.max(
+                0,
+                (settlement?.netSettlement ?? 0) -
+                  sentPending.reduce((acc, p) => acc + Number(p.amount), 0),
+              )
+        }
         creditorId={
           group.members.find((m) => m.user.id !== user?.id)?.user.id ?? ''
         }
         isSubmitting={isSubmittingPayment}
-        onSubmit={handleCreatePayment}
+        onSubmit={(payload) => handleCreatePayment({ ...payload, target: payTargetType ?? undefined })}
       />
 
       <LiquidacionesSheet

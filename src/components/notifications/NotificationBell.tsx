@@ -8,6 +8,7 @@ import { useSettlementSuggestions } from '@/hooks/use-settlement-suggestions';
 import { usePendingIncomingPayments } from '@/hooks/use-pending-incoming-payments';
 import { useInAppNotifications } from '@/hooks/use-in-app-notifications';
 import { useSnoozedDues } from '@/hooks/use-snoozed-dues';
+import { usePendingExpenses } from '@/hooks/use-pending-expenses';
 import { NotificationSheet } from './notification-sheet';
 
 export function NotificationBell() {
@@ -30,19 +31,22 @@ export function NotificationBell() {
 
   const { data: inAppNotifications = [], unreadCount, markAsRead, refetch: refetchInApp } = useInAppNotifications();
   const { activeDuesCount, markDuesAsViewed } = useSnoozedDues(dues);
+  
+  const { pendingExpenses, refetch: refetchPendingExpenses, approve, reject } = usePendingExpenses(user?.id);
 
   const [sheetVisible, setSheetVisible] = useState(false);
 
-  const pendingCount = activeDuesCount + incomingPayments.length + unreadCount;
+  const pendingCount = activeDuesCount + incomingPayments.length + unreadCount + pendingExpenses.length;
 
   const handleOpenSheet = useCallback(() => {
     // Refetch data when opening to ensure it's fresh
     refetchDues();
     refetchIncoming();
     refetchInApp();
+    refetchPendingExpenses();
     markDuesAsViewed();
     setSheetVisible(true);
-  }, [refetchDues, refetchIncoming, refetchInApp, markDuesAsViewed]);
+  }, [refetchDues, refetchIncoming, refetchInApp, refetchPendingExpenses, markDuesAsViewed]);
 
   return (
     <>
@@ -70,6 +74,9 @@ export function NotificationBell() {
         dues={dues}
         incomingPayments={incomingPayments}
         inAppNotifications={inAppNotifications}
+        pendingExpenses={pendingExpenses}
+        onApproveExpense={approve}
+        onRejectExpense={reject}
         markAsRead={markAsRead}
       />
     </>

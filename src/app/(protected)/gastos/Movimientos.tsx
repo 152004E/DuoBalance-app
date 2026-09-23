@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { getUserDisplayName } from '@/utils/user';
 import { useCallback, useState, useMemo, useEffect } from 'react';
 import { View, Text, Pressable, TextInput, ScrollView } from 'react-native';
@@ -48,6 +49,7 @@ function expenseToRecent(e: ExpenseResponse, userId: string): RecentExpense {
 
 export default function MovimientosScreen() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const { workspace } = useWorkspace();
   const { groups, personalGroups, coupleGroups, sharedGroups } = useGroups();
   const { groupId, create } = useLocalSearchParams<{
@@ -333,11 +335,13 @@ export default function MovimientosScreen() {
                   });
                   handleCloseCreateSheet();
                   getExpenses().then(setAllExpenses);
+                  queryClient.invalidateQueries({ queryKey: ['budget'] });
                   return;
                 }
               }
               handleCloseCreateSheet();
               getExpenses().then(setAllExpenses);
+              queryClient.invalidateQueries({ queryKey: ['budget'] });
               Toast.show({
                 type: 'success',
                 text1: 'Gasto registrado',

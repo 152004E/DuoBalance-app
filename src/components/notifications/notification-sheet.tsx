@@ -18,6 +18,9 @@ interface NotificationSheetProps {
     isRead: boolean;
     url?: string;
   }>;
+  pendingExpenses?: any[];
+  onApproveExpense?: (id: string) => Promise<void>;
+  onRejectExpense?: (id: string) => Promise<void>;
   markAsRead?: (id: string) => void;
 }
 
@@ -27,6 +30,9 @@ export function NotificationSheet({
   dues,
   incomingPayments,
   inAppNotifications = [],
+  pendingExpenses = [],
+  onApproveExpense,
+  onRejectExpense,
   markAsRead,
 }: NotificationSheetProps) {
   const header = (
@@ -39,7 +45,7 @@ export function NotificationSheet({
     />
   );
 
-  const hasNotifications = dues.length > 0 || incomingPayments.length > 0 || inAppNotifications.length > 0;
+  const hasNotifications = dues.length > 0 || incomingPayments.length > 0 || inAppNotifications.length > 0 || pendingExpenses.length > 0;
 
   return (
     <BottomSheet
@@ -60,6 +66,58 @@ export function NotificationSheet({
           </View>
         ) : (
           <View className="space-y-6">
+            {pendingExpenses.length > 0 && (
+              <View>
+                <Text className="mb-3 text-xs font-bold uppercase tracking-wider text-[#64748B]">
+                  Gastos por confirmar
+                </Text>
+                <View className="space-y-3">
+                  {pendingExpenses.map((expense) => (
+                    <View
+                      key={expense.id}
+                      className="flex-col gap-3 rounded-2xl border border-[#E2E8F0] bg-white p-4"
+                    >
+                      <View className="flex-row items-center gap-4">
+                        <View className="h-10 w-10 items-center justify-center rounded-full bg-orange-100">
+                          <FontAwesome6
+                            name="receipt"
+                            size={16}
+                            color="#F97316"
+                          />
+                        </View>
+                        <View className="flex-1">
+                          <Text className="text-base font-semibold text-[#0F172A]">
+                            Alguien dice que pagaste
+                          </Text>
+                          <Text className="text-sm text-[#64748B]">
+                            {expense.description}
+                          </Text>
+                        </View>
+                        <Text className="text-base font-bold text-[#F97316]">
+                          ${Number(expense.amount).toLocaleString('es-CL')}
+                        </Text>
+                      </View>
+                      
+                      <View className="flex-row gap-2 mt-1">
+                        <TouchableOpacity
+                          onPress={() => onRejectExpense?.(expense.id)}
+                          className="flex-1 rounded-xl border border-red-200 bg-red-50 py-2.5"
+                        >
+                          <Text className="text-center font-bold text-red-600">Rechazar</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => onApproveExpense?.(expense.id)}
+                          className="flex-1 rounded-xl bg-[#059669] py-2.5"
+                        >
+                          <Text className="text-center font-bold text-white">Aceptar</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
             {incomingPayments.length > 0 && (
               <View>
                 <Text className="mb-3 text-xs font-bold uppercase tracking-wider text-[#64748B]">
