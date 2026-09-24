@@ -62,7 +62,7 @@ export default function ConfiguracionGrupoScreen() {
   const [inviteVisible, setInviteVisible] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
   
-  const { user, checkSession } = useAuth();
+  const { user, updateUser } = useAuth();
   const [isMainGroupLoading, setIsMainGroupLoading] = useState(false);
 
   const isMainGroup = user?.mainPersonalGroupId === id;
@@ -209,8 +209,11 @@ export default function ConfiguracionGrupoScreen() {
     if (!group || group.type !== 'PERSONAL') return;
     setIsMainGroupLoading(true);
     try {
-      await setMainGroup(isMainGroup ? null : group.id);
-      await checkSession();
+      const newGroupId = isMainGroup ? null : group.id;
+      await setMainGroup(newGroupId);
+      if (user) {
+        await updateUser({ ...user, mainPersonalGroupId: newGroupId });
+      }
       setSuccessMessage(isMainGroup ? 'Grupo removido como principal' : 'Grupo establecido como principal');
       setTimeout(() => setSuccessMessage(null), 2500);
     } catch (err: unknown) {
@@ -428,13 +431,15 @@ export default function ConfiguracionGrupoScreen() {
                 </Text>
               </View>
               <Text className="mt-1 text-sm text-[#64748B]">
-                Define cómo se reparten los gastos del grupo
+                {group.type === 'PERSONAL'
+                  ? 'Al ser tu grupo personal, asumes el 100%. Si lo marcas como Principal, aquí se unificarán todos tus gastos de los demás grupos para que sepas exactamente cuánto has gastado en total.'
+                  : 'Define cómo se reparten los gastos del grupo'}
               </Text>
 
               <View className="mt-4">
                 <DistributionBar
-                  yourPercentage={adjustYourPercentage}
-                  partnerPercentage={100 - adjustYourPercentage}
+                  yourPercentage={group.type === 'PERSONAL' ? 100 : adjustYourPercentage}
+                  partnerPercentage={group.type === 'PERSONAL' ? 0 : 100 - adjustYourPercentage}
                 />
               </View>
 
@@ -449,50 +454,42 @@ export default function ConfiguracionGrupoScreen() {
                       className="font-bold text-[#10B981]"
                       style={{ fontFamily: 'monospace' }}
                     >
-                      {adjustYourPercentage}%
-                    </Text>
-                    <Text
-                      className="font-bold text-[#0F172A]"
-                      style={{ fontFamily: 'monospace' }}
-                    >
-                      {yourPercentage}%
+                      {group.type === 'PERSONAL' ? 100 : adjustYourPercentage}%
                     </Text>
                   </View>
                 </View>
 
-                <View className="flex-row items-center justify-between rounded-lg p-3">
-                  <View className="flex-row items-center gap-2">
-                    <View className="h-3 w-3 rounded-full bg-[#8B5CF6]" />
-                    <Text className="text-[#0F172A]">Tu grupo</Text>
+                {group.type !== 'PERSONAL' && (
+                  <View className="flex-row items-center justify-between rounded-lg p-3">
+                    <View className="flex-row items-center gap-2">
+                      <View className="h-3 w-3 rounded-full bg-[#8B5CF6]" />
+                      <Text className="text-[#0F172A]">Tu grupo</Text>
+                    </View>
+                    <View className="items-end">
+                      <Text
+                        className="font-bold text-[#8B5CF6]"
+                        style={{ fontFamily: 'monospace' }}
+                      >
+                        {100 - adjustYourPercentage}%
+                      </Text>
+                    </View>
                   </View>
-                  <View className="items-end">
-                    <Text
-                      className="font-bold text-[#8B5CF6]"
-                      style={{ fontFamily: 'monospace' }}
-                    >
-                      {100 - adjustYourPercentage}%
-                    </Text>
-                    <Text
-                      className="font-bold text-[#0F172A]"
-                      style={{ fontFamily: 'monospace' }}
-                    >
-                      {partnerPercentage}%
-                    </Text>
-                  </View>
-                </View>
+                )}
               </View>
 
-              <View className="mt-4 border-t border-[#E2E8F0] pt-4">
-                <Pressable
-                  onPress={() => setAdjustPercentageVisible(true)}
-                  className="w-full flex-row items-center justify-center gap-1 active:opacity-80"
-                >
-                  <Text className="text-sm font-semibold text-[#006c49]">
-                    Ajustar porcentaje
-                  </Text>
-                  <FontAwesome6 name="gear" size={12} color="#006c49" />
-                </Pressable>
-              </View>
+              {group.type !== 'PERSONAL' && (
+                <View className="mt-4 border-t border-[#E2E8F0] pt-4">
+                  <Pressable
+                    onPress={() => setAdjustPercentageVisible(true)}
+                    className="w-full flex-row items-center justify-center gap-1 active:opacity-80"
+                  >
+                    <Text className="text-sm font-semibold text-[#006c49]">
+                      Ajustar porcentaje
+                    </Text>
+                    <FontAwesome6 name="gear" size={12} color="#006c49" />
+                  </Pressable>
+                </View>
+              )}
             </View>
           </Animated.View>
           {/* Liquidación */}
@@ -605,70 +602,86 @@ export default function ConfiguracionGrupoScreen() {
                 </View>
               ))}
 
-              <Pressable
-                onPress={() => setInviteVisible(true)}
-                className="w-full flex-row items-center justify-center gap-2 border-t border-dashed border-[#E2E8F0] px-5 py-4 active:opacity-80"
-              >
-                <FontAwesome6 name="user-plus" size={16} color="#10B981" />
-                <Text className="text-sm font-semibold text-[#10B981]">
-                  Invitar nuevo miembro
-                </Text>
-              </Pressable>
+              {group.type === 'PERSONAL' ? (
+                <View className="w-full flex-row items-center justify-center border-t border-dashed border-[#E2E8F0] px-5 py-4">
+                  <Text className="text-sm font-medium text-[#64748B]">
+                    Grupo personal. No admite invitaciones.
+                  </Text>
+                </View>
+              ) : group.type === 'COUPLE' && group.members.length >= 2 ? (
+                <View className="w-full flex-row items-center justify-center border-t border-dashed border-[#E2E8F0] px-5 py-4">
+                  <Text className="text-sm font-medium text-[#64748B]">
+                    Grupo completo (Máximo 2 miembros).
+                  </Text>
+                </View>
+              ) : (
+                <Pressable
+                  onPress={() => setInviteVisible(true)}
+                  className="w-full flex-row items-center justify-center gap-2 border-t border-dashed border-[#E2E8F0] px-5 py-4 active:opacity-80"
+                >
+                  <FontAwesome6 name="user-plus" size={16} color="#10B981" />
+                  <Text className="text-sm font-semibold text-[#10B981]">
+                    Invitar nuevo miembro
+                  </Text>
+                </Pressable>
+              )}
             </View>
           </Animated.View>
 
           {/* Código invitación */}
-          <Animated.View style={style3}>
-            <View className="mt-4 flex-row items-center justify-between px-1">
-              <Text className="text-[13px] font-semibold uppercase tracking-wider text-[#64748B]">
-                Código invitación
-              </Text>
-            </View>
-
-            <View
-              className="mt-2 rounded-2xl border border-[#E2E8F0] bg-white p-5"
-              style={{
-                shadowColor: '#0F172A',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.05,
-                shadowRadius: 12,
-                elevation: 2,
-              }}
-            >
-              <Text className="mb-2 text-center text-sm text-[#64748B]">
-                Comparte este código para que otros se unan
-              </Text>
-
-              <View className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-3">
-                <Text className="text-center text-2xl font-bold tracking-[0.3em] text-[#10B981]">
-                  {group.inviteCode ?? '------'}
+          {group.type !== 'PERSONAL' && !(group.type === 'COUPLE' && group.members.length >= 2) && (
+            <Animated.View style={style3}>
+              <View className="mt-4 flex-row items-center justify-between px-1">
+                <Text className="text-[13px] font-semibold uppercase tracking-wider text-[#64748B]">
+                  Código invitación
                 </Text>
               </View>
 
-              <Pressable
-                onPress={handleCopyCode}
-                className="mt-3 w-full flex-row items-center justify-center gap-2 rounded-xl bg-[#10B981] py-4 active:opacity-80"
+              <View
+                className="mt-2 rounded-2xl border border-[#E2E8F0] bg-white p-5"
+                style={{
+                  shadowColor: '#0F172A',
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.05,
+                  shadowRadius: 12,
+                  elevation: 2,
+                }}
               >
-                <FontAwesome6
-                  name={copied ? 'circle-check' : 'copy'}
-                  size={16}
-                  color="#FFFFFF"
-                />
-                <Text className="text-base font-semibold text-white">
-                  {copied ? '¡Copiado!' : 'Copiar código'}
+                <Text className="mb-2 text-center text-sm text-[#64748B]">
+                  Comparte este código para que otros se unan
                 </Text>
-              </Pressable>
 
-              <View className="mt-3 flex-row items-center justify-center">
-                <Pressable className="flex-row items-center gap-1 active:opacity-80">
-                  <FontAwesome6 name="qrcode" size={16} color="#006c49" />
-                  <Text className="text-sm font-semibold text-[#006c49]">
-                    Ver código QR
+                <View className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-3">
+                  <Text className="text-center text-2xl font-bold tracking-[0.3em] text-[#10B981]">
+                    {group.inviteCode ?? '------'}
+                  </Text>
+                </View>
+
+                <Pressable
+                  onPress={handleCopyCode}
+                  className="mt-3 w-full flex-row items-center justify-center gap-2 rounded-xl bg-[#10B981] py-4 active:opacity-80"
+                >
+                  <FontAwesome6
+                    name={copied ? 'circle-check' : 'copy'}
+                    size={16}
+                    color="#FFFFFF"
+                  />
+                  <Text className="text-base font-semibold text-white">
+                    {copied ? '¡Copiado!' : 'Copiar código'}
                   </Text>
                 </Pressable>
+
+                <View className="mt-3 flex-row items-center justify-center">
+                  <Pressable className="flex-row items-center gap-1 active:opacity-80">
+                    <FontAwesome6 name="qrcode" size={16} color="#006c49" />
+                    <Text className="text-sm font-semibold text-[#006c49]">
+                      Ver código QR
+                    </Text>
+                  </Pressable>
+                </View>
               </View>
-            </View>
-          </Animated.View>
+            </Animated.View>
+          )}
 
           {/* Notificaciones */}
           <Animated.View style={style4}>

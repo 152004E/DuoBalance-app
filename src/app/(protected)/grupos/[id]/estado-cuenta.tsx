@@ -56,7 +56,7 @@ export default function EstadoCuentaScreen() {
 
         {isLoading ? (
           <View className="mt-20">
-            <Loading size="large" color="#10B981" />
+            <Loading />
           </View>
         ) : (
           <View className="px-5 mt-4 flex-col" style={{ gap: 16 }}>
