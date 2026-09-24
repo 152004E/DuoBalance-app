@@ -29,6 +29,8 @@ import {
   updateMemberSplit,
   regenerateInviteCode,
 } from '@/services/api/groups';
+import { setMainGroup } from '@/services/api/auth';
+import { useAuth } from '@/hooks/use-auth';
 import { InviteMemberSheet } from '@/components/couple/invite-member-sheet';
 import type { GroupResponse, GroupMember } from '@/types/api';
 
@@ -59,6 +61,11 @@ export default function ConfiguracionGrupoScreen() {
 
   const [inviteVisible, setInviteVisible] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  
+  const { user, checkSession } = useAuth();
+  const [isMainGroupLoading, setIsMainGroupLoading] = useState(false);
+
+  const isMainGroup = user?.mainPersonalGroupId === id;
 
   const [toggleStates, setToggleStates] = useState({
     newExpense: true,
@@ -198,6 +205,22 @@ export default function ConfiguracionGrupoScreen() {
     }
   }, [id, group]);
 
+  const handleToggleMainGroup = async () => {
+    if (!group || group.type !== 'PERSONAL') return;
+    setIsMainGroupLoading(true);
+    try {
+      await setMainGroup(isMainGroup ? null : group.id);
+      await checkSession();
+      setSuccessMessage(isMainGroup ? 'Grupo removido como principal' : 'Grupo establecido como principal');
+      setTimeout(() => setSuccessMessage(null), 2500);
+    } catch (err: unknown) {
+      setSuccessMessage('Error al actualizar grupo principal');
+      setTimeout(() => setSuccessMessage(null), 2500);
+    } finally {
+      setIsMainGroupLoading(false);
+    }
+  };
+
   const handleDelete = async () => {
     setDeleteLoading(true);
     setDeleteError(null);
@@ -324,6 +347,68 @@ export default function ConfiguracionGrupoScreen() {
               </View>
             </View>
           </Animated.View>
+
+          {/* Grupo Principal (Solo para grupos personales) */}
+          {group.type === 'PERSONAL' && (
+            <Animated.View style={style0}>
+              <View
+                className="mt-4 rounded-2xl border border-[#E2E8F0] bg-white p-5"
+                style={{
+                  shadowColor: '#0F172A',
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.05,
+                  shadowRadius: 12,
+                  elevation: 2,
+                }}
+              >
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-1 pr-4">
+                    <Text className="text-[13px] font-semibold uppercase tracking-wider text-[#64748B]">
+                      Grupo Principal
+                    </Text>
+                    <Text className="mt-1 text-sm text-[#64748B]">
+                      Convierte este grupo en tu libro mayor. Los gastos en grupos compartidos y liquidaciones se reflejarán aquí.
+                    </Text>
+                  </View>
+                  <Pressable
+                    onPress={handleToggleMainGroup}
+                    disabled={isMainGroupLoading}
+                    className="justify-center"
+                  >
+                    <Animated.View
+                      style={[
+                        {
+                          width: 44,
+                          height: 24,
+                          borderRadius: 12,
+                          backgroundColor: isMainGroup ? '#10B981' : '#E2E8F0',
+                          opacity: isMainGroupLoading ? 0.5 : 1,
+                        },
+                      ]}
+                    >
+                      <Animated.View
+                        style={[
+                          {
+                            width: 20,
+                            height: 20,
+                            borderRadius: 10,
+                            backgroundColor: '#FFFFFF',
+                            transform: [{ translateX: isMainGroup ? 22 : 2 }],
+                            top: 2,
+                            shadowColor: '#000',
+                            shadowOffset: { width: 0, height: 1 },
+                            shadowOpacity: 0.1,
+                            shadowRadius: 2,
+                            elevation: 2,
+                          },
+                        ]}
+                      />
+                    </Animated.View>
+                  </Pressable>
+                </View>
+              </View>
+            </Animated.View>
+          )}
 
           {/* Distribución */}
           <Animated.View style={style1}>

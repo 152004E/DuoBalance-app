@@ -83,6 +83,7 @@ export interface UserResponse {
   role: 'USER' | 'SUPER_ADMIN';
   isActive: boolean;
   hasPassword?: boolean;
+  mainPersonalGroupId?: string | null;
   createdAt: string;
 }
 

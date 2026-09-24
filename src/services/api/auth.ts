@@ -105,3 +105,8 @@ export const deleteAccount = async (payload: DeleteAccountPayload) => {
   const { data } = await api.delete('/auth/account', { data: payload });
   return data as { message: string };
 };
+
+export const setMainGroup = async (groupId: string | null) => {
+  const { data } = await api.patch('/auth/main-group', { groupId });
+  return data as UserResponse;
+};
