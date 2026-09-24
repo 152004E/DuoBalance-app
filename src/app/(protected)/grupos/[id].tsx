@@ -277,6 +277,7 @@ export default function CoupleDetail() {
       category: e.category,
       icon: meta.icon,
       iconBg: meta.color,
+      originGroup: e.linkedExpense?.group || e.linkedPayment?.group || null,
     };
   });
 
