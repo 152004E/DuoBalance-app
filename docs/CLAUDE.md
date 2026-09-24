@@ -108,9 +108,9 @@ DuoBalance is a shared expense tracking app for groups (couples, roommates, frie
 - **`src/features/workspace/`**: Contexto global de "espacio de trabajo" (`WorkspaceProvider` envuelve los Tabs en `(protected)/_layout.tsx`). Define `WorkspaceState = FilterState` (categoría + groupId). Todas las pantallas (Inicio, Gastos, Grupos, Reportes) leen el mismo estado y se sincronizan. Types en `workspace.types.ts` (alias de `src/types/filter.ts`). ✅
 
 ### API Services — Built
-- **auth.ts**: Auth service (login, register, getProfile, updateProfile, changePassword, uploadAvatar, **verifyEmail, resendVerification, forgotPassword, resetPassword**) ✅
+- **auth.ts**: Auth service (login, register, getProfile, updateProfile, changePassword, uploadAvatar, **verifyEmail, resendVerification, forgotPassword, resetPassword, setMainGroup**) ✅
 - **groups.ts**: Full group CRUD (create, join, list, get, update, delete, archive, regenerate invite code, remove member, update member split) ✅
-- **Expenses API** (`src/services/api/expenses.ts`): CRUD completo (create, list, get, update, delete) + **comprobante** (`uploadExpenseReceipt`, `removeExpenseReceipt`) ✅
+- **Expenses API** (`src/services/api/expenses.ts`): CRUD completo (create, list, get, update, delete) + **comprobante** (`uploadExpenseReceipt`, `removeExpenseReceipt`). Incluye campos de clones (`linkedExpenseId`, `linkedPaymentId`) del Motor de Sincronización (Consolidated Ledger). ✅
 - **Payments API** (`src/services/api/payments.ts`): createPayment, getPayments, getSettlement, getSettlementSuggestions, **confirmPayment, rejectPayment** — conectado al backend (con `?groupId=` para el workspace) ✅
 - **Dashboard API** (`src/services/api/dashboard.ts`): ❌ Pending — obsoleto como prerrequisito: el Dashboard ya está conectado client-side vía `useDashboardData` + `getExpenses` + `getPayments` (no consume mocks)
 

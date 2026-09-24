@@ -75,8 +75,8 @@ export function NotificationBell() {
         incomingPayments={incomingPayments}
         inAppNotifications={inAppNotifications}
         pendingExpenses={pendingExpenses}
-        onApproveExpense={approve}
-        onRejectExpense={reject}
+        onApproveExpense={async (id) => { await approve(id); }}
+        onRejectExpense={async (id) => { await reject(id); }}
         markAsRead={markAsRead}
       />
     </>

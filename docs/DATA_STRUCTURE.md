@@ -242,6 +242,7 @@ interface UserResponse {
   isActive: boolean;
   hasPassword?: boolean;
   createdAt: string;
+  mainPersonalGroupId?: string | null;
 }
 
 // Admin
@@ -313,6 +314,8 @@ interface ExpenseResponse {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
+  linkedExpenseId?: string | null;
+  linkedPaymentId?: string | null;
 }
 
 // Balances
