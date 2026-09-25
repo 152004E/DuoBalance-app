@@ -126,6 +126,7 @@ export interface GroupResponse {
   name: string;
   inviteCode: string | null;
   type: GroupType;
+  color: string;
   cutoffDay: number;
   createdAt: string;
   members: GroupMember[];
@@ -134,6 +135,7 @@ export interface GroupResponse {
 export interface CreateGroupPayload {
   name: string;
   type?: GroupType;
+  color?: string;
   splitPercentage?: number;
 }
 
@@ -147,6 +149,7 @@ export interface LeaveGroupResponse {
 
 export interface UpdateGroupPayload {
   name?: string;
+  color?: string;
   cutoffDay?: number;
 }
 
@@ -211,6 +214,11 @@ export enum ExpenseStatus {
   REJECTED = 'REJECTED',
 }
 
+export interface OriginGroup {
+  name: string;
+  color: string;
+}
+
 export interface ExpenseResponse {
   id: string;
   description: string;
@@ -225,6 +233,10 @@ export interface ExpenseResponse {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
+  linkedExpenseId?: string | null;
+  linkedPaymentId?: string | null;
+  linkedExpense?: { group: OriginGroup } | null;
+  linkedPayment?: { group: OriginGroup } | null;
 }
 
 // ─── Balances ────────────────────────────────────────

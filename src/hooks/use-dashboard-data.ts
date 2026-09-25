@@ -86,7 +86,15 @@ export function useDashboardData(
     enabled: targetGroupIds.length > 0,
   });
 
-  const expenses = data?.expenses ?? [];
+  const isGlobalView = workspace.category === 'all' && !workspace.groupId;
+
+  const expenses = useMemo(() => {
+    const raw = data?.expenses ?? [];
+    if (isGlobalView) {
+      return raw.filter((e) => !e.linkedExpenseId && !e.linkedPaymentId);
+    }
+    return raw;
+  }, [data?.expenses, isGlobalView]);
   const payments = data?.payments ?? [];
 
   // ── Balance neto del usuario ─────────────────────────────────────────
@@ -153,6 +161,7 @@ export function useDashboardData(
         category: CATEGORY_LABELS[e.category] ?? e.category,
         icon: meta.icon,
         iconBg: meta.color,
+        originGroup: e.linkedExpense?.group || e.linkedPayment?.group || null,
       };
     });
 

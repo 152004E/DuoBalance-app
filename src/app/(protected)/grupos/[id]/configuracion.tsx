@@ -320,7 +320,20 @@ export default function ConfiguracionGrupoScreen() {
                   />
                 </Pressable>
 
-                <View className="flex-row items-center justify-between border-t border-[#E2E8F0] pt-4">
+                <View className="mt-4 flex-row items-center justify-between border-t border-[#E2E8F0] pt-4">
+                  <View>
+                    <Text className="text-sm text-[#64748B]">Color del grupo</Text>
+                    <Text className="mt-1 text-base font-medium text-[#64748B]">
+                      Color identificativo
+                    </Text>
+                  </View>
+                  <View 
+                    className="h-8 w-8 rounded-full border-2 border-white shadow-sm"
+                    style={{ backgroundColor: group.color }}
+                  />
+                </View>
+
+                <View className="flex-row items-center justify-between border-t border-[#E2E8F0] pt-4 mt-4">
                   <View>
                     <Text className="text-sm text-[#64748B]">Creada</Text>
                     <Text className="mt-1 text-base font-medium text-[#64748B]">

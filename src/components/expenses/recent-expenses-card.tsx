@@ -10,6 +10,7 @@ export interface RecentExpense {
   category: string;
   icon: string;
   iconBg: string;
+  originGroup?: { name: string; color: string } | null;
 }
 
 interface RecentExpensesCardProps {
@@ -70,13 +71,29 @@ export function RecentExpensesCard({
               />
             </View>
             <View className="min-w-0 flex-1">
-              <Text
-                numberOfLines={1}
-                ellipsizeMode="tail"
-                className="font-semibold text-[#0F172A]"
-              >
-                {expense.name}
-              </Text>
+              <View className="flex-row items-center gap-2">
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  className="font-semibold text-[#0F172A] shrink"
+                >
+                  {expense.name}
+                </Text>
+                {expense.originGroup && (
+                  <View 
+                    className="rounded-md px-1.5 py-0.5" 
+                    style={{ backgroundColor: `${expense.originGroup.color}20` }}
+                  >
+                    <Text 
+                      className="text-[10px] font-bold uppercase tracking-wider" 
+                      style={{ color: expense.originGroup.color }}
+                      numberOfLines={1}
+                    >
+                      {expense.originGroup.name}
+                    </Text>
+                  </View>
+                )}
+              </View>
               <Text
                 numberOfLines={1}
                 ellipsizeMode="tail"

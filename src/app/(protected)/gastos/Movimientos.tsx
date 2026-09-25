@@ -44,6 +44,7 @@ function expenseToRecent(e: ExpenseResponse, userId: string): RecentExpense {
     category: e.category,
     icon: meta.icon,
     iconBg: meta.color,
+    originGroup: e.linkedExpense?.group || e.linkedPayment?.group || null,
   };
 }
 
@@ -132,13 +133,19 @@ export default function MovimientosScreen() {
 
     return allExpenses.filter((e) => {
       if (!filteredGroupIds.has(e.groupId)) return false;
+      
+      const isGlobalView = workspace.category === 'all' && !workspace.groupId;
+      if (isGlobalView && (e.linkedExpenseId || e.linkedPaymentId)) {
+        return false;
+      }
+
       if (q && !e.description.toLowerCase().includes(q)) return false;
       if (selectedCategory !== 'all' && e.category !== selectedCategory)
         return false;
       if (periodStart && new Date(e.createdAt) < periodStart) return false;
       return true;
     });
-  }, [allExpenses, filteredGroupIds, query, selectedPeriod, selectedCategory]);
+  }, [allExpenses, filteredGroupIds, query, selectedPeriod, selectedCategory, workspace]);
 
   const recentExpenses = filteredExpenses.map((e) =>
     expenseToRecent(e, user?.id ?? ''),

@@ -43,6 +43,7 @@ function expenseToRecent(e: ExpenseResponse, userId: string): RecentExpense {
     category: e.category,
     icon: meta.icon,
     iconBg: meta.color,
+    originGroup: e.linkedExpense?.group || e.linkedPayment?.group || null,
   };
 }
 
@@ -128,10 +129,18 @@ export default function GastosScreen() {
     [filteredGroups],
   );
 
-  const filteredExpenses = useMemo(
-    () => allExpenses.filter((e) => filteredGroupIds.has(e.groupId)),
-    [allExpenses, filteredGroupIds],
-  );
+  const filteredExpenses = useMemo(() => {
+    return allExpenses.filter((e) => {
+      if (!filteredGroupIds.has(e.groupId)) return false;
+      
+      const isGlobalView = workspace.category === 'all' && !workspace.groupId;
+      if (isGlobalView && (e.linkedExpenseId || e.linkedPaymentId)) {
+        return false;
+      }
+      
+      return true;
+    });
+  }, [allExpenses, filteredGroupIds, workspace]);
 
   const totalExpensesAll = useMemo(
     () => filteredExpenses.reduce((sum, e) => sum + Number(e.amount), 0),
