@@ -8,43 +8,42 @@ import { ScreenHeader } from '@/components/ui/screen-header';
 import { useRef, type ReactNode } from 'react';
 import Animated from 'react-native-reanimated';
 import { useStaggeredEntrance } from '@/hooks/use-staggered-entrance';
-
 const FEATURES = [
   {
     icon: 'user-group',
-    title: 'Espacios compartidos',
+    title: 'Espacios y grupos',
     description:
-      'Crea espacios personales, de pareja o grupales y organiza tus finanzas en un solo lugar.',
+      'Crea espacios personales, de pareja o grupales y organiza tus finanzas en un solo lugar de forma transparente.',
   },
   {
-    icon: 'receipt',
-    title: 'Registro de gastos',
+    icon: 'wallet',
+    title: 'Presupuestos y Libro Mayor',
     description:
-      'Lleva el control de cada gasto con categorías, quién lo pagó y cómo se reparte.',
+      'Fija metas mensuales y centraliza los gastos de todos tus grupos en tu cuenta personal para saber a dónde va tu dinero.',
   },
   {
     icon: 'scale-balanced',
-    title: 'Repartos claros',
+    title: 'Repartos inteligentes',
     description:
-      'Gastos al 50/50, por porcentaje o personales, con división automática entre quienes participan.',
+      'Sincronización en tiempo real, gastos al 50/50, por porcentaje o personales, con división automática.',
   },
   {
-    icon: 'chart-pie',
-    title: 'Reportes y estadísticas',
+    icon: 'bell',
+    title: 'Notificaciones y Recordatorios',
     description:
-      'Visualiza tus gastos por categoría y por miembro, con comparación entre períodos.',
+      'Campanita de alertas en tiempo real, sugerencias de pago y opciones para posponer (snooze) cobros pendientes.',
   },
   {
-    icon: 'hand-holding-dollar',
-    title: 'Control de deudas',
+    icon: 'bolt',
+    title: 'Rendimiento en vivo',
     description:
-      'Sabe cuánto te deben o cuánto debes en cada espacio compartido.',
+      'Gracias a React Query y nuestra arquitectura robusta, todo se actualiza al instante sin necesidad de recargar la app.',
   },
   {
     icon: 'shield-halved',
-    title: 'Cuenta segura',
+    title: 'Cuenta segura y Apodos',
     description:
-      'Inicio de sesión protegido, cambio de contraseña y sesión con renovación automática.',
+      'Protección total de tu sesión y personalización de tu identidad con apodos (nicknames) para tus grupos.',
   },
 ];
 
@@ -64,11 +63,18 @@ const HISTORY = [
       'La plataforma creció para incluir espacios personales y grupos, manteniendo el reparto justo sin importar cuántos participen.',
   },
   {
+    period: 'Evolución',
+    icon: 'flask',
+    title: 'El Feedback',
+    description:
+      'Gracias a pruebas reales con usuarios, incorporamos el botón flotante rápido, presupuestos, notificaciones in-app y el libro mayor.',
+  },
+  {
     period: 'Hoy',
     icon: 'chart-line',
-    title: 'Una app completa',
+    title: 'Ecosistema completo',
     description:
-      'Cada pantalla se construyó con atención al detalle: animaciones, feedback visual y datos en tiempo real para que la experiencia sea fluida y clara.',
+      'Cada pantalla se construyó con atención al detalle: animaciones, feedback visual y datos en tiempo real (Full-Stack) para que la experiencia sea fluida.',
   },
 ];
 
@@ -79,6 +85,10 @@ const STACK = [
   'Expo Router',
   'NativeWind',
   'Tailwind CSS',
+  'React Query',
+  'NestJS',
+  'Prisma ORM',
+  'PostgreSQL',
 ];
 
 const HERO_INDEX = 0;
