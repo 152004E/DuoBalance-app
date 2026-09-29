@@ -17,7 +17,11 @@ export default function AdminReportesScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]" edges={['top']}>
-      <ScrollView className="flex-1" contentContainerClassName="pb-10" showsVerticalScrollIndicator={false}>
+      <ScrollView
+        className="flex-1"
+        contentContainerClassName="pb-10"
+        showsVerticalScrollIndicator={false}
+      >
         <HeroSection
           variant="page"
           userName={getUserDisplayName(user)}
@@ -26,11 +30,14 @@ export default function AdminReportesScreen() {
           height={220}
         />
 
-        <View className="flex-1 items-center justify-center pt-20 px-5">
-          <View className="bg-white p-6 rounded-2xl shadow-sm items-center">
-            <Text className="text-[#0F172A] text-lg font-bold mb-2">Reportes Globales</Text>
-            <Text className="text-[#64748B] text-center text-sm">
-              Pronto podrás ver aquí gráficas avanzadas sobre la actividad de la aplicación.
+        <View className="flex-1 items-center justify-center px-5 pt-20">
+          <View className="items-center rounded-2xl bg-white p-6 shadow-sm">
+            <Text className="mb-2 text-lg font-bold text-[#0F172A]">
+              Reportes Globales
+            </Text>
+            <Text className="text-center text-sm text-[#64748B]">
+              Pronto podrás ver aquí gráficas avanzadas sobre la actividad de la
+              aplicación.
             </Text>
           </View>
         </View>

@@ -11,13 +11,13 @@ interface NotificationSheetProps {
   onClose: () => void;
   dues: SettlementDue[];
   incomingPayments: PendingIncomingPayment[];
-  inAppNotifications?: Array<{
+  inAppNotifications?: {
     id: string;
     title: string;
     body: string;
     isRead: boolean;
     url?: string;
-  }>;
+  }[];
   pendingExpenses?: any[];
   onApproveExpense?: (id: string) => Promise<void>;
   onRejectExpense?: (id: string) => Promise<void>;
@@ -45,14 +45,14 @@ export function NotificationSheet({
     />
   );
 
-  const hasNotifications = dues.length > 0 || incomingPayments.length > 0 || inAppNotifications.length > 0 || pendingExpenses.length > 0;
+  const hasNotifications =
+    dues.length > 0 ||
+    incomingPayments.length > 0 ||
+    inAppNotifications.length > 0 ||
+    pendingExpenses.length > 0;
 
   return (
-    <BottomSheet
-      visible={visible}
-      onClose={onClose}
-      header={header}
-    >
+    <BottomSheet visible={visible} onClose={onClose} header={header}>
       <ScrollView
         className="flex-1 px-5 pb-8 pt-2"
         showsVerticalScrollIndicator={false}
@@ -97,19 +97,23 @@ export function NotificationSheet({
                           ${Number(expense.amount).toLocaleString('es-CL')}
                         </Text>
                       </View>
-                      
-                      <View className="flex-row gap-2 mt-1">
+
+                      <View className="mt-1 flex-row gap-2">
                         <TouchableOpacity
                           onPress={() => onRejectExpense?.(expense.id)}
                           className="flex-1 rounded-xl border border-red-200 bg-red-50 py-2.5"
                         >
-                          <Text className="text-center font-bold text-red-600">Rechazar</Text>
+                          <Text className="text-center font-bold text-red-600">
+                            Rechazar
+                          </Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                           onPress={() => onApproveExpense?.(expense.id)}
                           className="flex-1 rounded-xl bg-[#059669] py-2.5"
                         >
-                          <Text className="text-center font-bold text-white">Aceptar</Text>
+                          <Text className="text-center font-bold text-white">
+                            Aceptar
+                          </Text>
                         </TouchableOpacity>
                       </View>
                     </View>
@@ -126,7 +130,10 @@ export function NotificationSheet({
                 <View className="space-y-3">
                   {incomingPayments.map((payment) => (
                     <TouchableOpacity
-                      key={(payment as any).id || `${payment.groupId}-${payment.fromUserId}`}
+                      key={
+                        (payment as any).id ||
+                        `${payment.groupId}-${payment.fromUserId}`
+                      }
                       onPress={() => {
                         onClose();
                         router.push(`/grupos/${payment.groupId}?liquidar=1`);
@@ -215,10 +222,14 @@ export function NotificationSheet({
                         }
                       }}
                       className={`flex-row items-center gap-4 rounded-2xl border p-4 active:bg-[#F8FAFC] ${
-                        notif.isRead ? 'border-[#E2E8F0] bg-white opacity-80' : 'border-[#059669]/20 bg-[#F0FDF4]'
+                        notif.isRead
+                          ? 'border-[#E2E8F0] bg-white opacity-80'
+                          : 'border-[#059669]/20 bg-[#F0FDF4]'
                       }`}
                     >
-                      <View className={`h-10 w-10 items-center justify-center rounded-full ${notif.isRead ? 'bg-gray-100' : 'bg-green-100'}`}>
+                      <View
+                        className={`h-10 w-10 items-center justify-center rounded-full ${notif.isRead ? 'bg-gray-100' : 'bg-green-100'}`}
+                      >
                         <FontAwesome6
                           name="bell"
                           size={16}
@@ -226,7 +237,9 @@ export function NotificationSheet({
                         />
                       </View>
                       <View className="flex-1">
-                        <Text className={`text-base ${notif.isRead ? 'font-medium text-[#475569]' : 'font-bold text-[#0F172A]'}`}>
+                        <Text
+                          className={`text-base ${notif.isRead ? 'font-medium text-[#475569]' : 'font-bold text-[#0F172A]'}`}
+                        >
                           {notif.title}
                         </Text>
                         <Text className="text-sm text-[#64748B]">

@@ -60,18 +60,14 @@ export function InviteMemberSheet({
   );
 
   return (
-    <BottomSheet
-      visible={visible}
-      onClose={onClose}
-      header={header}
-    >
+    <BottomSheet visible={visible} onClose={onClose} header={header}>
       <ScrollView
         className="flex-1 px-5"
         showsVerticalScrollIndicator={false}
         contentContainerClassName="pb-3"
       >
         {/* Código de invitación */}
-        <Pressable 
+        <Pressable
           onPress={async () => {
             await Clipboard.setStringAsync(invitationCode);
             Toast.show({
@@ -105,7 +101,8 @@ export function InviteMemberSheet({
         {/* Texto explicativo */}
         <View className="mt-3 rounded-2xl bg-[#ECFDF5] p-3">
           <Text className="text-[12px] leading-4 text-[#065F46]">
-            También puedes escanear este código QR. El enlace expirará en 24 horas.
+            También puedes escanear este código QR. El enlace expirará en 24
+            horas.
           </Text>
         </View>
 

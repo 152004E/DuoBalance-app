@@ -26,7 +26,9 @@ export default function ProtectedLayout() {
               text2: 'El enlace de invitación funcionó correctamente.',
             });
           } catch (error: any) {
-            const msg = error.response?.data?.message || 'El código expiró o es inválido.';
+            const msg =
+              error.response?.data?.message ||
+              'El código expiró o es inválido.';
             Toast.show({
               type: 'error',
               text1: 'No pudimos unirte',
@@ -75,10 +77,7 @@ export default function ProtectedLayout() {
           name="admin/Users/todos-usuarios"
           options={{ href: null }}
         />
-        <Tabs.Screen
-          name="admin/Users/index"
-          options={{ href: null }}
-        />
+        <Tabs.Screen name="admin/Users/index" options={{ href: null }} />
 
         {/* Pestañas Usuario Normal */}
         <Tabs.Screen

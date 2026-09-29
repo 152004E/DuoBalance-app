@@ -100,8 +100,8 @@ export function LiquidacionesSheet({
                     </View>
                     <View className="flex-1 shrink">
                       <Text className="text-sm font-semibold text-[#0F172A]">
-                        {fromUser ? getUserFullName(fromUser) : 'Alguien'}{' '}
-                        dice que te pagó
+                        {fromUser ? getUserFullName(fromUser) : 'Alguien'} dice
+                        que te pagó
                       </Text>
                       <Text className="mt-0.5 text-xs text-[#64748B]">
                         {formatRelativeDate(payment.createdAt)}
@@ -253,11 +253,7 @@ export function LiquidacionesSheet({
   );
 
   return (
-    <BottomSheet
-      visible={visible}
-      onClose={onClose}
-      header={header}
-    >
+    <BottomSheet visible={visible} onClose={onClose} header={header}>
       <View className="flex-1">
         {/* Tabs */}
         <View className="px-5 pb-1">

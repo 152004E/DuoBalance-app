@@ -168,9 +168,7 @@ export default function ExpenseDetailScreen() {
       ? 'Tú'
       : getUserDisplayName(paidByUser)
     : 'Desconocido';
-  const paidByInitials = paidByUser
-    ? getUserInitials(paidByUser)
-    : '?';
+  const paidByInitials = paidByUser ? getUserInitials(paidByUser) : '?';
 
   const participants = (expense.splits ?? []).map((s) => {
     const member = memberMap.get(s.userId);
@@ -179,9 +177,7 @@ export default function ExpenseDetailScreen() {
         ? 'Tú'
         : getUserDisplayName(member)
       : 'Usuario';
-    const initials = member
-      ? getUserInitials(member)
-      : '?';
+    const initials = member ? getUserInitials(member) : '?';
     const isPayer = s.userId === expense.paidById;
     return {
       name,

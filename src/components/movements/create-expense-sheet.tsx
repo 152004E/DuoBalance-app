@@ -11,14 +11,14 @@ import { CATEGORIES } from '@/constants/categories';
 import { formatAmountInput, parseAmount } from '@/utils/format';
 import { resolveImageUrl } from '@/utils/image-url';
 import Toast from 'react-native-toast-message';
-
-const MAX_EXPENSE_AMOUNT = 2000000;
 import type {
   ExpenseCategory,
   ExpenseResponse,
   GroupResponse,
   SplitType,
 } from '@/types/api';
+
+const MAX_EXPENSE_AMOUNT = 2000000;
 
 interface Member {
   id: string;
@@ -38,6 +38,7 @@ export interface ExpensePayload {
   splitType: SplitType;
   groupId: string;
   splits?: { userId: string; percentage: number }[];
+  date?: string;
   receipt?: ReceiptSource;
   removeReceipt?: boolean;
 }
@@ -53,15 +54,20 @@ interface CreateExpenseSheetProps {
   onUpdateExpense?: (payload: ExpensePayload) => Promise<void> | void;
 }
 
-function getTodayDate(): string {
-  const d = new Date();
-  const dd = String(d.getDate()).padStart(2, '0');
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const yyyy = d.getFullYear();
-  return `${dd}/${mm}/${yyyy}`;
+function isSameDay(d1: Date, d2: Date) {
+  return (
+    d1.getDate() === d2.getDate() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getFullYear() === d2.getFullYear()
+  );
 }
 
-type SheetView = 'MAIN' | 'SELECT_PAYER' | 'SELECT_SPLIT' | 'SELECT_PARTICIPANTS';
+type SheetView =
+  | 'MAIN'
+  | 'SELECT_PAYER'
+  | 'SELECT_SPLIT'
+  | 'SELECT_PARTICIPANTS'
+  | 'SELECT_DATE';
 
 export function CreateExpenseSheet({
   visible,
@@ -84,12 +90,16 @@ export function CreateExpenseSheet({
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('FOOD');
-  const [date, setDate] = useState(getTodayDate());
+  const [date, setDate] = useState<Date>(new Date());
   const [paidBy, setPaidBy] = useState('');
-  const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
+  const [selectedParticipants, setSelectedParticipants] = useState<string[]>(
+    [],
+  );
   const [splitType, setSplitType] = useState<'EQUAL' | 'PERCENTAGE'>('EQUAL');
   const [yourPercentage, setYourPercentage] = useState(50);
-  const [pickedReceipt, setPickedReceipt] = useState<ReceiptSource | null>(null);
+  const [pickedReceipt, setPickedReceipt] = useState<ReceiptSource | null>(
+    null,
+  );
   const [removeExistingReceipt, setRemoveExistingReceipt] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -156,7 +166,11 @@ export function CreateExpenseSheet({
       );
       setDescription(initialExpense?.description ?? '');
       setCategory(initialExpense?.category ?? 'FOOD');
-      setDate(getTodayDate());
+      setDate(
+        initialExpense?.createdAt
+          ? new Date(initialExpense.createdAt)
+          : new Date(),
+      );
       setSplitType(resolvedSplitType);
       setYourPercentage(
         isEditing ? initialYourPercentage : defaultYourPercentage,
@@ -215,7 +229,7 @@ export function CreateExpenseSheet({
     parsedAmount <= MAX_EXPENSE_AMOUNT &&
     description.trim().length >= 3 &&
     category.length > 0 &&
-    date.trim().length > 0 &&
+    date != null &&
     paidBy.length > 0 &&
     selectedParticipants.length > 0;
 
@@ -225,13 +239,15 @@ export function CreateExpenseSheet({
       title={
         activeView === 'SELECT_PAYER'
           ? '¿Quién pagó?'
-          : activeView === 'SELECT_SPLIT'
-            ? 'Tipo de división'
-            : activeView === 'SELECT_PARTICIPANTS'
-              ? 'Participantes'
-              : isEditing
-                ? 'Editar gasto'
-                : 'Nuevo gasto'
+          : activeView === 'SELECT_DATE'
+            ? 'Ajustar fecha'
+            : activeView === 'SELECT_SPLIT'
+              ? 'Tipo de división'
+              : activeView === 'SELECT_PARTICIPANTS'
+                ? 'Participantes'
+                : isEditing
+                  ? 'Editar gasto'
+                  : 'Nuevo gasto'
       }
       subtitle={
         activeView === 'MAIN'
@@ -352,13 +368,74 @@ export function CreateExpenseSheet({
                 </View>
               </ScrollView>
 
-              <Input
-                label="Fecha"
-                iconLeft="calendar"
-                placeholder="dd/mm/aaaa"
-                value={date}
-                onChangeText={setDate}
-              />
+              {/* Date */}
+              <View className="mb-2 mt-5 flex-row items-center justify-between">
+                <Text className="text-sm font-semibold text-[#0F172A]">
+                  📅 Fecha
+                </Text>
+                <Pressable
+                  onPress={() => setActiveView('SELECT_DATE')}
+                  className="px-2"
+                >
+                  <Text className="text-sm font-semibold text-[#10B981]">
+                    Otro día
+                  </Text>
+                </Pressable>
+              </View>
+              <View className="flex-row gap-2">
+                {[
+                  { label: 'Antes de ayer', offset: -2 },
+                  { label: 'Ayer', offset: -1 },
+                  { label: 'Hoy', offset: 0 },
+                ].map((item) => {
+                  const targetDate = new Date();
+                  targetDate.setDate(targetDate.getDate() + item.offset);
+                  const isActive = isSameDay(date, targetDate);
+                  return (
+                    <Pressable
+                      key={item.label}
+                      onPress={() => setDate(targetDate)}
+                      className={`flex-1 items-center justify-center rounded-xl border py-3 ${
+                        isActive
+                          ? 'border-[#10B981] bg-[#10B981]'
+                          : 'border-[#E2E8F0] bg-white'
+                      }`}
+                    >
+                      <Text
+                        className={`text-sm font-semibold ${
+                          isActive ? 'text-white' : 'text-[#64748B]'
+                        }`}
+                      >
+                        {item.label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+
+              {![-2, -1, 0].some((offset) => {
+                const targetDate = new Date();
+                targetDate.setDate(targetDate.getDate() + offset);
+                return isSameDay(date, targetDate);
+              }) && (
+                <View className="mt-2 flex-row items-center justify-between rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-4">
+                  <View className="flex-row items-center gap-2">
+                    <FontAwesome6
+                      name="calendar-day"
+                      size={14}
+                      color="#10B981"
+                    />
+                    <Text className="text-sm font-medium text-[#0F172A]">
+                      {date.toLocaleDateString('es-ES', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
+                    </Text>
+                  </View>
+                </View>
+              )}
 
               {/* Paid by Summary */}
               {!isPersonal && (
@@ -369,7 +446,7 @@ export function CreateExpenseSheet({
                     </Text>
                     <Pressable
                       onPress={() => setActiveView('SELECT_PAYER')}
-                      className="px-2 "
+                      className="px-2"
                     >
                       <Text className="text-sm font-semibold text-[#10B981]">
                         Cambiar
@@ -378,7 +455,7 @@ export function CreateExpenseSheet({
                   </View>
                   <Pressable
                     onPress={() => setActiveView('SELECT_PAYER')}
-                    className="flex-row items-center justify-between rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] py-2 px-4 active:bg-[#F1F5F9]"
+                    className="flex-row items-center justify-between rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-2 active:bg-[#F1F5F9]"
                   >
                     <View className="flex-row items-center gap-3">
                       <FontAwesome6 name="user" size={14} color="#64748B" />
@@ -591,6 +668,7 @@ export function CreateExpenseSheet({
                       category: category as ExpenseCategory,
                       splitType: splitType as SplitType,
                       groupId: group.id,
+                      date: date.toISOString(),
                       splits,
                       ...(pickedReceipt && { receipt: pickedReceipt }),
                       ...(removeExistingReceipt && { removeReceipt: true }),
@@ -813,6 +891,214 @@ export function CreateExpenseSheet({
               onPress={() => setActiveView('MAIN')}
             />
           </ScrollView>
+        )}
+        {/* SELECT_DATE VIEW */}
+        {activeView === 'SELECT_DATE' && (
+          <View className="flex-1 px-5 pt-4">
+            <Text className="mb-6 text-center text-sm font-medium text-[#64748B]">
+              Selecciona la fecha del gasto
+            </Text>
+
+            {/* Día */}
+            <View className="mb-4">
+              <Text className="mb-2 ml-2 text-xs font-semibold uppercase text-[#94A3B8]">
+                Día
+              </Text>
+              <View className="flex-row items-center justify-between rounded-3xl border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-3">
+                <Pressable
+                  onPress={() => {
+                    const newDate = new Date(date);
+                    newDate.setDate(date.getDate() - 1);
+                    setDate(newDate);
+                  }}
+                  className="h-10 w-10 items-center justify-center rounded-full border border-[#E2E8F0] bg-white shadow-sm active:bg-gray-100"
+                >
+                  <FontAwesome6 name="chevron-left" size={14} color="#0F172A" />
+                </Pressable>
+
+                <View className="flex-1 flex-row items-center justify-center">
+                  {[-2, -1, 0, 1, 2].map((offset) => {
+                    const d = new Date(date);
+                    d.setDate(date.getDate() + offset);
+                    const isCenter = offset === 0;
+                    const isAdjacent = Math.abs(offset) === 1;
+                    return (
+                      <View
+                        key={`day-${offset}`}
+                        className={`mx-1 items-center justify-center ${
+                          isCenter
+                            ? 'h-14 w-14 rounded-full bg-[#10B981] shadow-sm'
+                            : isAdjacent
+                              ? 'w-10'
+                              : 'w-8'
+                        }`}
+                      >
+                        <Text
+                          className={`font-bold ${
+                            isCenter
+                              ? 'text-xl text-white'
+                              : isAdjacent
+                                ? 'text-base text-[#94A3B8]'
+                                : 'text-xs text-[#CBD5E1]'
+                          }`}
+                        >
+                          {d.getDate()}
+                        </Text>
+                      </View>
+                    );
+                  })}
+                </View>
+
+                <Pressable
+                  onPress={() => {
+                    const newDate = new Date(date);
+                    newDate.setDate(date.getDate() + 1);
+                    setDate(newDate);
+                  }}
+                  className="h-10 w-10 items-center justify-center rounded-full border border-[#E2E8F0] bg-white shadow-sm active:bg-gray-100"
+                >
+                  <FontAwesome6
+                    name="chevron-right"
+                    size={14}
+                    color="#0F172A"
+                  />
+                </Pressable>
+              </View>
+            </View>
+
+            {/* Mes */}
+            <View className="mb-4">
+              <Text className="mb-2 ml-2 text-xs font-semibold uppercase text-[#94A3B8]">
+                Mes
+              </Text>
+              <View className="flex-row items-center justify-between rounded-3xl border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-3">
+                <Pressable
+                  onPress={() => {
+                    const newDate = new Date(date);
+                    newDate.setMonth(date.getMonth() - 1);
+                    setDate(newDate);
+                  }}
+                  className="h-10 w-10 items-center justify-center rounded-full border border-[#E2E8F0] bg-white shadow-sm active:bg-gray-100"
+                >
+                  <FontAwesome6 name="chevron-left" size={14} color="#0F172A" />
+                </Pressable>
+
+                <View className="flex-1 flex-row items-center justify-center">
+                  {[-1, 0, 1].map((offset) => {
+                    const d = new Date(date);
+                    d.setMonth(date.getMonth() + offset);
+                    const isCenter = offset === 0;
+                    const monthName = d.toLocaleDateString('es-ES', {
+                      month: 'short',
+                    });
+                    return (
+                      <View
+                        key={`month-${offset}`}
+                        className={`mx-1 items-center justify-center ${
+                          isCenter
+                            ? 'h-14 w-24 rounded-full bg-[#10B981] shadow-sm'
+                            : 'w-16'
+                        }`}
+                      >
+                        <Text
+                          className={`font-bold capitalize ${
+                            isCenter
+                              ? 'text-lg text-white'
+                              : 'text-sm text-[#94A3B8]'
+                          }`}
+                        >
+                          {monthName}
+                        </Text>
+                      </View>
+                    );
+                  })}
+                </View>
+
+                <Pressable
+                  onPress={() => {
+                    const newDate = new Date(date);
+                    newDate.setMonth(date.getMonth() + 1);
+                    setDate(newDate);
+                  }}
+                  className="h-10 w-10 items-center justify-center rounded-full border border-[#E2E8F0] bg-white shadow-sm active:bg-gray-100"
+                >
+                  <FontAwesome6
+                    name="chevron-right"
+                    size={14}
+                    color="#0F172A"
+                  />
+                </Pressable>
+              </View>
+            </View>
+
+            {/* Año */}
+            <View className="mb-6">
+              <Text className="mb-2 ml-2 text-xs font-semibold uppercase text-[#94A3B8]">
+                Año
+              </Text>
+              <View className="flex-row items-center justify-between rounded-3xl border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-3">
+                <Pressable
+                  onPress={() => {
+                    const newDate = new Date(date);
+                    newDate.setFullYear(date.getFullYear() - 1);
+                    setDate(newDate);
+                  }}
+                  className="h-10 w-10 items-center justify-center rounded-full border border-[#E2E8F0] bg-white shadow-sm active:bg-gray-100"
+                >
+                  <FontAwesome6 name="chevron-left" size={14} color="#0F172A" />
+                </Pressable>
+
+                <View className="flex-1 flex-row items-center justify-center">
+                  {[-1, 0, 1].map((offset) => {
+                    const d = new Date(date);
+                    d.setFullYear(date.getFullYear() + offset);
+                    const isCenter = offset === 0;
+                    return (
+                      <View
+                        key={`year-${offset}`}
+                        className={`mx-1 items-center justify-center ${
+                          isCenter
+                            ? 'h-14 w-24 rounded-full bg-[#10B981] shadow-sm'
+                            : 'w-16'
+                        }`}
+                      >
+                        <Text
+                          className={`font-bold ${
+                            isCenter
+                              ? 'text-lg text-white'
+                              : 'text-sm text-[#94A3B8]'
+                          }`}
+                        >
+                          {d.getFullYear()}
+                        </Text>
+                      </View>
+                    );
+                  })}
+                </View>
+
+                <Pressable
+                  onPress={() => {
+                    const newDate = new Date(date);
+                    newDate.setFullYear(date.getFullYear() + 1);
+                    setDate(newDate);
+                  }}
+                  className="h-10 w-10 items-center justify-center rounded-full border border-[#E2E8F0] bg-white shadow-sm active:bg-gray-100"
+                >
+                  <FontAwesome6
+                    name="chevron-right"
+                    size={14}
+                    color="#0F172A"
+                  />
+                </Pressable>
+              </View>
+            </View>
+
+            <Button
+              text="Confirmar fecha"
+              className="mt-2 rounded-full py-4"
+              onPress={() => setActiveView('MAIN')}
+            />
+          </View>
         )}
       </View>
     </BottomSheet>

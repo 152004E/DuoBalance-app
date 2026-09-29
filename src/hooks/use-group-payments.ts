@@ -31,12 +31,13 @@ export function useGroupPayments({
       const currentMonth = now.getMonth() + 1;
       const currentYear = now.getFullYear();
 
-      const [paymentsData, totalSettlementData, monthlySettlementData] = await Promise.all([
-        getPayments(groupId),
-        getSettlement(groupId),
-        getSettlement(groupId, currentMonth, currentYear),
-      ]);
-      
+      const [paymentsData, totalSettlementData, monthlySettlementData] =
+        await Promise.all([
+          getPayments(groupId),
+          getSettlement(groupId),
+          getSettlement(groupId, currentMonth, currentYear),
+        ]);
+
       return {
         payments: paymentsData,
         settlement: totalSettlementData,
@@ -51,11 +52,11 @@ export function useGroupPayments({
   const monthlySettlement = data?.monthlySettlement ?? null;
 
   const pendingToConfirm = payments.filter(
-    (p) => p.status === 'PENDING' && p.toUserId === userId
+    (p) => p.status === 'PENDING' && p.toUserId === userId,
   );
 
   const sentPending = payments.filter(
-    (p) => p.status === 'PENDING' && p.fromUserId === userId
+    (p) => p.status === 'PENDING' && p.fromUserId === userId,
   );
 
   const history = payments.filter((p) => p.status !== 'PENDING');

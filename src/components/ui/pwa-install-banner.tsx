@@ -4,7 +4,8 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import { usePwaInstall } from '@/hooks/use-pwa-install';
 
 export function PwaInstallBanner() {
-  const { isInstallable, isIosPrompt, promptInstall, dismiss } = usePwaInstall();
+  const { isInstallable, isIosPrompt, promptInstall, dismiss } =
+    usePwaInstall();
 
   if (Platform.OS !== 'web') {
     return null;
@@ -25,9 +26,9 @@ export function PwaInstallBanner() {
             Instala la App DuoBalance
           </Text>
           <Text className="text-sm text-blue-700">
-            {isIosPrompt 
+            {isIosPrompt
               ? "Para instalar la app, toca el botón Compartir y elige 'Agregar a Inicio'. Tendrás acceso más rápido y sin distracciones."
-              : "Instala la aplicación en tu pantalla de inicio para acceder rápidamente y sin barras de navegación."}
+              : 'Instala la aplicación en tu pantalla de inicio para acceder rápidamente y sin barras de navegación.'}
           </Text>
 
           <View className="mt-3 flex-row items-center gap-3">
@@ -41,7 +42,7 @@ export function PwaInstallBanner() {
                 </Text>
               </TouchableOpacity>
             )}
-            
+
             <TouchableOpacity
               onPress={dismiss}
               className="rounded-xl px-4 py-2 active:bg-blue-100"

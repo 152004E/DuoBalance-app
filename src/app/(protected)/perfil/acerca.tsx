@@ -126,10 +126,10 @@ export default function AcercaScreen() {
           contentContainerClassName="pb-10"
           showsVerticalScrollIndicator={false}
         >
-          <View  className="px-5 pt-4">
+          <View className="px-5 pt-4">
             <AnimatedSection index={HERO_INDEX}>
               <LinearGradient
-              style={{ padding: 20, borderRadius: 16  }}
+                style={{ padding: 20, borderRadius: 16 }}
                 colors={['#065238ff', '#04c88aff']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
@@ -282,19 +282,25 @@ export default function AcercaScreen() {
               </Text>
             </AnimatedSection>
             <AnimatedSection index={STACK_TITLE_INDEX + 2 + STACK.length}>
-              <View className="rounded-2xl border border-[#E2E8F0] bg-white shadow-sm overflow-hidden">
+              <View className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm">
                 <Text
                   onPress={() => router.push('/terminos')}
-                  className="px-5 py-4 text-sm font-semibold text-[#0F172A] border-b border-[#F1F5F9] active:bg-[#F8FAFC]"
+                  className="border-b border-[#F1F5F9] px-5 py-4 text-sm font-semibold text-[#0F172A] active:bg-[#F8FAFC]"
                 >
-                  <FontAwesome6 name="file-contract" size={14} color="#64748B" />{'  '}
+                  <FontAwesome6
+                    name="file-contract"
+                    size={14}
+                    color="#64748B"
+                  />
+                  {'  '}
                   Términos y Condiciones
                 </Text>
                 <Text
                   onPress={() => router.push('/privacidad')}
                   className="px-5 py-4 text-sm font-semibold text-[#0F172A] active:bg-[#F8FAFC]"
                 >
-                  <FontAwesome6 name="shield-check" size={14} color="#64748B" />{'  '}
+                  <FontAwesome6 name="shield-check" size={14} color="#64748B" />
+                  {'  '}
                   Política de Privacidad
                 </Text>
               </View>

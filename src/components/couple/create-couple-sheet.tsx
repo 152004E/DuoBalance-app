@@ -165,7 +165,7 @@ export function CreateCoupleSheet({
     />
   );
 
-const handleBeforeClose = async () => {
+  const handleBeforeClose = async () => {
     if (coupleName.trim() !== '') {
       return new Promise<boolean>((resolve) => {
         Toast.show({

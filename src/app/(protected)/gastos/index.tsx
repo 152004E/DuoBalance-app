@@ -94,14 +94,17 @@ export default function GastosScreen() {
     }
   }, [workspace, groups, user?.id]);
 
-  const handleDestSelect = useCallback((group: GroupResponse) => {
-    setDestSelectorVisible(false);
-    const members = group.members.map((m) => ({
-      id: m.user.id,
-      name: m.user.id === user?.id ? 'Tú' : getUserDisplayName(m.user),
-    }));
-    setCreatingExpenseGroup({ group, members });
-  }, [user?.id]);
+  const handleDestSelect = useCallback(
+    (group: GroupResponse) => {
+      setDestSelectorVisible(false);
+      const members = group.members.map((m) => ({
+        id: m.user.id,
+        name: m.user.id === user?.id ? 'Tú' : getUserDisplayName(m.user),
+      }));
+      setCreatingExpenseGroup({ group, members });
+    },
+    [user?.id],
+  );
 
   const handleCloseCreateSheet = useCallback(() => {
     setCreatingExpenseGroup(null);
@@ -132,12 +135,12 @@ export default function GastosScreen() {
   const filteredExpenses = useMemo(() => {
     return allExpenses.filter((e) => {
       if (!filteredGroupIds.has(e.groupId)) return false;
-      
+
       const isGlobalView = workspace.category === 'all' && !workspace.groupId;
       if (isGlobalView && (e.linkedExpenseId || e.linkedPaymentId)) {
         return false;
       }
-      
+
       return true;
     });
   }, [allExpenses, filteredGroupIds, workspace]);

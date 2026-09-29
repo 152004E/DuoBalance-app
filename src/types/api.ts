@@ -178,6 +178,7 @@ export interface CreateExpensePayload {
   category: ExpenseCategory;
   splitType: SplitType;
   groupId?: string;
+  date?: string;
   splits?: CreateExpenseSplitPayload[];
 }
 
@@ -186,6 +187,7 @@ export interface UpdateExpensePayload {
   amount?: number;
   category?: ExpenseCategory;
   splitType?: SplitType;
+  date?: string;
   splits?: CreateExpenseSplitPayload[];
 }
 

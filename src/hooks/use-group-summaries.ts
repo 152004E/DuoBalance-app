@@ -22,7 +22,10 @@ function getCurrentMonthRange(): { startDate: string; endDate: string } {
 export function useGroupSummaries(
   groups: GroupResponse[],
 ): UseGroupSummariesReturn {
-  const groupIds = groups.map((g) => g.id).sort().join(',');
+  const groupIds = groups
+    .map((g) => g.id)
+    .sort()
+    .join(',');
 
   const { data: summaries = {}, isLoading } = useQuery({
     queryKey: ['group-summaries', groupIds],

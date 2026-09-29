@@ -15,7 +15,11 @@ WebBrowser.maybeCompleteAuthSession();
 
 export async function authenticateWithGoogleToken(
   idToken: string,
-  signIn: (user: any, accessToken: string, refreshToken: string) => Promise<void>,
+  signIn: (
+    user: any,
+    accessToken: string,
+    refreshToken: string,
+  ) => Promise<void>,
 ) {
   const data = await loginWithGoogle(idToken);
 

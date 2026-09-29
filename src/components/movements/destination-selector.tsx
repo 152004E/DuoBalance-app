@@ -106,11 +106,7 @@ export function DestinationSelector({
   );
 
   return (
-    <BottomSheet
-      visible={visible}
-      onClose={onClose}
-      header={header}
-    >
+    <BottomSheet visible={visible} onClose={onClose} header={header}>
       <View className="flex-1 px-5 pt-2">
         <FlatList
           data={items}

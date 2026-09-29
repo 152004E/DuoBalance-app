@@ -29,6 +29,6 @@ export function useInAppNotifications() {
     ...query,
     markAsRead: markAsReadMutation.mutate,
     markAllAsRead: markAllAsReadMutation.mutate,
-    unreadCount: query.data?.filter(n => !n.isRead).length || 0,
+    unreadCount: query.data?.filter((n) => !n.isRead).length || 0,
   };
 }

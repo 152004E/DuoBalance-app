@@ -31,47 +31,65 @@ export default function PrivacidadScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View className="rounded-2xl bg-white p-5 shadow-sm">
-            
-            <Text className="text-base font-bold text-[#0F172A] mb-2">
+            <Text className="mb-2 text-base font-bold text-[#0F172A]">
               1. Información que recopilamos
             </Text>
-            <Text className="text-sm leading-6 text-[#64748B] mb-5">
-              Al registrarte en DuoBalance, recopilamos información básica como tu nombre, apellido y dirección de correo electrónico. También recopilamos los datos que ingresas al usar la plataforma: creación de grupos, registro de gastos, montos y liquidaciones.
+            <Text className="mb-5 text-sm leading-6 text-[#64748B]">
+              Al registrarte en DuoBalance, recopilamos información básica como
+              tu nombre, apellido y dirección de correo electrónico. También
+              recopilamos los datos que ingresas al usar la plataforma: creación
+              de grupos, registro de gastos, montos y liquidaciones.
             </Text>
 
-            <Text className="text-base font-bold text-[#0F172A] mb-2">
+            <Text className="mb-2 text-base font-bold text-[#0F172A]">
               2. Uso de la Información
             </Text>
-            <Text className="text-sm leading-6 text-[#64748B] mb-5">
-              Los datos recopilados se utilizan <Text className="font-bold text-[#0F172A]">exclusivamente</Text> para proveer la funcionalidad principal de la aplicación: mantener tus balances financieros, generar reportes y facilitar la colaboración con otros miembros de tus grupos.
+            <Text className="mb-5 text-sm leading-6 text-[#64748B]">
+              Los datos recopilados se utilizan{' '}
+              <Text className="font-bold text-[#0F172A]">exclusivamente</Text>{' '}
+              para proveer la funcionalidad principal de la aplicación: mantener
+              tus balances financieros, generar reportes y facilitar la
+              colaboración con otros miembros de tus grupos.
             </Text>
 
-            <Text className="text-base font-bold text-[#0F172A] mb-2">
+            <Text className="mb-2 text-base font-bold text-[#0F172A]">
               3. Protección de Datos y Terceros
             </Text>
-            <Text className="text-sm leading-6 text-[#64748B] mb-5">
-              No compartimos, vendemos ni alquilamos tus datos personales ni tus registros financieros a terceros. Toda tu información es procesada y almacenada de manera segura, utilizando cifrado para contraseñas y tokens seguros para el inicio de sesión.
+            <Text className="mb-5 text-sm leading-6 text-[#64748B]">
+              No compartimos, vendemos ni alquilamos tus datos personales ni tus
+              registros financieros a terceros. Toda tu información es procesada
+              y almacenada de manera segura, utilizando cifrado para contraseñas
+              y tokens seguros para el inicio de sesión.
             </Text>
 
-            <Text className="text-base font-bold text-[#0F172A] mb-2">
+            <Text className="mb-2 text-base font-bold text-[#0F172A]">
               4. Eliminación de Datos (Derecho al Olvido)
             </Text>
-            <Text className="text-sm leading-6 text-[#64748B] mb-5">
-              Tienes el derecho de eliminar tu cuenta en cualquier momento desde los ajustes de tu perfil. Al confirmar la eliminación, tu correo y contraseña serán borrados permanentemente. Para no romper el historial de gastos compartidos en grupos donde participabas, tu usuario pasará a llamarse "Usuario Eliminado" conservando así las métricas financieras sin estar ligado a tu identidad.
+            <Text className="mb-5 text-sm leading-6 text-[#64748B]">
+              Tienes el derecho de eliminar tu cuenta en cualquier momento desde
+              los ajustes de tu perfil. Al confirmar la eliminación, tu correo y
+              contraseña serán borrados permanentemente. Para no romper el
+              historial de gastos compartidos en grupos donde participabas, tu
+              usuario pasará a llamarse "Usuario Eliminado" conservando así las
+              métricas financieras sin estar ligado a tu identidad.
             </Text>
 
-            <Text className="text-base font-bold text-[#0F172A] mb-2">
+            <Text className="mb-2 text-base font-bold text-[#0F172A]">
               5. Enlaces Externos
             </Text>
-            <Text className="text-sm leading-6 text-[#64748B] mb-5">
-              DuoBalance puede contener enlaces a otros sitios (por ejemplo, para invitaciones por WhatsApp). No somos responsables del contenido o las prácticas de privacidad de dichos sitios.
+            <Text className="mb-5 text-sm leading-6 text-[#64748B]">
+              DuoBalance puede contener enlaces a otros sitios (por ejemplo,
+              para invitaciones por WhatsApp). No somos responsables del
+              contenido o las prácticas de privacidad de dichos sitios.
             </Text>
 
-            <Text className="text-base font-bold text-[#0F172A] mb-2">
+            <Text className="mb-2 text-base font-bold text-[#0F172A]">
               6. Contáctanos
             </Text>
             <Text className="text-sm leading-6 text-[#64748B]">
-              Si tienes preguntas o inquietudes sobre esta Política de Privacidad o el manejo de tus datos, puedes ponerte en contacto con el administrador del sistema.
+              Si tienes preguntas o inquietudes sobre esta Política de
+              Privacidad o el manejo de tus datos, puedes ponerte en contacto
+              con el administrador del sistema.
             </Text>
           </View>
         </ScrollView>

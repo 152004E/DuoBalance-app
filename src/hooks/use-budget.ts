@@ -2,7 +2,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getPersonalBudget, setPersonalBudget } from '@/services/api/budget';
 import { BudgetPayload } from '@/types/api';
 
-export function useBudget(month: number, year: number, enabled: boolean = true) {
+export function useBudget(
+  month: number,
+  year: number,
+  enabled: boolean = true,
+) {
   const queryClient = useQueryClient();
 
   const query = useQuery({

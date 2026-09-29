@@ -1,4 +1,8 @@
-import { getUserDisplayName, getUserFullName, getUserInitials } from '@/utils/user';
+import {
+  getUserDisplayName,
+  getUserFullName,
+  getUserInitials,
+} from '@/utils/user';
 import { useState, useCallback, useEffect } from 'react';
 import {
   View,
@@ -43,7 +47,7 @@ export default function ConfiguracionGrupoScreen() {
   const [editNameVisible, setEditNameVisible] = useState(false);
   const [editNameValue, setEditNameValue] = useState('');
   const [editNameLoading, setEditNameLoading] = useState(false);
-  
+
   const [cutoffDayVisible, setCutoffDayVisible] = useState(false);
   const [cutoffDayValue, setCutoffDayValue] = useState(30);
   const [cutoffDayLoading, setCutoffDayLoading] = useState(false);
@@ -61,7 +65,7 @@ export default function ConfiguracionGrupoScreen() {
 
   const [inviteVisible, setInviteVisible] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
-  
+
   const { user, updateUser } = useAuth();
   const [isMainGroupLoading, setIsMainGroupLoading] = useState(false);
 
@@ -148,7 +152,9 @@ export default function ConfiguracionGrupoScreen() {
     if (!group || !cutoffDayValue) return;
     setCutoffDayLoading(true);
     try {
-      const updated = await updateGroup(id, { cutoffDay: Number(cutoffDayValue) });
+      const updated = await updateGroup(id, {
+        cutoffDay: Number(cutoffDayValue),
+      });
       setGroup(updated);
       setCutoffDayVisible(false);
       setSuccessMessage('Día de corte actualizado');
@@ -214,7 +220,11 @@ export default function ConfiguracionGrupoScreen() {
       if (user) {
         await updateUser({ ...user, mainPersonalGroupId: newGroupId });
       }
-      setSuccessMessage(isMainGroup ? 'Grupo removido como principal' : 'Grupo establecido como principal');
+      setSuccessMessage(
+        isMainGroup
+          ? 'Grupo removido como principal'
+          : 'Grupo establecido como principal',
+      );
       setTimeout(() => setSuccessMessage(null), 2500);
     } catch (err: unknown) {
       setSuccessMessage('Error al actualizar grupo principal');
@@ -322,18 +332,20 @@ export default function ConfiguracionGrupoScreen() {
 
                 <View className="mt-4 flex-row items-center justify-between border-t border-[#E2E8F0] pt-4">
                   <View>
-                    <Text className="text-sm text-[#64748B]">Color del grupo</Text>
+                    <Text className="text-sm text-[#64748B]">
+                      Color del grupo
+                    </Text>
                     <Text className="mt-1 text-base font-medium text-[#64748B]">
                       Color identificativo
                     </Text>
                   </View>
-                  <View 
+                  <View
                     className="h-8 w-8 rounded-full border-2 border-white shadow-sm"
                     style={{ backgroundColor: group.color }}
                   />
                 </View>
 
-                <View className="flex-row items-center justify-between border-t border-[#E2E8F0] pt-4 mt-4">
+                <View className="mt-4 flex-row items-center justify-between border-t border-[#E2E8F0] pt-4">
                   <View>
                     <Text className="text-sm text-[#64748B]">Creada</Text>
                     <Text className="mt-1 text-base font-medium text-[#64748B]">
@@ -383,7 +395,8 @@ export default function ConfiguracionGrupoScreen() {
                       Grupo Principal
                     </Text>
                     <Text className="mt-1 text-sm text-[#64748B]">
-                      Convierte este grupo en tu libro mayor. Los gastos en grupos compartidos y liquidaciones se reflejarán aquí.
+                      Convierte este grupo en tu libro mayor. Los gastos en
+                      grupos compartidos y liquidaciones se reflejarán aquí.
                     </Text>
                   </View>
                   <Pressable
@@ -451,8 +464,12 @@ export default function ConfiguracionGrupoScreen() {
 
               <View className="mt-4">
                 <DistributionBar
-                  yourPercentage={group.type === 'PERSONAL' ? 100 : adjustYourPercentage}
-                  partnerPercentage={group.type === 'PERSONAL' ? 0 : 100 - adjustYourPercentage}
+                  yourPercentage={
+                    group.type === 'PERSONAL' ? 100 : adjustYourPercentage
+                  }
+                  partnerPercentage={
+                    group.type === 'PERSONAL' ? 0 : 100 - adjustYourPercentage
+                  }
                 />
               </View>
 
@@ -520,16 +537,22 @@ export default function ConfiguracionGrupoScreen() {
               <Text className="text-[13px] font-semibold uppercase tracking-wider text-[#64748B]">
                 Ciclo de Liquidación
               </Text>
-              
+
               <View className="mt-4 space-y-4">
                 <View className="flex-row items-center justify-between">
                   <View className="flex-1">
-                    <Text className="text-sm text-[#64748B]">Tu mes corta el día</Text>
+                    <Text className="text-sm text-[#64748B]">
+                      Tu mes corta el día
+                    </Text>
                     <Text className="mt-1 text-base font-semibold text-[#0F172A]">
                       {group.cutoffDay ?? 30} de cada mes
                     </Text>
                     <Text className="mt-2 text-xs text-[#94A3B8]">
-                      Tienes hasta el día {((group.cutoffDay ?? 30) + 5 > 31) ? ((group.cutoffDay ?? 30) + 5) % 31 || 31 : (group.cutoffDay ?? 30) + 5} para pagar.
+                      Tienes hasta el día{' '}
+                      {(group.cutoffDay ?? 30) + 5 > 31
+                        ? ((group.cutoffDay ?? 30) + 5) % 31 || 31
+                        : (group.cutoffDay ?? 30) + 5}{' '}
+                      para pagar.
                     </Text>
                   </View>
                 </View>
@@ -548,7 +571,6 @@ export default function ConfiguracionGrupoScreen() {
               </View>
             </View>
           </Animated.View>
-
 
           {/* Miembros */}
           <Animated.View style={style2}>
@@ -642,59 +664,60 @@ export default function ConfiguracionGrupoScreen() {
           </Animated.View>
 
           {/* Código invitación */}
-          {group.type !== 'PERSONAL' && !(group.type === 'COUPLE' && group.members.length >= 2) && (
-            <Animated.View style={style3}>
-              <View className="mt-4 flex-row items-center justify-between px-1">
-                <Text className="text-[13px] font-semibold uppercase tracking-wider text-[#64748B]">
-                  Código invitación
-                </Text>
-              </View>
-
-              <View
-                className="mt-2 rounded-2xl border border-[#E2E8F0] bg-white p-5"
-                style={{
-                  shadowColor: '#0F172A',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.05,
-                  shadowRadius: 12,
-                  elevation: 2,
-                }}
-              >
-                <Text className="mb-2 text-center text-sm text-[#64748B]">
-                  Comparte este código para que otros se unan
-                </Text>
-
-                <View className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-3">
-                  <Text className="text-center text-2xl font-bold tracking-[0.3em] text-[#10B981]">
-                    {group.inviteCode ?? '------'}
+          {group.type !== 'PERSONAL' &&
+            !(group.type === 'COUPLE' && group.members.length >= 2) && (
+              <Animated.View style={style3}>
+                <View className="mt-4 flex-row items-center justify-between px-1">
+                  <Text className="text-[13px] font-semibold uppercase tracking-wider text-[#64748B]">
+                    Código invitación
                   </Text>
                 </View>
 
-                <Pressable
-                  onPress={handleCopyCode}
-                  className="mt-3 w-full flex-row items-center justify-center gap-2 rounded-xl bg-[#10B981] py-4 active:opacity-80"
+                <View
+                  className="mt-2 rounded-2xl border border-[#E2E8F0] bg-white p-5"
+                  style={{
+                    shadowColor: '#0F172A',
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.05,
+                    shadowRadius: 12,
+                    elevation: 2,
+                  }}
                 >
-                  <FontAwesome6
-                    name={copied ? 'circle-check' : 'copy'}
-                    size={16}
-                    color="#FFFFFF"
-                  />
-                  <Text className="text-base font-semibold text-white">
-                    {copied ? '¡Copiado!' : 'Copiar código'}
+                  <Text className="mb-2 text-center text-sm text-[#64748B]">
+                    Comparte este código para que otros se unan
                   </Text>
-                </Pressable>
 
-                <View className="mt-3 flex-row items-center justify-center">
-                  <Pressable className="flex-row items-center gap-1 active:opacity-80">
-                    <FontAwesome6 name="qrcode" size={16} color="#006c49" />
-                    <Text className="text-sm font-semibold text-[#006c49]">
-                      Ver código QR
+                  <View className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-3">
+                    <Text className="text-center text-2xl font-bold tracking-[0.3em] text-[#10B981]">
+                      {group.inviteCode ?? '------'}
+                    </Text>
+                  </View>
+
+                  <Pressable
+                    onPress={handleCopyCode}
+                    className="mt-3 w-full flex-row items-center justify-center gap-2 rounded-xl bg-[#10B981] py-4 active:opacity-80"
+                  >
+                    <FontAwesome6
+                      name={copied ? 'circle-check' : 'copy'}
+                      size={16}
+                      color="#FFFFFF"
+                    />
+                    <Text className="text-base font-semibold text-white">
+                      {copied ? '¡Copiado!' : 'Copiar código'}
                     </Text>
                   </Pressable>
+
+                  <View className="mt-3 flex-row items-center justify-center">
+                    <Pressable className="flex-row items-center gap-1 active:opacity-80">
+                      <FontAwesome6 name="qrcode" size={16} color="#006c49" />
+                      <Text className="text-sm font-semibold text-[#006c49]">
+                        Ver código QR
+                      </Text>
+                    </Pressable>
+                  </View>
                 </View>
-              </View>
-            </Animated.View>
-          )}
+              </Animated.View>
+            )}
 
           {/* Notificaciones */}
           <Animated.View style={style4}>
@@ -939,44 +962,54 @@ export default function ConfiguracionGrupoScreen() {
         }
       >
         <View className="flex-1 px-5 pt-4">
-          <View className="items-center justify-center mb-6">
-            <Text className="text-sm font-medium text-[#64748B] mb-4">
+          <View className="mb-6 items-center justify-center">
+            <Text className="mb-4 text-sm font-medium text-[#64748B]">
               Selecciona el día del mes
             </Text>
-            
-            <View className="w-full flex-row items-center justify-between rounded-3xl bg-[#F8FAFC] py-4 px-2 border border-[#E2E8F0]">
-              <Pressable 
-                onPress={() => setCutoffDayValue(p => p > 1 ? p - 1 : 31)}
-                className="h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm border border-[#E2E8F0] active:bg-gray-100"
+
+            <View className="w-full flex-row items-center justify-between rounded-3xl border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-4">
+              <Pressable
+                onPress={() => setCutoffDayValue((p) => (p > 1 ? p - 1 : 31))}
+                className="h-12 w-12 items-center justify-center rounded-full border border-[#E2E8F0] bg-white shadow-sm active:bg-gray-100"
               >
                 <FontAwesome6 name="chevron-left" size={16} color="#0F172A" />
               </Pressable>
-              
-              <View className="flex-row items-center justify-center flex-1">
+
+              <View className="flex-1 flex-row items-center justify-center">
                 {[
-                  cutoffDayValue - 2 < 1 ? cutoffDayValue - 2 + 31 : cutoffDayValue - 2,
-                  cutoffDayValue - 1 < 1 ? cutoffDayValue - 1 + 31 : cutoffDayValue - 1,
+                  cutoffDayValue - 2 < 1
+                    ? cutoffDayValue - 2 + 31
+                    : cutoffDayValue - 2,
+                  cutoffDayValue - 1 < 1
+                    ? cutoffDayValue - 1 + 31
+                    : cutoffDayValue - 1,
                   cutoffDayValue,
-                  cutoffDayValue + 1 > 31 ? cutoffDayValue + 1 - 31 : cutoffDayValue + 1,
-                  cutoffDayValue + 2 > 31 ? cutoffDayValue + 2 - 31 : cutoffDayValue + 2,
+                  cutoffDayValue + 1 > 31
+                    ? cutoffDayValue + 1 - 31
+                    : cutoffDayValue + 1,
+                  cutoffDayValue + 2 > 31
+                    ? cutoffDayValue + 2 - 31
+                    : cutoffDayValue + 2,
                 ].map((day, i) => {
                   const isCenter = i === 2;
                   const isAdjacent = i === 1 || i === 3;
                   return (
-                    <View 
-                      key={`${day}-${i}`} 
-                      className={`items-center justify-center mx-1 ${
-                        isCenter 
-                          ? 'w-16 h-16 rounded-full bg-[#10B981] shadow-sm' 
-                          : isAdjacent ? 'w-10' : 'w-8'
+                    <View
+                      key={`${day}-${i}`}
+                      className={`mx-1 items-center justify-center ${
+                        isCenter
+                          ? 'h-16 w-16 rounded-full bg-[#10B981] shadow-sm'
+                          : isAdjacent
+                            ? 'w-10'
+                            : 'w-8'
                       }`}
                     >
-                      <Text 
+                      <Text
                         className={`font-bold ${
-                          isCenter 
-                            ? 'text-2xl text-white' 
-                            : isAdjacent 
-                              ? 'text-lg text-[#94A3B8]' 
+                          isCenter
+                            ? 'text-2xl text-white'
+                            : isAdjacent
+                              ? 'text-lg text-[#94A3B8]'
                               : 'text-sm text-[#CBD5E1]'
                         }`}
                       >
@@ -986,10 +1019,10 @@ export default function ConfiguracionGrupoScreen() {
                   );
                 })}
               </View>
-              
-              <Pressable 
-                onPress={() => setCutoffDayValue(p => p < 31 ? p + 1 : 1)}
-                className="h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm border border-[#E2E8F0] active:bg-gray-100"
+
+              <Pressable
+                onPress={() => setCutoffDayValue((p) => (p < 31 ? p + 1 : 1))}
+                className="h-12 w-12 items-center justify-center rounded-full border border-[#E2E8F0] bg-white shadow-sm active:bg-gray-100"
               >
                 <FontAwesome6 name="chevron-right" size={16} color="#0F172A" />
               </Pressable>

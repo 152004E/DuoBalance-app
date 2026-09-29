@@ -367,9 +367,7 @@ export function HeroSection(props: HeroSectionProps) {
               >
                 <View
                   className={`mt-1 rounded-full px-5 py-1.5 ${
-                    props.direction === 'I_OWE'
-                      ? 'bg-red-100'
-                      : 'bg-green-200'
+                    props.direction === 'I_OWE' ? 'bg-red-100' : 'bg-green-200'
                   }`}
                 >
                   <Text
@@ -401,7 +399,7 @@ export function HeroSection(props: HeroSectionProps) {
           </>
         ) : (
           <>
-            <View className="flex-row items-center justify-between w-full">
+            <View className="w-full flex-row items-center justify-between">
               <View className="flex-row items-center gap-2">
                 <Image
                   source={require('@/assets/images/logo-white-green-bg-without.png')}

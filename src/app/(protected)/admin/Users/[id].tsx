@@ -1,6 +1,13 @@
 import { getUserDisplayName } from '@/utils/user';
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, ScrollView, Pressable, ActivityIndicator, Modal } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  Pressable,
+  ActivityIndicator,
+  Modal,
+} from 'react-native';
 import { useLocalSearchParams, router, useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome6 } from '@expo/vector-icons';
@@ -77,7 +84,7 @@ export default function AdminUserDetailScreen() {
   useFocusEffect(
     useCallback(() => {
       loadData();
-    }, [loadData])
+    }, [loadData]),
   );
 
   const handleToggleSuspend = async () => {
@@ -91,7 +98,7 @@ export default function AdminUserDetailScreen() {
               ...prev,
               user: { ...prev.user, isActive: result.isActive },
             }
-          : prev
+          : prev,
       );
       setConfirmSuspend(false);
     } catch (error) {
@@ -179,23 +186,28 @@ export default function AdminUserDetailScreen() {
                 />
               </View>
               <View className="flex-1">
-                <Text className="text-xl font-bold text-[#0F172A]" numberOfLines={1}>
+                <Text
+                  className="text-xl font-bold text-[#0F172A]"
+                  numberOfLines={1}
+                >
                   {getUserDisplayName(user)} {user.lastName}
                 </Text>
-                <Text className="text-sm text-[#64748B] mb-1" numberOfLines={1}>
+                <Text className="mb-1 text-sm text-[#64748B]" numberOfLines={1}>
                   {user.email}
                 </Text>
-                <View className="flex-row gap-2 flex-wrap mt-1">
+                <View className="mt-1 flex-row flex-wrap gap-2">
                   {user.role === 'SUPER_ADMIN' && (
-                    <View className="rounded bg-[#FEF3C7] px-2 py-0.5 border border-[#FDE68A]">
-                      <Text className="text-[10px] font-bold text-[#D97706]">SUPER ADMIN</Text>
+                    <View className="rounded border border-[#FDE68A] bg-[#FEF3C7] px-2 py-0.5">
+                      <Text className="text-[10px] font-bold text-[#D97706]">
+                        SUPER ADMIN
+                      </Text>
                     </View>
                   )}
                   <View
-                    className={`rounded px-2 py-0.5 border ${
+                    className={`rounded border px-2 py-0.5 ${
                       user.isActive
-                        ? 'bg-[#ECFDF5] border-[#A7F3D0]'
-                        : 'bg-[#FEF2F2] border-[#FECACA]'
+                        ? 'border-[#A7F3D0] bg-[#ECFDF5]'
+                        : 'border-[#FECACA] bg-[#FEF2F2]'
                     }`}
                   >
                     <Text
@@ -207,15 +219,17 @@ export default function AdminUserDetailScreen() {
                     </Text>
                   </View>
                   {user.emailVerifiedAt && (
-                    <View className="rounded bg-[#EFF6FF] px-2 py-0.5 border border-[#BFDBFE]">
-                      <Text className="text-[10px] font-bold text-[#2563EB]">VERIFICADO</Text>
+                    <View className="rounded border border-[#BFDBFE] bg-[#EFF6FF] px-2 py-0.5">
+                      <Text className="text-[10px] font-bold text-[#2563EB]">
+                        VERIFICADO
+                      </Text>
                     </View>
                   )}
                 </View>
               </View>
             </View>
-            
-            <View className="mt-4 pt-4 border-t border-[#F1F5F9] flex-row justify-between items-center">
+
+            <View className="mt-4 flex-row items-center justify-between border-t border-[#F1F5F9] pt-4">
               <Text className="text-xs text-[#94A3B8]">Registrado el:</Text>
               <Text className="text-xs font-medium text-[#475569]">
                 {new Date(user.createdAt).toLocaleDateString()}
@@ -224,35 +238,64 @@ export default function AdminUserDetailScreen() {
           </View>
 
           {/* Estadísticas */}
-          <Text className="mt-8 mb-3 ml-1 text-sm font-bold uppercase tracking-wider text-[#64748B]">
+          <Text className="mb-3 ml-1 mt-8 text-sm font-bold uppercase tracking-wider text-[#64748B]">
             Métricas de Actividad
           </Text>
           <View className="flex-row gap-3">
-            <View className="flex-1 rounded-2xl bg-white p-4 shadow-sm items-center">
-              <FontAwesome6 name="users" size={20} color="#3B82F6" className="mb-2" />
-              <Text className="text-2xl font-bold text-[#0F172A]">{stats.totalGroupsCount}</Text>
-              <Text className="text-xs text-[#64748B] text-center mt-1">Grupos</Text>
+            <View className="flex-1 items-center rounded-2xl bg-white p-4 shadow-sm">
+              <FontAwesome6
+                name="users"
+                size={20}
+                color="#3B82F6"
+                className="mb-2"
+              />
+              <Text className="text-2xl font-bold text-[#0F172A]">
+                {stats.totalGroupsCount}
+              </Text>
+              <Text className="mt-1 text-center text-xs text-[#64748B]">
+                Grupos
+              </Text>
             </View>
-            <View className="flex-1 rounded-2xl bg-white p-4 shadow-sm items-center">
-              <FontAwesome6 name="money-bill-wave" size={20} color="#10B981" className="mb-2" />
-              <Text className="text-2xl font-bold text-[#0F172A]">{stats.totalExpensesCount}</Text>
-              <Text className="text-xs text-[#64748B] text-center mt-1">Gastos Creados</Text>
+            <View className="flex-1 items-center rounded-2xl bg-white p-4 shadow-sm">
+              <FontAwesome6
+                name="money-bill-wave"
+                size={20}
+                color="#10B981"
+                className="mb-2"
+              />
+              <Text className="text-2xl font-bold text-[#0F172A]">
+                {stats.totalExpensesCount}
+              </Text>
+              <Text className="mt-1 text-center text-xs text-[#64748B]">
+                Gastos Creados
+              </Text>
             </View>
-            <View className="flex-1 rounded-2xl bg-white p-4 shadow-sm items-center">
-              <FontAwesome6 name="hand-holding-dollar" size={20} color="#8B5CF6" className="mb-2" />
-              <Text className="text-2xl font-bold text-[#0F172A]">{stats.totalPaymentsCount}</Text>
-              <Text className="text-xs text-[#64748B] text-center mt-1">Pagos Hechos</Text>
+            <View className="flex-1 items-center rounded-2xl bg-white p-4 shadow-sm">
+              <FontAwesome6
+                name="hand-holding-dollar"
+                size={20}
+                color="#8B5CF6"
+                className="mb-2"
+              />
+              <Text className="text-2xl font-bold text-[#0F172A]">
+                {stats.totalPaymentsCount}
+              </Text>
+              <Text className="mt-1 text-center text-xs text-[#64748B]">
+                Pagos Hechos
+              </Text>
             </View>
           </View>
 
           {/* Grupos Asociados */}
-          <Text className="mt-8 mb-3 ml-1 text-sm font-bold uppercase tracking-wider text-[#64748B]">
+          <Text className="mb-3 ml-1 mt-8 text-sm font-bold uppercase tracking-wider text-[#64748B]">
             Grupos Asociados ({groups.length})
           </Text>
-          <View className="rounded-2xl bg-white shadow-sm overflow-hidden">
+          <View className="overflow-hidden rounded-2xl bg-white shadow-sm">
             {groups.length === 0 ? (
-              <View className="p-6 items-center">
-                <Text className="text-sm text-[#94A3B8]">Este usuario no pertenece a ningún grupo.</Text>
+              <View className="items-center p-6">
+                <Text className="text-sm text-[#94A3B8]">
+                  Este usuario no pertenece a ningún grupo.
+                </Text>
               </View>
             ) : (
               groups.map((group, index) => (
@@ -265,13 +308,18 @@ export default function AdminUserDetailScreen() {
                   <View className="flex-1 flex-row items-center gap-3">
                     <View className="h-10 w-10 items-center justify-center rounded-full bg-[#F1F5F9]">
                       <FontAwesome6
-                        name={group.type === 'COUPLE' ? 'heart' : 'people-group'}
+                        name={
+                          group.type === 'COUPLE' ? 'heart' : 'people-group'
+                        }
                         size={14}
                         color="#64748B"
                       />
                     </View>
                     <View className="flex-1">
-                      <Text className="text-sm font-bold text-[#0F172A]" numberOfLines={1}>
+                      <Text
+                        className="text-sm font-bold text-[#0F172A]"
+                        numberOfLines={1}
+                      >
                         {group.name}
                       </Text>
                       <Text className="text-xs text-[#64748B]">
@@ -286,7 +334,9 @@ export default function AdminUserDetailScreen() {
                   >
                     <Text
                       className={`text-[10px] font-bold ${
-                        group.role === 'OWNER' ? 'text-[#D97706]' : 'text-[#64748B]'
+                        group.role === 'OWNER'
+                          ? 'text-[#D97706]'
+                          : 'text-[#64748B]'
                       }`}
                     >
                       {group.role === 'OWNER' ? 'DUEÑO' : 'MIEMBRO'}
@@ -300,15 +350,14 @@ export default function AdminUserDetailScreen() {
           {/* Acciones */}
           {!isMe && user.role !== 'SUPER_ADMIN' && (
             <>
-              <Text className="mt-8 mb-3 ml-1 text-sm font-bold uppercase tracking-wider text-[#EF4444]">
+              <Text className="mb-3 ml-1 mt-8 text-sm font-bold uppercase tracking-wider text-[#EF4444]">
                 Zona de Peligro
               </Text>
               <View className="rounded-2xl border border-[#FCA5A5]/40 bg-[#FEF2F2]/60 p-4 shadow-sm">
-                
                 {/* Suspender */}
                 <Pressable
                   onPress={() => setConfirmSuspend(true)}
-                  className={`flex-row items-center justify-center gap-2 rounded-xl py-3.5 mb-3 ${
+                  className={`mb-3 flex-row items-center justify-center gap-2 rounded-xl py-3.5 ${
                     user.isActive ? 'bg-[#F59E0B]' : 'bg-[#10B981]'
                   } active:opacity-80`}
                 >
@@ -322,25 +371,26 @@ export default function AdminUserDetailScreen() {
                   </Text>
                 </Pressable>
 
-                <Text className="text-xs text-[#7F1D1D] mb-4 text-center px-2">
+                <Text className="mb-4 px-2 text-center text-xs text-[#7F1D1D]">
                   Suspender previene el acceso, pero conserva sus datos.
                 </Text>
 
-                <View className="h-px bg-[#FCA5A5]/40 mb-4" />
+                <View className="mb-4 h-px bg-[#FCA5A5]/40" />
 
                 {/* Eliminar */}
                 <Pressable
                   onPress={() => setConfirmDelete(true)}
-                  className="flex-row items-center justify-center gap-2 rounded-xl py-3.5 bg-[#EF4444] active:bg-[#DC2626]"
+                  className="flex-row items-center justify-center gap-2 rounded-xl bg-[#EF4444] py-3.5 active:bg-[#DC2626]"
                 >
                   <FontAwesome6 name="trash-can" size={16} color="#FFFFFF" />
                   <Text className="text-sm font-bold text-white">
                     Eliminar Permanentemente
                   </Text>
                 </Pressable>
-                
-                <Text className="text-xs text-[#7F1D1D] mt-3 text-center px-2 leading-tight">
-                  La eliminación es irreversible. Sus gastos se conservarán anonimizados para no afectar grupos activos.
+
+                <Text className="mt-3 px-2 text-center text-xs leading-tight text-[#7F1D1D]">
+                  La eliminación es irreversible. Sus gastos se conservarán
+                  anonimizados para no afectar grupos activos.
                 </Text>
               </View>
             </>
@@ -370,7 +420,8 @@ export default function AdminUserDetailScreen() {
               {user.isActive ? 'Suspender Usuario' : 'Restaurar Usuario'}
             </Text>
             <Text className="mb-6 text-center text-base text-[#64748B]">
-              ¿Estás seguro de que deseas {user.isActive ? 'suspender' : 'restaurar'} a {user.email}?
+              ¿Estás seguro de que deseas{' '}
+              {user.isActive ? 'suspender' : 'restaurar'} a {user.email}?
             </Text>
             <View className="flex-row gap-3">
               <Pressable
@@ -378,7 +429,9 @@ export default function AdminUserDetailScreen() {
                 disabled={isProcessing}
                 className="flex-1 rounded-xl bg-[#F1F5F9] py-3.5 active:bg-[#E2E8F0]"
               >
-                <Text className="text-center text-base font-semibold text-[#475569]">Cancelar</Text>
+                <Text className="text-center text-base font-semibold text-[#475569]">
+                  Cancelar
+                </Text>
               </Pressable>
               <Pressable
                 onPress={handleToggleSuspend}
@@ -401,16 +454,26 @@ export default function AdminUserDetailScreen() {
         <View className="absolute inset-0 z-50 items-center justify-center bg-black/60 p-4">
           <View className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-xl">
             <View className="mb-4 h-14 w-14 items-center justify-center self-center rounded-full bg-[#FEE2E2]">
-              <FontAwesome6 name="triangle-exclamation" size={24} color="#EF4444" />
+              <FontAwesome6
+                name="triangle-exclamation"
+                size={24}
+                color="#EF4444"
+              />
             </View>
             <Text className="mb-2 text-center text-xl font-bold text-[#0F172A]">
               Eliminar Usuario
             </Text>
-            <Text className="mb-4 text-center text-sm text-[#64748B] leading-tight">
-              ¿Estás completamente seguro? Esta acción <Text className="font-bold text-[#0F172A]">NO se puede deshacer</Text>.
+            <Text className="mb-4 text-center text-sm leading-tight text-[#64748B]">
+              ¿Estás completamente seguro? Esta acción{' '}
+              <Text className="font-bold text-[#0F172A]">
+                NO se puede deshacer
+              </Text>
+              .
             </Text>
-            <Text className="mb-6 text-center text-xs text-[#EF4444] leading-tight bg-[#FEF2F2] p-2 rounded-lg border border-[#FCA5A5]">
-              El usuario perderá todo acceso y será anonimizado en sus grupos actuales. Si es el único dueño de un grupo con más miembros, no podrá ser eliminado.
+            <Text className="mb-6 rounded-lg border border-[#FCA5A5] bg-[#FEF2F2] p-2 text-center text-xs leading-tight text-[#EF4444]">
+              El usuario perderá todo acceso y será anonimizado en sus grupos
+              actuales. Si es el único dueño de un grupo con más miembros, no
+              podrá ser eliminado.
             </Text>
             <View className="flex-row gap-3">
               <Pressable
@@ -418,12 +481,14 @@ export default function AdminUserDetailScreen() {
                 disabled={isProcessing}
                 className="flex-1 rounded-xl border border-[#CBD5E1] bg-white py-3.5 active:bg-[#F8FAFC]"
               >
-                <Text className="text-center text-base font-semibold text-[#475569]">Cancelar</Text>
+                <Text className="text-center text-base font-semibold text-[#475569]">
+                  Cancelar
+                </Text>
               </Pressable>
               <Pressable
                 onPress={handleDelete}
                 disabled={isProcessing}
-                className="flex-1 rounded-xl py-3.5 bg-[#EF4444] active:bg-[#DC2626]"
+                className="flex-1 rounded-xl bg-[#EF4444] py-3.5 active:bg-[#DC2626]"
               >
                 <Text className="text-center text-base font-semibold text-white">
                   {isProcessing ? 'Eliminando...' : 'Sí, Eliminar'}

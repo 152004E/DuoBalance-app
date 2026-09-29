@@ -234,7 +234,9 @@ export default function RegisterScreen() {
                   />
                   <Text
                     className={`text-xs ${
-                      hasMinLength ? 'font-medium text-[#10B981]' : 'text-[#64748B]'
+                      hasMinLength
+                        ? 'font-medium text-[#10B981]'
+                        : 'text-[#64748B]'
                     }`}
                   >
                     Mínimo 8 caracteres
@@ -276,7 +278,9 @@ export default function RegisterScreen() {
                   />
                   <Text
                     className={`text-xs ${
-                      hasNumber ? 'font-medium text-[#10B981]' : 'text-[#64748B]'
+                      hasNumber
+                        ? 'font-medium text-[#10B981]'
+                        : 'text-[#64748B]'
                     }`}
                   >
                     Al menos un número (0-9)
@@ -290,7 +294,9 @@ export default function RegisterScreen() {
                   />
                   <Text
                     className={`text-xs ${
-                      hasSpecial ? 'font-medium text-[#10B981]' : 'text-[#64748B]'
+                      hasSpecial
+                        ? 'font-medium text-[#10B981]'
+                        : 'text-[#64748B]'
                     }`}
                   >
                     Al menos un carácter especial (!@#$%...)
@@ -323,7 +329,7 @@ export default function RegisterScreen() {
             </Text>
           )}
 
-          <Text className="text-center text-xs text-[#64748B] mt-2 mb-1 px-2">
+          <Text className="mb-1 mt-2 px-2 text-center text-xs text-[#64748B]">
             Al crear una cuenta, aceptas nuestros{' '}
             <Text
               className="font-bold text-[#10B981]"

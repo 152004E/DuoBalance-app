@@ -14,12 +14,19 @@ export const adminService = {
     return response.data;
   },
 
-  getUsers: async (): Promise<(UserBrief & { createdAt: string; _count: { members: number; expenses: number } })[]> => {
+  getUsers: async (): Promise<
+    (UserBrief & {
+      createdAt: string;
+      _count: { members: number; expenses: number };
+    })[]
+  > => {
     const response = await api.get('/admin/users');
     return response.data;
   },
 
-  toggleUserSuspension: async (userId: string): Promise<{ id: string; email: string; isActive: boolean }> => {
+  toggleUserSuspension: async (
+    userId: string,
+  ): Promise<{ id: string; email: string; isActive: boolean }> => {
     const response = await api.patch(`/admin/users/${userId}/toggle-suspend`);
     return response.data;
   },

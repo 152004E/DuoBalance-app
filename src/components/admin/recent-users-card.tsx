@@ -47,9 +47,7 @@ export function RecentUsersCard({
     >
       {/* Header */}
       <View className="flex-row items-center justify-between border-b border-[#E2E8F0] px-5 py-4">
-        <Text className="text-[17px] font-bold text-[#0F172A]">
-          {title}
-        </Text>
+        <Text className="text-[17px] font-bold text-[#0F172A]">{title}</Text>
         {onViewAll && (
           <Pressable onPress={onViewAll} className="active:opacity-70">
             <Text className="text-sm font-semibold text-[#006c49]">

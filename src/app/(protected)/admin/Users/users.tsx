@@ -1,16 +1,24 @@
 import { getUserDisplayName } from '@/utils/user';
 import React, { useEffect, useState } from 'react';
-import { View, ScrollView, ActivityIndicator } from 'react-native';
+import {
+  View,
+  ScrollView,
+  ActivityIndicator,
+  Pressable,
+  Text,
+} from 'react-native';
 import { router } from 'expo-router';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { HeroSection } from '@/components/layout/HeroSection';
-import { RecentUsersCard, AdminUserItem } from '@/components/admin/recent-users-card';
+import {
+  RecentUsersCard,
+  AdminUserItem,
+} from '@/components/admin/recent-users-card';
 import { LoadMoreButton } from '@/components/ui/load-more-button';
 import { adminService } from '@/services/api/admin';
 import { useAuth } from '@/hooks/use-auth';
 import { AlertModal } from '@/components/ui/alert-modal';
-import { Pressable, Text } from 'react-native';
 
 export default function AdminUsersScreen() {
   const { user } = useAuth();
@@ -103,7 +111,12 @@ export default function AdminUsersScreen() {
             maxItems={visibleCount}
             onViewAll={() => router.push('/admin/Users/todos-usuarios')}
             onToggleSuspension={requestToggleSuspension}
-            onUserPress={(u) => router.push({ pathname: '/admin/Users/[id]', params: { id: u.id } } as any)}
+            onUserPress={(u) =>
+              router.push({
+                pathname: '/admin/Users/[id]',
+                params: { id: u.id },
+              } as any)
+            }
             currentUserId={user?.id}
           />
 

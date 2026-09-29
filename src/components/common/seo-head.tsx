@@ -11,8 +11,7 @@ interface SeoHeadProps {
   noIndex?: boolean;
 }
 
-const DEFAULT_TITLE =
-  'DuoBalance — Finanzas Compartidas para Parejas y Grupos';
+const DEFAULT_TITLE = 'DuoBalance — Finanzas Compartidas para Parejas y Grupos';
 const DEFAULT_DESCRIPTION =
   'Gestiona y divide los gastos de pareja y grupos fácilmente. Balances transparentes en tiempo real, liquidación de saldos y control financiero sin estrés.';
 const DEFAULT_KEYWORDS =

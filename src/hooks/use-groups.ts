@@ -14,7 +14,12 @@ interface UseGroupsReturn {
 }
 
 export function useGroups(): UseGroupsReturn {
-  const { data: groups = [], isLoading, error, refetch } = useQuery({
+  const {
+    data: groups = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: ['groups'],
     queryFn: getMyGroups,
   });

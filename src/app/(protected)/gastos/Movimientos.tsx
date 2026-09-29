@@ -133,7 +133,7 @@ export default function MovimientosScreen() {
 
     return allExpenses.filter((e) => {
       if (!filteredGroupIds.has(e.groupId)) return false;
-      
+
       const isGlobalView = workspace.category === 'all' && !workspace.groupId;
       if (isGlobalView && (e.linkedExpenseId || e.linkedPaymentId)) {
         return false;
@@ -145,7 +145,14 @@ export default function MovimientosScreen() {
       if (periodStart && new Date(e.createdAt) < periodStart) return false;
       return true;
     });
-  }, [allExpenses, filteredGroupIds, query, selectedPeriod, selectedCategory, workspace]);
+  }, [
+    allExpenses,
+    filteredGroupIds,
+    query,
+    selectedPeriod,
+    selectedCategory,
+    workspace,
+  ]);
 
   const recentExpenses = filteredExpenses.map((e) =>
     expenseToRecent(e, user?.id ?? ''),

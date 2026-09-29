@@ -11,7 +11,8 @@ interface AppToastProps {
 
 /** Toast custom: arriba a la derecha, con variantes success (verde), error (rojo) y warning (ámbar). */
 function AppToast({ text1, text2, onPress, type }: AppToastProps) {
-  const bg = type === 'success' ? '#065238' : type === 'error' ? '#7F1D1D' : '#7C2D12';
+  const bg =
+    type === 'success' ? '#065238' : type === 'error' ? '#7F1D1D' : '#7C2D12';
   const icon =
     type === 'success'
       ? 'circle-check'
