@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { getUserDisplayName } from '@/utils/user';
 import { useCallback, useState, useRef, useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
+import { PullToRefresh } from '@/components/ui/PullToRefresh';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useScrollToTop, router, Redirect } from 'expo-router';
 import { useAuth } from '@/hooks/use-auth';
@@ -84,6 +85,13 @@ export default function DashboardScreen() {
     groups,
     userId: user?.id,
   });
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await queryClient.invalidateQueries();
+    setRefreshing(false);
+  }, [queryClient]);
+
   const [focusCount, setFocusCount] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
@@ -201,6 +209,14 @@ export default function DashboardScreen() {
         className="flex-1"
         contentContainerClassName="pb-8"
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <PullToRefresh
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#10B981"
+            colors={['#10B981']}
+          />
+        }
       >
         <HeroSection
           key={focusCount}

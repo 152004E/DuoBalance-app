@@ -3,3 +3,5 @@ packages:
 nodeLinker: hoisted
 allowBuilds:
   unrs-resolver: true
+patchedDependencies:
+  react-native-web-refresh-control@1.1.2: patches/react-native-web-refresh-control@1.1.2.patch

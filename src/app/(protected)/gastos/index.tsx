@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { getUserDisplayName } from '@/utils/user';
 import { useCallback, useState, useRef, useEffect, useMemo } from 'react';
 import { View, Text, ScrollView } from 'react-native';
+import { PullToRefresh } from '@/components/ui/PullToRefresh';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect, useScrollToTop } from 'expo-router';
 import { HeroSection } from '@/components/layout/HeroSection';
@@ -53,6 +54,13 @@ export default function GastosScreen() {
   const { groups, personalGroups, coupleGroups, sharedGroups } = useGroups();
   const { summaries } = useGroupSummaries(groups);
   const [focusCount, setFocusCount] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await queryClient.invalidateQueries();
+    setRefreshing(false);
+  }, [queryClient]);
+
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
   const { workspace, setWorkspace } = useWorkspace();
@@ -164,6 +172,14 @@ export default function GastosScreen() {
         className="flex-1"
         contentContainerClassName="pb-32"
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <PullToRefresh
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#10B981"
+            colors={['#10B981']}
+          />
+        }
       >
         <HeroSection
           key={focusCount}
