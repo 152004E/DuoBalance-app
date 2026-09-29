@@ -51,7 +51,11 @@ export function useSettlementSuggestions({
     return map;
   }, [groups]);
 
-  const { data: dues = [], isLoading, refetch } = useQuery({
+  const {
+    data: dues = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ['settlement-suggestions', groupIdsKey, userId],
     queryFn: async () => {
       const results = await Promise.all(

@@ -1,5 +1,9 @@
 export function getUserDisplayName(
-  user?: { firstName?: string; nickname?: string | null; useNickname?: boolean } | null
+  user?: {
+    firstName?: string;
+    nickname?: string | null;
+    useNickname?: boolean;
+  } | null,
 ): string {
   if (!user) return 'Usuario';
   if (user.useNickname && user.nickname && user.nickname.trim() !== '') {
@@ -9,7 +13,12 @@ export function getUserDisplayName(
 }
 
 export function getUserFullName(
-  user?: { firstName?: string; lastName?: string; nickname?: string | null; useNickname?: boolean } | null
+  user?: {
+    firstName?: string;
+    lastName?: string;
+    nickname?: string | null;
+    useNickname?: boolean;
+  } | null,
 ): string {
   if (!user) return 'Usuario';
   if (user.useNickname && user.nickname && user.nickname.trim() !== '') {
@@ -19,7 +28,12 @@ export function getUserFullName(
 }
 
 export function getUserInitials(
-  user?: { firstName?: string; lastName?: string; nickname?: string | null; useNickname?: boolean } | null
+  user?: {
+    firstName?: string;
+    lastName?: string;
+    nickname?: string | null;
+    useNickname?: boolean;
+  } | null,
 ): string {
   if (!user) return 'U';
   if (user.useNickname && user.nickname && user.nickname.trim() !== '') {

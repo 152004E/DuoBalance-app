@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, Switch, Pressable, Modal, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  Switch,
+  Pressable,
+  Modal,
+  Platform,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -15,7 +23,9 @@ import { changePassword, deleteAccount } from '@/services/api/auth';
 import { extractErrorMessage } from '@/utils/errors';
 
 function InstallPwaSection() {
-  const { isInstallable, isIosPrompt, promptInstall } = usePwaInstall({ ignoreDismissal: true });
+  const { isInstallable, isIosPrompt, promptInstall } = usePwaInstall({
+    ignoreDismissal: true,
+  });
 
   if (Platform.OS !== 'web') return null;
   if (!isInstallable && !isIosPrompt) return null;
@@ -29,21 +39,29 @@ function InstallPwaSection() {
         </Text>
       </View>
 
-      <View className="rounded-2xl bg-white p-4 shadow-sm border border-blue-100/50">
+      <View className="rounded-2xl border border-blue-100/50 bg-white p-4 shadow-sm">
         <Text className="mb-1 text-sm font-semibold text-[#0F172A]">
           Instalar DuoBalance
         </Text>
         <Text className="mb-3 text-xs text-[#64748B]">
-          Agrega DuoBalance a tu pantalla de inicio para una experiencia nativa, acceso rápido y notificaciones push.
+          Agrega DuoBalance a tu pantalla de inicio para una experiencia nativa,
+          acceso rápido y notificaciones push.
         </Text>
 
         {isIosPrompt ? (
-          <View className="rounded-xl bg-blue-50 p-3 mt-1">
+          <View className="mt-1 rounded-xl bg-blue-50 p-3">
             <Text className="text-sm font-medium text-blue-800">
               Para instalar en iOS:
             </Text>
-            <Text className="text-xs text-blue-700 mt-1">
-              Toca el botón <FontAwesome6 name="arrow-up-from-bracket" size={12} color="#1D4ED8" /> (Compartir) en la barra de Safari y selecciona <Text className="font-bold">"Agregar a Inicio"</Text>.
+            <Text className="mt-1 text-xs text-blue-700">
+              Toca el botón{' '}
+              <FontAwesome6
+                name="arrow-up-from-bracket"
+                size={12}
+                color="#1D4ED8"
+              />{' '}
+              (Compartir) en la barra de Safari y selecciona{' '}
+              <Text className="font-bold">"Agregar a Inicio"</Text>.
             </Text>
           </View>
         ) : (
@@ -379,7 +397,7 @@ export default function ConfiguracionScreen() {
                 </Text>
               </View>
               {Platform.OS === 'web' && (
-                <Pressable 
+                <Pressable
                   onPress={requestSubscription}
                   disabled={isSubscribing}
                   className="flex-row items-center gap-1.5 rounded-full bg-[#10B981]/10 px-3 py-1 active:bg-[#10B981]/20"
@@ -446,8 +464,7 @@ export default function ConfiguracionScreen() {
                 Moneda preferida
               </Text>
               <Text className="mb-3 text-xs text-[#64748B]">
-                Selecciona la divisa para visualizar tus balances y
-                movimientos
+                Selecciona la divisa para visualizar tus balances y movimientos
               </Text>
               <View className="flex-row gap-2">
                 {currencies.map((curr) => {
@@ -496,16 +513,26 @@ export default function ConfiguracionScreen() {
                 Sesión única
               </Text>
               <Text className="mb-3 text-xs text-[#64748B]">
-                Por seguridad, solo se permite mantener una sesión activa a la vez. Al iniciar sesión en otro dispositivo, este se desconectará automáticamente.
+                Por seguridad, solo se permite mantener una sesión activa a la
+                vez. Al iniciar sesión en otro dispositivo, este se desconectará
+                automáticamente.
               </Text>
               <View className="flex-row items-center justify-between rounded-xl border border-[#10B981]/20 bg-[#10B981]/5 px-3 py-3">
                 <View className="flex-row items-center gap-3">
                   <View className="h-8 w-8 items-center justify-center rounded-full bg-[#10B98126]">
-                    <FontAwesome6 name="mobile-screen" size={14} color="#10B981" />
+                    <FontAwesome6
+                      name="mobile-screen"
+                      size={14}
+                      color="#10B981"
+                    />
                   </View>
                   <View>
-                    <Text className="text-sm font-semibold text-[#0F172A]">Este dispositivo</Text>
-                    <Text className="text-[10px] text-[#10B981]">Sesión activa actual</Text>
+                    <Text className="text-sm font-semibold text-[#0F172A]">
+                      Este dispositivo
+                    </Text>
+                    <Text className="text-[10px] text-[#10B981]">
+                      Sesión activa actual
+                    </Text>
                   </View>
                 </View>
                 <View className="h-2 w-2 rounded-full bg-[#10B981] shadow-sm" />

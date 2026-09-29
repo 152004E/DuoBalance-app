@@ -29,14 +29,28 @@ export function NotificationBell() {
       userId: user?.id,
     });
 
-  const { data: inAppNotifications = [], unreadCount, markAsRead, refetch: refetchInApp } = useInAppNotifications();
+  const {
+    data: inAppNotifications = [],
+    unreadCount,
+    markAsRead,
+    refetch: refetchInApp,
+  } = useInAppNotifications();
   const { activeDuesCount, markDuesAsViewed } = useSnoozedDues(dues);
-  
-  const { pendingExpenses, refetch: refetchPendingExpenses, approve, reject } = usePendingExpenses(user?.id);
+
+  const {
+    pendingExpenses,
+    refetch: refetchPendingExpenses,
+    approve,
+    reject,
+  } = usePendingExpenses(user?.id);
 
   const [sheetVisible, setSheetVisible] = useState(false);
 
-  const pendingCount = activeDuesCount + incomingPayments.length + unreadCount + pendingExpenses.length;
+  const pendingCount =
+    activeDuesCount +
+    incomingPayments.length +
+    unreadCount +
+    pendingExpenses.length;
 
   const handleOpenSheet = useCallback(() => {
     // Refetch data when opening to ensure it's fresh
@@ -46,7 +60,13 @@ export function NotificationBell() {
     refetchPendingExpenses();
     markDuesAsViewed();
     setSheetVisible(true);
-  }, [refetchDues, refetchIncoming, refetchInApp, refetchPendingExpenses, markDuesAsViewed]);
+  }, [
+    refetchDues,
+    refetchIncoming,
+    refetchInApp,
+    refetchPendingExpenses,
+    markDuesAsViewed,
+  ]);
 
   return (
     <>
@@ -75,8 +95,12 @@ export function NotificationBell() {
         incomingPayments={incomingPayments}
         inAppNotifications={inAppNotifications}
         pendingExpenses={pendingExpenses}
-        onApproveExpense={async (id) => { await approve(id); }}
-        onRejectExpense={async (id) => { await reject(id); }}
+        onApproveExpense={async (id) => {
+          await approve(id);
+        }}
+        onRejectExpense={async (id) => {
+          await reject(id);
+        }}
         markAsRead={markAsRead}
       />
     </>

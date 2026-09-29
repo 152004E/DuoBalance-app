@@ -8,7 +8,10 @@ import { Loading } from '@/components/ui/loading';
 import { EmptyState } from '@/components/ui/empty-state';
 import { LoadMoreButton } from '@/components/ui/load-more-button';
 import { AlertModal } from '@/components/ui/alert-modal';
-import { RecentUsersCard, AdminUserItem } from '@/components/admin/recent-users-card';
+import {
+  RecentUsersCard,
+  AdminUserItem,
+} from '@/components/admin/recent-users-card';
 import { adminService } from '@/services/api/admin';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -44,7 +47,8 @@ export default function TodosUsuariosScreen() {
         })
         .catch((err) => {
           console.error(err);
-          if (active) setErrorModal('Error al cargar lista completa de usuarios');
+          if (active)
+            setErrorModal('Error al cargar lista completa de usuarios');
         })
         .finally(() => {
           if (active) setLoading(false);
@@ -117,7 +121,7 @@ export default function TodosUsuariosScreen() {
 
       {/* Buscador + Filtros rápidos */}
       <View className="px-5 pb-3 pt-4">
-        <View className="flex-row items-center rounded-full bg-white px-4 py-3 shadow-sm border border-[#E2E8F0]">
+        <View className="flex-row items-center rounded-full border border-[#E2E8F0] bg-white px-4 py-3 shadow-sm">
           <FontAwesome6 name="magnifying-glass" size={16} color="#94A3B8" />
           <TextInput
             placeholder="Buscar por nombre o correo..."
@@ -185,7 +189,12 @@ export default function TodosUsuariosScreen() {
             users={filteredUsers}
             maxItems={visibleCount}
             onToggleSuspension={requestToggleSuspension}
-            onUserPress={(u) => router.push({ pathname: '/admin/Users/[id]', params: { id: u.id } } as any)}
+            onUserPress={(u) =>
+              router.push({
+                pathname: '/admin/Users/[id]',
+                params: { id: u.id },
+              } as any)
+            }
             currentUserId={user?.id}
           />
 

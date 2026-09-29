@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { getUserDisplayName } from '@/utils/user';
 import { useCallback, useState, useRef, useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
+import { PullToRefresh } from '@/components/ui/PullToRefresh';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useScrollToTop, router, Redirect } from 'expo-router';
 import { useAuth } from '@/hooks/use-auth';
@@ -46,7 +47,13 @@ export default function DashboardScreen() {
     return <Redirect href="/admin" />;
   }
 
-  const { groups, personalGroups, coupleGroups, sharedGroups, refetch: refetchGroups } = useGroups();
+  const {
+    groups,
+    personalGroups,
+    coupleGroups,
+    sharedGroups,
+    refetch: refetchGroups,
+  } = useGroups();
   const { workspace, setWorkspace } = useWorkspace();
   const { summaries } = useGroupSummaries(groups);
   const {
@@ -78,6 +85,13 @@ export default function DashboardScreen() {
     groups,
     userId: user?.id,
   });
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await queryClient.invalidateQueries();
+    setRefreshing(false);
+  }, [queryClient]);
+
   const [focusCount, setFocusCount] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
@@ -116,34 +130,47 @@ export default function DashboardScreen() {
     }
   }, [workspace, groups, user?.id]);
 
-  const handleDestSelect = useCallback((group: GroupResponse) => {
-    setDestSelectorVisible(false);
-    const members = group.members.map((m) => ({
-      id: m.user.id,
-      name: m.user.id === user?.id ? 'Tú' : getUserDisplayName(m.user),
-    }));
-    setCreatingExpenseGroup({ group, members });
-  }, [user?.id]);
+  const handleDestSelect = useCallback(
+    (group: GroupResponse) => {
+      setDestSelectorVisible(false);
+      const members = group.members.map((m) => ({
+        id: m.user.id,
+        name: m.user.id === user?.id ? 'Tú' : getUserDisplayName(m.user),
+      }));
+      setCreatingExpenseGroup({ group, members });
+    },
+    [user?.id],
+  );
 
-  const handleJoinGroup = useCallback(async (code: string) => {
-    setIsJoining(true);
-    try {
-      await joinGroup({ inviteCode: code });
-      setShowJoinSheet(false);
-      await refetchGroups();
-      refetch();
-      Toast.show({ type: 'success', text1: '¡Te has unido!', text2: 'Ahora formas parte del grupo.' });
-    } catch (err: any) {
-      Toast.show({ type: 'error', text1: 'Error al unirse', text2: err.message || 'Intenta de nuevo' });
-    } finally {
-      setIsJoining(false);
-    }
-  }, [refetch, refetchGroups]);
+  const handleJoinGroup = useCallback(
+    async (code: string) => {
+      setIsJoining(true);
+      try {
+        await joinGroup({ inviteCode: code });
+        setShowJoinSheet(false);
+        await refetchGroups();
+        refetch();
+        Toast.show({
+          type: 'success',
+          text1: '¡Te has unido!',
+          text2: 'Ahora formas parte del grupo.',
+        });
+      } catch (err: any) {
+        Toast.show({
+          type: 'error',
+          text1: 'Error al unirse',
+          text2: err.message || 'Intenta de nuevo',
+        });
+      } finally {
+        setIsJoining(false);
+      }
+    },
+    [refetch, refetchGroups],
+  );
 
   const handleCloseCreateSheet = useCallback(() => {
     setCreatingExpenseGroup(null);
   }, []);
-
 
   // "Aportes del mes" solo aplica a parejas y grupos (comparación de quién pagó)
   const isPersonalMode =
@@ -159,8 +186,6 @@ export default function DashboardScreen() {
       refetchIncoming();
     }, [refetch, refetchSuggestions, refetchIncoming]),
   );
-
-
 
   useEffect(() => {
     if (incomingPayments.length === 0) return;
@@ -184,6 +209,14 @@ export default function DashboardScreen() {
         className="flex-1"
         contentContainerClassName="pb-8"
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <PullToRefresh
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#10B981"
+            colors={['#10B981']}
+          />
+        }
       >
         <HeroSection
           key={focusCount}
@@ -246,7 +279,7 @@ export default function DashboardScreen() {
         </View>
 
         <View className="mt-6 px-5">
-          <BudgetWidget 
+          <BudgetWidget
             onConfigurePress={() => setShowBudgetSheet(true)}
             onHistoryPress={() => router.push('/gastos/HistorialPresupuesto')}
           />
@@ -293,8 +326,7 @@ export default function DashboardScreen() {
         </View>
       </ScrollView>
 
-      
-      <DashboardActionMenu 
+      <DashboardActionMenu
         onCreateExpense={handleCreateExpense}
         onCreateGroup={() => setShowCreateGroupSheet(true)}
         onJoinGroup={() => setShowJoinSheet(true)}
@@ -342,7 +374,8 @@ export default function DashboardScreen() {
                   Toast.show({
                     type: 'warning',
                     text1: 'Gasto registrado',
-                    text2: 'El gasto se guardó, pero no se pudo subir el comprobante.',
+                    text2:
+                      'El gasto se guardó, pero no se pudo subir el comprobante.',
                   });
                   handleCloseCreateSheet();
                   refetch();

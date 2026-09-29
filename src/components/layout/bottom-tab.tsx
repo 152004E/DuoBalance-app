@@ -18,7 +18,13 @@ const ADMIN_TABS = [
   { name: 'perfil', label: 'Perfil', icon: 'user' },
 ];
 
-const NESTED_TABS = ['gastos', 'grupos', 'perfil', 'admin/Users/users', 'admin/reportes'];
+const NESTED_TABS = [
+  'gastos',
+  'grupos',
+  'perfil',
+  'admin/Users/users',
+  'admin/reportes',
+];
 
 export default function BottomTab({ state, navigation, insets }: any) {
   const { user } = useAuth();
@@ -41,7 +47,7 @@ export default function BottomTab({ state, navigation, insets }: any) {
         {activeTabs.map((tab, index) => {
           const route = state.routes.find((r: any) => r.name === tab.name);
           if (!route) return null;
-          
+
           const routeIndex = state.routes.indexOf(route);
           const isFocused = state.index === routeIndex;
           const color = isFocused ? '#10B981' : '#94A3B8';

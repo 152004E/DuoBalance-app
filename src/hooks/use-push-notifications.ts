@@ -50,12 +50,13 @@ export function usePushNotifications() {
       }
 
       // 2. Registrar el service worker si no existe
-      const registration = await navigator.serviceWorker.register('/service-worker.js');
+      const registration =
+        await navigator.serviceWorker.register('/service-worker.js');
       await navigator.serviceWorker.ready;
 
       // 3. Obtener suscripción existente o crear una nueva
       let subscription = await registration.pushManager.getSubscription();
-      
+
       // Manejo de suscripciones conflictivas en localhost
       if (subscription) {
         const currentKey = subscription.options.applicationServerKey;
@@ -68,7 +69,7 @@ export function usePushNotifications() {
 
       if (!subscription) {
         const vapidPublicKey = process.env.EXPO_PUBLIC_VAPID_KEY;
-        
+
         if (!vapidPublicKey) {
           throw new Error('No VAPID key found');
         }
@@ -87,26 +88,35 @@ export function usePushNotifications() {
         endpoint: subData.endpoint,
         keys: subData.keys,
       });
-      
+
       Toast.show({
         type: 'success',
         text1: 'Notificaciones activadas',
         text2: 'Recibirás alertas de nuevos gastos y pagos.',
       });
-      
+
       return subscription;
     } catch (error: any) {
-      console.error('Error al suscribir notificaciones:', error.response?.data || error);
-      
+      console.error(
+        'Error al suscribir notificaciones:',
+        error.response?.data || error,
+      );
+
       let errorTitle = 'No pudimos activarlas';
-      let errorMsg = 'Hubo un problema inesperado. Inténtalo de nuevo más tarde.';
-      
+      let errorMsg =
+        'Hubo un problema inesperado. Inténtalo de nuevo más tarde.';
+
       // Manejo controlado para navegadores que bloquean FCM (Brave, Incógnito, etc.)
-      if (error.name === 'AbortError' && error.message.includes('push service error')) {
+      if (
+        error.name === 'AbortError' &&
+        error.message.includes('push service error')
+      ) {
         errorTitle = 'Notificaciones bloqueadas';
-        errorMsg = 'Parece que navegas en privado o tu navegador bloquea este servicio. Revisa tus ajustes de privacidad.';
+        errorMsg =
+          'Parece que navegas en privado o tu navegador bloquea este servicio. Revisa tus ajustes de privacidad.';
       } else if (error.isAxiosError && error.response?.status === 400) {
-        errorMsg = 'Tuvimos un problema guardando tu configuración. Inténtalo en un momento.';
+        errorMsg =
+          'Tuvimos un problema guardando tu configuración. Inténtalo en un momento.';
       }
 
       Toast.show({

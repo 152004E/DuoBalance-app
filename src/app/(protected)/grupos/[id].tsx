@@ -94,7 +94,9 @@ export default function CoupleDetail() {
   const [regenerateSuccess, setRegenerateSuccess] = useState(false);
   const [paySheetVisible, setPaySheetVisible] = useState(false);
   const [payTargetAmount, setPayTargetAmount] = useState<number | null>(null);
-  const [payTargetType, setPayTargetType] = useState<'MONTHLY' | 'TOTAL' | null>(null);
+  const [payTargetType, setPayTargetType] = useState<
+    'MONTHLY' | 'TOTAL' | null
+  >(null);
   const [liquidacionesVisible, setLiquidacionesVisible] = useState(false);
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
   const [paymentFeedback, setPaymentFeedback] = useState<{
@@ -113,39 +115,51 @@ export default function CoupleDetail() {
     refetch: refetchPayments,
   } = useGroupPayments({ groupId: id, userId: user?.id });
 
-  const getSigned = (dir: string, amount: number) => 
-    dir === 'OWED_TO_ME' ? amount : (dir === 'I_OWE' ? -amount : 0);
+  const getSigned = (dir: string, amount: number) =>
+    dir === 'OWED_TO_ME' ? amount : dir === 'I_OWE' ? -amount : 0;
 
-  const totalSigned = settlement ? getSigned(settlement.settlementDirection, settlement.netSettlement) : 0;
-  const monthlySigned = monthlySettlement ? getSigned(monthlySettlement.settlementDirection, monthlySettlement.netSettlement) : 0;
+  const totalSigned = settlement
+    ? getSigned(settlement.settlementDirection, settlement.netSettlement)
+    : 0;
+  const monthlySigned = monthlySettlement
+    ? getSigned(
+        monthlySettlement.settlementDirection,
+        monthlySettlement.netSettlement,
+      )
+    : 0;
   const pastSigned = totalSigned - monthlySigned;
 
   const pastNetSettlement = Math.abs(pastSigned);
-  const pastSettlementDirection = pastSigned > 0 ? 'OWED_TO_ME' : (pastSigned < 0 ? 'I_OWE' : 'SETTLED');
+  const pastSettlementDirection =
+    pastSigned > 0 ? 'OWED_TO_ME' : pastSigned < 0 ? 'I_OWE' : 'SETTLED';
 
   const [isReminding, setIsReminding] = useState(false);
 
-  const handleRemind = useCallback(async (type: 'MONTHLY' | 'TOTAL') => {
-    if (isReminding) return;
-    setIsReminding(true);
-    try {
-      // Encontrar al otro miembro
-      const otherMember = group?.members.find((m) => m.user.id !== user?.id);
-      if (!otherMember) throw new Error('No se encontró al otro miembro');
-      
-      const res = await remindDebt(otherMember.user.id, type, id);
-      setPaymentFeedback({
-        title: 'Recordatorio enviado',
-        message: res.message,
-        type: 'success',
-      });
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Error al enviar recordatorio';
-      setPaymentFeedback({ title: 'Error', message, type: 'error' });
-    } finally {
-      setIsReminding(false);
-    }
-  }, [group, id, isReminding]);
+  const handleRemind = useCallback(
+    async (type: 'MONTHLY' | 'TOTAL') => {
+      if (isReminding) return;
+      setIsReminding(true);
+      try {
+        // Encontrar al otro miembro
+        const otherMember = group?.members.find((m) => m.user.id !== user?.id);
+        if (!otherMember) throw new Error('No se encontró al otro miembro');
+
+        const res = await remindDebt(otherMember.user.id, type, id);
+        setPaymentFeedback({
+          title: 'Recordatorio enviado',
+          message: res.message,
+          type: 'success',
+        });
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : 'Error al enviar recordatorio';
+        setPaymentFeedback({ title: 'Error', message, type: 'error' });
+      } finally {
+        setIsReminding(false);
+      }
+    },
+    [group, id, isReminding],
+  );
 
   useEffect(() => {
     if (liquidar === '1' && group && settlement) {
@@ -200,8 +214,11 @@ export default function CoupleDetail() {
   const subtitle = `${typeConfig.label} · ${groupType === 'PERSONAL' ? 'Solo tú' : groupType === 'COUPLE' ? '2 miembros' : `${memberCount} miembros`}`;
 
   // ── Datos financieros reales ──────────────────────────────────────────
-  const approvedExpenses = expenses.filter(e => e.status === 'APPROVED');
-  const totalExpenses = approvedExpenses.reduce((acc, e) => acc + Number(e.amount), 0);
+  const approvedExpenses = expenses.filter((e) => e.status === 'APPROVED');
+  const totalExpenses = approvedExpenses.reduce(
+    (acc, e) => acc + Number(e.amount),
+    0,
+  );
 
   const totalPaidByMe = approvedExpenses
     .filter((e) => e.paidById === user?.id)
@@ -246,8 +263,9 @@ export default function CoupleDetail() {
 
   const partnerLabel =
     groupType === 'COUPLE'
-      ? (getUserDisplayName(group?.members.find((m) => m.user.id !== user?.id)?.user) ??
-        'Pareja')
+      ? (getUserDisplayName(
+          group?.members.find((m) => m.user.id !== user?.id)?.user,
+        ) ?? 'Pareja')
       : 'Grupo';
 
   // ── Aportes del mes (Tú vs el resto) — solo para parejas y grupos ───
@@ -255,8 +273,14 @@ export default function CoupleDetail() {
     .filter((e) => e.paidById !== user?.id)
     .reduce((acc, e) => acc + Number(e.amount), 0);
 
-  const effectivePaidByMe = totalPaidByMe + (monthlySettlement?.paymentsMade || 0) - (monthlySettlement?.paymentsReceived || 0);
-  const effectivePaidByOthers = paidByOthers + (monthlySettlement?.paymentsReceived || 0) - (monthlySettlement?.paymentsMade || 0);
+  const effectivePaidByMe =
+    totalPaidByMe +
+    (monthlySettlement?.paymentsMade || 0) -
+    (monthlySettlement?.paymentsReceived || 0);
+  const effectivePaidByOthers =
+    paidByOthers +
+    (monthlySettlement?.paymentsReceived || 0) -
+    (monthlySettlement?.paymentsMade || 0);
 
   const memberSplit = {
     userName: 'Tú',
@@ -364,7 +388,11 @@ export default function CoupleDetail() {
 
   // ── Payment handlers ───────────────────────────────────────────────────
   const handleCreatePayment = useCallback(
-    async (payload: { amount: number; toUserId: string; target?: 'MONTHLY' | 'TOTAL' }) => {
+    async (payload: {
+      amount: number;
+      toUserId: string;
+      target?: 'MONTHLY' | 'TOTAL';
+    }) => {
       setIsSubmittingPayment(true);
       try {
         await createPayment({
@@ -398,7 +426,9 @@ export default function CoupleDetail() {
         await confirmPayment(payment.id);
         await refetchPayments();
         queryClient.invalidateQueries({ queryKey: ['budget'] });
-        queryClient.invalidateQueries({ queryKey: ['pending-incoming-payments'] });
+        queryClient.invalidateQueries({
+          queryKey: ['pending-incoming-payments'],
+        });
         setPaymentFeedback({
           title: 'Pago aceptado',
           message: `Has confirmado el pago de ${fmt(payment.amount)}. El saldo se ha actualizado.`,
@@ -419,7 +449,9 @@ export default function CoupleDetail() {
         await rejectPayment(payment.id);
         await refetchPayments();
         queryClient.invalidateQueries({ queryKey: ['budget'] });
-        queryClient.invalidateQueries({ queryKey: ['pending-incoming-payments'] });
+        queryClient.invalidateQueries({
+          queryKey: ['pending-incoming-payments'],
+        });
         setPaymentFeedback({
           title: 'Pago rechazado',
           message: 'El pago ha sido rechazado. No se descuenta nada del saldo.',
@@ -606,7 +638,7 @@ export default function CoupleDetail() {
                   </View>
                 </View>
 
-                <View className="flex-row gap-2 mt-2">
+                <View className="mt-2 flex-row gap-2">
                   {pastSettlementDirection === 'I_OWE' && (
                     <Pressable
                       onPress={() => {
@@ -745,11 +777,7 @@ export default function CoupleDetail() {
                       disabled={isReminding}
                       className="w-full flex-row items-center justify-center gap-2 rounded-lg bg-[#F59E0B]/10 px-3 py-3 active:bg-[#F59E0B]/20"
                     >
-                      <FontAwesome6
-                        name="bell"
-                        size={14}
-                        color="#D97706"
-                      />
+                      <FontAwesome6 name="bell" size={14} color="#D97706" />
                       <Text className="text-sm font-semibold text-[#D97706]">
                         {isReminding ? 'Enviando...' : 'Recordar mes'}
                       </Text>
@@ -914,12 +942,20 @@ export default function CoupleDetail() {
 
       <PaySheet
         visible={paySheetVisible}
-        onClose={() => { setPayTargetAmount(null); setPayTargetType(null); setPaySheetVisible(false); }}
+        onClose={() => {
+          setPayTargetAmount(null);
+          setPayTargetType(null);
+          setPaySheetVisible(false);
+        }}
         group={group!}
         currentUserId={user!.id}
         amountDue={
           payTargetAmount !== null
-            ? Math.max(0, payTargetAmount - sentPending.reduce((acc, p) => acc + Number(p.amount), 0))
+            ? Math.max(
+                0,
+                payTargetAmount -
+                  sentPending.reduce((acc, p) => acc + Number(p.amount), 0),
+              )
             : Math.max(
                 0,
                 (settlement?.netSettlement ?? 0) -
@@ -930,7 +966,12 @@ export default function CoupleDetail() {
           group.members.find((m) => m.user.id !== user?.id)?.user.id ?? ''
         }
         isSubmitting={isSubmittingPayment}
-        onSubmit={(payload) => handleCreatePayment({ ...payload, target: payTargetType ?? undefined })}
+        onSubmit={(payload) =>
+          handleCreatePayment({
+            ...payload,
+            target: payTargetType ?? undefined,
+          })
+        }
       />
 
       <LiquidacionesSheet

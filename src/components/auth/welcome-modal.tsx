@@ -30,7 +30,7 @@ export function WelcomeModal() {
         // Ignorar errores de almacenamiento
       }
     }
-    
+
     checkWelcome();
   }, [user]);
 
@@ -63,28 +63,31 @@ export function WelcomeModal() {
   );
 
   return (
-    <BottomSheet
-      visible={visible}
-      onClose={handleClose}
-      header={header}
-    >
-      <View className="px-6 pb-6 pt-5 items-center flex-1">
-        
-        <Text className="text-[15px] leading-6 text-[#475569] text-center mb-6">
-          Gracias por confiar en DuoBalance. Hemos creado esta aplicación con mucha dedicación para ayudarte a llevar tus finanzas de la forma más sencilla.
+    <BottomSheet visible={visible} onClose={handleClose} header={header}>
+      <View className="flex-1 items-center px-6 pb-6 pt-5">
+        <Text className="mb-6 text-center text-[15px] leading-6 text-[#475569]">
+          Gracias por confiar en DuoBalance. Hemos creado esta aplicación con
+          mucha dedicación para ayudarte a llevar tus finanzas de la forma más
+          sencilla.
         </Text>
 
-        <View className="w-full bg-[#F8FAFC] rounded-2xl border border-[#E2E8F0] p-4 mb-6 shadow-sm">
-          <Text className="text-sm text-[#475569] text-center leading-6">
+        <View className="mb-6 w-full rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-4 shadow-sm">
+          <Text className="text-center text-sm leading-6 text-[#475569]">
             Recuerda que puedes consultar nuestros{' '}
-            <Text onPress={goToTerms} className="font-bold text-[#10B981] active:text-[#059669]">
+            <Text
+              onPress={goToTerms}
+              className="font-bold text-[#10B981] active:text-[#059669]"
+            >
               Términos y Condiciones
-            </Text>
-            {' '}y la{' '}
-            <Text onPress={goToPrivacy} className="font-bold text-[#10B981] active:text-[#059669]">
+            </Text>{' '}
+            y la{' '}
+            <Text
+              onPress={goToPrivacy}
+              className="font-bold text-[#10B981] active:text-[#059669]"
+            >
               Política de Privacidad
-            </Text>
-            {' '}en cualquier momento desde la sección Acerca de en tu Perfil.
+            </Text>{' '}
+            en cualquier momento desde la sección Acerca de en tu Perfil.
           </Text>
         </View>
 
@@ -100,10 +103,11 @@ export function WelcomeModal() {
           )}
 
           {isIosPrompt && (
-            <View className="w-full bg-blue-50 p-3 rounded-xl border border-blue-100 items-center">
-              <Text className="text-xs text-blue-800 text-center">
+            <View className="w-full items-center rounded-xl border border-blue-100 bg-blue-50 p-3">
+              <Text className="text-center text-xs text-blue-800">
                 <FontAwesome6 name="circle-info" size={12} color="#1E40AF" />{' '}
-                Para añadir la app a tu inicio, toca el botón Compartir y elige "Agregar a Inicio".
+                Para añadir la app a tu inicio, toca el botón Compartir y elige
+                "Agregar a Inicio".
               </Text>
             </View>
           )}

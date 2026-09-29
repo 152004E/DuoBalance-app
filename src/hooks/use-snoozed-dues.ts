@@ -14,7 +14,10 @@ export function useSnoozedDues(dues: SettlementDue[]) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Calculate current total due
-  const currentTotalDue = dues.reduce((acc, due) => acc + Number(due.amount), 0);
+  const currentTotalDue = dues.reduce(
+    (acc, due) => acc + Number(due.amount),
+    0,
+  );
 
   // Load from storage on mount
   useEffect(() => {
@@ -28,7 +31,7 @@ export function useSnoozedDues(dues: SettlementDue[]) {
 
   const markDuesAsViewed = useCallback(async () => {
     if (currentTotalDue === 0) return; // Don't snooze if there are no dues
-    
+
     const newState: SnoozeState = {
       lastViewedAt: Date.now(),
       totalDueAmount: currentTotalDue,

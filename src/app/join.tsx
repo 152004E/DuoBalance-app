@@ -44,7 +44,8 @@ export default function JoinPage() {
           text2: 'Ahora formas parte del grupo.',
         });
       } catch (error: any) {
-        const msg = error.response?.data?.message || 'Código inválido o ya eres miembro.';
+        const msg =
+          error.response?.data?.message || 'Código inválido o ya eres miembro.';
         Toast.show({
           type: 'error',
           text1: 'No pudimos unirte',

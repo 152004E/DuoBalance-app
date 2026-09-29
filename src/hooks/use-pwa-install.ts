@@ -13,7 +13,9 @@ export function usePwaInstall(options?: { ignoreDismissal?: boolean }) {
     if (Platform.OS !== 'web' || typeof window === 'undefined') return;
 
     // 1. Si está usando la app standalone, no hacer nada
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+    const isStandalone =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as any).standalone;
     if (isStandalone) return;
 
     // 2. Verificar si se descartó hace menos de 7 días (a menos que se ignore)
@@ -28,7 +30,7 @@ export function usePwaInstall(options?: { ignoreDismissal?: boolean }) {
     }
 
     const userAgent = window.navigator.userAgent.toLowerCase();
-    
+
     // 3. Si no es móvil, no mostrar banner (Ocultar en PC)
     const isMobile = /mobile|android|iphone|ipad|ipod/.test(userAgent);
     if (!isMobile) return;
@@ -50,20 +52,23 @@ export function usePwaInstall(options?: { ignoreDismissal?: boolean }) {
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener(
+        'beforeinstallprompt',
+        handleBeforeInstallPrompt,
+      );
     };
   }, []);
 
   const promptInstall = async () => {
     if (!deferredPrompt) return;
-    
+
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    
+
     if (outcome === 'accepted') {
       setIsInstallable(false);
     }
-    
+
     setDeferredPrompt(null);
   };
 

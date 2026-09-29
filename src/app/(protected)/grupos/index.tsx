@@ -1,6 +1,8 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { getUserDisplayName } from '@/utils/user';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
+import { PullToRefresh } from '@/components/ui/PullToRefresh';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import {
@@ -32,6 +34,13 @@ export default function ParejaScreen() {
     useGroups();
   const { summaries } = useGroupSummaries(groups);
   const { workspace, setWorkspace } = useWorkspace();
+  const queryClient = useQueryClient();
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await queryClient.invalidateQueries();
+    setRefreshing(false);
+  }, [queryClient]);
 
   const showPersonal =
     workspace.category === 'all' || workspace.category === 'personal';
@@ -178,6 +187,14 @@ export default function ParejaScreen() {
         className="flex-1"
         contentContainerClassName="pb-24"
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <PullToRefresh
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#10B981"
+            colors={['#10B981']}
+          />
+        }
       >
         <HeroSection
           variant="page"

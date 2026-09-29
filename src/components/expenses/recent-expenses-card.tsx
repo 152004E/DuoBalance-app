@@ -75,17 +75,19 @@ export function RecentExpensesCard({
                 <Text
                   numberOfLines={1}
                   ellipsizeMode="tail"
-                  className="font-semibold text-[#0F172A] shrink"
+                  className="shrink font-semibold text-[#0F172A]"
                 >
                   {expense.name}
                 </Text>
                 {expense.originGroup && (
-                  <View 
-                    className="rounded-md px-1.5 py-0.5" 
-                    style={{ backgroundColor: `${expense.originGroup.color}20` }}
+                  <View
+                    className="rounded-md px-1.5 py-0.5"
+                    style={{
+                      backgroundColor: `${expense.originGroup.color}20`,
+                    }}
                   >
-                    <Text 
-                      className="text-[10px] font-bold uppercase tracking-wider" 
+                    <Text
+                      className="text-[10px] font-bold uppercase tracking-wider"
                       style={{ color: expense.originGroup.color }}
                       numberOfLines={1}
                     >

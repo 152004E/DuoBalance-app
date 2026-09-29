@@ -24,7 +24,7 @@ export function ContributionCard({
   expectedPartnerPercent,
 }: ContributionCardProps) {
   const router = useRouter();
-  
+
   const total = userAmount + partnerAmount;
   const actualUserPercent = total > 0 ? (userAmount / total) * 100 : 50;
   const actualPartnerPercent = total > 0 ? (partnerAmount / total) * 100 : 50;
@@ -40,7 +40,7 @@ export function ContributionCard({
         elevation: 2,
       }}
     >
-      <View className="flex-row items-center justify-between mb-4">
+      <View className="mb-4 flex-row items-center justify-between">
         <Text className="text-[14px] font-bold uppercase tracking-wider text-[#0F172A]">
           Aportes del Grupo
         </Text>
@@ -82,22 +82,32 @@ export function ContributionCard({
       <View className="mt-4 flex-row justify-between gap-4">
         {/* User Stats */}
         <View className="flex-1 rounded-xl bg-[#006c49]/5 p-3">
-          <View className="flex-row items-center gap-2 mb-1">
+          <View className="mb-1 flex-row items-center gap-2">
             <View className="h-2 w-2 rounded-full bg-[#006c49]" />
-            <Text className="text-xs font-semibold text-[#64748B]">{userName}</Text>
+            <Text className="text-xs font-semibold text-[#64748B]">
+              {userName}
+            </Text>
           </View>
-          <Text className="text-base font-bold text-[#0F172A]" style={{ fontFamily: 'monospace' }}>
+          <Text
+            className="text-base font-bold text-[#0F172A]"
+            style={{ fontFamily: 'monospace' }}
+          >
             {fmt(userAmount)}
           </Text>
         </View>
 
         {/* Partner Stats */}
         <View className="flex-1 rounded-xl bg-[#8B5CF6]/5 p-3">
-          <View className="flex-row items-center gap-2 mb-1">
+          <View className="mb-1 flex-row items-center gap-2">
             <View className="h-2 w-2 rounded-full bg-[#8B5CF6]" />
-            <Text className="text-xs font-semibold text-[#64748B]">{partnerName}</Text>
+            <Text className="text-xs font-semibold text-[#64748B]">
+              {partnerName}
+            </Text>
           </View>
-          <Text className="text-base font-bold text-[#0F172A]" style={{ fontFamily: 'monospace' }}>
+          <Text
+            className="text-base font-bold text-[#0F172A]"
+            style={{ fontFamily: 'monospace' }}
+          >
             {fmt(partnerAmount)}
           </Text>
         </View>

@@ -64,8 +64,22 @@ export function BottomSheet({
     >
       <View style={StyleSheet.absoluteFill}>
         {/* Toast en capa Z muy alta para modales */}
-        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 9999, elevation: 9999 }}>
-          <Toast config={appToastConfig} position="top" topOffset={insets.top + 12} visibilityTime={3000} />
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 9999,
+            elevation: 9999,
+          }}
+        >
+          <Toast
+            config={appToastConfig}
+            position="top"
+            topOffset={insets.top + 12}
+            visibilityTime={3000}
+          />
         </View>
 
         {/* Overlay oscuro */}
@@ -142,8 +156,23 @@ export function BottomSheet({
             <View style={{ flexShrink: 1 }}>{children}</View>
           </Animated.View>
         </GestureDetector>
-        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 9999, elevation: 9999 }} pointerEvents="box-none">
-          <Toast config={appToastConfig} position="top" topOffset={insets.top + 12} visibilityTime={3000} />
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 9999,
+            elevation: 9999,
+          }}
+          pointerEvents="box-none"
+        >
+          <Toast
+            config={appToastConfig}
+            position="top"
+            topOffset={insets.top + 12}
+            visibilityTime={3000}
+          />
         </View>
       </View>
     </Modal>

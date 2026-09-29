@@ -1,5 +1,13 @@
 import { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+} from 'react-native';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
 import { useBudget } from '@/hooks/use-budget';
@@ -15,23 +23,33 @@ export function SetBudgetSheet({ visible, onClose }: SetBudgetSheetProps) {
   const currentMonth = currentDate.getMonth() + 1;
   const currentYear = currentDate.getFullYear();
 
-  const { budget, setBudget, isSaving } = useBudget(currentMonth, currentYear, visible);
+  const { budget, setBudget, isSaving } = useBudget(
+    currentMonth,
+    currentYear,
+    visible,
+  );
 
   const [incomeStr, setIncomeStr] = useState('');
   const [budgetLimitStr, setBudgetLimitStr] = useState('');
 
   useEffect(() => {
     if (budget && visible) {
-      setIncomeStr(budget.income ? formatAmountInput(String(budget.income)) : '');
-      setBudgetLimitStr(budget.budget ? formatAmountInput(String(budget.budget)) : '');
+      setIncomeStr(
+        budget.income ? formatAmountInput(String(budget.income)) : '',
+      );
+      setBudgetLimitStr(
+        budget.budget ? formatAmountInput(String(budget.budget)) : '',
+      );
     } else if (visible) {
       setIncomeStr('');
       setBudgetLimitStr('');
     }
   }, [budget, visible]);
 
-  const handleIncomeChange = (text: string) => setIncomeStr(formatAmountInput(text));
-  const handleLimitChange = (text: string) => setBudgetLimitStr(formatAmountInput(text));
+  const handleIncomeChange = (text: string) =>
+    setIncomeStr(formatAmountInput(text));
+  const handleLimitChange = (text: string) =>
+    setBudgetLimitStr(formatAmountInput(text));
 
   const handleSave = async () => {
     const incomeNum = parseAmount(incomeStr);
@@ -70,7 +88,7 @@ export function SetBudgetSheet({ visible, onClose }: SetBudgetSheetProps) {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="px-5 pb-8 pt-4"
       >
-        <Text className="mb-2 text-sm font-semibold text-[#64748B] uppercase tracking-wider">
+        <Text className="mb-2 text-sm font-semibold uppercase tracking-wider text-[#64748B]">
           ¿Cuál es tu ingreso este mes?
         </Text>
         <TextInput
@@ -81,7 +99,7 @@ export function SetBudgetSheet({ visible, onClose }: SetBudgetSheetProps) {
           onChangeText={handleIncomeChange}
         />
 
-        <Text className="mb-2 text-sm font-semibold text-[#64748B] uppercase tracking-wider">
+        <Text className="mb-2 text-sm font-semibold uppercase tracking-wider text-[#64748B]">
           Límite de gasto (Opcional)
         </Text>
         <TextInput

@@ -154,7 +154,9 @@ export default function EditarPerfilScreen() {
           />
 
           <ProfileCard
-            firstName={useNickname && nickname.trim() ? nickname.trim() : firstName}
+            firstName={
+              useNickname && nickname.trim() ? nickname.trim() : firstName
+            }
             lastName={useNickname && nickname.trim() ? '' : lastName}
             email={email}
             avatarUrl={displayAvatar}
@@ -170,14 +172,14 @@ export default function EditarPerfilScreen() {
               onChangeText={setFirstName}
               placeholder="Tu nombre"
             />
-<Input
+            <Input
               label="Apellido"
               iconLeft="user"
               value={lastName}
               onChangeText={setLastName}
               placeholder="Tu apellido"
             />
-            
+
             <View className="rounded-2xl border border-blue-200 bg-blue-50/50 p-4 shadow-sm">
               <Input
                 label="Apodo / Sobrenombre"
@@ -186,12 +188,15 @@ export default function EditarPerfilScreen() {
                 onChangeText={setNickname}
                 placeholder="Ej. Juancho, El Jefe..."
               />
-              
+
               <View className="mt-4 flex-row items-center justify-between">
                 <View className="flex-1 pr-4">
-                  <Text className="text-sm font-semibold text-slate-800">Usar apodo</Text>
+                  <Text className="text-sm font-semibold text-slate-800">
+                    Usar apodo
+                  </Text>
                   <Text className="mt-0.5 text-xs text-slate-500">
-                    Mostrar este apodo en lugar de mi nombre real en los grupos y gastos.
+                    Mostrar este apodo en lugar de mi nombre real en los grupos
+                    y gastos.
                   </Text>
                 </View>
                 <Switch

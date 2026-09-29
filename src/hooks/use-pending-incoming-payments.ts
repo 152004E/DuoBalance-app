@@ -51,7 +51,11 @@ export function usePendingIncomingPayments({
     return map;
   }, [groups]);
 
-  const { data: incomingPayments = [], isLoading, refetch } = useQuery({
+  const {
+    data: incomingPayments = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ['pending-incoming-payments', groupIdsKey, userId],
     queryFn: async () => {
       const results = await Promise.all(

@@ -1,5 +1,7 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { getUserDisplayName } from '@/utils/user';
 import { View, Text, ScrollView, Pressable } from 'react-native';
+import { PullToRefresh } from '@/components/ui/PullToRefresh';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { HeroSection } from '@/components/layout/HeroSection';
 import { useCallback, useState, useRef } from 'react';
@@ -37,6 +39,14 @@ export default function ReportesScreen() {
   const { user } = useAuth();
   const { groups, personalGroups, coupleGroups, sharedGroups } = useGroups();
   const { workspace, setWorkspace } = useWorkspace();
+  const queryClient = useQueryClient();
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await queryClient.invalidateQueries();
+    setRefreshing(false);
+  }, [queryClient]);
+
   const [selectedPeriod, setSelectedPeriod] =
     useState<ReportPeriod>(DEFAULT_PERIOD);
   const [selectedCategory, setSelectedCategory] = useState<
@@ -94,6 +104,14 @@ export default function ReportesScreen() {
         className="flex-1"
         contentContainerClassName="pb-24"
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <PullToRefresh
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#10B981"
+            colors={['#10B981']}
+          />
+        }
       >
         <HeroSection
           key={focusCount}

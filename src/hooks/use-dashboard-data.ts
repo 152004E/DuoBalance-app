@@ -113,9 +113,7 @@ export function useDashboardData(
     return acc + Number(e.amount) / Math.max(1, e.splits.length || 1);
   }, 0);
 
-  const confirmedPayments = payments.filter(
-    (p) => p.status === 'CONFIRMED',
-  );
+  const confirmedPayments = payments.filter((p) => p.status === 'CONFIRMED');
 
   const paymentsMade = confirmedPayments
     .filter((p) => p.fromUserId === userId)
@@ -125,8 +123,7 @@ export function useDashboardData(
     .filter((p) => p.toUserId === userId)
     .reduce((acc, p) => acc + Number(p.amount), 0);
 
-  const netBalance =
-    totalPaidByMe - myShare - paymentsReceived + paymentsMade;
+  const netBalance = totalPaidByMe - myShare - paymentsReceived + paymentsMade;
   const direction: BalanceDirection =
     netBalance > 0 ? 'OWED_TO_ME' : netBalance < 0 ? 'I_OWE' : 'SETTLED';
 

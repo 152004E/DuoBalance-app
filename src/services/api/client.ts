@@ -10,4 +10,3 @@ export const api = axios.create({
 setupInterceptors(api);
 
 // ── Interceptors configurados en ./interceptor ──
-

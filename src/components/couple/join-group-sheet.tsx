@@ -44,11 +44,7 @@ export function JoinGroupSheet({
   );
 
   return (
-    <BottomSheet
-      visible={visible}
-      onClose={onClose}
-      header={header}
-    >
+    <BottomSheet visible={visible} onClose={onClose} header={header}>
       <View className="flex-1">
         <ScrollView
           className="flex-1 px-5"

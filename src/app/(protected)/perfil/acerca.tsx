@@ -8,43 +8,42 @@ import { ScreenHeader } from '@/components/ui/screen-header';
 import { useRef, type ReactNode } from 'react';
 import Animated from 'react-native-reanimated';
 import { useStaggeredEntrance } from '@/hooks/use-staggered-entrance';
-
 const FEATURES = [
   {
     icon: 'user-group',
-    title: 'Espacios compartidos',
+    title: 'Espacios y grupos',
     description:
-      'Crea espacios personales, de pareja o grupales y organiza tus finanzas en un solo lugar.',
+      'Crea espacios personales, de pareja o grupales y organiza tus finanzas en un solo lugar de forma transparente.',
   },
   {
-    icon: 'receipt',
-    title: 'Registro de gastos',
+    icon: 'wallet',
+    title: 'Presupuestos y Libro Mayor',
     description:
-      'Lleva el control de cada gasto con categorías, quién lo pagó y cómo se reparte.',
+      'Fija metas mensuales y centraliza los gastos de todos tus grupos en tu cuenta personal para saber a dónde va tu dinero.',
   },
   {
     icon: 'scale-balanced',
-    title: 'Repartos claros',
+    title: 'Repartos inteligentes',
     description:
-      'Gastos al 50/50, por porcentaje o personales, con división automática entre quienes participan.',
+      'Sincronización en tiempo real, gastos al 50/50, por porcentaje o personales, con división automática.',
   },
   {
-    icon: 'chart-pie',
-    title: 'Reportes y estadísticas',
+    icon: 'bell',
+    title: 'Notificaciones y Recordatorios',
     description:
-      'Visualiza tus gastos por categoría y por miembro, con comparación entre períodos.',
+      'Campanita de alertas en tiempo real, sugerencias de pago y opciones para posponer (snooze) cobros pendientes.',
   },
   {
-    icon: 'hand-holding-dollar',
-    title: 'Control de deudas',
+    icon: 'bolt',
+    title: 'Rendimiento en vivo',
     description:
-      'Sabe cuánto te deben o cuánto debes en cada espacio compartido.',
+      'Gracias a React Query y nuestra arquitectura robusta, todo se actualiza al instante sin necesidad de recargar la app.',
   },
   {
     icon: 'shield-halved',
-    title: 'Cuenta segura',
+    title: 'Cuenta segura y Apodos',
     description:
-      'Inicio de sesión protegido, cambio de contraseña y sesión con renovación automática.',
+      'Protección total de tu sesión y personalización de tu identidad con apodos (nicknames) para tus grupos.',
   },
 ];
 
@@ -64,11 +63,18 @@ const HISTORY = [
       'La plataforma creció para incluir espacios personales y grupos, manteniendo el reparto justo sin importar cuántos participen.',
   },
   {
+    period: 'Evolución',
+    icon: 'flask',
+    title: 'El Feedback',
+    description:
+      'Gracias a pruebas reales con usuarios, incorporamos el botón flotante rápido, presupuestos, notificaciones in-app y el libro mayor.',
+  },
+  {
     period: 'Hoy',
     icon: 'chart-line',
-    title: 'Una app completa',
+    title: 'Ecosistema completo',
     description:
-      'Cada pantalla se construyó con atención al detalle: animaciones, feedback visual y datos en tiempo real para que la experiencia sea fluida y clara.',
+      'Cada pantalla se construyó con atención al detalle: animaciones, feedback visual y datos en tiempo real (Full-Stack) para que la experiencia sea fluida.',
   },
 ];
 
@@ -79,6 +85,10 @@ const STACK = [
   'Expo Router',
   'NativeWind',
   'Tailwind CSS',
+  'React Query',
+  'NestJS',
+  'Prisma ORM',
+  'PostgreSQL',
 ];
 
 const HERO_INDEX = 0;
@@ -126,10 +136,10 @@ export default function AcercaScreen() {
           contentContainerClassName="pb-10"
           showsVerticalScrollIndicator={false}
         >
-          <View  className="px-5 pt-4">
+          <View className="px-5 pt-4">
             <AnimatedSection index={HERO_INDEX}>
               <LinearGradient
-              style={{ padding: 20, borderRadius: 16  }}
+                style={{ padding: 20, borderRadius: 16 }}
                 colors={['#065238ff', '#04c88aff']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
@@ -282,19 +292,25 @@ export default function AcercaScreen() {
               </Text>
             </AnimatedSection>
             <AnimatedSection index={STACK_TITLE_INDEX + 2 + STACK.length}>
-              <View className="rounded-2xl border border-[#E2E8F0] bg-white shadow-sm overflow-hidden">
+              <View className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm">
                 <Text
                   onPress={() => router.push('/terminos')}
-                  className="px-5 py-4 text-sm font-semibold text-[#0F172A] border-b border-[#F1F5F9] active:bg-[#F8FAFC]"
+                  className="border-b border-[#F1F5F9] px-5 py-4 text-sm font-semibold text-[#0F172A] active:bg-[#F8FAFC]"
                 >
-                  <FontAwesome6 name="file-contract" size={14} color="#64748B" />{'  '}
+                  <FontAwesome6
+                    name="file-contract"
+                    size={14}
+                    color="#64748B"
+                  />
+                  {'  '}
                   Términos y Condiciones
                 </Text>
                 <Text
                   onPress={() => router.push('/privacidad')}
                   className="px-5 py-4 text-sm font-semibold text-[#0F172A] active:bg-[#F8FAFC]"
                 >
-                  <FontAwesome6 name="shield-check" size={14} color="#64748B" />{'  '}
+                  <FontAwesome6 name="shield-check" size={14} color="#64748B" />
+                  {'  '}
                   Política de Privacidad
                 </Text>
               </View>

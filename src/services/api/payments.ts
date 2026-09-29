@@ -53,7 +53,7 @@ export const remindDebt = async (
   const { data } = await api.post<{ message: string }>(
     `/settlements/remind/${debtorId}`,
     { type },
-    { params: { groupId } }
+    { params: { groupId } },
   );
   return data;
 };

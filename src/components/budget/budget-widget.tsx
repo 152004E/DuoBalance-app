@@ -7,7 +7,10 @@ interface BudgetWidgetProps {
   onHistoryPress: () => void;
 }
 
-export function BudgetWidget({ onConfigurePress, onHistoryPress }: BudgetWidgetProps) {
+export function BudgetWidget({
+  onConfigurePress,
+  onHistoryPress,
+}: BudgetWidgetProps) {
   const currentDate = new Date();
   const month = currentDate.getMonth() + 1;
   const year = currentDate.getFullYear();
@@ -16,7 +19,7 @@ export function BudgetWidget({ onConfigurePress, onHistoryPress }: BudgetWidgetP
 
   if (isLoading) {
     return (
-      <View className="mb-6 rounded-3xl bg-white p-5 shadow-sm border border-[#E2E8F0]">
+      <View className="mb-6 rounded-3xl border border-[#E2E8F0] bg-white p-5 shadow-sm">
         <Text className="text-center text-[#64748B]">Cargando resumen...</Text>
       </View>
     );
@@ -28,16 +31,23 @@ export function BudgetWidget({ onConfigurePress, onHistoryPress }: BudgetWidgetP
   const isOverBudget = spent > limit;
 
   return (
-    <View className="mb-6 rounded-3xl bg-white p-5 shadow-sm border border-[#E2E8F0]">
-      <View className="flex-row items-center justify-between mb-4">
-        <Text className="text-lg font-bold text-[#0F172A]">Mi Dinero Disponible</Text>
-        <TouchableOpacity onPress={onHistoryPress} className="flex-row items-center gap-1">
-          <Text className="text-sm font-semibold text-[#059669]">Historial</Text>
+    <View className="mb-6 rounded-3xl border border-[#E2E8F0] bg-white p-5 shadow-sm">
+      <View className="mb-4 flex-row items-center justify-between">
+        <Text className="text-lg font-bold text-[#0F172A]">
+          Mi Dinero Disponible
+        </Text>
+        <TouchableOpacity
+          onPress={onHistoryPress}
+          className="flex-row items-center gap-1"
+        >
+          <Text className="text-sm font-semibold text-[#059669]">
+            Historial
+          </Text>
           <FontAwesome6 name="chevron-right" size={12} color="#059669" />
         </TouchableOpacity>
       </View>
 
-      {(!budget || limit === 0) ? (
+      {!budget || limit === 0 ? (
         <View className="items-center py-4">
           <View className="mb-3 h-12 w-12 items-center justify-center rounded-full bg-orange-100">
             <FontAwesome6 name="wallet" size={20} color="#F97316" />
@@ -54,15 +64,21 @@ export function BudgetWidget({ onConfigurePress, onHistoryPress }: BudgetWidgetP
         </View>
       ) : (
         <View>
-          <View className="mb-2 flex-row justify-between items-end">
+          <View className="mb-2 flex-row items-end justify-between">
             <View>
-              <Text className="text-xs font-semibold text-[#64748B] uppercase">Gastado</Text>
-              <Text className={`text-2xl font-black ${isOverBudget ? 'text-red-500' : 'text-[#0F172A]'}`}>
+              <Text className="text-xs font-semibold uppercase text-[#64748B]">
+                Gastado
+              </Text>
+              <Text
+                className={`text-2xl font-black ${isOverBudget ? 'text-red-500' : 'text-[#0F172A]'}`}
+              >
                 ${spent.toLocaleString('es-CL')}
               </Text>
             </View>
             <View className="items-end">
-              <Text className="text-xs font-semibold text-[#64748B] uppercase">Límite</Text>
+              <Text className="text-xs font-semibold uppercase text-[#64748B]">
+                Límite
+              </Text>
               <Text className="text-lg font-bold text-[#64748B]">
                 ${limit.toLocaleString('es-CL')}
               </Text>
@@ -76,7 +92,7 @@ export function BudgetWidget({ onConfigurePress, onHistoryPress }: BudgetWidgetP
             />
           </View>
 
-          <View className="mt-4 flex-row justify-between items-center border-t border-[#F1F5F9] pt-4">
+          <View className="mt-4 flex-row items-center justify-between border-t border-[#F1F5F9] pt-4">
             <Text className="text-xs font-medium text-[#64748B]">
               Basado en tu flujo de caja real
             </Text>

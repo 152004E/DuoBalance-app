@@ -13,11 +13,7 @@ import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
 
 export type CoupleMenuAction =
-  | 'invite'
-  | 'settings'
-  | 'export'
-  | 'history'
-  | 'leave';
+  'invite' | 'settings' | 'export' | 'history' | 'leave';
 
 interface MenuItem {
   action: CoupleMenuAction;

@@ -1,12 +1,21 @@
 import { getUserDisplayName } from '@/utils/user';
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, Pressable } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  ActivityIndicator,
+  Pressable,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { HeroSection } from '@/components/layout/HeroSection';
 import { router } from 'expo-router';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { adminService, AdminStats } from '@/services/api/admin';
-import { RecentUsersCard, AdminUserItem } from '@/components/admin/recent-users-card';
+import {
+  RecentUsersCard,
+  AdminUserItem,
+} from '@/components/admin/recent-users-card';
 import { useAuth } from '@/hooks/use-auth';
 import { AlertModal } from '@/components/ui/alert-modal';
 
@@ -101,7 +110,7 @@ export default function AdminDashboardScreen() {
           {/* Métricas Cards Grid */}
           <View className="flex-row flex-wrap justify-between">
             {/* Card 1 */}
-            <View className="mb-4 w-[48%] rounded-2xl bg-white p-4 shadow-sm border border-[#E2E8F0]/80">
+            <View className="mb-4 w-[48%] rounded-2xl border border-[#E2E8F0]/80 bg-white p-4 shadow-sm">
               <FontAwesome6
                 name="users"
                 size={20}
@@ -115,7 +124,7 @@ export default function AdminDashboardScreen() {
             </View>
 
             {/* Card 2 */}
-            <View className="mb-4 w-[48%] rounded-2xl bg-white p-4 shadow-sm border border-[#E2E8F0]/80">
+            <View className="mb-4 w-[48%] rounded-2xl border border-[#E2E8F0]/80 bg-white p-4 shadow-sm">
               <FontAwesome6
                 name="layer-group"
                 size={20}
@@ -129,7 +138,7 @@ export default function AdminDashboardScreen() {
             </View>
 
             {/* Card 3 */}
-            <View className="mb-4 w-[48%] rounded-2xl bg-white p-4 shadow-sm border border-[#E2E8F0]/80">
+            <View className="mb-4 w-[48%] rounded-2xl border border-[#E2E8F0]/80 bg-white p-4 shadow-sm">
               <FontAwesome6
                 name="receipt"
                 size={20}
@@ -143,7 +152,7 @@ export default function AdminDashboardScreen() {
             </View>
 
             {/* Card 4 */}
-            <View className="mb-4 w-[48%] rounded-2xl bg-white p-4 shadow-sm border border-[#E2E8F0]/80">
+            <View className="mb-4 w-[48%] rounded-2xl border border-[#E2E8F0]/80 bg-white p-4 shadow-sm">
               <FontAwesome6
                 name="money-bill-transfer"
                 size={20}

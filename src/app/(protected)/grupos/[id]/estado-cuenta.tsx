@@ -8,8 +8,18 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import { Loading } from '@/components/ui/loading';
 
 const MONTH_NAMES = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  'Enero',
+  'Febrero',
+  'Marzo',
+  'Abril',
+  'Mayo',
+  'Junio',
+  'Julio',
+  'Agosto',
+  'Septiembre',
+  'Octubre',
+  'Noviembre',
+  'Diciembre',
 ];
 
 const getMonthsToFetch = () => {
@@ -59,7 +69,7 @@ export default function EstadoCuentaScreen() {
             <Loading />
           </View>
         ) : (
-          <View className="px-5 mt-4 flex-col" style={{ gap: 16 }}>
+          <View className="mt-4 flex-col px-5" style={{ gap: 16 }}>
             {months.map((m, index) => {
               const data = queries[index].data;
               if (!data) return null;
@@ -97,20 +107,35 @@ export default function EstadoCuentaScreen() {
                   <View className="flex-col" style={{ gap: 12 }}>
                     {/* Deuda generada por gastos */}
                     <View className="flex-row items-center justify-between">
-                      <View className="flex-row items-center" style={{ gap: 8 }}>
+                      <View
+                        className="flex-row items-center"
+                        style={{ gap: 8 }}
+                      >
                         <View className="h-6 w-6 items-center justify-center rounded-full bg-slate-100">
-                          <FontAwesome6 name="receipt" size={10} color="#64748B" />
+                          <FontAwesome6
+                            name="receipt"
+                            size={10}
+                            color="#64748B"
+                          />
                         </View>
-                        <Text className="text-sm text-[#475569]">Deuda por gastos</Text>
+                        <Text className="text-sm text-[#475569]">
+                          Deuda por gastos
+                        </Text>
                       </View>
-                      <Text className={`text-sm font-semibold ${
-                        data.balanceDirection === 'OWED_TO_ME'
-                          ? 'text-[#F59E0B]'
+                      <Text
+                        className={`text-sm font-semibold ${
+                          data.balanceDirection === 'OWED_TO_ME'
+                            ? 'text-[#F59E0B]'
+                            : data.balanceDirection === 'I_OWE'
+                              ? 'text-[#EF4444]'
+                              : 'text-[#64748B]'
+                        }`}
+                      >
+                        {data.balanceDirection === 'OWED_TO_ME'
+                          ? '+'
                           : data.balanceDirection === 'I_OWE'
-                            ? 'text-[#EF4444]'
-                            : 'text-[#64748B]'
-                      }`}>
-                        {data.balanceDirection === 'OWED_TO_ME' ? '+' : data.balanceDirection === 'I_OWE' ? '-' : ''}
+                            ? '-'
+                            : ''}
                         {fmt(data.balanceAmount)}
                       </Text>
                     </View>
@@ -118,11 +143,20 @@ export default function EstadoCuentaScreen() {
                     {/* Pagos realizados */}
                     {Number(data.paymentsMade) > 0 && (
                       <View className="flex-row items-center justify-between">
-                        <View className="flex-row items-center" style={{ gap: 8 }}>
+                        <View
+                          className="flex-row items-center"
+                          style={{ gap: 8 }}
+                        >
                           <View className="h-6 w-6 items-center justify-center rounded-full bg-slate-100">
-                            <FontAwesome6 name="money-bill-transfer" size={10} color="#64748B" />
+                            <FontAwesome6
+                              name="money-bill-transfer"
+                              size={10}
+                              color="#64748B"
+                            />
                           </View>
-                          <Text className="text-sm text-[#475569]">Pagos realizados</Text>
+                          <Text className="text-sm text-[#475569]">
+                            Pagos realizados
+                          </Text>
                         </View>
                         <Text className="text-sm font-semibold text-[#10B981]">
                           +{fmt(data.paymentsMade)}
@@ -133,11 +167,20 @@ export default function EstadoCuentaScreen() {
                     {/* Pagos recibidos */}
                     {Number(data.paymentsReceived) > 0 && (
                       <View className="flex-row items-center justify-between">
-                        <View className="flex-row items-center" style={{ gap: 8 }}>
+                        <View
+                          className="flex-row items-center"
+                          style={{ gap: 8 }}
+                        >
                           <View className="h-6 w-6 items-center justify-center rounded-full bg-slate-100">
-                            <FontAwesome6 name="money-bill-transfer" size={10} color="#64748B" />
+                            <FontAwesome6
+                              name="money-bill-transfer"
+                              size={10}
+                              color="#64748B"
+                            />
                           </View>
-                          <Text className="text-sm text-[#475569]">Pagos recibidos</Text>
+                          <Text className="text-sm text-[#475569]">
+                            Pagos recibidos
+                          </Text>
                         </View>
                         <Text className="text-sm font-semibold text-[#EF4444]">
                           -{fmt(data.paymentsReceived)}
@@ -146,12 +189,24 @@ export default function EstadoCuentaScreen() {
                     )}
 
                     {/* Resultado final del mes */}
-                    <View className="mt-2 pt-3 border-t border-slate-100 flex-row items-center justify-between">
-                      <Text className="text-[15px] font-bold text-[#0F172A]">Balance del mes</Text>
-                      <Text className={`text-[15px] font-bold ${
-                        isOwed ? 'text-[#F59E0B]' : isOwe ? 'text-[#EF4444]' : 'text-[#10B981]'
-                      }`}>
-                        {isOwed ? `Te deben ${fmt(data.netSettlement)}` : isOwe ? `Debes ${fmt(data.netSettlement)}` : 'Mes saldado'}
+                    <View className="mt-2 flex-row items-center justify-between border-t border-slate-100 pt-3">
+                      <Text className="text-[15px] font-bold text-[#0F172A]">
+                        Balance del mes
+                      </Text>
+                      <Text
+                        className={`text-[15px] font-bold ${
+                          isOwed
+                            ? 'text-[#F59E0B]'
+                            : isOwe
+                              ? 'text-[#EF4444]'
+                              : 'text-[#10B981]'
+                        }`}
+                      >
+                        {isOwed
+                          ? `Te deben ${fmt(data.netSettlement)}`
+                          : isOwe
+                            ? `Debes ${fmt(data.netSettlement)}`
+                            : 'Mes saldado'}
                       </Text>
                     </View>
                   </View>

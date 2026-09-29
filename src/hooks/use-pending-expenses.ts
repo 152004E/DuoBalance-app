@@ -1,5 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getExpenses, approveExpense, rejectExpense } from '@/services/api/expenses';
+import {
+  getExpenses,
+  approveExpense,
+  rejectExpense,
+} from '@/services/api/expenses';
 import { ExpenseStatus } from '@/types/api';
 
 export function usePendingExpenses(userId?: string) {
@@ -7,7 +11,8 @@ export function usePendingExpenses(userId?: string) {
 
   const query = useQuery({
     queryKey: ['expenses', 'pending', userId],
-    queryFn: () => getExpenses({ status: ExpenseStatus.PENDING, paidById: userId }),
+    queryFn: () =>
+      getExpenses({ status: ExpenseStatus.PENDING, paidById: userId }),
     enabled: !!userId,
   });
 

@@ -87,7 +87,7 @@ export function PaySheet({
     />
   );
 
-const handleBeforeClose = async () => {
+  const handleBeforeClose = async () => {
     if (amount !== '') {
       return new Promise<boolean>((resolve) => {
         Toast.show({

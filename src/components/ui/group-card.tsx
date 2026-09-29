@@ -68,7 +68,7 @@ export function GroupCard({
         color: '#006c49',
       },
       {
-        label: getUserDisplayName(partner?.user) ?? "Pareja",
+        label: getUserDisplayName(partner?.user) ?? 'Pareja',
         percent: partnerPercent,
         color: '#8B5CF6',
       },
@@ -161,7 +161,10 @@ export function GroupCard({
             </View>
             <View className="mt-2 flex-row flex-wrap justify-between gap-y-1">
               {segments.map((seg, i) => (
-                <View key={`${seg.label}-${i}`} className="flex-row items-center gap-1.5">
+                <View
+                  key={`${seg.label}-${i}`}
+                  className="flex-row items-center gap-1.5"
+                >
                   <View
                     className="h-2.5 w-2.5 rounded-full"
                     style={{ backgroundColor: seg.color }}
@@ -175,7 +178,6 @@ export function GroupCard({
             </View>
           </View>
         )}
-
 
         {isPersonal && (
           <View className="mt-4 flex-row items-center justify-between rounded-lg bg-[#F8FAFC] px-3 py-2.5">

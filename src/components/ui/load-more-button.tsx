@@ -27,9 +27,7 @@ export function LoadMoreButton({
       onPress={() => onLoadMore(visibleCount + step)}
       className="flex-row items-center justify-center gap-2 rounded-xl border border-[#E2E8F0] bg-white py-4 active:opacity-80"
     >
-      <Text className="font-semibold text-[#0F766E]">
-        {label}
-      </Text>
+      <Text className="font-semibold text-[#0F766E]">{label}</Text>
       <Text className="text-[#0F766E] opacity-40">›</Text>
     </Pressable>
   );

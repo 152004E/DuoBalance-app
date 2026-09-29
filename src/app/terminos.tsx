@@ -31,49 +31,71 @@ export default function TerminosScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View className="rounded-2xl bg-white p-5 shadow-sm">
-            
-            <Text className="text-base font-bold text-[#0F172A] mb-2">
+            <Text className="mb-2 text-base font-bold text-[#0F172A]">
               1. Aceptación de los Términos
             </Text>
-            <Text className="text-sm leading-6 text-[#64748B] mb-5">
-              Al crear una cuenta y utilizar DuoBalance, aceptas estos Términos y Condiciones en su totalidad. Si no estás de acuerdo con alguna de las partes, te pedimos que no utilices la plataforma.
+            <Text className="mb-5 text-sm leading-6 text-[#64748B]">
+              Al crear una cuenta y utilizar DuoBalance, aceptas estos Términos
+              y Condiciones en su totalidad. Si no estás de acuerdo con alguna
+              de las partes, te pedimos que no utilices la plataforma.
             </Text>
 
-            <Text className="text-base font-bold text-[#0F172A] mb-2">
+            <Text className="mb-2 text-base font-bold text-[#0F172A]">
               2. Naturaleza del Servicio
             </Text>
-            <Text className="text-sm leading-6 text-[#64748B] mb-5">
-              DuoBalance es una herramienta organizativa y de carácter informativo diseñada para ayudar a individuos, parejas y grupos a registrar y dividir gastos. {'\n\n'}
-              <Text className="font-bold text-[#0F172A]">No somos un banco ni una entidad financiera.</Text> DuoBalance no procesa pagos con dinero real, transferencias bancarias ni funciona como intermediario de pagos.
+            <Text className="mb-5 text-sm leading-6 text-[#64748B]">
+              DuoBalance es una herramienta organizativa y de carácter
+              informativo diseñada para ayudar a individuos, parejas y grupos a
+              registrar y dividir gastos. {'\n\n'}
+              <Text className="font-bold text-[#0F172A]">
+                No somos un banco ni una entidad financiera.
+              </Text>{' '}
+              DuoBalance no procesa pagos con dinero real, transferencias
+              bancarias ni funciona como intermediario de pagos.
             </Text>
 
-            <Text className="text-base font-bold text-[#0F172A] mb-2">
+            <Text className="mb-2 text-base font-bold text-[#0F172A]">
               3. Responsabilidad del Usuario
             </Text>
-            <Text className="text-sm leading-6 text-[#64748B] mb-5">
-              Toda la información financiera (gastos, montos, deudas) es registrada manualmente por los usuarios. Eres responsable de la veracidad y exactitud de los datos que ingreses. DuoBalance no se hace responsable por disputas, desacuerdos financieros o deudas impagas entre los miembros de un grupo o pareja.
+            <Text className="mb-5 text-sm leading-6 text-[#64748B]">
+              Toda la información financiera (gastos, montos, deudas) es
+              registrada manualmente por los usuarios. Eres responsable de la
+              veracidad y exactitud de los datos que ingreses. DuoBalance no se
+              hace responsable por disputas, desacuerdos financieros o deudas
+              impagas entre los miembros de un grupo o pareja.
             </Text>
 
-            <Text className="text-base font-bold text-[#0F172A] mb-2">
+            <Text className="mb-2 text-base font-bold text-[#0F172A]">
               4. Propiedad de la Cuenta
             </Text>
-            <Text className="text-sm leading-6 text-[#64748B] mb-5">
-              Tu cuenta es personal. Por razones de seguridad, nuestra plataforma aplica una regla de "Sesión Única Estricta", lo que significa que solo podrás mantener iniciada tu cuenta en un dispositivo a la vez. Eres responsable de mantener la confidencialidad de tu contraseña.
+            <Text className="mb-5 text-sm leading-6 text-[#64748B]">
+              Tu cuenta es personal. Por razones de seguridad, nuestra
+              plataforma aplica una regla de "Sesión Única Estricta", lo que
+              significa que solo podrás mantener iniciada tu cuenta en un
+              dispositivo a la vez. Eres responsable de mantener la
+              confidencialidad de tu contraseña.
             </Text>
 
-            <Text className="text-base font-bold text-[#0F172A] mb-2">
+            <Text className="mb-2 text-base font-bold text-[#0F172A]">
               5. Suspensión y Eliminación
             </Text>
-            <Text className="text-sm leading-6 text-[#64748B] mb-5">
-              Nos reservamos el derecho de suspender o eliminar tu cuenta si detectamos un uso indebido de la plataforma, ataques cibernéticos, intentos de fraude, o violaciones a estos términos. {'\n\n'}
-              Puedes eliminar tu cuenta en cualquier momento. Al hacerlo, tus datos de acceso serán borrados permanentemente y tu nombre será anonimizado ("Usuario Eliminado") para mantener la integridad de los gastos en los grupos en los que participaste.
+            <Text className="mb-5 text-sm leading-6 text-[#64748B]">
+              Nos reservamos el derecho de suspender o eliminar tu cuenta si
+              detectamos un uso indebido de la plataforma, ataques cibernéticos,
+              intentos de fraude, o violaciones a estos términos. {'\n\n'}
+              Puedes eliminar tu cuenta en cualquier momento. Al hacerlo, tus
+              datos de acceso serán borrados permanentemente y tu nombre será
+              anonimizado ("Usuario Eliminado") para mantener la integridad de
+              los gastos en los grupos en los que participaste.
             </Text>
 
-            <Text className="text-base font-bold text-[#0F172A] mb-2">
+            <Text className="mb-2 text-base font-bold text-[#0F172A]">
               6. Modificaciones a los Términos
             </Text>
             <Text className="text-sm leading-6 text-[#64748B]">
-              DuoBalance se reserva el derecho de actualizar estos términos en cualquier momento. Los cambios entrarán en vigencia desde el momento de su publicación en la aplicación.
+              DuoBalance se reserva el derecho de actualizar estos términos en
+              cualquier momento. Los cambios entrarán en vigencia desde el
+              momento de su publicación en la aplicación.
             </Text>
           </View>
         </ScrollView>

@@ -1,0 +1,13 @@
+diff --git a/src/RefreshControl.web.js b/src/RefreshControl.web.js
+index b2351e63023a5a9df716212b5f72abc1c8171fad..b1d979da3d78e25280832d3f0b3cf60e54f1e47b 100644
+--- a/src/RefreshControl.web.js
++++ b/src/RefreshControl.web.js
+@@ -77,7 +77,7 @@ export default function RefreshControl({
+       onStartShouldSetPanResponderCapture: () => false,
+       onMoveShouldSetPanResponder: (_,gestureState) => {
+         if (!containerRef.current) return false
+-        const containerDOM = findNodeHandle(containerRef.current)
++        const containerDOM = containerRef.current
+         if (!containerDOM) return false
+         return containerDOM.children[0].scrollTop === 0
+         && (Math.abs(gestureState.dy) > Math.abs(gestureState.dx) * 2 && Math.abs(gestureState.vy) > Math.abs(gestureState.vx) * 2.5)

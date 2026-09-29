@@ -98,7 +98,9 @@ export function DashboardActionMenu({
 }: DashboardActionMenuProps) {
   const [menuVisible, setMenuVisible] = useState(false);
 
-  const pendingActionRef = useRef<'create-expense' | 'create-group' | 'join-group' | null>(null);
+  const pendingActionRef = useRef<
+    'create-expense' | 'create-group' | 'join-group' | null
+  >(null);
   const rotation = useSharedValue(0);
 
   const itemAnimations: ItemAnimationState[] = MENU_ITEMS.map(() => ({

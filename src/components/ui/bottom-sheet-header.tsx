@@ -108,7 +108,7 @@ export function BottomSheetHeader({
       >
         <Pressable
           onPress={onClose}
-          className="h-8 w-8 items-center justify-center rounded-full z-10"
+          className="z-10 h-8 w-8 items-center justify-center rounded-full"
           style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}
         >
           <FontAwesome6 name="arrow-left" size={18} color="#FFFFFF" />
@@ -131,13 +131,13 @@ export function BottomSheetHeader({
             por debajo del inicio de la sábana blanca, el logo a bottom: 40 queda 
             completamente oculto detrás de la sábana blanca. */}
         {logo && (
-          <View 
-            className="items-center" 
-            style={{ 
-              position: 'absolute', 
-              left: 0, 
-              right: 0, 
-              bottom: 40
+          <View
+            className="items-center"
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 40,
             }}
           >
             <Image
