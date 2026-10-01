@@ -65,5 +65,6 @@
     "export:web": "EXPO_PUBLIC_API_URL=https://api-duobalance.duckdns.org expo export -p web",
     "postexport:web": "node ./scripts/fix-pnpm-paths.js"
   },
-  "private": true
+  "private": true,
+  "packageManager": "pnpm@11.17.0"
 }
