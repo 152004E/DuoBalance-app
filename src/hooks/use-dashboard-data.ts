@@ -3,12 +3,9 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getExpenses } from '@/services/api/expenses';
 import { getPayments } from '@/services/api/payments';
-import type {
-  GroupResponse,
-  ExpenseResponse,
-  PaymentResponse,
-} from '@/types/api';
+import type { GroupResponse } from '@/types/api';
 import type { WorkspaceState } from '@/features/workspace/workspace.types';
+import type { DashboardViewMode } from '@/storage/preferences';
 import {
   getCategoryMeta,
   CATEGORY_LABELS,
@@ -22,6 +19,8 @@ export type BalanceDirection = 'OWED_TO_ME' | 'I_OWE' | 'SETTLED';
 export interface DashboardData {
   isLoading: boolean;
   hasData: boolean;
+  hasAllTimeExpenses: boolean;
+  viewMode: DashboardViewMode;
   balance: number;
   partnerShare: number;
   direction: BalanceDirection;
@@ -51,6 +50,7 @@ export function useDashboardData(
   workspace: WorkspaceState,
   groups: GroupResponse[],
   userId?: string,
+  viewMode: DashboardViewMode = 'monthly',
 ): DashboardData {
   const targetGroupIds = useMemo(() => {
     if (workspace.groupId) return [workspace.groupId];
@@ -67,21 +67,42 @@ export function useDashboardData(
   }, [workspace.groupId, workspace.category, groups]);
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ['dashboard', targetGroupIds.join(',')],
+    queryKey: ['dashboard', targetGroupIds.join(','), viewMode],
     queryFn: async () => {
       const monthStart = getMonthStart().toISOString();
-      const promises = targetGroupIds.map((groupId) =>
-        getExpenses({ groupId, startDate: monthStart }),
-      );
-      const results = await Promise.all(promises);
-      const expenses = results.flat();
 
+      // Consultar gastos según el modo seleccionado
+      const expensePromises = targetGroupIds.map((groupId) =>
+        getExpenses(
+          viewMode === 'monthly'
+            ? { groupId, startDate: monthStart }
+            : { groupId },
+        ),
+      );
+      const expenseResults = await Promise.all(expensePromises);
+      const expenses = expenseResults.flat();
+
+      // Consultar pagos del grupo
       const paymentPromises = targetGroupIds.map((groupId) =>
         getPayments(groupId),
       );
       const paymentResults = await Promise.all(paymentPromises);
       const payments = paymentResults.flat();
-      return { expenses, payments };
+
+      // Si estamos en modo mensual y no hay gastos este mes, chequear si existen gastos históricos
+      let hasAllTimeExpenses = expenses.length > 0;
+      let allTimeExpenses = expenses;
+
+      if (viewMode === 'monthly') {
+        const allTimePromises = targetGroupIds.map((groupId) =>
+          getExpenses({ groupId }),
+        );
+        const allTimeResults = await Promise.all(allTimePromises);
+        allTimeExpenses = allTimeResults.flat();
+        hasAllTimeExpenses = allTimeExpenses.length > 0;
+      }
+
+      return { expenses, payments, hasAllTimeExpenses, allTimeExpenses };
     },
     enabled: targetGroupIds.length > 0,
   });
@@ -95,7 +116,17 @@ export function useDashboardData(
     }
     return raw;
   }, [data?.expenses, isGlobalView]);
+
+  const allTimeExpenses = useMemo(() => {
+    const raw = data?.allTimeExpenses ?? [];
+    if (isGlobalView) {
+      return raw.filter((e) => !e.linkedExpenseId && !e.linkedPaymentId);
+    }
+    return raw;
+  }, [data?.allTimeExpenses, isGlobalView]);
+
   const payments = data?.payments ?? [];
+  const hasAllTimeExpenses = data?.hasAllTimeExpenses ?? false;
 
   // ── Balance neto del usuario ─────────────────────────────────────────
   const totalPaidByMe = expenses
@@ -127,7 +158,7 @@ export function useDashboardData(
   const direction: BalanceDirection =
     netBalance > 0 ? 'OWED_TO_ME' : netBalance < 0 ? 'I_OWE' : 'SETTLED';
 
-  // ── Transacciones del mes (últimas 5) ────────────────────────────────
+  // ── Transacciones recientes (últimas 5) ──────────────────────────────
   const memberNames = useMemo(() => {
     const names = new Map<string, string>();
     for (const g of groups) {
@@ -140,7 +171,11 @@ export function useDashboardData(
     return names;
   }, [groups]);
 
-  const transactions: RecentExpense[] = expenses
+  // Si hay gastos en el período activo, usamos esos; si no, mostramos los últimos históricos para no dejar la pantalla muerta
+  const sourceExpensesForTransactions =
+    expenses.length > 0 ? expenses : allTimeExpenses;
+
+  const transactions: RecentExpense[] = sourceExpensesForTransactions
     .slice()
     .sort(
       (a, b) =>
@@ -162,8 +197,8 @@ export function useDashboardData(
       };
     });
 
-  // ── Top categoría del mes ────────────────────────────────────────────
-  const totalMonth = expenses.reduce((acc, e) => acc + Number(e.amount), 0);
+  // ── Top categoría ────────────────────────────────────────────────────
+  const totalBalance = expenses.reduce((acc, e) => acc + Number(e.amount), 0);
 
   const categoryTotals = new Map<string, number>();
   for (const e of expenses) {
@@ -182,7 +217,9 @@ export function useDashboardData(
         category: CATEGORY_LABELS[topEntry[0]] ?? topEntry[0],
         amount: topEntry[1],
         percentage:
-          totalMonth > 0 ? Math.round((topEntry[1] / totalMonth) * 100) : 0,
+          totalBalance > 0
+            ? Math.round((topEntry[1] / totalBalance) * 100)
+            : 0,
         icon: getCategoryMeta(topEntry[0]).icon,
         color: CATEGORY_COLORS[topEntry[0]] ?? '#64748B',
       }
@@ -212,8 +249,10 @@ export function useDashboardData(
 
   return {
     isLoading,
-    hasData: expenses.length > 0,
-    balance: totalMonth,
+    hasData: expenses.length > 0 || transactions.length > 0,
+    hasAllTimeExpenses,
+    viewMode,
+    balance: totalBalance,
     partnerShare: Math.abs(netBalance),
     direction,
     transactions,

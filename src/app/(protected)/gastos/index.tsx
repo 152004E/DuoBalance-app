@@ -27,6 +27,7 @@ import {
 } from '@/services/api/expenses';
 import Toast from 'react-native-toast-message';
 import { useWorkspace } from '@/hooks/use-workspace';
+import { useDashboardPreferences } from '@/hooks/use-dashboard-preferences';
 import { getCategoryMeta } from '@/constants/categories';
 import type { ExpenseResponse, GroupResponse } from '@/types/api';
 
@@ -51,8 +52,9 @@ function expenseToRecent(e: ExpenseResponse, userId: string): RecentExpense {
 export default function GastosScreen() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { viewMode } = useDashboardPreferences();
   const { groups, personalGroups, coupleGroups, sharedGroups } = useGroups();
-  const { summaries } = useGroupSummaries(groups);
+  const { summaries } = useGroupSummaries(groups, viewMode);
   const [focusCount, setFocusCount] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = useCallback(async () => {
@@ -243,6 +245,7 @@ export default function GastosScreen() {
                 title=""
                 groups={filteredGroups}
                 summaries={summaries}
+                viewMode={viewMode}
                 onPress={(group) => router.push(`/grupos/${group.id}`)}
                 currentUserId={user?.id}
               />

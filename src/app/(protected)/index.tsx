@@ -32,7 +32,9 @@ import { createExpense, uploadExpenseReceipt } from '@/services/api/expenses';
 import { joinGroup } from '@/services/api/groups';
 import type { GroupResponse } from '@/types/api';
 import { useWorkspace } from '@/hooks/use-workspace';
+import { useDashboardPreferences } from '@/hooks/use-dashboard-preferences';
 import { WelcomeModal } from '@/components/auth/welcome-modal';
+import { MonthlyResetModal } from '@/components/dashboard/monthly-reset-modal';
 import { BudgetWidget } from '@/components/budget/budget-widget';
 import { SetBudgetSheet } from '@/components/budget/set-budget-sheet';
 import Toast from 'react-native-toast-message';
@@ -55,10 +57,17 @@ export default function DashboardScreen() {
     refetch: refetchGroups,
   } = useGroups();
   const { workspace, setWorkspace } = useWorkspace();
-  const { summaries } = useGroupSummaries(groups);
+  const {
+    viewMode,
+    isNoticeDismissed,
+    dismissNoticeForCurrentMonth,
+    isLoaded: isPrefsLoaded,
+  } = useDashboardPreferences();
+  const { summaries } = useGroupSummaries(groups, viewMode);
   const {
     isLoading,
     hasData,
+    hasAllTimeExpenses,
     balance,
     partnerShare,
     direction,
@@ -66,7 +75,7 @@ export default function DashboardScreen() {
     topCategory,
     memberSplit,
     refetch,
-  } = useDashboardData(workspace, groups, user?.id);
+  } = useDashboardData(workspace, groups, user?.id, viewMode);
   const {
     dues,
     totalDue,
@@ -249,6 +258,7 @@ export default function DashboardScreen() {
               title="Personal"
               groups={personalGroups}
               summaries={summaries}
+              viewMode={viewMode}
               horizontal
               onPress={(group) => router.push(`/grupos/${group.id}`)}
               currentUserId={user?.id}
@@ -260,6 +270,7 @@ export default function DashboardScreen() {
               title="Parejas"
               groups={coupleGroups}
               summaries={summaries}
+              viewMode={viewMode}
               horizontal
               onPress={(group) => router.push(`/grupos/${group.id}`)}
               currentUserId={user?.id}
@@ -271,6 +282,7 @@ export default function DashboardScreen() {
               title="Grupos"
               groups={sharedGroups}
               summaries={summaries}
+              viewMode={viewMode}
               horizontal
               onPress={(group) => router.push(`/grupos/${group.id}`)}
               currentUserId={user?.id}
@@ -290,8 +302,16 @@ export default function DashboardScreen() {
             <Loading message="Cargando tu actividad..." />
           ) : !hasData ? (
             <EmptyStateCard
-              title="Sin gastos este mes"
-              description="Registra tu primer gasto para ver tu resumen aquí."
+              title={
+                viewMode === 'monthly'
+                  ? 'Sin gastos este mes'
+                  : 'Sin gastos registrados'
+              }
+              description={
+                viewMode === 'monthly'
+                  ? 'Registra tu primer gasto para ver tu resumen aquí.'
+                  : 'Crea o únete a un grupo y registra tu primer gasto.'
+              }
             />
           ) : (
             <>
@@ -405,6 +425,22 @@ export default function DashboardScreen() {
       <SetBudgetSheet
         visible={showBudgetSheet}
         onClose={() => setShowBudgetSheet(false)}
+      />
+
+      <MonthlyResetModal
+        visible={
+          isPrefsLoaded &&
+          !isNoticeDismissed &&
+          viewMode === 'monthly' &&
+          balance === 0 &&
+          hasAllTimeExpenses &&
+          !isLoading
+        }
+        onClose={dismissNoticeForCurrentMonth}
+        onGoToSettings={() => {
+          dismissNoticeForCurrentMonth();
+          router.push('/perfil/configuracion');
+        }}
       />
 
       <WelcomeModal />

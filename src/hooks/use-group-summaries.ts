@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getExpenses } from '@/services/api/expenses';
 import type { GroupResponse } from '@/types/api';
+import type { DashboardViewMode } from '@/storage/preferences';
 
 export interface GroupSummary {
   count: number;
@@ -21,6 +22,7 @@ function getCurrentMonthRange(): { startDate: string; endDate: string } {
 
 export function useGroupSummaries(
   groups: GroupResponse[],
+  viewMode: DashboardViewMode = 'monthly',
 ): UseGroupSummariesReturn {
   const groupIds = groups
     .map((g) => g.id)
@@ -28,17 +30,23 @@ export function useGroupSummaries(
     .join(',');
 
   const { data: summaries = {}, isLoading } = useQuery({
-    queryKey: ['group-summaries', groupIds],
+    queryKey: ['group-summaries', groupIds, viewMode],
     queryFn: async () => {
       const { startDate, endDate } = getCurrentMonthRange();
       const results = await Promise.all(
         groups.map(async (group) => {
           try {
-            const expenses = await getExpenses({
-              groupId: group.id,
-              startDate,
-              endDate,
-            });
+            const expenses = await getExpenses(
+              viewMode === 'monthly'
+                ? {
+                    groupId: group.id,
+                    startDate,
+                    endDate,
+                  }
+                : {
+                    groupId: group.id,
+                  },
+            );
             const total = expenses.reduce(
               (acc, e) => acc + Number(e.amount),
               0,

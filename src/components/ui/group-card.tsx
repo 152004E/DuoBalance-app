@@ -3,6 +3,7 @@ import { View, Text, Pressable } from 'react-native';
 import { router } from 'expo-router';
 import { FontAwesome6 } from '@expo/vector-icons';
 import type { GroupResponse } from '@/types/api';
+import type { DashboardViewMode } from '@/storage/preferences';
 import { Button } from './button';
 
 interface GroupSummary {
@@ -20,6 +21,7 @@ interface GroupCardProps {
   group: GroupResponse;
   summary?: GroupSummary;
   showMenu?: boolean;
+  viewMode?: DashboardViewMode;
   onPress?: () => void;
   onMenu?: () => void;
   currentUserId?: string;
@@ -29,6 +31,7 @@ export function GroupCard({
   group,
   summary,
   showMenu = false,
+  viewMode = 'monthly',
   onPress,
   onMenu,
   currentUserId,
@@ -127,7 +130,8 @@ export function GroupCard({
                   : group.name}
               </Text>
               <Text className="text-sm text-[#64748B]">
-                {transactionCount} {plural} este mes
+                {transactionCount} {plural}{' '}
+                {viewMode === 'monthly' ? 'este mes' : 'en total'}
               </Text>
             </View>
           </View>
