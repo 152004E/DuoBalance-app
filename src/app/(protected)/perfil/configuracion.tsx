@@ -21,6 +21,7 @@ import { usePwaInstall } from '@/hooks/use-pwa-install';
 import { usePushNotifications } from '@/hooks/use-push-notifications';
 import { changePassword, deleteAccount } from '@/services/api/auth';
 import { extractErrorMessage } from '@/utils/errors';
+import { useDashboardPreferences } from '@/hooks/use-dashboard-preferences';
 
 function InstallPwaSection() {
   const { isInstallable, isIosPrompt, promptInstall } = usePwaInstall({
@@ -127,6 +128,7 @@ const currencies = [
 export default function ConfiguracionScreen() {
   const { user, signOut } = useAuth();
   const { requestSubscription, isSubscribing } = usePushNotifications();
+  const { viewMode, setViewMode } = useDashboardPreferences();
 
   // Password change state
   const [currentPassword, setCurrentPassword] = useState('');
@@ -460,6 +462,83 @@ export default function ConfiguracionScreen() {
             </View>
 
             <View className="rounded-2xl bg-white p-4 shadow-sm">
+              <Text className="mb-1 text-sm font-semibold text-[#0F172A]">
+                Visualización del Inicio
+              </Text>
+              <Text className="mb-3 text-xs text-[#64748B]">
+                Define cómo calcular tus balances y movimientos en la pantalla principal
+              </Text>
+              <View className="gap-2.5">
+                <Pressable
+                  onPress={() => setViewMode('monthly')}
+                  className={`flex-row items-center justify-between rounded-xl border p-3.5 ${
+                    viewMode === 'monthly'
+                      ? 'border-[#10B981] bg-[#10B981]/10'
+                      : 'border-[#E2E8F0] bg-[#F8FAFC]'
+                  }`}
+                >
+                  <View className="flex-1 pr-3">
+                    <View className="flex-row items-center gap-2">
+                      <Text
+                        className={`text-sm font-bold ${
+                          viewMode === 'monthly'
+                            ? 'text-[#10B981]'
+                            : 'text-[#0F172A]'
+                        }`}
+                      >
+                        Por mes (Recomendado)
+                      </Text>
+                      <View className="rounded-full bg-[#10B981]/20 px-2 py-0.5">
+                        <Text className="text-[10px] font-bold text-[#059669]">
+                          Control mensual
+                        </Text>
+                      </View>
+                    </View>
+                    <Text className="mt-1 text-xs text-[#64748B]">
+                      Muestra únicamente los gastos y balances del mes en curso. Se reinicia cada día 1.
+                    </Text>
+                  </View>
+                  <FontAwesome6
+                    name={viewMode === 'monthly' ? 'circle-dot' : 'circle'}
+                    size={18}
+                    color={viewMode === 'monthly' ? '#10B981' : '#94A3B8'}
+                  />
+                </Pressable>
+
+                <Pressable
+                  onPress={() => setViewMode('all_time')}
+                  className={`flex-row items-center justify-between rounded-xl border p-3.5 ${
+                    viewMode === 'all_time'
+                      ? 'border-[#10B981] bg-[#10B981]/10'
+                      : 'border-[#E2E8F0] bg-[#F8FAFC]'
+                  }`}
+                >
+                  <View className="flex-1 pr-3">
+                    <View className="flex-row items-center gap-2">
+                      <Text
+                        className={`text-sm font-bold ${
+                          viewMode === 'all_time'
+                            ? 'text-[#10B981]'
+                            : 'text-[#0F172A]'
+                        }`}
+                      >
+                        Histórico completo
+                      </Text>
+                    </View>
+                    <Text className="mt-1 text-xs text-[#64748B]">
+                      Muestra el total consolidado acumulado de todos tus gastos de todos los tiempos.
+                    </Text>
+                  </View>
+                  <FontAwesome6
+                    name={viewMode === 'all_time' ? 'circle-dot' : 'circle'}
+                    size={18}
+                    color={viewMode === 'all_time' ? '#10B981' : '#94A3B8'}
+                  />
+                </Pressable>
+              </View>
+
+              <View className="my-4 h-[1px] bg-[#F1F5F9]" />
+
               <Text className="mb-1 text-sm font-semibold text-[#0F172A]">
                 Moneda preferida
               </Text>

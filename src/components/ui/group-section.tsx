@@ -1,5 +1,6 @@
 import { View, Text, ScrollView, Dimensions } from 'react-native';
 import type { GroupResponse } from '@/types/api';
+import type { DashboardViewMode } from '@/storage/preferences';
 import { GroupCard } from './group-card';
 import type { GroupSummary } from '@/hooks/use-group-summaries';
 
@@ -11,6 +12,7 @@ interface GroupSectionProps {
   summaries?: Record<string, GroupSummary>;
   horizontal?: boolean;
   showMenu?: boolean;
+  viewMode?: DashboardViewMode;
   onPress?: (group: GroupResponse) => void;
   onMenu?: (group: GroupResponse) => void;
   currentUserId?: string;
@@ -22,6 +24,7 @@ export function GroupSection({
   summaries,
   horizontal = false,
   showMenu = false,
+  viewMode = 'monthly',
   onPress,
   onMenu,
   currentUserId,
@@ -48,6 +51,7 @@ export function GroupSection({
                   group={group}
                   summary={summaries?.[group.id]}
                   showMenu={showMenu}
+                  viewMode={viewMode}
                   onPress={() => onPress?.(group)}
                   onMenu={() => onMenu?.(group)}
                   currentUserId={currentUserId}
@@ -63,6 +67,7 @@ export function GroupSection({
                 group={group}
                 summary={summaries?.[group.id]}
                 showMenu={showMenu}
+                viewMode={viewMode}
                 onPress={() => onPress?.(group)}
                 onMenu={() => onMenu?.(group)}
                 currentUserId={currentUserId}
@@ -78,6 +83,7 @@ export function GroupSection({
               group={group}
               summary={summaries?.[group.id]}
               showMenu={showMenu}
+              viewMode={viewMode}
               onPress={() => onPress?.(group)}
               onMenu={() => onMenu?.(group)}
               currentUserId={currentUserId}
