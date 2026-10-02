@@ -236,7 +236,17 @@ export default function MovimientosScreen() {
       <ScreenHeader
         title={title}
         subtitle={subtitle}
-        onBack={() => router.back()}
+        onBack={() => {
+          if (router.canGoBack()) {
+            router.back();
+          } else {
+            if (isGroupMode) {
+              router.replace(`/grupos/${groupId}`);
+            } else {
+              router.replace('/');
+            }
+          }
+        }}
       />
 
       {/* Buscador + Filtros */}
