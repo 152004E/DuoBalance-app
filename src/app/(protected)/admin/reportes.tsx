@@ -1,7 +1,7 @@
 import { getUserDisplayName } from '@/utils/user';
 import React, { useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { HeroSection } from '@/components/layout/HeroSection';
 import { useAuth } from '@/hooks/use-auth';
@@ -9,11 +9,13 @@ import { useAuth } from '@/hooks/use-auth';
 export default function AdminReportesScreen() {
   const { user } = useAuth();
 
-  useEffect(() => {
-    if (user?.role !== 'SUPER_ADMIN') {
-      router.replace('/perfil');
-    }
-  }, [user]);
+  useFocusEffect(
+    React.useCallback(() => {
+      if (user?.role !== 'SUPER_ADMIN') {
+        router.replace('/perfil');
+      }
+    }, [user])
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]" edges={['top']}>

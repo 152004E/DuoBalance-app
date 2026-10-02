@@ -225,7 +225,17 @@ export default function ExpenseDetailScreen() {
         <ScreenHeader
           title="Detalle del gasto"
           subtitle={expense.description}
-          onBack={() => router.back()}
+          onBack={() => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              if (expense?.groupId) {
+                router.navigate(`/grupos/${expense.groupId}`);
+              } else {
+                router.navigate('/gastos');
+              }
+            }
+          }}
           onAction={() => setMenuVisible(true)}
           actionIcon="ellipsis-vertical"
           actionColor="#64748B"
@@ -390,7 +400,13 @@ function renderLayout(
       <ScreenHeader
         title={title}
         subtitle={subtitle}
-        onBack={() => router.back()}
+        onBack={() => {
+          if (router.canGoBack()) {
+            router.back();
+          } else {
+            router.navigate('/gastos');
+          }
+        }}
       />
       {content}
     </SafeAreaView>
