@@ -57,6 +57,7 @@ export default function ProtectedLayout() {
   return (
     <WorkspaceProvider>
       <Tabs
+        initialRouteName="index"
         screenOptions={{ headerShown: false }}
         tabBar={(props) => <BottomTab {...props} />}
       >

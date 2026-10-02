@@ -7,7 +7,7 @@ import {
   Pressable,
   Text,
 } from 'react-native';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { HeroSection } from '@/components/layout/HeroSection';
@@ -32,13 +32,17 @@ export default function AdminUsersScreen() {
     user: AdminUserItem | null;
   }>({ visible: false, user: null });
 
-  useEffect(() => {
-    if (user?.role !== 'SUPER_ADMIN') {
-      router.replace('/perfil');
-      return;
-    }
-    loadData();
-  }, [user]);
+  useFocusEffect(
+    React.useCallback(() => {
+      let isActive = true;
+      if (user?.role !== 'SUPER_ADMIN') {
+        router.replace('/perfil');
+        return;
+      }
+      loadData();
+      return () => { isActive = false; };
+    }, [user])
+  );
 
   const loadData = async () => {
     try {
