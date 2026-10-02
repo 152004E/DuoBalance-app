@@ -237,14 +237,10 @@ export default function MovimientosScreen() {
         title={title}
         subtitle={subtitle}
         onBack={() => {
-          if (router.canGoBack()) {
-            router.back();
+          if (isGroupMode) {
+            router.navigate(`/grupos/${groupId}`);
           } else {
-            if (isGroupMode) {
-              router.replace(`/grupos/${groupId}`);
-            } else {
-              router.replace('/');
-            }
+            router.navigate('/');
           }
         }}
       />
