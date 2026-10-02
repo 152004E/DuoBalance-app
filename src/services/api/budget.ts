@@ -5,8 +5,9 @@ export const getPersonalBudget = async (
   month: number,
   year: number,
 ): Promise<BudgetResponse> => {
+  const tzOffset = new Date().getTimezoneOffset(); // Enviar zona horaria del cliente
   const { data } = await api.get<BudgetResponse>('/budget/personal', {
-    params: { month, year },
+    params: { month, year, tzOffset },
   });
   return data;
 };

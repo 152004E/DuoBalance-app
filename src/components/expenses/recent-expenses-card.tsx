@@ -58,6 +58,11 @@ export function RecentExpensesCard({
           key={expense.id}
           onPress={() => onExpensePress?.(expense)}
           className={`flex-row items-center justify-between px-5 py-4 ${index > 0 ? 'border-t border-[#E2E8F0]' : ''}`}
+          style={{
+            backgroundColor: expense.originGroup
+              ? `${expense.originGroup.color}14` // 8% opacity tint (hex 14)
+              : 'transparent',
+          }}
         >
           <View className="min-w-0 flex-1 flex-row items-center gap-4">
             <View

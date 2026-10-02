@@ -134,7 +134,10 @@ export default function MovimientosScreen() {
     return allExpenses.filter((e) => {
       if (!filteredGroupIds.has(e.groupId)) return false;
 
-      const isGlobalView = workspace.category === 'all' && !workspace.groupId;
+      const isGlobalView =
+        !isGroupMode &&
+        workspace.category === 'all' &&
+        !workspace.groupId;
       if (isGlobalView && (e.linkedExpenseId || e.linkedPaymentId)) {
         return false;
       }
