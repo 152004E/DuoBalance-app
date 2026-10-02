@@ -27,8 +27,9 @@ export const getSettlement = async (
   month?: number,
   year?: number,
 ): Promise<SettlementResponse> => {
+  const tzOffset = new Date().getTimezoneOffset();
   const { data } = await api.get<SettlementResponse>('/settlements', {
-    params: { groupId, month, year },
+    params: { groupId, month, year, tzOffset },
   });
   return data;
 };
@@ -38,9 +39,10 @@ export const getSettlementSuggestions = async (
   month?: number,
   year?: number,
 ): Promise<SettlementSuggestionsResponse> => {
+  const tzOffset = new Date().getTimezoneOffset();
   const { data } = await api.get<SettlementSuggestionsResponse>(
     '/settlements/suggestions',
-    { params: { groupId, month, year } },
+    { params: { groupId, month, year, tzOffset } },
   );
   return data;
 };

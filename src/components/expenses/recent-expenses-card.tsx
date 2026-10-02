@@ -58,6 +58,11 @@ export function RecentExpensesCard({
           key={expense.id}
           onPress={() => onExpensePress?.(expense)}
           className={`flex-row items-center justify-between px-5 py-4 ${index > 0 ? 'border-t border-[#E2E8F0]' : ''}`}
+          style={{
+            backgroundColor: expense.originGroup
+              ? `${expense.originGroup.color}14` // 8% opacity tint (hex 14)
+              : 'transparent',
+          }}
         >
           <View className="min-w-0 flex-1 flex-row items-center gap-4">
             <View
@@ -71,15 +76,24 @@ export function RecentExpensesCard({
               />
             </View>
             <View className="min-w-0 flex-1">
-              <View className="flex-row items-center gap-2">
-                <Text
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                  className="shrink font-semibold text-[#0F172A]"
-                >
-                  {expense.name}
-                </Text>
-                {expense.originGroup && (
+              <Text
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                className="font-semibold text-[#0F172A]"
+              >
+                {expense.name}
+              </Text>
+              
+              <Text
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                className="mt-0.5 text-xs text-[#64748B]"
+              >
+                {expense.date} • Pagado por {expense.paidBy}
+              </Text>
+
+              {expense.originGroup && (
+                <View className="mt-1 flex-row items-center">
                   <View
                     className="rounded-md px-1.5 py-0.5"
                     style={{
@@ -94,15 +108,8 @@ export function RecentExpensesCard({
                       {expense.originGroup.name}
                     </Text>
                   </View>
-                )}
-              </View>
-              <Text
-                numberOfLines={1}
-                ellipsizeMode="tail"
-                className="text-xs text-[#64748B]"
-              >
-                {expense.date} • Pagado por {expense.paidBy}
-              </Text>
+                </View>
+              )}
             </View>
           </View>
           <View className="ml-3 shrink-0 items-end">

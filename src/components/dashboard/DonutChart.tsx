@@ -27,7 +27,7 @@ export function DonutChart({ data }: DonutChartProps) {
       <View className="relative">
         <Svg width={size} height={size}>
           <G transform={`rotate(-90, ${cx}, ${cy})`}>
-            {data.map((segment) => {
+            {data.map((segment, index) => {
               const segmentLength =
                 total > 0 ? (segment.value / total) * circumference : 0;
               const segmentOffset = offset;
@@ -35,7 +35,7 @@ export function DonutChart({ data }: DonutChartProps) {
 
               return (
                 <Circle
-                  key={segment.label}
+                  key={`${segment.label}-${index}`}
                   cx={cx}
                   cy={cy}
                   r={radius}
@@ -58,11 +58,11 @@ export function DonutChart({ data }: DonutChartProps) {
       </View>
 
       <View className="mt-4 flex-row flex-wrap justify-center gap-x-4 gap-y-2">
-        {data.map((segment) => {
+        {data.map((segment, index) => {
           const percent =
             total > 0 ? Math.round((segment.value / total) * 100) : 0;
           return (
-            <View key={segment.label} className="flex-row items-center gap-1.5">
+            <View key={`${segment.label}-${index}`} className="flex-row items-center gap-1.5">
               <View
                 className="h-2.5 w-2.5 rounded-full"
                 style={{ backgroundColor: segment.color }}

@@ -134,7 +134,10 @@ export default function MovimientosScreen() {
     return allExpenses.filter((e) => {
       if (!filteredGroupIds.has(e.groupId)) return false;
 
-      const isGlobalView = workspace.category === 'all' && !workspace.groupId;
+      const isGlobalView =
+        !isGroupMode &&
+        workspace.category === 'all' &&
+        !workspace.groupId;
       if (isGlobalView && (e.linkedExpenseId || e.linkedPaymentId)) {
         return false;
       }
@@ -233,7 +236,17 @@ export default function MovimientosScreen() {
       <ScreenHeader
         title={title}
         subtitle={subtitle}
-        onBack={() => router.back()}
+        onBack={() => {
+          if (router.canGoBack()) {
+            router.back();
+          } else {
+            if (isGroupMode) {
+              router.replace(`/grupos/${groupId}`);
+            } else {
+              router.replace('/');
+            }
+          }
+        }}
       />
 
       {/* Buscador + Filtros */}
