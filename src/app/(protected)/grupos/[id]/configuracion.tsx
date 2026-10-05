@@ -32,6 +32,7 @@ import {
   archiveGroup,
   updateMemberSplit,
   regenerateInviteCode,
+  leaveGroup,
 } from '@/services/api/groups';
 import { setMainGroup } from '@/services/api/auth';
 import { useAuth } from '@/hooks/use-auth';
@@ -65,6 +66,10 @@ export default function ConfiguracionGrupoScreen() {
 
   const [inviteVisible, setInviteVisible] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
+
+  const [leaveVisible, setLeaveVisible] = useState(false);
+  const [leaveLoading, setLeaveLoading] = useState(false);
+  const [mainGroupAlertVisible, setMainGroupAlertVisible] = useState(false);
 
   const { user, updateUser } = useAuth();
   const [isMainGroupLoading, setIsMainGroupLoading] = useState(false);
@@ -114,7 +119,8 @@ export default function ConfiguracionGrupoScreen() {
   const currentMember = group?.members.find(
     (m) => m.role === 'OWNER' || m.role === 'ADMIN',
   );
-  const myMembership = group?.members[0];
+  const myMembership = group?.members.find((m) => m.user.id === user?.id);
+  const isOwner = myMembership?.role === 'OWNER';
   const yourPercentage = adjustYourPercentage;
   const partnerPercentage = 100 - yourPercentage;
 
@@ -248,6 +254,21 @@ export default function ConfiguracionGrupoScreen() {
       setDeleteError(message);
     } finally {
       setDeleteLoading(false);
+    }
+  };
+
+  const handleLeave = async () => {
+    setLeaveLoading(true);
+    try {
+      await leaveGroup(id);
+      setLeaveVisible(false);
+      router.replace('/(protected)/grupos');
+    } catch (err: unknown) {
+      setSuccessMessage('Error al salir del grupo');
+      setTimeout(() => setSuccessMessage(null), 2500);
+      setLeaveVisible(false);
+    } finally {
+      setLeaveLoading(false);
     }
   };
 
@@ -834,15 +855,33 @@ export default function ConfiguracionGrupoScreen() {
 
               <View className="border-t border-[#E2E8F0]" />
 
-              <Pressable
-                onPress={() => setDeleteVisible(true)}
-                className="w-full flex-row items-center gap-3 px-5 py-4 active:bg-[#FEF2F2]"
-              >
-                <FontAwesome6 name="trash" size={20} color="#EF4444" />
-                <Text className="text-base font-semibold text-[#EF4444]">
-                  Eliminar grupo
-                </Text>
-              </Pressable>
+              {isOwner ? (
+                <Pressable
+                  onPress={() => {
+                    if (group.type === 'PERSONAL' && isMainGroup) {
+                      setMainGroupAlertVisible(true);
+                    } else {
+                      setDeleteVisible(true);
+                    }
+                  }}
+                  className="w-full flex-row items-center gap-3 px-5 py-4 active:bg-[#FEF2F2]"
+                >
+                  <FontAwesome6 name="trash" size={20} color="#EF4444" />
+                  <Text className="text-base font-semibold text-[#EF4444]">
+                    Eliminar grupo
+                  </Text>
+                </Pressable>
+              ) : (
+                <Pressable
+                  onPress={() => setLeaveVisible(true)}
+                  className="w-full flex-row items-center gap-3 px-5 py-4 active:bg-[#FEF2F2]"
+                >
+                  <FontAwesome6 name="door-open" size={20} color="#EF4444" />
+                  <Text className="text-base font-semibold text-[#EF4444]">
+                    Salir del grupo
+                  </Text>
+                </Pressable>
+              )}
             </View>
           </Animated.View>
         </View>
@@ -907,6 +946,30 @@ export default function ConfiguracionGrupoScreen() {
         message={deleteError ?? ''}
         buttonText="Cerrar"
         onClose={() => setDeleteError(null)}
+      />
+
+      <AlertModal
+        visible={mainGroupAlertVisible}
+        type="warning"
+        title="No puedes eliminar este grupo"
+        message="Este es tu Grupo Personal Principal. Primero debes establecer otro grupo personal como principal en sus configuraciones antes de poder eliminar este."
+        buttonText="Entendido"
+        onClose={() => setMainGroupAlertVisible(false)}
+      />
+
+      <AlertModal
+        visible={leaveVisible}
+        type="warning"
+        title="Salir del grupo"
+        message="¿Estás seguro de que quieres salir de este grupo? Ya no podrás ver los gastos ni liquidaciones."
+        buttonText={leaveLoading ? 'Saliendo...' : 'Salir del grupo'}
+        cancelText="Cancelar"
+        onCancel={() => {
+          if (!leaveLoading) setLeaveVisible(false);
+        }}
+        onClose={() => {
+          if (!leaveLoading) handleLeave();
+        }}
       />
 
       {/* Bottom Sheet: Editar nombre */}

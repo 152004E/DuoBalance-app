@@ -10,6 +10,7 @@ import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { BottomSheetHeader } from '@/components/ui/bottom-sheet-header';
 import { Button } from '@/components/ui/button';
 import { AlertModal } from '@/components/ui/alert-modal';
+import { useAuth } from '@/hooks/use-auth';
 
 type GroupType = 'personal' | 'pareja' | 'grupo';
 type SplitOption = '50_50' | 'percentage';
@@ -79,6 +80,8 @@ export function CreateCoupleSheet({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const { user, updateUser } = useAuth();
+
   const partnerPercentage = 100 - yourPercentage;
 
   const isDisabled =
@@ -132,6 +135,10 @@ export function CreateCoupleSheet({
               : yourPercentage
             : undefined,
       });
+
+      if (group.type === 'PERSONAL' && !user?.mainPersonalGroupId && user) {
+        await updateUser({ ...user, mainPersonalGroupId: group.id });
+      }
 
       queryClient.invalidateQueries({ queryKey: ['groups'] });
       onClose();
