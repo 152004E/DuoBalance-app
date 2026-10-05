@@ -8,13 +8,15 @@ import { useState } from 'react';
 import { getCategoryMeta, CATEGORIES } from '@/constants/categories';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { AlertModal } from '@/components/ui/alert-modal';
+import { formatAmountInput, parseAmount } from '@/utils/format';
 
 interface FixedExpense {
   id: string;
   description: string;
-  baseAmount: string;
+  baseAmount: string | null;
   category: any;
   recurrence: string;
+  scheduledDay: number | null;
 }
 
 export default function GastosFijosScreen() {
@@ -27,6 +29,7 @@ export default function GastosFijosScreen() {
   const [baseAmount, setBaseAmount] = useState('');
   const [category, setCategory] = useState<any>('OTHER');
   const [recurrence, setRecurrence] = useState('OCCASIONAL');
+  const [scheduledDay, setScheduledDay] = useState<number>(1);
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   
   // Delete State
@@ -49,6 +52,7 @@ export default function GastosFijosScreen() {
       setIsCreating(false);
       setDescription('');
       setBaseAmount('');
+      setScheduledDay(1);
     },
   });
 
@@ -63,12 +67,14 @@ export default function GastosFijosScreen() {
   });
 
   const handleCreate = () => {
-    if (!description || !baseAmount) return;
+    if (!description) return;
+    if (recurrence === 'MONTHLY' && (!scheduledDay || scheduledDay < 1 || scheduledDay > 31)) return;
     createMutation.mutate({
       description,
-      baseAmount: Number(baseAmount),
+      baseAmount: baseAmount ? parseAmount(baseAmount) : null,
       category,
       recurrence,
+      scheduledDay: recurrence === 'MONTHLY' ? scheduledDay : null,
     });
   };
 
@@ -87,7 +93,7 @@ export default function GastosFijosScreen() {
           <View className="bg-white rounded-xl p-5 border border-[#E2E8F0] mb-6 shadow-sm">
             <Text className="text-lg font-bold text-[#0F172A] mb-4">Nueva Plantilla</Text>
             
-            <Text className="text-sm font-semibold text-[#64748B] mb-2">Descripción</Text>
+            <Text className="text-sm font-semibold text-[#64748B] mb-2">Descripción *</Text>
             <TextInput
               className="w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3 text-[#0F172A] mb-4"
               placeholder="Ej. Netflix, Arriendo, Sushi"
@@ -95,16 +101,16 @@ export default function GastosFijosScreen() {
               onChangeText={setDescription}
             />
 
-            <Text className="text-sm font-semibold text-[#64748B] mb-2">Monto Base</Text>
+            <Text className="text-sm font-semibold text-[#64748B] mb-2">Monto Base (Opcional)</Text>
             <TextInput
               className="w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3 text-[#0F172A] mb-4"
-              placeholder="$0"
+              placeholder="Opcional (Ej. Luz, Agua)"
               keyboardType="numeric"
-              value={baseAmount}
-              onChangeText={setBaseAmount}
+              value={baseAmount ? `$ ${baseAmount}` : ''}
+              onChangeText={(val) => setBaseAmount(formatAmountInput(val))}
             />
 
-            <Text className="text-sm font-semibold text-[#64748B] mb-2">Categoría</Text>
+            <Text className="text-sm font-semibold text-[#64748B] mb-2">Categoría *</Text>
             <Pressable 
               onPress={() => setShowCategoryPicker(!showCategoryPicker)}
               className="flex-row items-center justify-between w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3 mb-4"
@@ -133,12 +139,11 @@ export default function GastosFijosScreen() {
               </View>
             )}
 
-            <Text className="text-sm font-semibold text-[#64748B] mb-2">Tipo de Frecuencia</Text>
+            <Text className="text-sm font-semibold text-[#64748B] mb-2">Tipo de Frecuencia *</Text>
             <View className="flex-row flex-wrap gap-2 mb-6">
               {[
                 { id: 'OCCASIONAL', label: 'De vez en cuando' },
                 { id: 'DAILY', label: 'Diario' },
-                { id: 'WEEKLY', label: 'Semanal' },
                 { id: 'MONTHLY', label: 'Mensual' }
               ].map(freq => (
                 <Pressable
@@ -151,6 +156,64 @@ export default function GastosFijosScreen() {
               ))}
             </View>
 
+            {recurrence === 'MONTHLY' && (
+              <>
+                <Text className="text-sm font-semibold text-[#64748B] mb-2">Día del mes (1-31) *</Text>
+                <View className="w-full flex-row items-center justify-between rounded-3xl border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-4 mb-6">
+                  <Pressable
+                    onPress={() => setScheduledDay((p) => (p > 1 ? p - 1 : 31))}
+                    className="h-12 w-12 items-center justify-center rounded-full border border-[#E2E8F0] bg-white shadow-sm active:bg-gray-100"
+                  >
+                    <FontAwesome6 name="chevron-left" size={16} color="#0F172A" />
+                  </Pressable>
+
+                  <View className="flex-1 flex-row items-center justify-center">
+                    {[
+                      scheduledDay - 2 < 1 ? scheduledDay - 2 + 31 : scheduledDay - 2,
+                      scheduledDay - 1 < 1 ? scheduledDay - 1 + 31 : scheduledDay - 1,
+                      scheduledDay,
+                      scheduledDay + 1 > 31 ? scheduledDay + 1 - 31 : scheduledDay + 1,
+                      scheduledDay + 2 > 31 ? scheduledDay + 2 - 31 : scheduledDay + 2,
+                    ].map((day, i) => {
+                      const isCenter = i === 2;
+                      const isAdjacent = i === 1 || i === 3;
+                      return (
+                        <View
+                          key={`${day}-${i}`}
+                          className={`mx-1 items-center justify-center ${
+                            isCenter
+                              ? 'h-16 w-16 rounded-full bg-[#10B981] shadow-sm'
+                              : isAdjacent
+                                ? 'w-10'
+                                : 'w-8'
+                          }`}
+                        >
+                          <Text
+                            className={`font-bold ${
+                              isCenter
+                                ? 'text-xl text-white'
+                                : isAdjacent
+                                  ? 'text-lg text-[#94A3B8]'
+                                  : 'text-base text-[#CBD5E1]'
+                            }`}
+                          >
+                            {day}
+                          </Text>
+                        </View>
+                      );
+                    })}
+                  </View>
+
+                  <Pressable
+                    onPress={() => setScheduledDay((p) => (p < 31 ? p + 1 : 1))}
+                    className="h-12 w-12 items-center justify-center rounded-full border border-[#E2E8F0] bg-white shadow-sm active:bg-gray-100"
+                  >
+                    <FontAwesome6 name="chevron-right" size={16} color="#0F172A" />
+                  </Pressable>
+                </View>
+              </>
+            )}
+
             <View className="flex-row gap-3">
               <Pressable
                 onPress={() => setIsCreating(false)}
@@ -160,8 +223,8 @@ export default function GastosFijosScreen() {
               </Pressable>
               <Pressable
                 onPress={handleCreate}
-                disabled={createMutation.isPending || !description || !baseAmount}
-                className={`flex-1 py-3 rounded-xl items-center ${!description || !baseAmount ? 'bg-[#CBD5E1]' : 'bg-[#006c49]'}`}
+                disabled={createMutation.isPending || !description || (recurrence === 'MONTHLY' && (!scheduledDay || scheduledDay < 1 || scheduledDay > 31))}
+                className={`flex-1 py-3 rounded-xl items-center ${!description || (recurrence === 'MONTHLY' && (!scheduledDay || scheduledDay < 1 || scheduledDay > 31)) ? 'bg-[#CBD5E1]' : 'bg-[#006c49]'}`}
               >
                 <Text className="text-white font-bold">{createMutation.isPending ? 'Guardando...' : 'Guardar'}</Text>
               </Pressable>
@@ -197,13 +260,13 @@ export default function GastosFijosScreen() {
                     </View>
                     <View>
                       <Text className="font-bold text-[#0F172A] text-base">{expense.description}</Text>
-                      <Text className="text-sm font-semibold text-[#006c49]">
-                        ${Number(expense.baseAmount).toLocaleString('es-CL')}
+                      <Text className={`text-sm font-semibold ${expense.baseAmount ? 'text-[#006c49]' : 'text-[#64748B]'}`}>
+                        {expense.baseAmount ? `$${Number(expense.baseAmount).toLocaleString('es-CL')}` : 'Monto variable'}
                       </Text>
                       <Text className="text-xs text-[#64748B] mt-1">
                         {expense.recurrence === 'OCCASIONAL' ? 'De vez en cuando' : 
                          expense.recurrence === 'DAILY' ? 'Diario' : 
-                         expense.recurrence === 'WEEKLY' ? 'Semanal' : 'Mensual'}
+                         `Mensual${expense.scheduledDay ? ` (Día ${expense.scheduledDay})` : ''}`}
                       </Text>
                     </View>
                   </View>
