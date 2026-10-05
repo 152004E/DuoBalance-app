@@ -45,6 +45,7 @@ import {
 } from '@components/couple/couple-menu-sheet';
 import { InviteMemberSheet } from '@/components/couple/invite-member-sheet';
 import { AlertModal } from '@/components/ui/alert-modal';
+import { FixedExpensesExecutionSheet } from '@/components/expenses/fixed-expenses-execution-sheet';
 
 const MEMBER_LIMITS: Record<GroupType, number> = {
   PERSONAL: 1,
@@ -105,6 +106,7 @@ export default function CoupleDetail() {
     type: 'success' | 'error';
   } | null>(null);
   const lastActionRef = useRef<CoupleMenuAction | null>(null);
+  const [fixedExpensesVisible, setFixedExpensesVisible] = useState(false);
 
   const {
     pendingToConfirm,
@@ -573,6 +575,35 @@ export default function CoupleDetail() {
           </View>
         </View>
 
+        {/* Gastos Fijos / Plantillas Mini-Card */}
+        <View className="mt-4 px-5">
+          <View className="rounded-xl border border-[#E2E8F0] bg-white p-4 flex-row items-center justify-between shadow-sm">
+            <View className="flex-row items-center gap-3">
+              <View className="w-10 h-10 rounded-full bg-[#F8FAFC] items-center justify-center border border-[#E2E8F0]">
+                <FontAwesome6 name="bolt" size={14} color="#64748B" />
+              </View>
+              <View>
+                <Text className="font-bold text-[#0F172A]">Plantillas Rápidas</Text>
+                <Text className="text-xs text-[#64748B]">Pagos de 1 clic</Text>
+              </View>
+            </View>
+            <View className="flex-row gap-2">
+              <Pressable
+                onPress={() => router.push(`/grupos/${id}/gastos-fijos`)}
+                className="w-9 h-9 rounded-full bg-[#F8FAFC] items-center justify-center border border-[#E2E8F0]"
+              >
+                <FontAwesome6 name="plus" size={12} color="#0F172A" />
+              </Pressable>
+              <Pressable
+                onPress={() => setFixedExpensesVisible(true)}
+                className="px-4 h-9 rounded-full bg-[#0F172A] items-center justify-center"
+              >
+                <Text className="text-white text-xs font-bold">Usar</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+
         {/* Liquidaciones - Tarjeta con settlement de MESES ANTERIORES */}
         {groupType !== 'PERSONAL' && settlement && pastNetSettlement > 0 && (
           <View className="mt-4 px-5">
@@ -995,6 +1026,7 @@ export default function CoupleDetail() {
         buttonText="Entendido"
         onClose={() => setPaymentFeedback(null)}
       />
+      <FixedExpensesExecutionSheet visible={fixedExpensesVisible} onClose={() => setFixedExpensesVisible(false)} groupId={id} />
     </SafeAreaView>
   );
 }

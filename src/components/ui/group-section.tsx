@@ -15,6 +15,7 @@ interface GroupSectionProps {
   viewMode?: DashboardViewMode;
   onPress?: (group: GroupResponse) => void;
   onMenu?: (group: GroupResponse) => void;
+  onPressFixedExpenses?: (group: GroupResponse) => void;
   currentUserId?: string;
 }
 
@@ -27,6 +28,7 @@ export function GroupSection({
   viewMode = 'monthly',
   onPress,
   onMenu,
+  onPressFixedExpenses,
   currentUserId,
 }: GroupSectionProps) {
   if (groups.length === 0) return null;
@@ -54,6 +56,7 @@ export function GroupSection({
                   viewMode={viewMode}
                   onPress={() => onPress?.(group)}
                   onMenu={() => onMenu?.(group)}
+                  onPressFixedExpenses={() => onPressFixedExpenses?.(group)}
                   currentUserId={currentUserId}
                 />
               </View>
@@ -70,6 +73,7 @@ export function GroupSection({
                 viewMode={viewMode}
                 onPress={() => onPress?.(group)}
                 onMenu={() => onMenu?.(group)}
+                onPressFixedExpenses={() => onPressFixedExpenses?.(group)}
                 currentUserId={currentUserId}
               />
             ))}
@@ -86,6 +90,7 @@ export function GroupSection({
               viewMode={viewMode}
               onPress={() => onPress?.(group)}
               onMenu={() => onMenu?.(group)}
+              onPressFixedExpenses={() => onPressFixedExpenses?.(group)}
               currentUserId={currentUserId}
             />
           ))}

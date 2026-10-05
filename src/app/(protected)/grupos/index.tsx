@@ -27,6 +27,7 @@ import { useGroups } from '@/hooks/use-groups';
 import { useGroupSummaries } from '@/hooks/use-group-summaries';
 import { useWorkspace } from '@/hooks/use-workspace';
 import type { GroupResponse } from '@/types/api';
+import { FixedExpensesExecutionSheet } from '@/components/expenses/fixed-expenses-execution-sheet';
 
 export default function ParejaScreen() {
   const { user } = useAuth();
@@ -56,6 +57,7 @@ export default function ParejaScreen() {
   const [selectedGroup, setSelectedGroup] = useState<GroupResponse | null>(
     null,
   );
+  const [selectedGroupIdForTemplates, setSelectedGroupIdForTemplates] = useState<string | null>(null);
   const [inviteVisible, setInviteVisible] = useState(false);
   const [showJoinSheet, setShowJoinSheet] = useState(false);
   const [showComingSoon, setShowComingSoon] = useState(false);
@@ -233,6 +235,7 @@ export default function ParejaScreen() {
               summaries={summaries}
               showMenu
               onPress={(group) => router.push(`/grupos/${group.id}`)}
+              onPressFixedExpenses={(group) => setSelectedGroupIdForTemplates(group.id)}
               onMenu={(group) => {
                 setSelectedGroup(group);
                 setMenuVisible(true);
@@ -248,6 +251,7 @@ export default function ParejaScreen() {
               summaries={summaries}
               showMenu
               onPress={(group) => router.push(`/grupos/${group.id}`)}
+              onPressFixedExpenses={(group) => setSelectedGroupIdForTemplates(group.id)}
               onMenu={(group) => {
                 setSelectedGroup(group);
                 setMenuVisible(true);
@@ -263,6 +267,7 @@ export default function ParejaScreen() {
               summaries={summaries}
               showMenu
               onPress={(group) => router.push(`/grupos/${group.id}`)}
+              onPressFixedExpenses={(group) => setSelectedGroupIdForTemplates(group.id)}
               onMenu={(group) => {
                 setSelectedGroup(group);
                 setMenuVisible(true);
@@ -381,6 +386,14 @@ export default function ParejaScreen() {
         buttonText="Cerrar"
         onClose={() => setRegenerateError(null)}
       />
+
+      {selectedGroupIdForTemplates && (
+        <FixedExpensesExecutionSheet
+          groupId={selectedGroupIdForTemplates}
+          visible={!!selectedGroupIdForTemplates}
+          onClose={() => setSelectedGroupIdForTemplates(null)}
+        />
+      )}
     </SafeAreaView>
   );
 }

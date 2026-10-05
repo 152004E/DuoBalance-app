@@ -130,6 +130,9 @@ export interface GroupResponse {
   cutoffDay: number;
   createdAt: string;
   members: GroupMember[];
+  _count?: {
+    fixedExpenses: number;
+  };
 }
 
 export interface CreateGroupPayload {

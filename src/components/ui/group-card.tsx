@@ -24,6 +24,7 @@ interface GroupCardProps {
   viewMode?: DashboardViewMode;
   onPress?: () => void;
   onMenu?: () => void;
+  onPressFixedExpenses?: () => void;
   currentUserId?: string;
 }
 
@@ -34,6 +35,7 @@ export function GroupCard({
   viewMode = 'monthly',
   onPress,
   onMenu,
+  onPressFixedExpenses,
   currentUserId,
 }: GroupCardProps) {
   const total = summary?.total ?? 0;
@@ -105,18 +107,41 @@ export function GroupCard({
   const fmt = (value: number) =>
     `$${Math.round(value).toLocaleString('es-CL')}`;
 
+  const hasFixedExpenses = (group._count?.fixedExpenses ?? 0) > 0;
+
   return (
-    <Pressable
-      onPress={onPress}
-      className="w-full overflow-hidden rounded-xl border border-[#E2E8F0] bg-white shadow-sm active:opacity-80"
-      style={{
-        shadowColor: '#0F172A',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.04,
-        shadowRadius: 8,
-        elevation: 1,
-      }}
-    >
+    <View className="w-full relative">
+      {hasFixedExpenses && (
+        <Pressable
+          onPress={(e) => {
+            e.stopPropagation();
+            onPressFixedExpenses?.();
+          }}
+          className="absolute -right-2 -top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-[#10B981] border-2 border-[#F8FAFC]"
+          style={{
+            shadowColor: '#0F172A',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+          }}
+        >
+          <Text className="text-xs font-bold text-white">
+            {group._count?.fixedExpenses}
+          </Text>
+        </Pressable>
+      )}
+      <Pressable
+        onPress={onPress}
+        className="w-full overflow-hidden rounded-xl border border-[#E2E8F0] bg-white shadow-sm active:opacity-80"
+        style={{
+          shadowColor: '#0F172A',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.04,
+          shadowRadius: 8,
+          elevation: 1,
+        }}
+      >
       <View className="p-5">
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center gap-3">
@@ -221,5 +246,6 @@ export function GroupCard({
         </View>
       )}
     </Pressable>
+    </View>
   );
 }

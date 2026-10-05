@@ -641,7 +641,7 @@ Tareas identificadas en la sesión de pruebas con testers para implementar en pr
 2. **Selector de Calendario:** Implementar selector de fechas interactivo tipo calendario en `src/components/movements/create-expense-sheet.tsx` y persistir la fecha real seleccionada en el backend.
 3. ✅ **Campanita de Notificaciones:** Agregar icono de campana en el header (`HeroSection.tsx`) con badge numérico de pendientes (deudas por pagar, pagos por confirmar) y sheet de notificaciones.
 4. **Módulo de Ingresos / Ganancias (Income Tracking):** Crear modelo y endpoints de ingresos para permitir registrar salario/ganancias y calcular el saldo real disponible (`Ingresos - Gastos`).
-5. **Gastos Fijos y Programados:** Botón "Programar gasto" y soporte para deudas fijas / gastos recurrentes mensuales que se descuenten automáticamente de las ganancias proyectadas.
+5. ✅ **Gastos Fijos y Programados:** Botón "Plantillas Rápidas" y soporte para deudas fijas mensuales ejecutables manualmente, integradas al Dashboard.
 6. ✅ **Ajuste Global de Alturas de Modales:** (Resuelto globalmente con auto-sizing) Corregir `heightRatio={0.1}` en `src/app/(protected)/grupos/index.tsx` para que el menú de agregar grupo no se corte.
 7. ✅ **Botón directo de WhatsApp:** Agregar acción directa para compartir invitación a través de la API de WhatsApp.
 8. ✅ **Persistencia de estado en Modales:** (Resuelto con Toast interactivo) Evitar que se pierda la información digitada (como montos, descripciones, nombres) si el usuario cierra un modal (Bottom Sheet) por accidente deslizando hacia abajo.
