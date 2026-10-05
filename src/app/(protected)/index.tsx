@@ -38,6 +38,7 @@ import { MonthlyResetModal } from '@/components/dashboard/monthly-reset-modal';
 import { BudgetWidget } from '@/components/budget/budget-widget';
 import { SetBudgetSheet } from '@/components/budget/set-budget-sheet';
 import Toast from 'react-native-toast-message';
+import { FixedExpensesExecutionSheet } from '@/components/expenses/fixed-expenses-execution-sheet';
 
 const fmt = (value: number) => `$${Math.round(value).toLocaleString('es-CL')}`;
 
@@ -114,6 +115,7 @@ export default function DashboardScreen() {
   const [showCreateGroupSheet, setShowCreateGroupSheet] = useState(false);
   const [showJoinSheet, setShowJoinSheet] = useState(false);
   const [showBudgetSheet, setShowBudgetSheet] = useState(false);
+  const [selectedGroupIdForTemplates, setSelectedGroupIdForTemplates] = useState<string | null>(null);
   const [isJoining, setIsJoining] = useState(false);
   const [destSelectorVisible, setDestSelectorVisible] = useState(false);
   const [creatingExpenseGroup, setCreatingExpenseGroup] = useState<{
@@ -261,6 +263,7 @@ export default function DashboardScreen() {
               viewMode={viewMode}
               horizontal
               onPress={(group) => router.push(`/grupos/${group.id}`)}
+              onPressFixedExpenses={(group) => setSelectedGroupIdForTemplates(group.id)}
               currentUserId={user?.id}
             />
           )}
@@ -273,6 +276,7 @@ export default function DashboardScreen() {
               viewMode={viewMode}
               horizontal
               onPress={(group) => router.push(`/grupos/${group.id}`)}
+              onPressFixedExpenses={(group) => setSelectedGroupIdForTemplates(group.id)}
               currentUserId={user?.id}
             />
           )}
@@ -285,6 +289,7 @@ export default function DashboardScreen() {
               viewMode={viewMode}
               horizontal
               onPress={(group) => router.push(`/grupos/${group.id}`)}
+              onPressFixedExpenses={(group) => setSelectedGroupIdForTemplates(group.id)}
               currentUserId={user?.id}
             />
           )}
@@ -444,6 +449,14 @@ export default function DashboardScreen() {
       />
 
       <WelcomeModal />
+
+      {selectedGroupIdForTemplates && (
+        <FixedExpensesExecutionSheet
+          groupId={selectedGroupIdForTemplates}
+          visible={!!selectedGroupIdForTemplates}
+          onClose={() => setSelectedGroupIdForTemplates(null)}
+        />
+      )}
     </SafeAreaView>
   );
 }

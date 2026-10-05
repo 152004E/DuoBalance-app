@@ -3,8 +3,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useRef } from 'react';
 import { api } from '@/services/api/client';
-import { useState } from 'react';
 import { getCategoryMeta, CATEGORIES } from '@/constants/categories';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { AlertModal } from '@/components/ui/alert-modal';
@@ -22,7 +22,9 @@ interface FixedExpense {
 export default function GastosFijosScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const queryClient = useQueryClient();
+  const scrollViewRef = useRef<ScrollView>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<FixedExpense | null>(null);
   
   // Form State
   const [description, setDescription] = useState('');
@@ -32,6 +34,17 @@ export default function GastosFijosScreen() {
   const [scheduledDay, setScheduledDay] = useState<number>(1);
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   
+  const resetForm = () => {
+    setIsCreating(false);
+    setEditingExpense(null);
+    setDescription('');
+    setBaseAmount('');
+    setCategory('OTHER');
+    setRecurrence('OCCASIONAL');
+    setScheduledDay(1);
+    setShowCategoryPicker(false);
+  };
+
   // Delete State
   const [expenseToDelete, setExpenseToDelete] = useState<string | null>(null);
 
@@ -49,10 +62,17 @@ export default function GastosFijosScreen() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fixed-expenses', id] });
-      setIsCreating(false);
-      setDescription('');
-      setBaseAmount('');
-      setScheduledDay(1);
+      resetForm();
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ expenseId, payload }: { expenseId: string; payload: any }) => {
+      await api.patch(`/fixed-expenses/${expenseId}`, payload);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['fixed-expenses', id] });
+      resetForm();
     },
   });
 
@@ -66,16 +86,34 @@ export default function GastosFijosScreen() {
     },
   });
 
-  const handleCreate = () => {
+  const handleSave = () => {
     if (!description) return;
     if (recurrence === 'MONTHLY' && (!scheduledDay || scheduledDay < 1 || scheduledDay > 31)) return;
-    createMutation.mutate({
+    
+    const payload = {
       description,
       baseAmount: baseAmount ? parseAmount(baseAmount) : null,
       category,
       recurrence,
       scheduledDay: recurrence === 'MONTHLY' ? scheduledDay : null,
-    });
+    };
+
+    if (editingExpense) {
+      updateMutation.mutate({ expenseId: editingExpense.id, payload });
+    } else {
+      createMutation.mutate(payload);
+    }
+  };
+
+  const handleEditPress = (expense: FixedExpense) => {
+    setDescription(expense.description);
+    setBaseAmount(expense.baseAmount ? expense.baseAmount.toString() : '');
+    setCategory(expense.category);
+    setRecurrence(expense.recurrence);
+    setScheduledDay(expense.scheduledDay ?? 1);
+    setEditingExpense(expense);
+    setIsCreating(false);
+    scrollViewRef.current?.scrollTo({ y: 0, animated: true });
   };
 
   return (
@@ -88,10 +126,12 @@ export default function GastosFijosScreen() {
         />
       </View>
 
-      <ScrollView className="flex-1 px-5" contentContainerClassName="pb-20 pt-4">
-        {isCreating ? (
+      <ScrollView ref={scrollViewRef} className="flex-1 px-5" contentContainerClassName="pb-20 pt-4">
+        {isCreating || editingExpense ? (
           <View className="bg-white rounded-xl p-5 border border-[#E2E8F0] mb-6 shadow-sm">
-            <Text className="text-lg font-bold text-[#0F172A] mb-4">Nueva Plantilla</Text>
+            <Text className="text-lg font-bold text-[#0F172A] mb-4">
+              {editingExpense ? 'Editar Plantilla' : 'Nueva Plantilla'}
+            </Text>
             
             <Text className="text-sm font-semibold text-[#64748B] mb-2">Descripción *</Text>
             <TextInput
@@ -216,23 +256,26 @@ export default function GastosFijosScreen() {
 
             <View className="flex-row gap-3">
               <Pressable
-                onPress={() => setIsCreating(false)}
+                onPress={resetForm}
                 className="flex-1 py-3 rounded-xl bg-[#F1F5F9] items-center"
               >
                 <Text className="text-[#64748B] font-bold">Cancelar</Text>
               </Pressable>
               <Pressable
-                onPress={handleCreate}
-                disabled={createMutation.isPending || !description || (recurrence === 'MONTHLY' && (!scheduledDay || scheduledDay < 1 || scheduledDay > 31))}
+                onPress={handleSave}
+                disabled={createMutation.isPending || updateMutation.isPending || !description || (recurrence === 'MONTHLY' && (!scheduledDay || scheduledDay < 1 || scheduledDay > 31))}
                 className={`flex-1 py-3 rounded-xl items-center ${!description || (recurrence === 'MONTHLY' && (!scheduledDay || scheduledDay < 1 || scheduledDay > 31)) ? 'bg-[#CBD5E1]' : 'bg-[#006c49]'}`}
               >
-                <Text className="text-white font-bold">{createMutation.isPending ? 'Guardando...' : 'Guardar'}</Text>
+                <Text className="text-white font-bold">{(createMutation.isPending || updateMutation.isPending) ? 'Guardando...' : 'Guardar'}</Text>
               </Pressable>
             </View>
           </View>
         ) : (
           <Pressable
-            onPress={() => setIsCreating(true)}
+            onPress={() => {
+              resetForm();
+              setIsCreating(true);
+            }}
             className="flex-row items-center justify-center gap-2 bg-[#F1F5F9] border border-[#E2E8F0] border-dashed rounded-xl p-5 mb-6 active:bg-[#E2E8F0]"
           >
             <FontAwesome6 name="plus" size={16} color="#64748B" />
@@ -271,12 +314,20 @@ export default function GastosFijosScreen() {
                     </View>
                   </View>
                   
-                  <Pressable 
-                    onPress={() => setExpenseToDelete(expense.id)}
-                    className="p-3 w-10 h-10 rounded-full bg-[#FEF2F2] items-center justify-center"
-                  >
-                    <FontAwesome6 name="trash-can" size={14} color="#EF4444" />
-                  </Pressable>
+                  <View className="flex-row gap-2">
+                    <Pressable 
+                      onPress={() => handleEditPress(expense)}
+                      className="p-3 w-10 h-10 rounded-full bg-[#EFF6FF] items-center justify-center"
+                    >
+                      <FontAwesome6 name="pen" size={14} color="#3B82F6" />
+                    </Pressable>
+                    <Pressable 
+                      onPress={() => setExpenseToDelete(expense.id)}
+                      className="p-3 w-10 h-10 rounded-full bg-[#FEF2F2] items-center justify-center"
+                    >
+                      <FontAwesome6 name="trash-can" size={14} color="#EF4444" />
+                    </Pressable>
+                  </View>
                 </View>
               );
             })}
